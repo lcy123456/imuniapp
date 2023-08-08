@@ -19,10 +19,11 @@ module.exports = (vm) => {
       if (config.custom.isPgyerApi) {
         config.baseURL = "https://www.pgyer.com";
       }
-	  config.header = {
-		  ...config.header,
-		  operationID: uuidV4()
-	  }
+      config.header = {
+        ...config.header,
+        operationID: uuidV4()
+      }
+      console.log('http request：', config)
       // 可以在此通过vm引用vuex中的变量，具体值在vm.$store.state中
       return config;
     },

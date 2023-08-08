@@ -21,6 +21,8 @@ export default {
   },
   computed: {
     getContent() {
+      // TODO：解密文本
+      // console.log('getContent', this.message.textElem)
       if (this.message.contentType === MessageType.QuoteMessage) {
         return parseEmoji(this.message.quoteElem.text);
       }

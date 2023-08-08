@@ -79,7 +79,7 @@
     </view>
 
     <view class="action_bar">
-      <text @click="toRegisterOrForget(true)">手机号注册</text>
+      <text @click="toRegisterOrForget">手机号注册</text>
     </view>
   </view>
 </template>
@@ -225,6 +225,9 @@ export default {
     },
     chooseArea(areaCode) {
       this.loginInfo.areaCode = areaCode;
+    },
+    toRegisterOrForget() {
+      uni.$u.route("/pages/login/registerOrForget/index");
     },
   },
 };

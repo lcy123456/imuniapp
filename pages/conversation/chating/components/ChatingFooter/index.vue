@@ -171,6 +171,7 @@ export default {
     async createTextMessage() {
       let message = "";
       const { text } = formatInputHtml(this.inputHtml);
+      // TODO：加密文本
       message = await IMSDK.asyncApi(
         IMMethods.CreateTextMessage,
         IMSDK.uuid(),
