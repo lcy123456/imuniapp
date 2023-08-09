@@ -1,3 +1,3 @@
-export * from './im'
-export * from './comp'
-export * from './event'
+export * from './im';
+export * from './comp';
+export * from './event';

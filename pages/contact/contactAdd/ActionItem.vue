@@ -1,36 +1,46 @@
 <template>
-	<view class="action_item" @click="onClick">
-		<slot name="icon">
-			<view class="action_icon">
-				<image :src="action.icon" mode=""></image>
-			</view>
-		</slot>
+    <view
+        class="action_item"
+        @click="onClick"
+    >
+        <slot name="icon">
+            <view class="action_icon">
+                <image
+                    :src="action.icon"
+                    mode=""
+                />
+            </view>
+        </slot>
 
-		<view class="action_details">
-			<text class="title">{{action.title}}</text>
-			<text class="desc">{{action.desc}}</text>
-			<view class="bottom_line"></view>
-		</view>
-	</view>
+        <view class="action_details">
+            <text class="title">
+                {{ action.title }}
+            </text>
+            <text class="desc">
+                {{ action.desc }}
+            </text>
+            <view class="bottom_line" />
+        </view>
+    </view>
 </template>
 
 <script>
-	export default {
-		name: "",
-		props: {
-			action: Object
-		},
-		data() {
-			return {
+export default {
+    name: "",
+    props: {
+        action: Object
+    },
+    data () {
+        return {
 
-			};
-		},
-		methods: {
-			onClick(){
-				this.$emit('click',this.action)
-			}
-		}
-	}
+        };
+    },
+    methods: {
+        onClick () {
+            this.$emit('click', this.action);
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

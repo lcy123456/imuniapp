@@ -1,44 +1,57 @@
 <template>
-	<view @click="clickItem" class="info_item">
-		<view class="left_label">
-			<text>{{title}}</text>
-		</view>
-		<view class="right_value">
-			<slot name="value">
-				<text class="content">{{content}}</text>
-			</slot>
-			<u-icon v-if="showArrow" name="arrow-right" size="16" color="#999"></u-icon>
-		</view>
-		<u-loading-icon v-show="loading" class="loading_icon"></u-loading-icon>
-	</view>
+    <view
+        class="info_item"
+        @click="clickItem"
+    >
+        <view class="left_label">
+            <text>{{ title }}</text>
+        </view>
+        <view class="right_value">
+            <slot name="value">
+                <text class="content">
+                    {{ content }}
+                </text>
+            </slot>
+            <u-icon
+                v-if="showArrow"
+                name="arrow-right"
+                size="16"
+                color="#999"
+            />
+        </view>
+        <u-loading-icon
+            v-show="loading"
+            class="loading_icon"
+        />
+    </view>
 </template>
 
 <script>
-	export default {
-		name:"",
-		props:{
-			title: String,
-			content: String,
-			showArrow: {
-				type: Boolean,
-				default: true,
-			},
-			loading: {
-				type: Boolean,
-				default: false,
-			}
-		},
-		data() {
-			return {
+export default {
+    name: "",
+    props: {
+        title: String,
+        content: String,
+        showArrow: {
+            type: Boolean,
+            default: true,
+        },
+        loading: {
+            type: Boolean,
+            default: false,
+        }
+    },
+    data () {
+        return {
 				
-			};
-		},
-		methods:{
-			clickItem(){
-				this.$emit('click')
-			}
-		}
-	}
+        };
+    },
+    methods: {
+        clickItem () {
+            this.$emit('click');
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

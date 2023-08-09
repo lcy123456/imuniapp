@@ -1,138 +1,160 @@
 <template>
-	<view class="chat_header">
-		<view class="self_info">
-			<my-avatar :src="storeSelfInfo.faceURL" :desc="storeSelfInfo.nickname" size="48" />
-			<view class="self_info_desc">
-				<!-- <text class="company">托云信息技术</text> -->
-				<view class="user_state">
-					<text class="nickname">{{storeSelfInfo.nickname}}</text>
-					<view class="online_state">
-						<view class="dot">
-						</view>
-						<text>手机在线</text>
-					</view>
-				</view>
-			</view>
-		</view>
-		<view class="right_action">
-			<view class="call_icon">
-				<!-- <image src="@/static/images/common_call.png" ></image> -->
-			</view>
-			<view @click="showMore" class="more_icon">
-				<image src="@/static/images/common_circle_add.png" ></image>
-			</view>
-			<u-overlay :show="moreMenuVisible" @click="moreMenuVisible = false" opacity="0">
-				<!-- <u-transition duration="0" :show="moreMenuVisible"> -->
-				<view :style="{top:popMenuPosition.top,right:popMenuPosition.right}" class="more_menu">
-					<view @click="clickMenu(item)" v-for="item in moreMenus" :key="item.idx" class="menu_item">
-						<image :src="item.icon" mode=""></image>
-						<text>{{item.title}}</text>
-					</view>
-				</view>
-				<!-- </u-transition> -->
-				<!-- <view class="warp">
+    <view class="chat_header">
+        <view class="self_info">
+            <my-avatar
+                :src="storeSelfInfo.faceURL"
+                :desc="storeSelfInfo.nickname"
+                size="48"
+            />
+            <view class="self_info_desc">
+                <!-- <text class="company">托云信息技术</text> -->
+                <view class="user_state">
+                    <text class="nickname">
+                        {{ storeSelfInfo.nickname }}
+                    </text>
+                    <view class="online_state">
+                        <view class="dot" />
+                        <text>手机在线</text>
+                    </view>
+                </view>
+            </view>
+        </view>
+        <view class="right_action">
+            <view class="call_icon">
+                <!-- <image src="@/static/images/common_call.png" ></image> -->
+            </view>
+            <view
+                class="more_icon"
+                @click="showMore"
+            >
+                <image src="@/static/images/common_circle_add.png" />
+            </view>
+            <u-overlay
+                :show="moreMenuVisible"
+                opacity="0"
+                @click="moreMenuVisible = false"
+            >
+                <!-- <u-transition duration="0" :show="moreMenuVisible"> -->
+                <view
+                    :style="{top:popMenuPosition.top,right:popMenuPosition.right}"
+                    class="more_menu"
+                >
+                    <view
+                        v-for="item in moreMenus"
+                        :key="item.idx"
+                        class="menu_item"
+                        @click="clickMenu(item)"
+                    >
+                        <image
+                            :src="item.icon"
+                            mode=""
+                        />
+                        <text>{{ item.title }}</text>
+                    </view>
+                </view>
+                <!-- </u-transition> -->
+                <!-- <view class="warp">
 						<view class="rect" @tap.stop></view>
 					</view> -->
-			</u-overlay>
-
-		</view>
-	</view>
+            </u-overlay>
+        </view>
+    </view>
 </template>
 
 <script>
-	import {
-		mapGetters
-	} from 'vuex'
-	import MyAvatar from '@/components/MyAvatar/index.vue'
-	import {
-		scanQrCodeResult
-	} from '@/util/imCommon';
-	export default {
-		name: 'ChatHeader',
-		components: {
-			MyAvatar
-		},
-		data() {
-			return {
-				moreMenuVisible: false,
-				popMenuPosition: {
-					top: 0,
-					right: 0
-				},
-				moreMenus: [{
-						idx: 0,
-						title: '扫一扫',
-						icon: require("static/images/more_qr.png")
-					},
-					{
-						idx: 1,
-						title: '添加好友',
-						icon: require("static/images/more_add_friend.png")
-					},
-					{
-						idx: 2,
-						title: '添加群聊',
-						icon: require("static/images/more_add_group.png")
-					},
-					{
-						idx: 3,
-						title: '创建群聊',
-						icon: require("static/images/more_create_group.png")
-					},
-				]
-			};
-		},
-		computed: {
-			...mapGetters(['storeSelfInfo'])
-		},
-		methods: {
-			clickMenu({
-				idx
-			}) {
-				switch (idx) {
-					case 0:
-						uni.scanCode({
-							scanType: ['qrCode'],
-							success: ({
-								result
-							}) => scanQrCodeResult(result)
-						})
-						break;
-					case 1:
-					case 2:
-						uni.navigateTo({
-							url: `/pages/common/searchUserOrGroup/index?isSearchGroup=${idx === 2}`
-						})
-						break;
-					case 3:
-						uni.navigateTo({
-							url: `/pages/common/createGroup/index`
-						})
-						break;
-					default:
-						break;
-				}
-			},
-			async showMore() {
-				const {
-					right,
-					bottom
-				} = await this.getEl('.more_icon')
-				this.popMenuPosition.right = (uni.getWindowInfo().windowWidth - right) + 'px';
-				this.popMenuPosition.top = bottom + 'px'
-				this.moreMenuVisible = true
-			},
-			getEl(el) {
-				return new Promise((resolve) => {
-					const query = uni.createSelectorQuery().in(this)
-					query.select(el).boundingClientRect(data => {
-						// 存在data，且存在宽和高，视为渲染完毕
-						resolve(data)
-					}).exec();
-				})
-			},
-		}
-	}
+import {
+    mapGetters
+} from 'vuex';
+import MyAvatar from '@/components/MyAvatar/index.vue';
+import {
+    scanQrCodeResult
+} from '@/util/imCommon';
+export default {
+    name: 'ChatHeader',
+    components: {
+        MyAvatar
+    },
+    data () {
+        return {
+            moreMenuVisible: false,
+            popMenuPosition: {
+                top: 0,
+                right: 0
+            },
+            moreMenus: [{
+                idx: 0,
+                title: '扫一扫',
+                icon: require("static/images/more_qr.png")
+            },
+            {
+                idx: 1,
+                title: '添加好友',
+                icon: require("static/images/more_add_friend.png")
+            },
+            {
+                idx: 2,
+                title: '添加群聊',
+                icon: require("static/images/more_add_group.png")
+            },
+            {
+                idx: 3,
+                title: '创建群聊',
+                icon: require("static/images/more_create_group.png")
+            },
+            ]
+        };
+    },
+    computed: {
+        ...mapGetters(['storeSelfInfo'])
+    },
+    methods: {
+        clickMenu ({
+            idx
+        }) {
+            switch (idx) {
+            case 0:
+                uni.scanCode({
+                    scanType: ['qrCode'],
+                    success: ({
+                        result
+                    }) => scanQrCodeResult(result)
+                });
+                break;
+            case 1:
+            case 2:
+                uni.navigateTo({
+                    url: `/pages/common/searchUserOrGroup/index?isSearchGroup=${idx === 2}`
+                });
+                break;
+            case 3:
+                uni.navigateTo({
+                    url: `/pages/common/createGroup/index`
+                });
+                break;
+            default:
+                break;
+            }
+        },
+        async showMore () {
+            const {
+                right,
+                bottom
+            } = await this.getEl('.more_icon');
+            this.popMenuPosition.right = (uni.getWindowInfo().windowWidth - right) + 'px';
+            this.popMenuPosition.top = bottom + 'px';
+            this.moreMenuVisible = true;
+        },
+        getEl (el) {
+            return new Promise((resolve) => {
+                const query = uni.createSelectorQuery().in(this);
+                query.select(el).boundingClientRect(data => {
+                    // 存在data，且存在宽和高，视为渲染完毕
+                    resolve(data);
+                }).exec();
+            });
+        },
+    }
+};
 </script>
 
 <style lang="scss" scoped>

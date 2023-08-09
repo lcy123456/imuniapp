@@ -1,9 +1,16 @@
 {
+  "scripts": {
+    "lint:fix": "eslint --ext .js,.vue . --fix"
+  },
   "dependencies": {
     "dayjs": "^1.11.6",
     "image-tools": "^1.4.0",
     "md5": "^2.3.0",
     "openim-uniapp-polyfill": "^1.0.3",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.46.0",
+    "eslint-plugin-vue": "^9.17.0"
   }
 }

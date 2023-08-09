@@ -1,69 +1,85 @@
 <template>
-  <view class="user_card_container">
-    <custom-nav-bar title="" />
+    <view class="user_card_container">
+        <custom-nav-bar title="" />
 
-    <view class="base_info">
-      <my-avatar
-        :desc="sourceUserInfo.remark || sourceUserInfo.nickname"
-        :src="sourceUserInfo.faceURL"
-        size="48"
-      />
-      <view>
-        <view class="user_name">
-          <text class="text">{{ getShowName }}</text>
-          <view class="online_state">
-            <view
-              class="dot"
-              :style="{ backgroundColor: isOnline ? '#10CC64' : '#999' }"
-            >
+        <view class="base_info">
+            <my-avatar
+                :desc="sourceUserInfo.remark || sourceUserInfo.nickname"
+                :src="sourceUserInfo.faceURL"
+                size="48"
+            />
+            <view>
+                <view class="user_name">
+                    <text class="text">
+                        {{ getShowName }}
+                    </text>
+                    <view class="online_state">
+                        <view
+                            class="dot"
+                            :style="{ backgroundColor: isOnline ? '#10CC64' : '#999' }"
+                        />
+                        <view class="online_str">
+                            {{ onlineStr }}
+                        </view>
+                    </view>
+                </view>
             </view>
-            <view class="online_str">{{ onlineStr }}</view>
-          </view>
         </view>
-      </view>
-    </view>
 
-    <view class="info_row">
-      <user-info-row-item
-        lable="ID号"
-        :content="sourceUserInfo.userID"
-      />
-    </view>
+        <view class="info_row">
+            <user-info-row-item
+                lable="ID号"
+                :content="sourceUserInfo.userID"
+            />
+        </view>
 
-    <view v-if="isFriend" class="info_row">
-      <user-info-row-item @click="toMoreInfo" lable="个人资料" arrow />
-    </view>
+        <view
+            v-if="isFriend"
+            class="info_row"
+        >
+            <user-info-row-item
+                lable="个人资料"
+                arrow
+                @click="toMoreInfo"
+            />
+        </view>
 
-    <view class="action_row">
-      <view
-        v-if="showSendMessage"
-        @click="toDesignatedConversation"
-        class="action_item"
-      >
-        <img src="static/images/user_card_message.png" alt="" />
-        <text>发消息</text>
-      </view>
-      <view
-        @click="toAddFriend"
-        v-if="!isFriend"
-        class="action_item"
-      >
-        <img src="static/images/user_card_add.png" alt="" />
-        <text>添加好友</text>
-      </view>
+        <view class="action_row">
+            <view
+                v-if="showSendMessage"
+                class="action_item"
+                @click="toDesignatedConversation"
+            >
+                <img
+                    src="static/images/user_card_message.png"
+                    alt=""
+                >
+                <text>发消息</text>
+            </view>
+            <view
+                v-if="!isFriend"
+                class="action_item"
+                @click="toAddFriend"
+            >
+                <img
+                    src="static/images/user_card_add.png"
+                    alt=""
+                >
+                <text>添加好友</text>
+            </view>
+        </view>
     </view>
-  </view>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 import { CommonIsAllow } from "@/constant";
 import {
-  getDesignatedUserOnlineState,
-  navigateToDesignatedConversation,
+    getDesignatedUserOnlineState,
+    navigateToDesignatedConversation,
 } from "@/util/imCommon";
 import IMSDK, {
-  SessionType,
+    SessionType,
 } from "openim-uniapp-polyfill";
 import MyAvatar from "@/components/MyAvatar/index.vue";
 import CustomNavBar from "@/components/CustomNavBar/index.vue";
@@ -71,138 +87,138 @@ import UserInfoRowItem from "./components/UserInfoRowItem.vue";
 import { businessSearchUserInfo } from "@/api/login";
 
 export default {
-  components: {
-    CustomNavBar,
-    MyAvatar,
-    UserInfoRowItem,
-  },
-  data() {
-    return {
-      sourceID: "",
-      sourceUserInfo: {},
-      onlineStr: "离线",
-      isOnline: false,
-    };
-  },
-  computed: {
-    ...mapGetters([
-      "storeFriendList",
-      "storeCurrentMemberInGroup",
-      "storeCurrentUserID",
-      "storeAppConfig",
-    ]),
-    isFriend() {
-      return (
-        this.storeFriendList.findIndex(
-          (friend) => friend.userID === this.sourceID
-        ) !== -1
-      );
+    components: {
+        CustomNavBar,
+        MyAvatar,
+        UserInfoRowItem,
     },
-    getShowName() {
-      let suffix = "";
-      if (this.sourceUserInfo.remark) {
-        suffix = `(${this.sourceUserInfo.remark})`;
-      }
-      return this.sourceUserInfo.nickname + suffix;
-    },
-    showSendMessage() {
-      const businessAllow =
-        this.storeAppConfig.allowSendMsgNotFriend === CommonIsAllow.Allow;
-      return businessAllow ? businessAllow : this.isFriend;
-    },
-  },
-  onLoad(options) {
-    const { sourceID, sourceInfo } = options;
-    if (sourceID) {
-      this.sourceID = sourceID;
-      this.getSourceUserInfo();
-    } else {
-      const info = JSON.parse(sourceInfo);
-      this.sourceID = info.userID;
-      this.sourceUserInfo = {
-        ...info,
-      };
-    }
-    this.getOnlineState();
-    this.setIMListener();
-  },
-  onUnload() {
-    this.disposeIMListener();
-  },
-  methods: {
-    async getSourceUserInfo() {
-      try {
-        let info = null;
-          const { total, users } = await businessSearchUserInfo(this.sourceID);
-          if (total > 0) {
-            const { data } = await IMSDK.asyncApi(
-              IMSDK.IMMethods.GetUsersInfo,
-              IMSDK.uuid(),
-              [this.sourceID]
-            );
-            const imData = data[0]?.friendInfo ?? data[0]?.publicInfo ?? {};
-            info = {
-              ...imData,
-              ...users[0],
-            };
-          }
-          this.sourceUserInfo = {
-            ...info,
-          };
-        } catch (e) {
-          uni.$u.toast("获取用户信息失败");
-        }
-    },
-    async getOnlineState() {
-      getDesignatedUserOnlineState(this.sourceID)
-        .then((str) => {
-          this.isOnline = str !== "离线";
-          this.onlineStr = str;
-        })
-        .catch(() => (this.isOnline = false));
-    },
-    toAddFriend() {
-      uni.$u.route("/pages/common/sendAddRequest/index", {
-        isGroup: false,
-        sourceID: this.sourceID,
-        isScan: false,
-        notNeedVerification: false,
-      });
-    },
-    toDesignatedConversation() {
-      navigateToDesignatedConversation(
-        this.sourceID,
-        SessionType.Single,
-      ).catch(() => uni.$u.toast("获取会话信息失败"));
-    },
-    toMoreInfo() {
-      uni.navigateTo({
-        url: `/pages/common/userCardMore/index?sourceInfo=${JSON.stringify(
-          this.sourceUserInfo
-        )}`,
-      });
-    },
-    friendInfoChangeHandler({ data }) {
-      if (data.userID === this.sourceUserInfo.userID) {
-        this.sourceUserInfo = {
-          ...this.sourceUserInfo,
-          ...data,
+    data () {
+        return {
+            sourceID: "",
+            sourceUserInfo: {},
+            onlineStr: "离线",
+            isOnline: false,
         };
-      }
     },
-    setIMListener() {
-      IMSDK.subscribe(
-        IMSDK.IMEvents.OnFriendInfoChanged,
-        this.friendInfoChangeHandler
-      );
+    computed: {
+        ...mapGetters([
+            "storeFriendList",
+            "storeCurrentMemberInGroup",
+            "storeCurrentUserID",
+            "storeAppConfig",
+        ]),
+        isFriend () {
+            return (
+                this.storeFriendList.findIndex(
+                    (friend) => friend.userID === this.sourceID
+                ) !== -1
+            );
+        },
+        getShowName () {
+            let suffix = "";
+            if (this.sourceUserInfo.remark) {
+                suffix = `(${this.sourceUserInfo.remark})`;
+            }
+            return this.sourceUserInfo.nickname + suffix;
+        },
+        showSendMessage () {
+            const businessAllow =
+        this.storeAppConfig.allowSendMsgNotFriend === CommonIsAllow.Allow;
+            return businessAllow ? businessAllow : this.isFriend;
+        },
     },
-    disposeIMListener() {
-      IMSDK.unsubscribe(
-        IMSDK.IMEvents.OnFriendInfoChanged,
-        this.friendInfoChangeHandler
-      );
+    onLoad (options) {
+        const { sourceID, sourceInfo } = options;
+        if (sourceID) {
+            this.sourceID = sourceID;
+            this.getSourceUserInfo();
+        } else {
+            const info = JSON.parse(sourceInfo);
+            this.sourceID = info.userID;
+            this.sourceUserInfo = {
+                ...info,
+            };
+        }
+        this.getOnlineState();
+        this.setIMListener();
     },
-  },
+    onUnload () {
+        this.disposeIMListener();
+    },
+    methods: {
+        async getSourceUserInfo () {
+            try {
+                let info = null;
+                const { total, users } = await businessSearchUserInfo(this.sourceID);
+                if (total > 0) {
+                    const { data } = await IMSDK.asyncApi(
+                        IMSDK.IMMethods.GetUsersInfo,
+                        IMSDK.uuid(),
+                        [this.sourceID]
+                    );
+                    const imData = data[0]?.friendInfo ?? data[0]?.publicInfo ?? {};
+                    info = {
+                        ...imData,
+                        ...users[0],
+                    };
+                }
+                this.sourceUserInfo = {
+                    ...info,
+                };
+            } catch (e) {
+                uni.$u.toast("获取用户信息失败");
+            }
+        },
+        async getOnlineState () {
+            getDesignatedUserOnlineState(this.sourceID)
+                .then((str) => {
+                    this.isOnline = str !== "离线";
+                    this.onlineStr = str;
+                })
+                .catch(() => (this.isOnline = false));
+        },
+        toAddFriend () {
+            uni.$u.route("/pages/common/sendAddRequest/index", {
+                isGroup: false,
+                sourceID: this.sourceID,
+                isScan: false,
+                notNeedVerification: false,
+            });
+        },
+        toDesignatedConversation () {
+            navigateToDesignatedConversation(
+                this.sourceID,
+                SessionType.Single,
+            ).catch(() => uni.$u.toast("获取会话信息失败"));
+        },
+        toMoreInfo () {
+            uni.navigateTo({
+                url: `/pages/common/userCardMore/index?sourceInfo=${JSON.stringify(
+                    this.sourceUserInfo
+                )}`,
+            });
+        },
+        friendInfoChangeHandler ({ data }) {
+            if (data.userID === this.sourceUserInfo.userID) {
+                this.sourceUserInfo = {
+                    ...this.sourceUserInfo,
+                    ...data,
+                };
+            }
+        },
+        setIMListener () {
+            IMSDK.subscribe(
+                IMSDK.IMEvents.OnFriendInfoChanged,
+                this.friendInfoChangeHandler
+            );
+        },
+        disposeIMListener () {
+            IMSDK.unsubscribe(
+                IMSDK.IMEvents.OnFriendInfoChanged,
+                this.friendInfoChangeHandler
+            );
+        },
+    },
 };
 </script>
 

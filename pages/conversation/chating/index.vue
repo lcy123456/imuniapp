@@ -1,19 +1,25 @@
 <template>
-  <view :style="{ backgroundColor: '#f8f8f8' }" class="chating_container">
-    <chating-header @click="pageClick" ref="chatingHeaderRef" />
-    <chating-list
-      @click="pageClick"
-      ref="chatingListRef"
-      @initSuccess="initSuccess"
-      :menuOutsideFlag="menuOutsideFlag"
-    />
-    <chating-footer
-      ref="chatingFooterRef"
-      :footerOutsideFlag="footerOutsideFlag"
-      @scrollToBottom="scrollToBottom"
-    />
-    <u-loading-page :loading="initLoading"></u-loading-page>
-  </view>
+    <view
+        :style="{ backgroundColor: '#f8f8f8' }"
+        class="chating_container"
+    >
+        <chating-header
+            ref="chatingHeaderRef"
+            @click="pageClick"
+        />
+        <chating-list
+            ref="chatingListRef"
+            :menu-outside-flag="menuOutsideFlag"
+            @click="pageClick"
+            @initSuccess="initSuccess"
+        />
+        <chating-footer
+            ref="chatingFooterRef"
+            :footer-outside-flag="footerOutsideFlag"
+            @scrollToBottom="scrollToBottom"
+        />
+        <u-loading-page :loading="initLoading" />
+    </view>
 </template>
 
 <script>
@@ -22,82 +28,82 @@ import ChatingHeader from "./components/ChatingHeader.vue";
 import ChatingFooter from "./components/ChatingFooter/index.vue";
 import ChatingList from "./components/ChatingList.vue";
 import {
-  markConversationAsRead,
+    markConversationAsRead,
 } from "@/util/imCommon";
 
 export default {
-  components: {
-    ChatingHeader,
-    ChatingFooter,
-    ChatingList,
-  },
-  data() {
-    return {
-      listHeight: 0,
-      footerOutsideFlag: 0,
-      menuOutsideFlag: 0,
-      initLoading: true,
-      back2Tab: false,
-    };
-  },
-  onLoad(options) {
-    if (options?.back2Tab) {
-      this.back2Tab = JSON.parse(options.back2Tab);
-    }
-  },
-  onUnload() {
-    console.log("unload");
-    markConversationAsRead(
-      {
-        ...this.$store.getters.storeCurrentConversation,
-      },
-      true
-    );
-    this.resetConversationState();
-    this.resetMessageState();
-  },
-  methods: {
-    ...mapActions("message", ["resetMessageState", "deleteMessages"]),
-    ...mapActions("conversation", ["resetConversationState"]),
-    scrollToBottom(isRecv = false) {
-      // this.$refs.chatingListRef.scrollToAnchor(`auchor${clientMsgID}`, isRecv);
-      this.$refs.chatingListRef.scrollToBottom(false, isRecv);
+    components: {
+        ChatingHeader,
+        ChatingFooter,
+        ChatingList,
     },
-    async pageClick(e) {
-      this.getEl(".message_menu_container").then((res) => {
-        if (res) {
-          this.menuOutsideFlag += 1;
+    data () {
+        return {
+            listHeight: 0,
+            footerOutsideFlag: 0,
+            menuOutsideFlag: 0,
+            initLoading: true,
+            back2Tab: false,
+        };
+    },
+    onLoad (options) {
+        if (options?.back2Tab) {
+            this.back2Tab = JSON.parse(options.back2Tab);
         }
-      });
+    },
+    onUnload () {
+        console.log("unload");
+        markConversationAsRead(
+            {
+                ...this.$store.getters.storeCurrentConversation,
+            },
+            true
+        );
+        this.resetConversationState();
+        this.resetMessageState();
+    },
+    methods: {
+        ...mapActions("message", ["resetMessageState", "deleteMessages"]),
+        ...mapActions("conversation", ["resetConversationState"]),
+        scrollToBottom (isRecv = false) {
+            // this.$refs.chatingListRef.scrollToAnchor(`auchor${clientMsgID}`, isRecv);
+            this.$refs.chatingListRef.scrollToBottom(false, isRecv);
+        },
+        async pageClick (e) {
+            this.getEl(".message_menu_container").then((res) => {
+                if (res) {
+                    this.menuOutsideFlag += 1;
+                }
+            });
 
-      this.footerOutsideFlag += 1;
+            this.footerOutsideFlag += 1;
+        },
+        getEl (el) {
+            return new Promise((resolve) => {
+                const query = uni.createSelectorQuery().in(this);
+                query
+                    .select(el)
+                    .boundingClientRect((data) => {
+                        resolve(data);
+                    })
+                    .exec();
+            });
+        },
+        initSuccess () {
+            console.log("initSuccess");
+            this.initLoading = false;
+        },
     },
-    getEl(el) {
-      return new Promise((resolve) => {
-        const query = uni.createSelectorQuery().in(this);
-        query
-          .select(el)
-          .boundingClientRect((data) => {
-            resolve(data);
-          })
-          .exec();
-      });
-    },
-    initSuccess() {
-      console.log("initSuccess");
-      this.initLoading = false;
-    },
-  },
-  onBackPress(options) {
-    if (this.back2Tab) {
-				uni.switchTab({
-					url: '/pages/conversation/conversationList/index'
-				})
-				return true
-			}
+    onBackPress (options) {
+        if (this.back2Tab) {
+            uni.switchTab({
+                url: '/pages/conversation/conversationList/index'
+            });
+            return true;
+        }
 
-			return false;
-  },
+        return false;
+    },
 };
 </script>
 

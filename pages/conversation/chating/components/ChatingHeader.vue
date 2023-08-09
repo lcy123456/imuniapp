@@ -1,75 +1,112 @@
 <template>
-	<u-navbar @click="click" placeholder class="chating_header">
-		<view @click="routeBack" class="u-nav-slot" slot="left">
-			<img class="back_icon" width="12" height="20" src="static/images/common_left_arrow.png" alt="" srcset="">
-		</view>
-		<view class="u-nav-slot" slot="center">
-			<view class="chating_info" :class="{'chating_info_single':isSingle}">
-				<view class="conversation_info">
-					<view class="title">{{storeCurrentConversation.showName}}</view>
-					<view v-if="!isSingle && !isNotify" class="sub_title">{{groupMemberCount}}
-					</view>
-				</view>
-			</view>
-
-		</view>
-		<view class="u-nav-slot" slot="right">
-			<view class="right_action" v-if="canGoSetting">
-				<u-icon @click="goSetting" class="action_item" name="more-dot-fill" size="23" color="#333">
-				</u-icon>
-			</view>
-		</view>
-	</u-navbar>
+    <u-navbar
+        placeholder
+        class="chating_header"
+        @click="click"
+    >
+        <view
+            slot="left"
+            class="u-nav-slot"
+            @click="routeBack"
+        >
+            <img
+                class="back_icon"
+                width="12"
+                height="20"
+                src="static/images/common_left_arrow.png"
+                alt=""
+                srcset=""
+            >
+        </view>
+        <view
+            slot="center"
+            class="u-nav-slot"
+        >
+            <view
+                class="chating_info"
+                :class="{'chating_info_single':isSingle}"
+            >
+                <view class="conversation_info">
+                    <view class="title">
+                        {{ storeCurrentConversation.showName }}
+                    </view>
+                    <view
+                        v-if="!isSingle && !isNotify"
+                        class="sub_title"
+                    >
+                        {{ groupMemberCount }}
+                    </view>
+                </view>
+            </view>
+        </view>
+        <view
+            slot="right"
+            class="u-nav-slot"
+        >
+            <view
+                v-if="canGoSetting"
+                class="right_action"
+            >
+                <u-icon
+                    class="action_item"
+                    name="more-dot-fill"
+                    size="23"
+                    color="#333"
+                    @click="goSetting"
+                />
+            </view>
+        </view>
+    </u-navbar>
 </template>
 
 <script>
-	import {
-		mapGetters,
-	} from "vuex";
-	import { SessionType } from 'openim-uniapp-polyfill'
-	import MyAvatar from '@/components/MyAvatar/index.vue'
-	export default {
-		name: 'ChatingHeader',
-		components: {
-			MyAvatar
-		},
-		data() {
-			return {}
-		},
-		computed: {
-			...mapGetters(['storeCurrentConversation', 'storeCurrentGroup','storeCurrentMemberInGroup']),
-			isSingle() {
-				return this.storeCurrentConversation.conversationType === SessionType.Single
-			},
-			isNotify() {
-				return this.storeCurrentConversation.conversationType === SessionType.Notification
-			},
-			canGoSetting() {
-				if(this.isSingle) {
-					return true
-				}
-				return this.storeCurrentMemberInGroup.groupID === this.storeCurrentConversation.groupID
-			},
-			groupMemberCount() {
-				return `(${this.storeCurrentGroup?.memberCount??0})`
-			},
-		},
-		methods: {
-			click(e) {
-				this.$emit('click', e)
-			},
-			routeBack() {
-				uni.navigateBack()
-			},
-			goSetting() {
-				const url = this.isSingle ? '/pages/conversation/singleSettings/index' :
-					'/pages/conversation/groupSettings/index'
-				uni.navigateTo({
-					url
-				})
-			}
-		}
-	}
+import {
+    mapGetters,
+} from "vuex";
+import { SessionType } from 'openim-uniapp-polyfill';
+import MyAvatar from '@/components/MyAvatar/index.vue';
+export default {
+    name: 'ChatingHeader',
+    components: {
+        MyAvatar
+    },
+    data () {
+        return {};
+    },
+    computed: {
+        ...mapGetters(['storeCurrentConversation', 'storeCurrentGroup', 'storeCurrentMemberInGroup']),
+        isSingle () {
+            return this.storeCurrentConversation.conversationType === SessionType.Single;
+        },
+        isNotify () {
+            return this.storeCurrentConversation.conversationType === SessionType.Notification;
+        },
+        canGoSetting () {
+            if (this.isSingle) {
+                return true;
+            }
+            return this.storeCurrentMemberInGroup.groupID === this.storeCurrentConversation.groupID;
+        },
+        groupMemberCount () {
+            return `(${this.storeCurrentGroup?.memberCount ?? 0})`;
+        },
+    },
+    methods: {
+        click (e) {
+            this.$emit('click', e);
+        },
+        routeBack () {
+            uni.navigateBack();
+        },
+        goSetting () {
+            const url = this.isSingle ? '/pages/conversation/singleSettings/index' :
+                '/pages/conversation/groupSettings/index';
+            uni.navigateTo({
+                url
+            });
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

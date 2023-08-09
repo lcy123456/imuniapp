@@ -1,38 +1,47 @@
 <template>
-	<view @click="toGroupCard" class="group_item">
-		<my-avatar :src="groupInfo.faceURL" :isGroup="true" size="42" />
-		<view class="group_info">
-			<text class="group_name">{{groupInfo.groupName}}</text>
-			<view class="group_details">
-				<text>{{`${groupInfo.memberCount}人`}}</text>
-			</view>
-		</view>
-	</view>
+    <view
+        class="group_item"
+        @click="toGroupCard"
+    >
+        <my-avatar
+            :src="groupInfo.faceURL"
+            :is-group="true"
+            size="42"
+        />
+        <view class="group_info">
+            <text class="group_name">
+                {{ groupInfo.groupName }}
+            </text>
+            <view class="group_details">
+                <text>{{ `${groupInfo.memberCount}人` }}</text>
+            </view>
+        </view>
+    </view>
 </template>
 
 <script>
-	import MyAvatar from "@/components/MyAvatar/index.vue"
-	export default {
-		name: "",
-		components: {
-			MyAvatar
-		},
-		props: {
-			groupInfo: Object
-		},
-		data() {
-			return {
+import MyAvatar from "@/components/MyAvatar/index.vue";
+export default {
+    name: "",
+    components: {
+        MyAvatar
+    },
+    props: {
+        groupInfo: Object
+    },
+    data () {
+        return {
 
-			};
-		},
-		methods: {
-			toGroupCard() {
-				uni.navigateTo({
-					url: `/pages/common/groupCard/index?sourceID=${this.groupInfo.groupID}`
-				})
-			}
-		}
-	}
+        };
+    },
+    methods: {
+        toGroupCard () {
+            uni.navigateTo({
+                url: `/pages/common/groupCard/index?sourceID=${this.groupInfo.groupID}`
+            });
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

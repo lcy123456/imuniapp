@@ -1,28 +1,35 @@
 <template>
-  <view class="single_settings_container">
-    <custom-nav-bar title="聊天设置" />
+    <view class="single_settings_container">
+        <custom-nav-bar title="聊天设置" />
 
-    <view class="row_wrap">
-      <view class="setting_row info_row">
-        <view @click="toUserCard" class="user_info">
-          <my-avatar
-            :src="storeCurrentConversation.faceURL"
-            :desc="storeCurrentConversation.showName"
-            size="48"
-          />
-          <text class="user_name">{{ storeCurrentConversation.showName }}</text>
+        <view class="row_wrap">
+            <view class="setting_row info_row">
+                <view
+                    class="user_info"
+                    @click="toUserCard"
+                >
+                    <my-avatar
+                        :src="storeCurrentConversation.faceURL"
+                        :desc="storeCurrentConversation.showName"
+                        size="48"
+                    />
+                    <text class="user_name">
+                        {{ storeCurrentConversation.showName }}
+                    </text>
+                </view>
+                <view
+                    class="action"
+                    @click="invite2group"
+                >
+                    <image
+                        style="width: 48px; height: 48px"
+                        src="@/static/images/single_setting_add.png"
+                        alt=""
+                    />
+                </view>
+            </view>
         </view>
-        <view @click="invite2group" class="action">
-          <image
-            style="width: 48px; height: 48px"
-            src="@/static/images/single_setting_add.png"
-            alt=""
-          />
-        </view>
-      </view>
-
     </view>
-  </view>
 </template>
 
 <script>
@@ -31,39 +38,39 @@ import CustomNavBar from "@/components/CustomNavBar/index.vue";
 import MyAvatar from "@/components/MyAvatar/index.vue";
 import SettingItem from "@/components/SettingItem/index.vue";
 export default {
-  components: {
-    CustomNavBar,
-    MyAvatar,
-    SettingItem,
-  },
-  props: {},
-  data() {
-    return {
-
-    };
-  },
-  computed: {
-    ...mapGetters(["storeCurrentConversation"]),
-  },
-  methods: {
-    toUserCard() {
-      uni.navigateTo({
-        url: `/pages/common/userCard/index?sourceID=${this.storeCurrentConversation.userID}`,
-      });
+    components: {
+        CustomNavBar,
+        MyAvatar,
+        SettingItem,
     },
-    invite2group() {
-      const checkedMemberList = JSON.stringify([
-        {
-          userID: this.storeCurrentConversation.userID,
-          faceURL: this.storeCurrentConversation.faceURL,
-          nickname: this.storeCurrentConversation.showName,
+    props: {},
+    data () {
+        return {
+
+        };
+    },
+    computed: {
+        ...mapGetters(["storeCurrentConversation"]),
+    },
+    methods: {
+        toUserCard () {
+            uni.navigateTo({
+                url: `/pages/common/userCard/index?sourceID=${this.storeCurrentConversation.userID}`,
+            });
         },
-      ]);
-      uni.navigateTo({
-        url: `/pages/common/createGroup/index?checkedMemberList=${checkedMemberList}`,
-      });
-    }
-  },
+        invite2group () {
+            const checkedMemberList = JSON.stringify([
+                {
+                    userID: this.storeCurrentConversation.userID,
+                    faceURL: this.storeCurrentConversation.faceURL,
+                    nickname: this.storeCurrentConversation.showName,
+                },
+            ]);
+            uni.navigateTo({
+                url: `/pages/common/createGroup/index?checkedMemberList=${checkedMemberList}`,
+            });
+        }
+    },
 };
 </script>
 

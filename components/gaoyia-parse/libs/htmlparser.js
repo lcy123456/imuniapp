@@ -17,11 +17,11 @@ const startTag = /^<([-A-Za-z0-9_]+)((?:\s+[a-zA-Z0-9_:][-a-zA-Z0-9_:.]*(?:\s*=\
 const endTag = /^<\/([-A-Za-z0-9_]+)[^>]*>/;
 const attr = /([a-zA-Z0-9_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
 
-function makeMap(str) {
-  const obj = {};
-  const items = str.split(',');
-  for (let i = 0; i < items.length; i += 1) obj[items[i]] = true;
-  return obj;
+function makeMap (str) {
+    const obj = {};
+    const items = str.split(',');
+    for (let i = 0; i < items.length; i += 1) obj[items[i]] = true;
+    return obj;
 }
 
 // Empty Elements - HTML 5
@@ -40,117 +40,117 @@ const closeSelf = makeMap('colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr');
 // Attributes that have their values filled in disabled="disabled"
 const fillAttrs = makeMap('checked,compact,declare,defer,disabled,ismap,multiple,nohref,noresize,noshade,nowrap,readonly,selected');
 
-function HTMLParser(html, handler) {
-  let index;
-  let chars;
-  let match;
-  let last = html;
-  const stack = [];
+function HTMLParser (html, handler) {
+    let index;
+    let chars;
+    let match;
+    let last = html;
+    const stack = [];
 
-  stack.last = () => stack[stack.length - 1];
+    stack.last = () => stack[stack.length - 1];
 
-  function parseEndTag(tag, tagName) {
+    function parseEndTag (tag, tagName) {
     // If no tag name is provided, clean shop
-    let pos;
-    if (!tagName) {
-      pos = 0;
-    } else {
-      // Find the closest opened tag of the same type
-      tagName = tagName.toLowerCase();
-      for (pos = stack.length - 1; pos >= 0; pos -= 1) {
-        if (stack[pos] === tagName) break;
-      }
-    }
-    if (pos >= 0) {
-      // Close all the open elements, up the stack
-      for (let i = stack.length - 1; i >= pos; i -= 1) {
-        if (handler.end) handler.end(stack[i]);
-      }
+        let pos;
+        if (!tagName) {
+            pos = 0;
+        } else {
+            // Find the closest opened tag of the same type
+            tagName = tagName.toLowerCase();
+            for (pos = stack.length - 1; pos >= 0; pos -= 1) {
+                if (stack[pos] === tagName) break;
+            }
+        }
+        if (pos >= 0) {
+            // Close all the open elements, up the stack
+            for (let i = stack.length - 1; i >= pos; i -= 1) {
+                if (handler.end) handler.end(stack[i]);
+            }
 
-      // Remove the open elements from the stack
-      stack.length = pos;
-    }
-  }
-
-  function parseStartTag(tag, tagName, rest, unary) {
-    tagName = tagName.toLowerCase();
-
-    if (block[tagName]) {
-      while (stack.last() && inline[stack.last()]) {
-        parseEndTag('', stack.last());
-      }
+            // Remove the open elements from the stack
+            stack.length = pos;
+        }
     }
 
-    if (closeSelf[tagName] && stack.last() === tagName) {
-      parseEndTag('', tagName);
+    function parseStartTag (tag, tagName, rest, unary) {
+        tagName = tagName.toLowerCase();
+
+        if (block[tagName]) {
+            while (stack.last() && inline[stack.last()]) {
+                parseEndTag('', stack.last());
+            }
+        }
+
+        if (closeSelf[tagName] && stack.last() === tagName) {
+            parseEndTag('', tagName);
+        }
+
+        unary = empty[tagName] || !!unary;
+
+        if (!unary) stack.push(tagName);
+
+        if (handler.start) {
+            const attrs = [];
+
+            rest.replace(attr, function genAttr (matches, name) {
+                const value = arguments[2] || arguments[3] || arguments[4] || (fillAttrs[name] ? name : '');
+
+                attrs.push({
+                    name,
+                    value,
+                    escaped: value.replace(/(^|[^\\])"/g, '$1\\"'), // "
+                });
+            });
+
+            if (handler.start) {
+                handler.start(tagName, attrs, unary);
+            }
+        }
     }
 
-    unary = empty[tagName] || !!unary;
+    while (html) {
+        chars = true;
 
-    if (!unary) stack.push(tagName);
+        if (html.indexOf('</') === 0) {
+            match = html.match(endTag);
 
-    if (handler.start) {
-      const attrs = [];
+            if (match) {
+                html = html.substring(match[0].length);
+                match[0].replace(endTag, parseEndTag);
+                chars = false;
+            }
 
-      rest.replace(attr, function genAttr(matches, name) {
-        const value = arguments[2] || arguments[3] || arguments[4] || (fillAttrs[name] ? name : '');
+            // start tag
+        } else if (html.indexOf('<') === 0) {
+            match = html.match(startTag);
 
-        attrs.push({
-          name,
-          value,
-          escaped: value.replace(/(^|[^\\])"/g, '$1\\"'), // "
-        });
-      });
+            if (match) {
+                html = html.substring(match[0].length);
+                match[0].replace(startTag, parseStartTag);
+                chars = false;
+            }
+        }
 
-      if (handler.start) {
-        handler.start(tagName, attrs, unary);
-      }
-    }
-  }
+        if (chars) {
+            index = html.indexOf('<');
+            let text = '';
+            while (index === 0) {
+                text += '<';
+                html = html.substring(1);
+                index = html.indexOf('<');
+            }
+            text += index < 0 ? html : html.substring(0, index);
+            html = index < 0 ? '' : html.substring(index);
 
-  while (html) {
-    chars = true;
+            if (handler.chars) handler.chars(text);
+        }
 
-    if (html.indexOf('</') === 0) {
-      match = html.match(endTag);
-
-      if (match) {
-        html = html.substring(match[0].length);
-        match[0].replace(endTag, parseEndTag);
-        chars = false;
-      }
-
-      // start tag
-    } else if (html.indexOf('<') === 0) {
-      match = html.match(startTag);
-
-      if (match) {
-        html = html.substring(match[0].length);
-        match[0].replace(startTag, parseStartTag);
-        chars = false;
-      }
+        if (html === last) throw new Error(`Parse Error: ${html}`);
+        last = html;
     }
 
-    if (chars) {
-      index = html.indexOf('<');
-      let text = '';
-      while (index === 0) {
-        text += '<';
-        html = html.substring(1);
-        index = html.indexOf('<');
-      }
-      text += index < 0 ? html : html.substring(0, index);
-      html = index < 0 ? '' : html.substring(index);
-
-      if (handler.chars) handler.chars(text);
-    }
-
-    if (html === last) throw new Error(`Parse Error: ${html}`);
-    last = html;
-  }
-
-  // Clean up any remaining tags
-  parseEndTag();
+    // Clean up any remaining tags
+    parseEndTag();
 }
 
 export default HTMLParser;

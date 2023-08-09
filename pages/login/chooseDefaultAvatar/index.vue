@@ -1,40 +1,51 @@
 <template>
-	<view class="choose_container">
-		<custom-nav-bar title="默认头像" />
+    <view class="choose_container">
+        <custom-nav-bar title="默认头像" />
 	
-		<view class="avatar_row">
-			<view v-for="(item,idx) in avatarList" :key="idx" class="avatar_item">
-				<u--image radius="6" height="68" width="68" :showLoading="true" :src="item" @tap="clickItem(idx)"></u--image>
-			</view>
-		</view>
-	</view>
+        <view class="avatar_row">
+            <view
+                v-for="(item,idx) in avatarList"
+                :key="idx"
+                class="avatar_item"
+            >
+                <u--image
+                    radius="6"
+                    height="68"
+                    width="68"
+                    :show-loading="true"
+                    :src="item"
+                    @tap="clickItem(idx)"
+                />
+            </view>
+        </view>
+    </view>
 </template>
 
 <script>
-	import CustomNavBar from '@/components/CustomNavBar/index.vue'
-	import avatars from '@/common/defaultAvatars';
+import CustomNavBar from '@/components/CustomNavBar/index.vue';
+import avatars from '@/common/defaultAvatars';
 	
-	export default {
-		components: {
-			CustomNavBar
-		},
-		data() {
-			return {
-				avatarList: [...Object.values(avatars)]
-			};
-		},
-		methods: {
-			clickItem(idx) {
-				const keys = [...Object.keys(avatars)]
-				let pages = getCurrentPages()
-				let prevPage = pages[pages.length - 2]
-				prevPage.$vm.getDefaultAvatar(keys[idx])
-				uni.navigateBack({
-					delta: 1
-				})
-			}
-		}
-	}
+export default {
+    components: {
+        CustomNavBar
+    },
+    data () {
+        return {
+            avatarList: [...Object.values(avatars)]
+        };
+    },
+    methods: {
+        clickItem (idx) {
+            const keys = [...Object.keys(avatars)];
+            let pages = getCurrentPages();
+            let prevPage = pages[pages.length - 2];
+            prevPage.$vm.getDefaultAvatar(keys[idx]);
+            uni.navigateBack({
+                delta: 1
+            });
+        }
+    }
+};
 </script>
 
 <style lang="scss">

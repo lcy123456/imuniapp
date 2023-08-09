@@ -1,65 +1,84 @@
 <template>
-	<u-navbar :title="title" placeholder class="custom_nav_bar">
-		<template slot="left">
-			<slot name="left">
-				<view class="u-nav-slot">
-					<img @click="leftClick" class="back_icon" width="12" height="20"
-						src="static/images/common_left_arrow.png" alt="" srcset="">
-				</view>
-			</slot>
-		</template>
+    <u-navbar
+        :title="title"
+        placeholder
+        class="custom_nav_bar"
+    >
+        <template slot="left">
+            <slot name="left">
+                <view class="u-nav-slot">
+                    <img
+                        class="back_icon"
+                        width="12"
+                        height="20"
+                        src="static/images/common_left_arrow.png"
+                        alt=""
+                        srcset=""
+                        @click="leftClick"
+                    >
+                </view>
+            </slot>
+        </template>
 
-		<template slot="center">
-			<slot name="center"></slot>
-		</template>
+        <template slot="center">
+            <slot name="center" />
+        </template>
 
-		<template slot="right">
-			<slot name="more">
-				<view @click="rightClick" v-if="more" class="u-nav-slot">
-					<u-icon class="more_dot" name="more-dot-fill" size="23" color="#333"></u-icon>
-				</view>
-			</slot>
-		</template>
-
-	</u-navbar>
+        <template slot="right">
+            <slot name="more">
+                <view
+                    v-if="more"
+                    class="u-nav-slot"
+                    @click="rightClick"
+                >
+                    <u-icon
+                        class="more_dot"
+                        name="more-dot-fill"
+                        size="23"
+                        color="#333"
+                    />
+                </view>
+            </slot>
+        </template>
+    </u-navbar>
 </template>
 
 <script>
-	export default {
-		name: "",
-		components: {
+export default {
+    name: "",
+    components: {
 
-		},
-		props: {
-			title: {
-				type: String,
-			},
-			more: {
-				type: Boolean,
-				default: false
-			},
-			route: {
-				type: Boolean,
-				default: true
-			}
-		},
-		data() {
-			return {
+    },
+    props: {
+        title: {
+            type: String,
+        },
+        more: {
+            type: Boolean,
+            default: false
+        },
+        route: {
+            type: Boolean,
+            default: true
+        }
+    },
+    data () {
+        return {
 
-			};
-		},
-		methods: {
-			leftClick() {
-				if (this.route) {
-					uni.navigateBack();
-				}
-				this.$emit('leftClick')
-			},
-			rightClick() {
-				this.$emit('rightClick')
-			}
-		}
-	}
+        };
+    },
+    methods: {
+        leftClick () {
+            if (this.route) {
+                uni.navigateBack();
+            }
+            this.$emit('leftClick');
+        },
+        rightClick () {
+            this.$emit('rightClick');
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

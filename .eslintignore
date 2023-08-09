@@ -1,0 +1,8 @@
+.hbuilderx
+.husky
+
+node_modules
+unpackage
+uni_modules
+nativeplugins
+static

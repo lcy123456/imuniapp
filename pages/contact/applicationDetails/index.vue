@@ -1,56 +1,75 @@
 <template>
-  <view class="page_container">
-    <custom-nav-bar :title="isGroupApplication ? '群通知' : '好友请求'" />
+    <view class="page_container">
+        <custom-nav-bar :title="isGroupApplication ? '群通知' : '好友请求'" />
 
-    <view class="application_item">
-      <view class="base_info_row">
-        <view class="base_info_left" @click="toSourceDetails">
-          <my-avatar :src="getSourceFaceURL" :desc="getSourceName" />
-          <view class="base_info_details">
-            <text class="nickname">{{ getSourceName }}</text>
-            <view class="online_state">
-              <view
-                class="dot"
-                :style="{ backgroundColor: isOnline ? '#10CC64' : '#999' }"
-              />
-              <text>{{ onlineStr }}</text>
+        <view class="application_item">
+            <view class="base_info_row">
+                <view
+                    class="base_info_left"
+                    @click="toSourceDetails"
+                >
+                    <my-avatar
+                        :src="getSourceFaceURL"
+                        :desc="getSourceName"
+                    />
+                    <view class="base_info_details">
+                        <text class="nickname">
+                            {{ getSourceName }}
+                        </text>
+                        <view class="online_state">
+                            <view
+                                class="dot"
+                                :style="{ backgroundColor: isOnline ? '#10CC64' : '#999' }"
+                            />
+                            <text>{{ onlineStr }}</text>
+                        </view>
+                    </view>
+                </view>
+
+                <u-icon
+                    name="arrow-right"
+                    size="18"
+                    color="#999"
+                />
             </view>
-          </view>
+
+            <view class="request_message">
+                <view
+                    v-if="isGroupApplication"
+                    class="title"
+                >
+                    <text>申请加入 </text>
+                    <text class="group_name">
+                        {{ currentApplication.groupName }}
+                    </text>
+                </view>
+                <text v-else>
+                    {{ `${getSourceName}：` }}
+                </text>
+                <text>{{ currentApplication.reqMsg }}</text>
+            </view>
         </view>
 
-        <u-icon name="arrow-right" size="18" color="#999"></u-icon>
-      </view>
-
-      <view class="request_message">
-        <view v-if="isGroupApplication" class="title">
-          <text>申请加入 </text>
-          <text class="group_name">{{ currentApplication.groupName }}</text>
+        <view class="action_row">
+            <u-button
+                :loading="loadingState.accept"
+                type="primary"
+                :plain="true"
+                :text="`通过${isGroupApplication ? '入群' : '好友'}申请`"
+                @click="acceptAplication"
+            />
         </view>
-        <text v-else>{{ `${getSourceName}：` }}</text>
-        <text>{{ currentApplication.reqMsg }}</text>
-      </view>
-    </view>
 
-    <view class="action_row">
-      <u-button
-        :loading="loadingState.accept"
-        @click="acceptAplication"
-        type="primary"
-        :plain="true"
-        :text="`通过${isGroupApplication ? '入群' : '好友'}申请`"
-      ></u-button>
+        <view class="action_row">
+            <u-button
+                :loading="loadingState.refuse"
+                type="primary"
+                :plain="true"
+                :text="`拒绝${isGroupApplication ? '入群' : '好友'}申请`"
+                @click="refuseAplication"
+            />
+        </view>
     </view>
-
-    <view class="action_row">
-      <u-button
-        :loading="loadingState.refuse"
-        @click="refuseAplication"
-        type="primary"
-        :plain="true"
-        :text="`拒绝${isGroupApplication ? '入群' : '好友'}申请`"
-      ></u-button>
-    </view>
-  </view>
 </template>
 
 <script>
@@ -59,126 +78,126 @@ import IMSDK, { GroupJoinSource } from "openim-uniapp-polyfill";
 import CustomNavBar from "@/components/CustomNavBar/index.vue";
 import MyAvatar from "@/components/MyAvatar/index.vue";
 export default {
-  components: {
-    CustomNavBar,
-    MyAvatar,
-  },
-  data() {
-    return {
-      currentApplication: {},
-      onlineStr: "离线",
-      isOnline: false,
-      loadingState: {
-        accept: false,
-        refuse: false,
-      },
-    };
-  },
-  computed: {
-    isGroupApplication() {
-      return this.currentApplication.groupID !== undefined;
+    components: {
+        CustomNavBar,
+        MyAvatar,
     },
-    getSourceID() {
-      return (
-        this.currentApplication.fromUserID ?? this.currentApplication.userID
-      );
+    data () {
+        return {
+            currentApplication: {},
+            onlineStr: "离线",
+            isOnline: false,
+            loadingState: {
+                accept: false,
+                refuse: false,
+            },
+        };
     },
-    getSourceName() {
-      return (
-        this.currentApplication.fromNickname ?? this.currentApplication.nickname
-      );
+    computed: {
+        isGroupApplication () {
+            return this.currentApplication.groupID !== undefined;
+        },
+        getSourceID () {
+            return (
+                this.currentApplication.fromUserID ?? this.currentApplication.userID
+            );
+        },
+        getSourceName () {
+            return (
+                this.currentApplication.fromNickname ?? this.currentApplication.nickname
+            );
+        },
+        getSourceFaceURL () {
+            return (
+                this.currentApplication.fromFaceURL ?? this.currentApplication.faceURL
+            );
+        }
     },
-    getSourceFaceURL() {
-      return (
-        this.currentApplication.fromFaceURL ?? this.currentApplication.faceURL
-      );
-    }
-  },
-  onLoad(options) {
-    const { application } = options;
-    this.currentApplication = JSON.parse(application);
-  },
-  methods: {
-    getOnlineState() {
-      getDesignatedUserOnlineState(this.sourceID)
-        .then((str) => {
-          this.isOnline = str !== "离线";
-          this.onlineStr = str;
-        })
-        .catch(() => (this.isOnline = false));
+    onLoad (options) {
+        const { application } = options;
+        this.currentApplication = JSON.parse(application);
     },
-    toSourceDetails() {
-      uni.navigateTo({
-        url: `/pages/common/userCard/index?sourceID=${this.getSourceID}`,
-      });
+    methods: {
+        getOnlineState () {
+            getDesignatedUserOnlineState(this.sourceID)
+                .then((str) => {
+                    this.isOnline = str !== "离线";
+                    this.onlineStr = str;
+                })
+                .catch(() => (this.isOnline = false));
+        },
+        toSourceDetails () {
+            uni.navigateTo({
+                url: `/pages/common/userCard/index?sourceID=${this.getSourceID}`,
+            });
+        },
+        acceptAplication () {
+            this.loadingState.accept = true;
+            let func;
+            if (this.isGroupApplication) {
+                func = IMSDK.asyncApi(
+                    IMSDK.IMMethods.AcceptGroupApplication,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.currentApplication.groupID,
+                        fromUserID: this.currentApplication.userID,
+                        handleMsg: "",
+                    }
+                );
+            } else {
+                console.log(this.currentApplication);
+                func = IMSDK.asyncApi(
+                    IMSDK.IMMethods.AcceptFriendApplication,
+                    IMSDK.uuid(),
+                    {
+                        toUserID: this.currentApplication.fromUserID,
+                        handleMsg: "",
+                    }
+                );
+            }
+            func
+                .then(() => {
+                    uni.$u.toast("操作成功");
+                    setTimeout(() => uni.navigateBack(), 500);
+                })
+                .catch((e) => {
+                    console.log(e);
+                    uni.$u.toast("操作失败");
+                })
+                .finally(() => (this.loadingState.accept = false));
+        },
+        refuseAplication () {
+            this.loadingState.refuse = true;
+            let func;
+            if (this.isGroupApplication) {
+                func = IMSDK.asyncApi(
+                    IMSDK.IMMethods.RefuseGroupApplication,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.currentApplication.groupID,
+                        fromUserID: this.currentApplication.userID,
+                        handleMsg: "",
+                    }
+                );
+            } else {
+                func = IMSDK.asyncApi(
+                    IMSDK.IMMethods.RefuseFriendApplication,
+                    IMSDK.uuid(),
+                    {
+                        toUserID: this.currentApplication.fromUserID,
+                        handleMsg: "",
+                    }
+                );
+            }
+            func
+                .then(() => {
+                    uni.$u.toast("操作成功");
+                    setTimeout(() => uni.navigateBack(), 250);
+                })
+                .catch(() => uni.$u.toast("操作失败"))
+                .finally(() => (this.loadingState.refuse = false));
+        },
     },
-    acceptAplication() {
-      this.loadingState.accept = true;
-      let func;
-      if (this.isGroupApplication) {
-        func = IMSDK.asyncApi(
-          IMSDK.IMMethods.AcceptGroupApplication,
-          IMSDK.uuid(),
-          {
-            groupID: this.currentApplication.groupID,
-            fromUserID: this.currentApplication.userID,
-            handleMsg: "",
-          }
-        );
-      } else {
-        console.log(this.currentApplication);
-        func = IMSDK.asyncApi(
-          IMSDK.IMMethods.AcceptFriendApplication,
-          IMSDK.uuid(),
-          {
-            toUserID: this.currentApplication.fromUserID,
-            handleMsg: "",
-          }
-        );
-      }
-      func
-        .then(() => {
-          uni.$u.toast("操作成功");
-          setTimeout(() => uni.navigateBack(), 500);
-        })
-        .catch((e) => {
-          console.log(e);
-          uni.$u.toast("操作失败");
-        })
-        .finally(() => (this.loadingState.accept = false));
-    },
-    refuseAplication() {
-      this.loadingState.refuse = true;
-      let func;
-      if (this.isGroupApplication) {
-        func = IMSDK.asyncApi(
-          IMSDK.IMMethods.RefuseGroupApplication,
-          IMSDK.uuid(),
-          {
-            groupID: this.currentApplication.groupID,
-            fromUserID: this.currentApplication.userID,
-            handleMsg: "",
-          }
-        );
-      } else {
-        func = IMSDK.asyncApi(
-          IMSDK.IMMethods.RefuseFriendApplication,
-          IMSDK.uuid(),
-          {
-            toUserID: this.currentApplication.fromUserID,
-            handleMsg: "",
-          }
-        );
-      }
-      func
-        .then(() => {
-          uni.$u.toast("操作成功");
-          setTimeout(() => uni.navigateBack(), 250);
-        })
-        .catch(() => uni.$u.toast("操作失败"))
-        .finally(() => (this.loadingState.refuse = false));
-    },
-  },
 };
 </script>
 

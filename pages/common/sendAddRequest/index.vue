@@ -1,25 +1,33 @@
 <template>
-  <view class="request_join_container">
-    <custom-nav-bar :title="isGroup ? '群聊验证' : '好友验证'">
-      <view class="top_right_btn" slot="more">
-        <u-button @click="sendRequest" text="发送" type="primary"></u-button>
-      </view>
-    </custom-nav-bar>
+    <view class="request_join_container">
+        <custom-nav-bar :title="isGroup ? '群聊验证' : '好友验证'">
+            <view
+                slot="more"
+                class="top_right_btn"
+            >
+                <u-button
+                    text="发送"
+                    type="primary"
+                    @click="sendRequest"
+                />
+            </view>
+        </custom-nav-bar>
 
-    <text class="title">{{ `发送${isGroup ? "入群" : "好友"}申请` }}</text>
+        <text class="title">
+            {{ `发送${isGroup ? "入群" : "好友"}申请` }}
+        </text>
 
-    <view class="input_container">
-      <u--textarea
-        height="120"
-        v-model="reason"
-        border="none"
-        placeholder="请输入内容"
-        maxlength="200"
-        count
-      >
-      </u--textarea>
+        <view class="input_container">
+            <u--textarea
+                v-model="reason"
+                height="120"
+                border="none"
+                placeholder="请输入内容"
+                maxlength="200"
+                count
+            />
+        </view>
     </view>
-  </view>
 </template>
 
 <script>
@@ -28,73 +36,73 @@ import CustomNavBar from "@/components/CustomNavBar/index.vue";
 import { navigateToDesignatedConversation } from "@/util/imCommon";
 
 export default {
-  components: {
-    CustomNavBar,
-  },
-  data() {
-    return {
-      reason: "",
-      sourceID: "",
-      isGroup: false,
-      isScan: false,
-      notNeedVerification: false,
-      sessionType: 0,
-    };
-  },
-  onLoad(options) {
-    const { isGroup, sourceID, isScan, notNeedVerification, sessionType } =
+    components: {
+        CustomNavBar,
+    },
+    data () {
+        return {
+            reason: "",
+            sourceID: "",
+            isGroup: false,
+            isScan: false,
+            notNeedVerification: false,
+            sessionType: 0,
+        };
+    },
+    onLoad (options) {
+        const { isGroup, sourceID, isScan, notNeedVerification, sessionType } =
       options;
-    this.isGroup = JSON.parse(isGroup);
-    this.isScan = JSON.parse(isScan);
-    this.sourceID = sourceID;
-    this.notNeedVerification = JSON.parse(notNeedVerification);
-    this.sessionType = sessionType ?? 0;
-  },
-  methods: {
-    sendRequest() {
-      let func;
-      if (this.isGroup) {
-        const joinSource = this.isScan
-          ? GroupJoinSource.QrCode
-          : GroupJoinSource.Search;
-        const opid = IMSDK.uuid()
-        console.log(opid);
-        func = IMSDK.asyncApi(IMSDK.IMMethods.JoinGroup, opid, {
-          groupID: this.sourceID,
-          reqMsg: this.reason,
-          joinSource: 3,
-        });
-      } else {
-        func = IMSDK.asyncApi(IMSDK.IMMethods.AddFriend, IMSDK.uuid(), {
-          toUserID: this.sourceID,
-          reqMsg: this.reason,
-        });
-      }
-      func
-        .then(() => {
-          uni.$u.toast(this.notNeedVerification ? "你已加入该群" : "发送成功");
-          setTimeout(() => {
-            if (this.notNeedVerification) {
-              navigateToDesignatedConversation(
-                this.sourceID,
-                Number(this.sessionType)
-              ).catch(() => this.showToast("获取会话信息失败"));
+        this.isGroup = JSON.parse(isGroup);
+        this.isScan = JSON.parse(isScan);
+        this.sourceID = sourceID;
+        this.notNeedVerification = JSON.parse(notNeedVerification);
+        this.sessionType = sessionType ?? 0;
+    },
+    methods: {
+        sendRequest () {
+            let func;
+            if (this.isGroup) {
+                const joinSource = this.isScan
+                    ? GroupJoinSource.QrCode
+                    : GroupJoinSource.Search;
+                const opid = IMSDK.uuid();
+                console.log(opid);
+                func = IMSDK.asyncApi(IMSDK.IMMethods.JoinGroup, opid, {
+                    groupID: this.sourceID,
+                    reqMsg: this.reason,
+                    joinSource: 3,
+                });
             } else {
-              uni.navigateBack();
+                func = IMSDK.asyncApi(IMSDK.IMMethods.AddFriend, IMSDK.uuid(), {
+                    toUserID: this.sourceID,
+                    reqMsg: this.reason,
+                });
             }
-          }, 1000);
-        })
-        .catch((err) => {
-          console.log(err);
-          uni.$u.toast("发送失败")
-        });
+            func
+                .then(() => {
+                    uni.$u.toast(this.notNeedVerification ? "你已加入该群" : "发送成功");
+                    setTimeout(() => {
+                        if (this.notNeedVerification) {
+                            navigateToDesignatedConversation(
+                                this.sourceID,
+                                Number(this.sessionType)
+                            ).catch(() => this.showToast("获取会话信息失败"));
+                        } else {
+                            uni.navigateBack();
+                        }
+                    }, 1000);
+                })
+                .catch((err) => {
+                    console.log(err);
+                    uni.$u.toast("发送失败");
+                });
+        },
+        showToast (message) {
+            this.$refs.uToast.show({
+                message,
+            });
+        },
     },
-    showToast(message) {
-      this.$refs.uToast.show({
-        message,
-      });
-    },
-  },
 };
 </script>
 

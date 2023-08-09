@@ -1,12 +1,12 @@
 <template>
-  <view class="text_message_container bg_container">
-    <mp-html
-      :previewImg="false"
-      :showImgMenu="false"
-      :lazyLoad="false"
-      :content="getContent"
-    />
-  </view>
+    <view class="text_message_container bg_container">
+        <mp-html
+            :preview-img="false"
+            :show-img-menu="false"
+            :lazy-load="false"
+            :content="getContent"
+        />
+    </view>
 </template>
 
 <script>
@@ -14,31 +14,31 @@ import { parseAt, parseEmoji } from "@/util/imCommon";
 import { MessageType } from "openim-uniapp-polyfill";
 
 export default {
-  name: "TextMessageRender",
-  components: {},
-  props: {
-    message: Object,
-  },
-  computed: {
-    getContent() {
-      // TODO：解密文本
-      // console.log('getContent', this.message.textElem)
-      if (this.message.contentType === MessageType.QuoteMessage) {
-        return parseEmoji(this.message.quoteElem.text);
-      }
-      if (this.message.contentType === MessageType.AtTextMessage) {
-        return parseEmoji(parseAt(this.message.atTextElem));
-      }
-
-      return parseEmoji(this.message.textElem?.content);
+    name: "TextMessageRender",
+    components: {},
+    props: {
+        message: Object,
     },
-  },
-  data() {
-    return {};
-  },
-  methods: {
+    data () {
+        return {};
+    },
+    computed: {
+        getContent () {
+            // TODO：解密文本
+            // console.log('getContent', this.message.textElem)
+            if (this.message.contentType === MessageType.QuoteMessage) {
+                return parseEmoji(this.message.quoteElem.text);
+            }
+            if (this.message.contentType === MessageType.AtTextMessage) {
+                return parseEmoji(parseAt(this.message.atTextElem));
+            }
+
+            return parseEmoji(this.message.textElem?.content);
+        },
+    },
+    methods: {
     
-  },
+    },
 };
 </script>
 

@@ -1,29 +1,33 @@
 <template>
-  <view
-    :style="{ left: getLeft, right: getRight }"
-    class="message_menu_container"
-    :class="{ message_menu_container_bottom: is_bottom }"
-  >
     <view
-      class="message_menu_item"
-      v-for="item in menuList"
-      v-if="item.visible"
-      @click="menuClick(item)"
-      :key="item.idx"
+        :style="{ left: getLeft, right: getRight }"
+        class="message_menu_container"
+        :class="{ message_menu_container_bottom: is_bottom }"
     >
-      <image :src="item.icon" alt="" srcset="" />
-      <text>{{ item.title }}</text>
+        <view
+            v-for="item in menuList"
+            v-if="item.visible"
+            :key="item.idx"
+            class="message_menu_item"
+            @click="menuClick(item)"
+        >
+            <image
+                :src="item.icon"
+                alt=""
+                srcset=""
+            />
+            <text>{{ item.title }}</text>
+        </view>
     </view>
-  </view>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { MessageMenuTypes, ContactChooseTypes, PageEvents } from "@/constant";
 import IMSDK, {
-  GroupMemberRole,
-  MessageType,
-  SessionType,
+    GroupMemberRole,
+    MessageType,
+    SessionType,
 } from "openim-uniapp-polyfill";
 
 import copy from "@/static/images/chating_message_copy.png";
@@ -31,145 +35,145 @@ import revoke from "@/static/images/chating_message_revoke.png";
 import del from "@/static/images/chating_message_del.png";
 
 const canCopyTypes = [
-  MessageType.TextMessage,
-  MessageType.AtTextMessage,
-  MessageType.QuoteMessage,
+    MessageType.TextMessage,
+    MessageType.AtTextMessage,
+    MessageType.QuoteMessage,
 ];
 
 export default {
-  components: {},
-  props: {
-    message: {
-      type: Object,
-    },
-    is_bottom: {
-      type: Boolean,
-      default: true,
-    },
-    isSender: Boolean,
-    paterWidth: Number,
-  },
-  data() {
-    return {};
-  },
-  computed: {
-    ...mapGetters(["storeCurrentMemberInGroup", "storeCurrentUserID"]),
-    getLeft() {
-      if (this.isSender && this.paterWidth < 174) {
-        return "auto";
-      }
-      if (!this.isSender && this.paterWidth < 174) {
-        return "0";
-      }
-      return "20%";
-    },
-    getRight() {
-      if (this.isSender && this.paterWidth < 174) {
-        return "0";
-      }
-      return "auto";
-    },
-    canRevoke() {
-      return this.isSender
-    },
-    menuList() {
-      return [
-        {
-          idx: 0,
-          type: MessageMenuTypes.Copy,
-          title: "复制",
-          icon: copy,
-          visible: canCopyTypes.includes(this.message.contentType),
+    components: {},
+    props: {
+        message: {
+            type: Object,
         },
-        {
-          idx: 1,
-          type: MessageMenuTypes.Del,
-          title: "删除",
-          icon: del,
-          visible: true,
+        is_bottom: {
+            type: Boolean,
+            default: true,
         },
-        {
-          idx: 4,
-          type: MessageMenuTypes.Revoke,
-          title: "撤回",
-          icon: revoke,
-          visible: this.canRevoke,
-        },
-      ];
+        isSender: Boolean,
+        paterWidth: Number,
     },
-  },
-  methods: {
-    ...mapActions("message", ["deleteMessages", "updateOneMessage"]),
-    menuClick({ type }) {
-      switch (type) {
-        case MessageMenuTypes.Copy:
-          uni.setClipboardData({
-            data: this.getCopyText(),
-            success: () => {
-              uni.hideToast();
-              this.$nextTick(() => {
-                uni.$u.toast("复制成功");
-              });
-            },
-          });
-          break;
-        case MessageMenuTypes.Del:
-          IMSDK.asyncApi(IMSDK.IMMethods.DeleteMessage, IMSDK.uuid(), {
-            conversationID:
-              this.$store.getters.storeCurrentConversation.conversationID,
-            clientMsgID: this.message.clientMsgID,
-          })
-            .then(() => {
-              this.deleteMessages([this.message]);
-              uni.$u.toast("删除成功");
-            })
-            .catch(() => uni.$u.toast("删除失败"));
-          break;
-        case MessageMenuTypes.Revoke:
-          IMSDK.asyncApi(IMSDK.IMMethods.RevokeMessage, IMSDK.uuid(), {
-            conversationID:
-              this.$store.getters.storeCurrentConversation.conversationID,
-            clientMsgID: this.message.clientMsgID,
-          })
-            .then(() => {
-              this.updateOneMessage({
-                message: {
-                  ...this.message,
-                  contentType: MessageType.RevokeMessage,
-                  notificationElem: {
-                    detail: JSON.stringify({
-                      clientMsgID: this.message.clientMsgID,
-                      revokeTime: Date.now(),
-                      revokerID: this.storeCurrentUserID,
-                      revokerNickname: "你",
-                      revokerRole: 0,
-                      seq: this.message.seq,
-                      sessionType: this.message.sessionType,
-                      sourceMessageSendID: this.message.sendID,
-                      sourceMessageSendTime: this.message.sendTime,
-                      sourceMessageSenderNickname: this.message.senderNickname,
-                    }),
-                  },
+    data () {
+        return {};
+    },
+    computed: {
+        ...mapGetters(["storeCurrentMemberInGroup", "storeCurrentUserID"]),
+        getLeft () {
+            if (this.isSender && this.paterWidth < 174) {
+                return "auto";
+            }
+            if (!this.isSender && this.paterWidth < 174) {
+                return "0";
+            }
+            return "20%";
+        },
+        getRight () {
+            if (this.isSender && this.paterWidth < 174) {
+                return "0";
+            }
+            return "auto";
+        },
+        canRevoke () {
+            return this.isSender;
+        },
+        menuList () {
+            return [
+                {
+                    idx: 0,
+                    type: MessageMenuTypes.Copy,
+                    title: "复制",
+                    icon: copy,
+                    visible: canCopyTypes.includes(this.message.contentType),
                 },
-              });
-            })
-            .catch(() => uni.$u.toast("撤回失败"));
-          break;
-        default:
-          break;
-      }
-      this.$emit("close");
+                {
+                    idx: 1,
+                    type: MessageMenuTypes.Del,
+                    title: "删除",
+                    icon: del,
+                    visible: true,
+                },
+                {
+                    idx: 4,
+                    type: MessageMenuTypes.Revoke,
+                    title: "撤回",
+                    icon: revoke,
+                    visible: this.canRevoke,
+                },
+            ];
+        },
     },
-    getCopyText() {
-      if (this.message.contentType === MessageType.AtTextMessage) {
-        return this.message.atTextElem.text;
-      }
-      if (this.message.contentType === MessageType.QuoteMessage) {
-        return this.message.quoteElem.text;
-      }
-      return this.message.textElem.content;
+    methods: {
+        ...mapActions("message", ["deleteMessages", "updateOneMessage"]),
+        menuClick ({ type }) {
+            switch (type) {
+            case MessageMenuTypes.Copy:
+                uni.setClipboardData({
+                    data: this.getCopyText(),
+                    success: () => {
+                        uni.hideToast();
+                        this.$nextTick(() => {
+                            uni.$u.toast("复制成功");
+                        });
+                    },
+                });
+                break;
+            case MessageMenuTypes.Del:
+                IMSDK.asyncApi(IMSDK.IMMethods.DeleteMessage, IMSDK.uuid(), {
+                    conversationID:
+              this.$store.getters.storeCurrentConversation.conversationID,
+                    clientMsgID: this.message.clientMsgID,
+                })
+                    .then(() => {
+                        this.deleteMessages([this.message]);
+                        uni.$u.toast("删除成功");
+                    })
+                    .catch(() => uni.$u.toast("删除失败"));
+                break;
+            case MessageMenuTypes.Revoke:
+                IMSDK.asyncApi(IMSDK.IMMethods.RevokeMessage, IMSDK.uuid(), {
+                    conversationID:
+              this.$store.getters.storeCurrentConversation.conversationID,
+                    clientMsgID: this.message.clientMsgID,
+                })
+                    .then(() => {
+                        this.updateOneMessage({
+                            message: {
+                                ...this.message,
+                                contentType: MessageType.RevokeMessage,
+                                notificationElem: {
+                                    detail: JSON.stringify({
+                                        clientMsgID: this.message.clientMsgID,
+                                        revokeTime: Date.now(),
+                                        revokerID: this.storeCurrentUserID,
+                                        revokerNickname: "你",
+                                        revokerRole: 0,
+                                        seq: this.message.seq,
+                                        sessionType: this.message.sessionType,
+                                        sourceMessageSendID: this.message.sendID,
+                                        sourceMessageSendTime: this.message.sendTime,
+                                        sourceMessageSenderNickname: this.message.senderNickname,
+                                    }),
+                                },
+                            },
+                        });
+                    })
+                    .catch(() => uni.$u.toast("撤回失败"));
+                break;
+            default:
+                break;
+            }
+            this.$emit("close");
+        },
+        getCopyText () {
+            if (this.message.contentType === MessageType.AtTextMessage) {
+                return this.message.atTextElem.text;
+            }
+            if (this.message.contentType === MessageType.QuoteMessage) {
+                return this.message.quoteElem.text;
+            }
+            return this.message.textElem.content;
+        },
     },
-  },
 };
 </script>
 

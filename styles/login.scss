@@ -1,49 +1,44 @@
-.content_with_back {
-	padding: 0 64rpx;
-	
-	.back_icon {
-		padding-top: 50rpx;
-		padding-bottom: 100rpx;
-	}
-	
-	.title {
-		font-size: 48rpx;
-		padding-bottom: 90rpx;
-	}
-	
-	.sub_title {
-		color: $u-primary;
-		padding-bottom: 48rpx;
+.box-logo {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	margin: calc(122rpx - #{$uni-navbar-height}) 0 80rpx;
+	.logo {
+		margin-bottom: 34rpx;
 	}
 }
 
 .phoneNumber_areacode {
-			display: flex;
-			align-items: center;
-			font-size: 36rpx;
-			border-right: 2rpx solid #d8d8d8;
-			margin-right: 48rpx;
+	height: 96rpx;
+    display: flex;
+    align-items: center;
+    font-size: 36rpx;
+    margin-right: 20rpx;
+	background-color: $uni-bg-color-grey;
+	border-radius: 16rpx;
+	padding: 0 20rpx;
 
-			.areacode_content {
-				font-weight: 400;
-				font-size: 28rpx;
-				margin-right: 12rpx;
-			}
+    .areacode_content {
+        font-weight: 400;
+        font-size: 28rpx;
+        margin: 0 12rpx 0 10rpx;
+    }
 
-			.arrow_down {
-				margin-right: 12rpx;
-			}
-		}
-		
-		.agreement {
-			display: flex;
-			align-items: flex-start;
-			flex-wrap: wrap;
-			margin: 36rpx 24rpx;
-		
-			.detail {
-				font-size: 24rpx;
-				font-weight: 400;
-				color: $u-primary;
-			}
-		}
+    .arrow_down {
+        margin-right: 12rpx;
+    }
+}
+
+.agreement {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 36rpx 24rpx;
+	font-size: 24rpx;
+
+    .detail {
+        font-weight: 400;
+        color: $u-primary;
+		text-decoration: underline;
+    }
+}

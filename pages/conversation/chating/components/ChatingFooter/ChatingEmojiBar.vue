@@ -1,38 +1,48 @@
 <template>
-	<view class="chat_emoji_bar">
-		<u-row class="emoji_row">
-			<u-col @click="clickEmoji(emoji)" v-for="emoji in emojiList" :key="emoji.context" :id="`emoji${emoji.context}`" span="2">
-				<image class="emoji_item" :src="emoji.src" alt=""/>
-			</u-col>
-		</u-row>
-	</view>
+    <view class="chat_emoji_bar">
+        <u-row class="emoji_row">
+            <u-col
+                v-for="emoji in emojiList"
+                :id="`emoji${emoji.context}`"
+                :key="emoji.context"
+                span="2"
+                @click="clickEmoji(emoji)"
+            >
+                <image
+                    class="emoji_item"
+                    :src="emoji.src"
+                    alt=""
+                />
+            </u-col>
+        </u-row>
+    </view>
 </template>
 
 <script>
-	import emojis from "@/common/emojis.js"
-	export default {
-		components: {
+import emojis from "@/common/emojis.js";
+export default {
+    components: {
 
-		},
-		data() {
-			return {
+    },
+    data () {
+        return {
 				 
-			}
-		},
-		computed:{
-			emojiList() {
+        };
+    },
+    computed: {
+        emojiList () {
 			  return emojis;
-			},
-		},
-		mounted() {
+        },
+    },
+    mounted () {
 
-		},
-		methods: {
-			clickEmoji(emoji) {
-				this.$emit('emojiClick', emoji)
-			},
-		}
-	}
+    },
+    methods: {
+        clickEmoji (emoji) {
+            this.$emit('emojiClick', emoji);
+        },
+    }
+};
 </script>
 
 <style lang="scss" scoped>

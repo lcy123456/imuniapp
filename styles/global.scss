@@ -1,13 +1,105 @@
 .page_container {
-		display: flex;
-		flex-direction: column;
-		height: 100vh;
-	}
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
 	
 image {
-    	image-rendering:-moz-crisp-edges;
-        image-rendering:-o-crisp-edges;
-        image-rendering:-webkit-optimize-contrast;
-        image-rendering: crisp-edges;
-        -ms-interpolation-mode:nearest-neighbor;
+	image-rendering:-moz-crisp-edges;
+	image-rendering:-o-crisp-edges;
+	image-rendering:-webkit-optimize-contrast;
+	image-rendering: crisp-edges;
+	-ms-interpolation-mode:nearest-neighbor;
+}
+
+/* 行为相关颜色 */
+.primary {
+	color: $uni-color-primary;
+};
+.success {
+	color: $uni-color-success;
+};
+.warning {
+	color: $uni-color-warning;
+};
+.error {
+	color: $uni-color-error;
+};
+
+/* 文字基本颜色 */
+.text-color {
+	color: $uni-text-color;
+}
+.text-inverse {
+	color: $uni-text-color-inverse;
+}
+.text-grey {
+	color: $uni-text-color-grey;
+}
+.text-placeholder {
+	color: $uni-text-color-placeholder;
+}
+.text-disable {
+	color: $uni-text-color-disable;
+}
+
+/* 背景颜色 */
+.bg-color {
+	background-color: $uni-bg-color;
+}
+.bg-color-grey {
+	background-color: $uni-bg-color-grey;
+}
+.bg-color-hover {
+	background-color: $uni-bg-color-hover;
+}
+.bg-color-mask {
+	background-color: $uni-bg-color-mask;
+}
+
+/* 边框颜色 */
+.border-color {
+	border-color: $uni-border-color;
+};
+
+/* 导航栏高度，含状态栏 */
+.navbar-height {
+	height: calc(#{$uni-navbar-height} + var(--status-bar-height));
+}
+
+/* 状态栏高度 */
+.status-bar-height {
+	height: var(--status-bar-height);
+}
+
+@for $i from 0 through 300 {
+	.mt-#{$i * 1} {
+		margin-top: #{$i * 1}rpx !important;
+	}
+	.mr-#{$i * 1} {
+		margin-right: #{$i * 1}rpx !important;
+	}
+	.mb-#{$i * 1} {
+		margin-bottom: #{$i * 1}rpx !important;
+	}
+	.ml-#{$i * 1} {
+		margin-left: #{$i * 1}rpx !important;
+	}
+	.pt-#{$i * 1} {
+		padding-top: #{$i * 1}rpx !important;
+	}
+	.pr-#{$i * 1} {
+		padding-right: #{$i * 1}rpx !important;
+	}
+	.pb-#{$i * 1} {
+		padding-bottom: #{$i * 1}rpx !important;
+	}
+	.pl-#{$i * 1} {
+		padding-left: #{$i * 1}rpx !important;
+	}
+}
+@for $i from 12 through 60 {
+	.fz-#{$i} {
+		font-size: #{$i}rpx !important;
+	}
 }

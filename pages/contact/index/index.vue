@@ -1,71 +1,97 @@
 <template>
-	<view class="contact_container">
-		<custom-nav-bar>
-			<view class="contact_title" slot="left">
-				<text>通讯录</text>
-			</view>
-			<view class="contact_action" slot="more">
-				<view class="search_icon">
-					<image src="@/static/images/common_search.png" alt="" srcset=""/>
-				</view>
-				<view @click="contactAddClick" class="">
-					<image src="@/static/images/common_circle_add.png" alt="" srcset=""/>
-				</view>
-			</view>
-		</custom-nav-bar>
+    <view class="contact_container">
+        <custom-nav-bar>
+            <view
+                slot="left"
+                class="contact_title"
+            >
+                <text>通讯录</text>
+            </view>
+            <view
+                slot="more"
+                class="contact_action"
+            >
+                <view class="search_icon">
+                    <image
+                        src="@/static/images/common_search.png"
+                        alt=""
+                        srcset=""
+                    />
+                </view>
+                <view
+                    class=""
+                    @click="contactAddClick"
+                >
+                    <image
+                        src="@/static/images/common_circle_add.png"
+                        alt=""
+                        srcset=""
+                    />
+                </view>
+            </view>
+        </custom-nav-bar>
 
-		<contact-menus />
+        <contact-menus />
 
-		<view class="list_title">
-			<text>
-				常用联系人
-			</text>
-		</view>
+        <view class="list_title">
+            <text>
+                常用联系人
+            </text>
+        </view>
 
-		<u-list class="user_list" height="1">
-			<u-list-item v-for="user in frequentContacts" :key="user.userID">
-				<user-item @itemClick="userClick" :item="user" />
-			</u-list-item>
-		</u-list>
-	</view>
+        <u-list
+            class="user_list"
+            height="1"
+        >
+            <u-list-item
+                v-for="user in frequentContacts"
+                :key="user.userID"
+            >
+                <user-item
+                    :item="user"
+                    @itemClick="userClick"
+                />
+            </u-list-item>
+        </u-list>
+    </view>
 </template>
 
 <script>
-	import CustomNavBar from '@/components/CustomNavBar/index.vue'
-	import ContactMenus from './components/ContactMenus.vue'
-	import UserItem from "@/components/UserItem/index.vue"
-	export default {
-		components: {
-			CustomNavBar,
-			ContactMenus,
-			UserItem
-		},
-		data() {
-			return {
-				frequentContacts: []
-			};
-		},
-		onShow() {
-			this.getFrequentContacts();
-		},
-		methods: {
-			contactAddClick() {
-				uni.navigateTo({
-					url: "/pages/contact/contactAdd/index"
-				})
-			},
-			getFrequentContacts() {
-				const tmpData = uni.getStorageSync(`${this.$store.getters.storeCurrentUserID}_frequentContacts`) || []
-				console.log(tmpData);
-				this.frequentContacts = [...tmpData].sort((a, b) => b - a)
-			},
-			userClick(item) {
-				uni.navigateTo({
-					url: `/pages/common/userCard/index?sourceID=${item.userID}`
-				})
-			},
-		}
-	}
+import CustomNavBar from '@/components/CustomNavBar/index.vue';
+import ContactMenus from './components/ContactMenus.vue';
+import UserItem from "@/components/UserItem/index.vue";
+export default {
+    components: {
+        CustomNavBar,
+        ContactMenus,
+        UserItem
+    },
+    data () {
+        return {
+            frequentContacts: []
+        };
+    },
+    onShow () {
+        this.getFrequentContacts();
+    },
+    methods: {
+        contactAddClick () {
+            uni.navigateTo({
+                url: "/pages/contact/contactAdd/index"
+            });
+        },
+        getFrequentContacts () {
+            const tmpData = uni.getStorageSync(`${this.$store.getters.storeCurrentUserID}_frequentContacts`) || [];
+            console.log(tmpData);
+            this.frequentContacts = [...tmpData].sort((a, b) => b - a);
+        },
+        userClick (item) {
+            uni.navigateTo({
+                url: `/pages/common/userCard/index?sourceID=${item.userID}`
+            });
+        },
+    }
+};
 </script>
 
 <style lang="scss" scoped>

@@ -1,40 +1,38 @@
 <template>
-	<custom-nav-bar :title="getTitle">
-	</custom-nav-bar>
-
+    <custom-nav-bar :title="getTitle" />
 </template>
 
 <script>
-	import CustomNavBar from '@/components/CustomNavBar/index.vue'
-	import {
-		ContactChooseTypes
-	} from '@/constant';
-	export default {
-		name: "",
-		components: {
-			CustomNavBar
-		},
-		props: {
-			checkVisible: {
-				type: Boolean,
-				default: false
-			},
-			groupID: String
-		},
-		data() {
-			return {
+import CustomNavBar from '@/components/CustomNavBar/index.vue';
+import {
+    ContactChooseTypes
+} from '@/constant';
+export default {
+    name: "",
+    components: {
+        CustomNavBar
+    },
+    props: {
+        checkVisible: {
+            type: Boolean,
+            default: false
+        },
+        groupID: String
+    },
+    data () {
+        return {
 				
-			};
-		},
-		computed: {
-			getTitle() {
-				return this.checkVisible ? '移除群成员' : "群成员"
-			}
-		},
-		methods: {
+        };
+    },
+    computed: {
+        getTitle () {
+            return this.checkVisible ? '移除群成员' : "群成员";
+        }
+    },
+    methods: {
 
-		}
-	}
+    }
+};
 </script>
 
 <style lang="scss">

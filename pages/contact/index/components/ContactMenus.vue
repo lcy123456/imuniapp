@@ -1,109 +1,124 @@
 <template>
-	<view class="menu_list">
-		<view @click="menuClick(item)" v-for="item in getMenus" :key="item.idx" class="menu_list_item">
-			<image class="menu_icon" :src="item.icon" mode=""></image>
-			<view class="item_content">
-				<text class="title">
-					{{item.title}}
-				</text>
-				<view class="icon">
-					<u-badge max="99" :value="item.badge"></u-badge>
-					<u-icon name="arrow-right" color="#999" size="18" />
-				</view>
-				<view class="bottom_line">
-				</view>
-			</view>
-		</view>
-	</view>
+    <view class="menu_list">
+        <view
+            v-for="item in getMenus"
+            :key="item.idx"
+            class="menu_list_item"
+            @click="menuClick(item)"
+        >
+            <image
+                class="menu_icon"
+                :src="item.icon"
+                mode=""
+            />
+            <view class="item_content">
+                <text class="title">
+                    {{ item.title }}
+                </text>
+                <view class="icon">
+                    <u-badge
+                        max="99"
+                        :value="item.badge"
+                    />
+                    <u-icon
+                        name="arrow-right"
+                        color="#999"
+                        size="18"
+                    />
+                </view>
+                <view class="bottom_line" />
+            </view>
+        </view>
+    </view>
 </template>
 
 <script>
-	import {
-		mapGetters
-	} from 'vuex'
-	import {
-		ContactMenuTypes
-	} from '@/constant'
+import {
+    mapGetters
+} from 'vuex';
+import {
+    ContactMenuTypes
+} from '@/constant';
 
-	export default {
-		name: "",
-		props: {},
-		data() {
-			return {};
-		},
-		computed: {
-			...mapGetters(['storeUnHandleFriendApplicationNum', 'storeUnHandleGroupApplicationNum']),
-			getMenus() {
-				return [{
-						idx: 0,
-						type: ContactMenuTypes.NewFriend,
-						title: '新的好友',
-						icon: require("static/images/contact_new_friend.png"),
-						badge: this.storeUnHandleFriendApplicationNum
-					},
-					{
-						idx: 1,
-						type: ContactMenuTypes.NewGroup,
-						title: '新的群组',
-						icon: require("static/images/contact_new_group.png"),
-						badge: this.storeUnHandleGroupApplicationNum
-					},
-					{
-						idx: 2,
-						type: ContactMenuTypes.MyFriend,
-						title: '我的好友',
-						icon: require("static/images/contact_my_friend.png"),
-						badge: 0
-					},
-					{
-						idx: 3,
-						type: ContactMenuTypes.MyGroup,
-						title: '我的群组',
-						icon: require("static/images/contact_my_group.png"),
-						badge: 0
-					},
-					// {
-					// 	idx: 4,
-					// 	type: ContactMenuTypes.Lable,
-					// 	title: '标签',
-					// 	icon: require("static/images/contact_my_lable.png"),
-					// 	badge: 0
-					// },
-				]
-			}
-		},
-		methods: {
-			menuClick({
-				type
-			}) {
-				switch (type) {
-					case ContactMenuTypes.NewFriend:
-					case ContactMenuTypes.NewGroup:
-						uni.navigateTo({
-							url: `/pages/contact/applicationList/index?applicationType=${type}`
-						})
-						break;
-					case ContactMenuTypes.MyFriend:
-						uni.navigateTo({
-							url: "/pages/contact/friendList/index"
-						})
-						break;
-					case ContactMenuTypes.MyGroup:
-						uni.navigateTo({
-							url: "/pages/contact/groupList/index"
-						})
-						break;
-					case ContactMenuTypes.Lable:
-						uni.navigateTo({
-							url: "/pages/contact/lableList/index"
-						})
-						break;
-					default:
-						break;
-				}
-			}
-		}
-	}
+export default {
+    name: "",
+    props: {},
+    data () {
+        return {};
+    },
+    computed: {
+        ...mapGetters(['storeUnHandleFriendApplicationNum', 'storeUnHandleGroupApplicationNum']),
+        getMenus () {
+            return [{
+                idx: 0,
+                type: ContactMenuTypes.NewFriend,
+                title: '新的好友',
+                icon: require("static/images/contact_new_friend.png"),
+                badge: this.storeUnHandleFriendApplicationNum
+            },
+            {
+                idx: 1,
+                type: ContactMenuTypes.NewGroup,
+                title: '新的群组',
+                icon: require("static/images/contact_new_group.png"),
+                badge: this.storeUnHandleGroupApplicationNum
+            },
+            {
+                idx: 2,
+                type: ContactMenuTypes.MyFriend,
+                title: '我的好友',
+                icon: require("static/images/contact_my_friend.png"),
+                badge: 0
+            },
+            {
+                idx: 3,
+                type: ContactMenuTypes.MyGroup,
+                title: '我的群组',
+                icon: require("static/images/contact_my_group.png"),
+                badge: 0
+            },
+                // {
+                // 	idx: 4,
+                // 	type: ContactMenuTypes.Lable,
+                // 	title: '标签',
+                // 	icon: require("static/images/contact_my_lable.png"),
+                // 	badge: 0
+                // },
+            ];
+        }
+    },
+    methods: {
+        menuClick ({
+            type
+        }) {
+            switch (type) {
+            case ContactMenuTypes.NewFriend:
+            case ContactMenuTypes.NewGroup:
+                uni.navigateTo({
+                    url: `/pages/contact/applicationList/index?applicationType=${type}`
+                });
+                break;
+            case ContactMenuTypes.MyFriend:
+                uni.navigateTo({
+                    url: "/pages/contact/friendList/index"
+                });
+                break;
+            case ContactMenuTypes.MyGroup:
+                uni.navigateTo({
+                    url: "/pages/contact/groupList/index"
+                });
+                break;
+            case ContactMenuTypes.Lable:
+                uni.navigateTo({
+                    url: "/pages/contact/lableList/index"
+                });
+                break;
+            default:
+                break;
+            }
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

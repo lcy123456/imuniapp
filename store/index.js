@@ -9,13 +9,13 @@ import getters from "./getters";
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
-  modules: {
-    user,
-    contact,
-    conversation,
-    message,
-  },
-  getters
+    modules: {
+        user,
+        contact,
+        conversation,
+        message,
+    },
+    getters
 });
 
 export default store;

@@ -1,58 +1,64 @@
 <template>
-  <view class="chat_action_bar">
-    <u-row class="action_row">
-      <u-col
-        v-for="item in actionList"
-        :key="item.idx"
-        @click="actionClick(item)"
-        span="3"
-      >
-        <view class="action_item">
-          <image :src="item.icon" alt="" srcset="" />
-          <text class="action_item_title">{{ item.title }}</text>
-        </view>
-      </u-col>
-    </u-row>
-  </view>
+    <view class="chat_action_bar">
+        <u-row class="action_row">
+            <u-col
+                v-for="item in actionList"
+                :key="item.idx"
+                span="3"
+                @click="actionClick(item)"
+            >
+                <view class="action_item">
+                    <image
+                        :src="item.icon"
+                        alt=""
+                        srcset=""
+                    />
+                    <text class="action_item_title">
+                        {{ item.title }}
+                    </text>
+                </view>
+            </u-col>
+        </u-row>
+    </view>
 </template>
 
 <script>
 import {
-  ChatingFooterActionTypes,
+    ChatingFooterActionTypes,
 } from "@/constant";
 
 export default {
-  components: {},
-  data() {
-    return {
-      actionList: [
-        {
-          idx: 0,
-          type: ChatingFooterActionTypes.Album,
-          title: "相册",
-          icon: require("static/images/chating_action_image.png"),
-        },
-        {
-          idx: 1,
-          type: ChatingFooterActionTypes.Camera,
-          title: "拍摄",
-          icon: require("static/images/chating_action_camera.png"),
-        },
-      ],
-    };
-  },
-  methods: {
-    async actionClick(action) {
-      switch (action.type) {
-        case ChatingFooterActionTypes.Album:
-        case ChatingFooterActionTypes.Camera:
-          this.$emit("prepareMediaMessage", action.type);
-          break;
-        default:
-          break;
-      }
+    components: {},
+    data () {
+        return {
+            actionList: [
+                {
+                    idx: 0,
+                    type: ChatingFooterActionTypes.Album,
+                    title: "相册",
+                    icon: require("static/images/chating_action_image.png"),
+                },
+                {
+                    idx: 1,
+                    type: ChatingFooterActionTypes.Camera,
+                    title: "拍摄",
+                    icon: require("static/images/chating_action_camera.png"),
+                },
+            ],
+        };
     },
-  },
+    methods: {
+        async actionClick (action) {
+            switch (action.type) {
+            case ChatingFooterActionTypes.Album:
+            case ChatingFooterActionTypes.Camera:
+                this.$emit("prepareMediaMessage", action.type);
+                break;
+            default:
+                break;
+            }
+        },
+    },
 };
 </script>
 

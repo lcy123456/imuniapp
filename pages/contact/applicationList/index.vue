@@ -1,121 +1,158 @@
 <template>
-	<view class="application_list_container">
-		<custom-nav-bar :title="isGroupApplication ? '群通知' : '新的好友'" />
-		<view class="search_bar_wrap">
-			<u-search disabled class="search_bar" shape="square"
-				:placeholder="`通过${isGroupApplication ? '群' : '用户'}ID搜索添加`" :showAction="false" @click="toSearch" />
-		</view>
+    <view class="application_list_container">
+        <custom-nav-bar :title="isGroupApplication ? '群通知' : '新的好友'" />
+        <view class="search_bar_wrap">
+            <u-search
+                disabled
+                class="search_bar"
+                shape="square"
+                :placeholder="`通过${isGroupApplication ? '群' : '用户'}ID搜索添加`"
+                :show-action="false"
+                @click="toSearch"
+            />
+        </view>
 
-		<u-tabs :scrollable="false" :list="tabList" @click="clickTab"></u-tabs>
+        <u-tabs
+            :scrollable="false"
+            :list="tabList"
+            @click="clickTab"
+        />
 
-		<view class="pane_row" :style="{'transform': `translateX(${isRecv? '0': '-100%' })`}">
-			<view class="pane_content">
-				<view class="pane_title">
-					<text>{{isGroupApplication ? '群通知' : '新的好友请求'}}</text>
-				</view>
-				<u-list v-if="getRecvRenderData.length>0" class="application_list">
-					<u-list-item v-for="application in getRecvRenderData"
-						:key="application[!isGroupApplication ? 'fromUserID' : 'userID']+application.groupID">
-						<application-item :isRecv="true" :application="application" />
-					</u-list-item>
-				</u-list>
-				<u-empty v-else mode="list" />
-			</view>
+        <view
+            class="pane_row"
+            :style="{'transform': `translateX(${isRecv? '0': '-100%' })`}"
+        >
+            <view class="pane_content">
+                <view class="pane_title">
+                    <text>{{ isGroupApplication ? '群通知' : '新的好友请求' }}</text>
+                </view>
+                <u-list
+                    v-if="getRecvRenderData.length>0"
+                    class="application_list"
+                >
+                    <u-list-item
+                        v-for="application in getRecvRenderData"
+                        :key="application[!isGroupApplication ? 'fromUserID' : 'userID']+application.groupID"
+                    >
+                        <application-item
+                            :is-recv="true"
+                            :application="application"
+                        />
+                    </u-list-item>
+                </u-list>
+                <u-empty
+                    v-else
+                    mode="list"
+                />
+            </view>
 
-			<view class="pane_content">
-				<view class="pane_title">
-					<text>我的请求</text>
-				</view>
-				<u-list v-if="getSendRenderData.length>0" class="application_list">
-					<u-list-item v-for="application in getSendRenderData"
-						:key="application[!isGroupApplication ? 'toUserID' : 'groupID']">
-						<application-item :application="application" />
-					</u-list-item>
-				</u-list>
-				<u-empty v-else mode="list" />
-			</view>
-		</view>
+            <view class="pane_content">
+                <view class="pane_title">
+                    <text>我的请求</text>
+                </view>
+                <u-list
+                    v-if="getSendRenderData.length>0"
+                    class="application_list"
+                >
+                    <u-list-item
+                        v-for="application in getSendRenderData"
+                        :key="application[!isGroupApplication ? 'toUserID' : 'groupID']"
+                    >
+                        <application-item :application="application" />
+                    </u-list-item>
+                </u-list>
+                <u-empty
+                    v-else
+                    mode="list"
+                />
+            </view>
+        </view>
 
-		<view v-if="isRecv ? getRecvRenderData.length>0 : getSendRenderData.length>0" class="view_all">
-			<u-button @click="previewAll" type="primary" :plain="true"
-				:text="`查看全部${isGroupApplication ? '群通知' : '好友请求'}`"></u-button>
-		</view>
-
-
-	</view>
+        <view
+            v-if="isRecv ? getRecvRenderData.length>0 : getSendRenderData.length>0"
+            class="view_all"
+        >
+            <u-button
+                type="primary"
+                :plain="true"
+                :text="`查看全部${isGroupApplication ? '群通知' : '好友请求'}`"
+                @click="previewAll"
+            />
+        </view>
+    </view>
 </template>
 
 <script>
-	import {
-		mapGetters
-	} from 'vuex'
-	import {
-		ContactMenuTypes
-	} from '@/constant'
-	import CustomNavBar from '@/components/CustomNavBar/index.vue'
-	import ApplicationItem from './ApplicationItem.vue'
-	export default {
-		components: {
-			CustomNavBar,
-			ApplicationItem
-		},
-		data() {
-			return {
-				keyword: "",
-				isRecv: true,
-				isGroupApplication: false,
-			};
-		},
-		computed: {
-			...mapGetters(['storeRecvFriendApplications', 'storeSentFriendApplications', 'storeRecvGroupApplications',
-				'storeSentGroupApplications', 'storeUnHandleFriendApplicationNum', 'storeUnHandleGroupApplicationNum'
-			]),
-			getRecvRenderData() {
-				const tmpList = this.isGroupApplication ? this.storeRecvGroupApplications : this
-					.storeRecvFriendApplications
-				tmpList.sort((a, b) => (a.handleResult === 0 ? -1 : 1));
-				return tmpList.slice(0, 4)
-			},
-			getSendRenderData() {
-				const tmpList = this.isGroupApplication ? this.storeSentGroupApplications : this
-					.storeSentFriendApplications
-				tmpList.sort((a, b) => (a.handleResult === 0 ? -1 : 1));
-				return tmpList.slice(0, 4)
-			},
-			tabList() {
-				return [{
-						name: this.isGroupApplication ? '入群申请' : '好友请求'
-					},
-					{
-						name: '我的请求'
-					}
-				]
-			},
-		},
-		onLoad(params) {
-			const {
-				applicationType
-			} = params
-			this.isGroupApplication = applicationType === ContactMenuTypes.NewGroup
-		},
-		methods: {
-			clickTab({
-				index
-			}) {
-				this.isRecv = index === 0
-			},
-			previewAll() {
-				uni.navigateTo({
-					url: `/pages/contact/applicationListDetails/index?isGroupApplication=${this.isGroupApplication}&isRecv=${this.isRecv}`
-				})
-			},
-			toSearch() {
-				uni.navigateTo({
-					url: `/pages/common/searchUserOrGroup/index?isSearchGroup=${this.isGroupApplication}`
-				})
-			}
-		}
-	}
+import {
+    mapGetters
+} from 'vuex';
+import {
+    ContactMenuTypes
+} from '@/constant';
+import CustomNavBar from '@/components/CustomNavBar/index.vue';
+import ApplicationItem from './ApplicationItem.vue';
+export default {
+    components: {
+        CustomNavBar,
+        ApplicationItem
+    },
+    data () {
+        return {
+            keyword: "",
+            isRecv: true,
+            isGroupApplication: false,
+        };
+    },
+    computed: {
+        ...mapGetters(['storeRecvFriendApplications', 'storeSentFriendApplications', 'storeRecvGroupApplications',
+            'storeSentGroupApplications', 'storeUnHandleFriendApplicationNum', 'storeUnHandleGroupApplicationNum'
+        ]),
+        getRecvRenderData () {
+            const tmpList = this.isGroupApplication ? this.storeRecvGroupApplications : this
+                .storeRecvFriendApplications;
+            tmpList.sort((a, b) => (a.handleResult === 0 ? -1 : 1));
+            return tmpList.slice(0, 4);
+        },
+        getSendRenderData () {
+            const tmpList = this.isGroupApplication ? this.storeSentGroupApplications : this
+                .storeSentFriendApplications;
+            tmpList.sort((a, b) => (a.handleResult === 0 ? -1 : 1));
+            return tmpList.slice(0, 4);
+        },
+        tabList () {
+            return [{
+                name: this.isGroupApplication ? '入群申请' : '好友请求'
+            },
+            {
+                name: '我的请求'
+            }
+            ];
+        },
+    },
+    onLoad (params) {
+        const {
+            applicationType
+        } = params;
+        this.isGroupApplication = applicationType === ContactMenuTypes.NewGroup;
+    },
+    methods: {
+        clickTab ({
+            index
+        }) {
+            this.isRecv = index === 0;
+        },
+        previewAll () {
+            uni.navigateTo({
+                url: `/pages/contact/applicationListDetails/index?isGroupApplication=${this.isGroupApplication}&isRecv=${this.isRecv}`
+            });
+        },
+        toSearch () {
+            uni.navigateTo({
+                url: `/pages/common/searchUserOrGroup/index?isSearchGroup=${this.isGroupApplication}`
+            });
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

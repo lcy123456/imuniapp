@@ -1,36 +1,46 @@
 <template>
-	<view class="selected_item">
-		<view class="left_info">
-			<my-avatar :src="source.faceURL" :desc="source.nickname" :isGroup="source.groupID !== undefined" size="42" />
-			<text>{{source.nickname || source.groupName}}</text>
-		</view>
-		<view>
-			<u-button @click="action" plain text="移除" type="primary" />
-		</view>
-	</view>
+    <view class="selected_item">
+        <view class="left_info">
+            <my-avatar
+                :src="source.faceURL"
+                :desc="source.nickname"
+                :is-group="source.groupID !== undefined"
+                size="42"
+            />
+            <text>{{ source.nickname || source.groupName }}</text>
+        </view>
+        <view>
+            <u-button
+                plain
+                text="移除"
+                type="primary"
+                @click="action"
+            />
+        </view>
+    </view>
 </template>
 
 <script>
-	import MyAvatar from "@/components/MyAvatar/index.vue"
-	export default {
-		name: "",
-		components: {
-			MyAvatar
-		},
-		props: {
-			source: Object
-		},
-		data() {
-			return {
+import MyAvatar from "@/components/MyAvatar/index.vue";
+export default {
+    name: "",
+    components: {
+        MyAvatar
+    },
+    props: {
+        source: Object
+    },
+    data () {
+        return {
 
-			};
-		},
-		methods: {
-			action() {
-				this.$emit('removeItem')
-			}
-		}
-	}
+        };
+    },
+    methods: {
+        action () {
+            this.$emit('removeItem');
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

@@ -1,40 +1,49 @@
 <template>
-	<view @click="click" class="row_item" :class="{'arrow_right':arrow}">
-		<view class="title">
-			<text>{{lable}}</text>
-		</view>
-		<view class="content">
-			<text>{{content}}</text>
-		</view>
-		<slot>
-			<u-icon v-if="arrow" name="arrow-right" color="#999" size="20"></u-icon>
-		</slot>
-	</view>
+    <view
+        class="row_item"
+        :class="{'arrow_right':arrow}"
+        @click="click"
+    >
+        <view class="title">
+            <text>{{ lable }}</text>
+        </view>
+        <view class="content">
+            <text>{{ content }}</text>
+        </view>
+        <slot>
+            <u-icon
+                v-if="arrow"
+                name="arrow-right"
+                color="#999"
+                size="20"
+            />
+        </slot>
+    </view>
 </template>
 
 <script>
-	export default {
-		name: "",
-		components: {},
-		props: {
-			lable: String,
-			content: String,
-			arrow: {
-				type: Boolean,
-				default: false
-			}
-		},
-		data() {
-			return {
+export default {
+    name: "",
+    components: {},
+    props: {
+        lable: String,
+        content: String,
+        arrow: {
+            type: Boolean,
+            default: false
+        }
+    },
+    data () {
+        return {
 
-			};
-		},
-		methods: {
-			click(){
-				this.$emit('click')
-			}
-		}
-	}
+        };
+    },
+    methods: {
+        click () {
+            this.$emit('click');
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

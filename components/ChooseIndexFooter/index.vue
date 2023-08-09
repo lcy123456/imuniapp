@@ -1,60 +1,90 @@
 <template>
-	<view class="member_checked_desc">
-		<view @click="showSelected = true" class="left_info">
-			<text class="text">{{`已选择：${choosedData.length}人`}}</text>
-			<u-icon name="arrow-up" size="14" color="#007aff" />
-		</view>
-		<view class="">
-			<u-button :loading="comfirmLoading" @click="clickComfirm" :disabled="choosedData.length === 0" type="primary" :text="isRemove ? '移除' : '确认'" />
-			<u-popup round="24" :show="showSelected" mode="bottom" @close="close">
-				<view class="selected_container">
-					<view class="top_desc">
-						<text>{{`已选择：${choosedData.length}人`}}</text>
-						<text @click="close" class="comfirm_text">确认</text>
-					</view>
-					<u-list class="selected_list">
-						<u-list-item v-for="item in choosedData" :key="item.userID || item.groupID">
-							<selected-member @removeItem="removeItem(item)" :source="item" />
-						</u-list-item>
-					</u-list>
-				</view>
-			</u-popup>
-		</view>
-		
-	</view>
+    <view class="member_checked_desc">
+        <view
+            class="left_info"
+            @click="showSelected = true"
+        >
+            <text class="text">
+                {{ `已选择：${choosedData.length}人` }}
+            </text>
+            <u-icon
+                name="arrow-up"
+                size="14"
+                color="#007aff"
+            />
+        </view>
+        <view class="">
+            <u-button
+                :loading="comfirmLoading"
+                :disabled="choosedData.length === 0"
+                type="primary"
+                :text="isRemove ? '移除' : '确认'"
+                @click="clickComfirm"
+            />
+            <u-popup
+                round="24"
+                :show="showSelected"
+                mode="bottom"
+                @close="close"
+            >
+                <view class="selected_container">
+                    <view class="top_desc">
+                        <text>{{ `已选择：${choosedData.length}人` }}</text>
+                        <text
+                            class="comfirm_text"
+                            @click="close"
+                        >
+                            确认
+                        </text>
+                    </view>
+                    <u-list class="selected_list">
+                        <u-list-item
+                            v-for="item in choosedData"
+                            :key="item.userID || item.groupID"
+                        >
+                            <selected-member
+                                :source="item"
+                                @removeItem="removeItem(item)"
+                            />
+                        </u-list-item>
+                    </u-list>
+                </view>
+            </u-popup>
+        </view>
+    </view>
 </template>
 
 <script>
-	import SelectedMember from "./SelectedMember.vue"
-	export default {
-		name: "ChooseIndexFooter",
-		components: {
-			SelectedMember
-		},
-		props: {
-			isRemove: Boolean,
-			choosedData: Array,
-			comfirmLoading: Boolean
-		},
-		data() {
-			return {
-				showSelected: false,
-				showConfirmModal: false,
-			};
-		},
-		methods: {
-			close() {
-				this.showSelected = false
-			},
-			removeItem(item) {
-				this.$emit('removeItem', item)
-			},
-			clickComfirm() {
-				this.$emit("confirm")
-			},
+import SelectedMember from "./SelectedMember.vue";
+export default {
+    name: "ChooseIndexFooter",
+    components: {
+        SelectedMember
+    },
+    props: {
+        isRemove: Boolean,
+        choosedData: Array,
+        comfirmLoading: Boolean
+    },
+    data () {
+        return {
+            showSelected: false,
+            showConfirmModal: false,
+        };
+    },
+    methods: {
+        close () {
+            this.showSelected = false;
+        },
+        removeItem (item) {
+            this.$emit('removeItem', item);
+        },
+        clickComfirm () {
+            this.$emit("confirm");
+        },
 			
-		}
-	}
+    }
+};
 </script>
 
 <style lang="scss" scoped>

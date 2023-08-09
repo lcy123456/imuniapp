@@ -1,65 +1,91 @@
 <template>
-	<view @click="clickItem" class="user_item">
+    <view
+        class="user_item"
+        @click="clickItem"
+    >
+        <view
+            v-if="checkVisible"
+            class="check_wrap"
+            :class="{'check_wrap_active':checked,'check_wrap_disabled':disabled}"
+        >
+            <u-icon
+                v-show="checked"
+                name="checkbox-mark"
+                size="12"
+                color="#fff"
+            />
+        </view>
 
-		<view v-if="checkVisible" class="check_wrap"
-			:class="{'check_wrap_active':checked,'check_wrap_disabled':disabled}">
-			<u-icon v-show="checked" name="checkbox-mark" size="12" color="#fff" />
-		</view>
+        <my-avatar
+            :src="item.faceURL"
+            :desc="item.remark || item.nickname || item.showName"
+            :is-group="item.groupName !== undefined || isGroupConversation"
+            size="42"
+        />
+        <view class="user_item_details">
+            <text class="user_name">
+                {{ item.remark||item.nickname||item.groupName|| item.showName }}
+            </text>
+            <text
+                v-if="item.roleLevel === 100"
+                class="user_role"
+            >
+                群主
+            </text>
+            <text
+                v-if="item.roleLevel === 60"
+                class="user_role admin_role"
+            >
+                管理员
+            </text>
+            <view class="bottom_line" />
+        </view>
 
-		<my-avatar :src="item.faceURL" :desc="item.remark || item.nickname || item.showName" :isGroup="item.groupName !== undefined || isGroupConversation"
-			size="42" />
-		<view class="user_item_details">
-			<text class="user_name">{{item.remark||item.nickname||item.groupName|| item.showName}}</text>
-			<text v-if="item.roleLevel === 100" class="user_role">群主</text>
-			<text v-if="item.roleLevel === 60" class="user_role admin_role">管理员</text>
-			<view class="bottom_line" />
-		</view>
-
-		<slot name="action"></slot>
-	</view>
+        <slot name="action" />
+    </view>
 </template>
 
 <script>
-	import MyAvatar from '@/components/MyAvatar/index.vue'
+import MyAvatar from '@/components/MyAvatar/index.vue';
 import { SessionType } from 'openim-uniapp-polyfill';
-	export default {
-		name: "UserItem",
-		components: {
-			MyAvatar
-		},
-		props: {
-			checkVisible: {
-				type: Boolean,
-				default: false
-			},
-			checked: {
-				type: Boolean,
-				default: false
-			},
-			disabled: {
-				type: Boolean,
-				default: false
-			},
-			item: Object
-		},
-		data() {
-			return {
+export default {
+    name: "UserItem",
+    components: {
+        MyAvatar
+    },
+    props: {
+        checkVisible: {
+            type: Boolean,
+            default: false
+        },
+        checked: {
+            type: Boolean,
+            default: false
+        },
+        disabled: {
+            type: Boolean,
+            default: false
+        },
+        item: Object
+    },
+    data () {
+        return {
 				
-			};
-		},
-		computed: {
-			isGroupConversation(){
-				return this.item.conversationType === SessionType.WorkingGroup
-			}
-		},
-		methods: {
-			clickItem() {
-				if (!this.disabled) {
-					this.$emit(this.checkVisible ? 'updateCheck' : 'itemClick', this.item)
-				}
-			}
-		}
-	}
+        };
+    },
+    computed: {
+        isGroupConversation () {
+            return this.item.conversationType === SessionType.WorkingGroup;
+        }
+    },
+    methods: {
+        clickItem () {
+            if (!this.disabled) {
+                this.$emit(this.checkVisible ? 'updateCheck' : 'itemClick', this.item);
+            }
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>

@@ -3,19 +3,19 @@
 // const configUrl = 'https://web.rentsoft.cn/complete_admin'
 // const apiUrl = 'https://web.rentsoft.cn/api'
 // const wsUrl = 'wss://web.rentsoft.cn/msg_gateway'
-const registerUrl = 'http://192.168.2.244:10008'
-const configUrl = 'http://192.168.2.244:10009'
-const apiUrl = 'http://192.168.2.244:10002'
-const wsUrl = 'ws://192.168.2.244:10001'
+const registerUrl = 'http://192.168.2.244:10008';
+const configUrl = 'http://192.168.2.244:10009';
+const apiUrl = 'http://192.168.2.244:10002';
+const wsUrl = 'ws://192.168.2.244:10001';
 
-const getRegisterUrl = () => uni.getStorageSync("IMRegisteUrl") || registerUrl
-const getConfigUrl = () => uni.getStorageSync('IMConfigUrl') || configUrl
-const getApiUrl = () => uni.getStorageSync('IMApiUrl') || apiUrl
-const getWsUrl = () => uni.getStorageSync('IMWsUrl') || wsUrl
+const getRegisterUrl = () => uni.getStorageSync("IMRegisteUrl") || registerUrl;
+const getConfigUrl = () => uni.getStorageSync('IMConfigUrl') || configUrl;
+const getApiUrl = () => uni.getStorageSync('IMApiUrl') || apiUrl;
+const getWsUrl = () => uni.getStorageSync('IMWsUrl') || wsUrl;
 
 module.exports = {
-	getRegisterUrl,
-	getConfigUrl,
-	getApiUrl,
-	getWsUrl,
-}
+    getRegisterUrl,
+    getConfigUrl,
+    getApiUrl,
+    getWsUrl,
+};

@@ -1,69 +1,78 @@
 <template>
-  <view
-    v-if="!getNoticeContent"
-    :id="`auchor${source.clientMsgID}`"
-    class="message_item"
-    :class="{ message_item_self: isSender }"
-  >
-    <my-avatar
-      @click="showInfo"
-      size="42"
-      :desc="source.senderNickname"
-      :src="source.senderFaceUrl"
-    />
-    <view class="message_container">
-      <view class="message_sender">
-        <text>{{ source.senderNickname }}</text>
-      </view>
-      <view @longpress.prevent="showMenu" class="message_content_wrap">
-        <text-message-render v-if="showTextRender" :message="source" />
-        <media-message-render v-else-if="showMediaRender" :message="source" />
-        <error-message-render v-else />
-      </view>
-      <message-read-state
-        :message="source"
-        v-if="
-          isSender &&
-          isSuccessMessage
-        "
-      />
-
-      <transition name="fade">
-        <message-menu
-          v-if="menuState.visible"
-          :message="source"
-          :isSender="isSender"
-          :is_bottom="menuState.isBottom"
-          :paterWidth="menuState.paterWidth"
-          @close="menuState.visible = false"
+    <view
+        v-if="!getNoticeContent"
+        :id="`auchor${source.clientMsgID}`"
+        class="message_item"
+        :class="{ message_item_self: isSender }"
+    >
+        <my-avatar
+            size="42"
+            :desc="source.senderNickname"
+            :src="source.senderFaceUrl"
+            @click="showInfo"
         />
-      </transition>
-    </view>
-    <view class="message_send_state">
-      <u-loading-icon v-if="showSending" />
-      <image
-        @click="reSendMessage"
-        v-if="isFailedMessage"
-        src="@/static/images/chating_message_failed.png"
-      />
-    </view>
-  </view>
+        <view class="message_container">
+            <view class="message_sender">
+                <text>{{ source.senderNickname }}</text>
+            </view>
+            <view
+                class="message_content_wrap"
+                @longpress.prevent="showMenu"
+            >
+                <text-message-render
+                    v-if="showTextRender"
+                    :message="source"
+                />
+                <media-message-render
+                    v-else-if="showMediaRender"
+                    :message="source"
+                />
+                <error-message-render v-else />
+            </view>
+            <message-read-state
+                v-if="
+                    isSender &&
+                        isSuccessMessage
+                "
+                :message="source"
+            />
 
-  <view
-    v-else
-    class="notice_message_container"
-    :id="`auchor${source.clientMsgID}`"
-  >
-    <text>{{ getNoticeContent }}</text>
-  </view>
+            <transition name="fade">
+                <message-menu
+                    v-if="menuState.visible"
+                    :message="source"
+                    :is-sender="isSender"
+                    :is_bottom="menuState.isBottom"
+                    :pater-width="menuState.paterWidth"
+                    @close="menuState.visible = false"
+                />
+            </transition>
+        </view>
+        <view class="message_send_state">
+            <u-loading-icon v-if="showSending" />
+            <image
+                v-if="isFailedMessage"
+                src="@/static/images/chating_message_failed.png"
+                @click="reSendMessage"
+            />
+        </view>
+    </view>
+
+    <view
+        v-else
+        :id="`auchor${source.clientMsgID}`"
+        class="notice_message_container"
+    >
+        <text>{{ getNoticeContent }}</text>
+    </view>
 </template>
 
 <script>
 import IMSDK, {
-  IMMethods,
-  MessageStatus,
-  MessageType,
-  SessionType,
+    IMMethods,
+    MessageStatus,
+    MessageType,
+    SessionType,
 } from "openim-uniapp-polyfill";
 import MyAvatar from "@/components/MyAvatar/index.vue";
 import ChatingList from "../ChatingList.vue";
@@ -73,188 +82,188 @@ import ErrorMessageRender from "./ErrorMessageRender.vue";
 import MessageMenu from "./MessageMenu.vue";
 import MessageReadState from "./MessageReadState.vue";
 import {
-  noticeMessageTypes,
-  UpdateMessageTypes,
+    noticeMessageTypes,
+    UpdateMessageTypes,
 } from "@/constant";
 import { tipMessaggeFormat, offlinePushInfo } from "@/util/imCommon";
 
 const textRenderTypes = [
-  MessageType.TextMessage,
-  MessageType.AtTextMessage,
-  MessageType.QuoteMessage,
+    MessageType.TextMessage,
+    MessageType.AtTextMessage,
+    MessageType.QuoteMessage,
 ];
 
 const mediaRenderTypes = [MessageType.VideoMessage, MessageType.PictureMessage];
 
 export default {
-  components: {
-    MyAvatar,
-    TextMessageRender,
-    MediaMessageRender,
-    ErrorMessageRender,
-    MessageMenu,
-    MessageReadState,
-  },
-  props: {
-    source: Object,
-    isSender: {
-      type: Boolean,
-      default: false,
+    components: {
+        MyAvatar,
+        TextMessageRender,
+        MediaMessageRender,
+        ErrorMessageRender,
+        MessageMenu,
+        MessageReadState,
     },
-    menuOutsideFlag: Number,
-  },
-  data() {
-    return {
-      menuState: {
-        visible: false,
-        isBottom: false,
-        paterWidth: false,
-        sendingDelay: true,
-      },
-      conversationID: ""
-    };
-  },
-  computed: {
-    showTextRender() {
-      return textRenderTypes.includes(this.source.contentType);
+    props: {
+        source: Object,
+        isSender: {
+            type: Boolean,
+            default: false,
+        },
+        menuOutsideFlag: Number,
     },
-    showMediaRender() {
-      return mediaRenderTypes.includes(this.source.contentType);
+    data () {
+        return {
+            menuState: {
+                visible: false,
+                isBottom: false,
+                paterWidth: false,
+                sendingDelay: true,
+            },
+            conversationID: ""
+        };
     },
-    isSuccessMessage() {
-      return this.source.status === MessageStatus.Succeed;
+    computed: {
+        showTextRender () {
+            return textRenderTypes.includes(this.source.contentType);
+        },
+        showMediaRender () {
+            return mediaRenderTypes.includes(this.source.contentType);
+        },
+        isSuccessMessage () {
+            return this.source.status === MessageStatus.Succeed;
+        },
+        isFailedMessage () {
+            return this.source.status === MessageStatus.Failed;
+        },
+        showSending () {
+            return this.source.status === MessageStatus.Sending && !this.sendingDelay;
+        },
+        getNoticeContent () {
+            const isNoticeMessage = noticeMessageTypes.includes(
+                this.source.contentType
+            );
+            return !isNoticeMessage
+                ? ""
+                : tipMessaggeFormat(
+                    this.source,
+                    this.$store.getters.storeCurrentUserID
+                );
+        },
     },
-    isFailedMessage() {
-      return this.source.status === MessageStatus.Failed;
+    watch: {
+        menuOutsideFlag (newVal) {
+            if (this.menuState.visible) {
+                this.menuState.visible = false;
+            }
+        },
     },
-    showSending() {
-      return this.source.status === MessageStatus.Sending && !this.sendingDelay;
+    mounted () {
+        this.$emit("messageItemRender", this.source.clientMsgID);
+        this.isReadObserver();
+        this.setSendingDelay();
+        this.conversationID = this.$store.getters.storeCurrentConversation.conversationID;
     },
-    getNoticeContent() {
-      const isNoticeMessage = noticeMessageTypes.includes(
-        this.source.contentType
-      );
-      return !isNoticeMessage
-        ? ""
-        : tipMessaggeFormat(
-            this.source,
-            this.$store.getters.storeCurrentUserID
-          );
-    },
-  },
-  mounted() {
-    this.$emit("messageItemRender", this.source.clientMsgID);
-    this.isReadObserver();
-    this.setSendingDelay();
-    this.conversationID = this.$store.getters.storeCurrentConversation.conversationID;
-  },
-  watch: {
-    menuOutsideFlag(newVal) {
-      if (this.menuState.visible) {
-        this.menuState.visible = false;
-      }
-    },
-  },
-  methods: {
-    reSendMessage() {
-      this.$store.dispatch("message/updateOneMessage", {
-        message: this.source,
-        type: UpdateMessageTypes.KeyWords,
-        keyWords: [
-          {
-            key: "status",
-            value: MessageStatus.Sending,
-          },
-        ],
-      });
-      IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-        recvID: this.source.recvID,
-        groupID: this.source.groupID,
-        message: this.source,
-        offlinePushInfo,
-      })
-        .then(({ data }) => {
-          this.$store.dispatch("message/updateOneMessage", {
-            message: data,
-            isSuccess: true,
-          });
-        })
-        .catch(({ data, errCode, errMsg }) => {
-          this.$store.dispatch("message/updateOneMessage", {
-            message: data,
-            type: UpdateMessageTypes.KeyWords,
-            keyWords: [
-              {
-                key: "status",
-                value: MessageStatus.Failed,
-              },
-              {
-                key: "errCode",
-                value: errCode,
-              },
-            ],
-          });
-        });
-    },
-    async showMenu() {
-      uni
-        .createSelectorQuery()
-        .in(this)
-        .select(".message_content_wrap")
-        .boundingClientRect((res) => {
-          this.menuState.paterWidth = res.width;
-          this.menuState.isBottom = res.top < 250;
-          this.menuState.visible = true;
-        })
-        .exec();
-    },
-    setSendingDelay() {
-      if (this.source.status === MessageStatus.Sending) {
-        setTimeout(() => {
-          this.sendingDelay = false;
-        }, 2000);
-      }
-    },
-    isReadObserver() {
-      if (
-        this.isSender ||
+    methods: {
+        reSendMessage () {
+            this.$store.dispatch("message/updateOneMessage", {
+                message: this.source,
+                type: UpdateMessageTypes.KeyWords,
+                keyWords: [
+                    {
+                        key: "status",
+                        value: MessageStatus.Sending,
+                    },
+                ],
+            });
+            IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                recvID: this.source.recvID,
+                groupID: this.source.groupID,
+                message: this.source,
+                offlinePushInfo,
+            })
+                .then(({ data }) => {
+                    this.$store.dispatch("message/updateOneMessage", {
+                        message: data,
+                        isSuccess: true,
+                    });
+                })
+                .catch(({ data, errCode, errMsg }) => {
+                    this.$store.dispatch("message/updateOneMessage", {
+                        message: data,
+                        type: UpdateMessageTypes.KeyWords,
+                        keyWords: [
+                            {
+                                key: "status",
+                                value: MessageStatus.Failed,
+                            },
+                            {
+                                key: "errCode",
+                                value: errCode,
+                            },
+                        ],
+                    });
+                });
+        },
+        async showMenu () {
+            uni
+                .createSelectorQuery()
+                .in(this)
+                .select(".message_content_wrap")
+                .boundingClientRect((res) => {
+                    this.menuState.paterWidth = res.width;
+                    this.menuState.isBottom = res.top < 250;
+                    this.menuState.visible = true;
+                })
+                .exec();
+        },
+        setSendingDelay () {
+            if (this.source.status === MessageStatus.Sending) {
+                setTimeout(() => {
+                    this.sendingDelay = false;
+                }, 2000);
+            }
+        },
+        isReadObserver () {
+            if (
+                this.isSender ||
         this.source.isRead === true ||
         this.source.sessionType !== SessionType.Single
-      ) {
-        return;
-      }
-
-      const observer = uni.createIntersectionObserver(ChatingList);
-      observer
-        .relativeTo("#scroll_view")
-        .observe(
-          `#auchor${this.source.clientMsgID}`,
-          ({ intersectionRatio }) => {
-            if (intersectionRatio > 0) {
-              if (!noticeMessageTypes.includes(this.source.contentType)) {
-                IMSDK.asyncApi(
-                  IMSDK.IMMethods.MarkMessagesAsReadByMsgID,
-                  IMSDK.uuid(),
-                  {
-                    conversationID: this.$store.getters.storeCurrentConversation.conversationID,
-                    clientMsgIDList: [this.source.clientMsgID]
-                  }).then(() => (this.source.isRead = true));
-              }
-
-              observer.disconnect();
+            ) {
+                return;
             }
-          }
-        );
+
+            const observer = uni.createIntersectionObserver(ChatingList);
+            observer
+                .relativeTo("#scroll_view")
+                .observe(
+                    `#auchor${this.source.clientMsgID}`,
+                    ({ intersectionRatio }) => {
+                        if (intersectionRatio > 0) {
+                            if (!noticeMessageTypes.includes(this.source.contentType)) {
+                                IMSDK.asyncApi(
+                                    IMSDK.IMMethods.MarkMessagesAsReadByMsgID,
+                                    IMSDK.uuid(),
+                                    {
+                                        conversationID: this.$store.getters.storeCurrentConversation.conversationID,
+                                        clientMsgIDList: [this.source.clientMsgID]
+                                    }).then(() => (this.source.isRead = true));
+                            }
+
+                            observer.disconnect();
+                        }
+                    }
+                );
+        },
+        showInfo () {
+            if (this.isSender) {
+                return;
+            }
+            uni.navigateTo({
+                url: `/pages/common/userCard/index?sourceID=${this.source.sendID}`,
+            });
+        },
     },
-    showInfo() {
-      if (this.isSender) {
-        return;
-      }
-      uni.navigateTo({
-          url: `/pages/common/userCard/index?sourceID=${this.source.sendID}`,
-        });
-    },
-  },
 };
 </script>
 
