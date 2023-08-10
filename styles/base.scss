@@ -5,3 +5,18 @@ p {
     box-sizing: border-box;
     font-family: 'MiSans-Regular';
 }
+
+@font-face {
+    font-family: MiSans-Demibold;
+    src: url('~@/static/font/MiSans-Demibold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: MiSans-Medium;
+    src: url('~@/static/font/MiSans-Medium.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: MiSans-Regular;
+    src: url('~@/static/font/MiSans-Regular.ttf') format('truetype');
+}

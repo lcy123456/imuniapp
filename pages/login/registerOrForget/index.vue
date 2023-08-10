@@ -42,13 +42,18 @@
                 </view>
                 <u-input
                     v-model="userInfo.phoneNumber"
+                    class="login-input"
                     placeholder="请输入您的手机号码"
                     clearable
                 />
             </u-form-item>
-            <u-form-item prop="invitationCode">
+            <u-form-item
+                v-if="isRegister"
+                prop="invitationCode"
+            >
                 <u-input
                     v-model="userInfo.invitationCode"
+                    class="login-input"
                     :placeholder="`请输入您的邀请码${
                         needInvitationCodeRegister ? '(必填)' : '(选填)'
                     }`"
@@ -67,7 +72,10 @@
                 {{ isRegister ? '下一步' : '获取验证码' }}
             </u-button>
         </view>
-        <view class="agreement">
+        <view
+            v-if="isRegister"
+            class="agreement"
+        >
             <u-checkbox-group v-model="checked">
                 <u-checkbox
                     icon-size="12"
@@ -98,6 +106,7 @@ import AreaPicker from '@/components/AreaPicker';
 import { businessSendSms } from '@/api/login';
 import { SmsUserFor } from '@/constant';
 import { checkLoginError } from '@/util/common';
+
 export default {
     components: {
         CustomNavBar,
@@ -105,7 +114,7 @@ export default {
     },
     data () {
         return {
-            isRegister: false,
+            usedFor: 0,
             userInfo: {
                 phoneNumber: '',
                 email: '',
@@ -131,12 +140,15 @@ export default {
             return this.$store.getters.storeAppConfig
                 .needInvitationCodeRegister;
         },
+        isRegister () {
+            return SmsUserFor.Register === this.usedFor;
+        },
         canLogin () {
-            return this.checked[0] && this.userInfo.phoneNumber;
+            return (this.isRegister ? this.checked[0] : true) && this.userInfo.phoneNumber;
         },
     },
     onLoad (options) {
-        this.isRegister = options.isRegister === 'true';
+        this.usedFor = Number(options.usedFor);
     },
     methods: {
         checkInvitationCodeState () {
@@ -154,28 +166,28 @@ export default {
             }
         },
         sendSms () {
-            this.$refs.registerForm.validate().then(() => {
+            this.$refs.registerForm.validate().then(async () => {
                 const options = {
                     phoneNumber: this.userInfo.phoneNumber,
                     areaCode: `+${this.userInfo.areaCode}`,
-                    usedFor: SmsUserFor.Register,
+                    usedFor: this.usedFor,
                     invitationCode: this.userInfo.invitationCode,
                 };
-                businessSendSms(options)
-                    .then(() => {
-                        uni.$u.toast('验证码已发送！');
-                        setTimeout(
-                            () =>
-                                uni.$u.route('/pages/login/verifyCode/index', {
-                                    userInfo: JSON.stringify(this.userInfo),
-                                }),
-                            1000
-                        );
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                        uni.$u.toast(checkLoginError(err));
-                    });
+                try {
+                    await businessSendSms(options);
+                    uni.$u.toast('验证码已发送！');
+                    setTimeout(
+                        () =>
+                            uni.$u.route('/pages/login/verifyCode/index', {
+                                userInfo: JSON.stringify(this.userInfo),
+                                usedFor: this.usedFor
+                            }),
+                        1000
+                    );
+                } catch (err) {
+                    console.error(err);
+                    uni.$u.toast(checkLoginError(err));
+                }
             });
         },
         back () {
@@ -193,11 +205,5 @@ export default {
 <style lang="scss" scoped>
 .register_container {
     padding: 0 30rpx;
-    .u-input {
-        height: 96rpx;
-        border-radius: 16rpx;
-        border-width: 2rpx !important;
-        border-color: $uni-color-primary !important;
-    }
 }
 </style>

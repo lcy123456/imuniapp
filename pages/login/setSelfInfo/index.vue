@@ -1,16 +1,28 @@
 <template>
-    <view class="set_info_container  ">
-        <view class="title">
-            欢迎使用OpenIM
+    <view class="set_info_container">
+        <CustomNavBar
+            title="注册"
+        />
+        <view class="flex align-center mt-100 mb-5">
+            <text class="fz-50 ff-bold mr-10">
+                欢迎使用
+            </text>
+            <u--image
+                src="/static/images/logo_name_blue.png"
+                width="217rpx"
+                height="32rpx"
+            />
         </view>
-        <view class="sub_title">
+        <view class="text-grey">
             请完善个人信息
         </view>
         <view
             class="avatar_container"
-            @click="chooseAvatar"
         >
-            <view class="avatar_container_wrap">
+            <view
+                class="avatar_container_wrap" 
+                @click="chooseAvatar"
+            >
                 <my-avatar
                     v-show="userInfo.faceURL"
                     size="180rpx"
@@ -29,72 +41,63 @@
         </view>
         <u-form
             ref="loginForm"
-            label-position="left"
             :model="userInfo"
-            :rules="rules"
-            label-width="160rpx"
-            :label-style="{
-                fontSize: '14px',
-                minWidth: '200rpx',
-            }"
         >
-            <u-form-item
-                label="你的姓名"
-                prop="nickname"
-                border-bottom
-            >
+            <u-form-item prop="nickname">
                 <u-input
                     v-model="userInfo.nickname"
-                    border="none"
-                    placeholder="请填写真实姓名"
+                    class="login-input"
+                    placeholder="请填写您的昵称"
                     clearable
                 />
             </u-form-item>
         </u-form>
-        <view class="btn">
+        <view class="mt-280">
             <u-button
                 :loading="loading"
                 type="primary"
+                shape="circle"
+                size="large"
+                class="ff-bold"
+                :disabled="!isVerifyOk"
                 @click="doNext"
             >
-                进入OpenIM
+                进入MUSKIM
             </u-button>
         </view>
     </view>
 </template>
 
 <script>
-import md5 from "md5";
-import IMSDK from "openim-uniapp-polyfill";
-import MyAvatar from "@/components/MyAvatar/index.vue";
-import { businessRegister } from "@/api/login";
-import { checkLoginError, getPurePath } from "@/util/common";
+import CustomNavBar from '@/components/CustomNavBar';
+import md5 from 'md5';
+import IMSDK from 'openim-uniapp-polyfill';
+import MyAvatar from '@/components/MyAvatar/index.vue';
+import { businessRegister } from '@/api/login';
+import { checkLoginError } from '@/util/common';
+
 export default {
     components: {
+        CustomNavBar,
         MyAvatar,
     },
     data () {
         return {
             loading: false,
-            codeValue: "",
-            passWord: "",
+            codeValue: '',
+            passWord: '',
             userInfo: {
-                phoneNumber: "",
-                areaCode: "",
-                nickname: "",
-                faceURL: "",
-            },
-            rules: {
-                nickname: [
-                    {
-                        type: "string",
-                        required: true,
-                        message: "请填写真实姓名",
-                        trigger: ["blur", "change"],
-                    },
-                ],
+                phoneNumber: '',
+                areaCode: '',
+                nickname: '',
+                faceURL: '',
             },
         };
+    },
+    computed: {
+        isVerifyOk () {
+            return this.userInfo.faceURL && this.userInfo.nickname;
+        }
     },
     onLoad (options) {
         const { userInfo, passWord, codeValue } = options;
@@ -111,30 +114,18 @@ export default {
     methods: {
         chooseAvatar () {
             uni.navigateTo({
-                url: "/pages/login/chooseDefaultAvatar/index",
+                url: '/pages/login/chooseDefaultAvatar/index',
             });
         },
         getDefaultAvatar (value) {
             console.log(value);
             this.userInfo.faceURL = value;
         },
-        doNext () {
-            if (!this.userInfo.faceURL) {
-                uni.$u.toast("请先选择头像！");
-                return;
-            }
-
-            this.$refs.loginForm.validate().then((valid) => {
-                if (valid) {
-                    this.doRegister();
-                }
-            });
-        },
-        async doRegister () {
+        async doNext () {
             this.loading = true;
             const options = {
                 verifyCode: this.codeValue,
-                platform: uni.$u.os() === "ios" ? 1 : 2,
+                platform: uni.$u.os() === 'ios' ? 1 : 2,
                 autoLogin: true,
                 user: {
                     ...this.userInfo,
@@ -144,25 +135,25 @@ export default {
             };
             try {
                 const data = await businessRegister(options);
-                const { imToken, chatToken, userID } = data;
+                const { imToken, userID } = data;
                 await IMSDK.asyncApi(IMSDK.IMMethods.Login, IMSDK.uuid(), {
                     userID,
                     token: imToken,
                 });
                 this.saveLoginProfile(data);
                 this.saveLoginInfo();
-                this.$store.commit("user/SET_AUTH_DATA", data);
-                this.$store.dispatch("user/getSelfInfo");
-                this.$store.dispatch("conversation/getConversationList");
-                this.$store.dispatch("contact/getFriendList");
-                this.$store.dispatch("contact/getGrouplist");
-                this.$store.dispatch("contact/getBlacklist");
-                this.$store.dispatch("contact/getRecvFriendApplications");
-                this.$store.dispatch("contact/getSentFriendApplications");
-                this.$store.dispatch("contact/getRecvGroupApplications");
-                this.$store.dispatch("contact/getSentGroupApplications");
+                this.$store.commit('user/SET_AUTH_DATA', data);
+                this.$store.dispatch('user/getSelfInfo');
+                this.$store.dispatch('conversation/getConversationList');
+                this.$store.dispatch('contact/getFriendList');
+                this.$store.dispatch('contact/getGrouplist');
+                this.$store.dispatch('contact/getBlacklist');
+                this.$store.dispatch('contact/getRecvFriendApplications');
+                this.$store.dispatch('contact/getSentFriendApplications');
+                this.$store.dispatch('contact/getRecvGroupApplications');
+                this.$store.dispatch('contact/getSentGroupApplications');
                 uni.switchTab({
-                    url: "/pages/conversation/conversationList/index",
+                    url: '/pages/conversation/conversationList/index',
                 });
             } catch (err) {
                 console.log(err);
@@ -173,26 +164,26 @@ export default {
         },
         saveLoginInfo () {
             uni.setStorage({
-                key: "lastPhoneNumber",
+                key: 'lastPhoneNumber',
                 data: this.userInfo.phoneNumber,
             });
             uni.setStorage({
-                key: "lastAreaCode",
+                key: 'lastAreaCode',
                 data: this.userInfo.areaCode,
             });
         },
         saveLoginProfile (data) {
             const { imToken, chatToken, userID } = data;
             uni.setStorage({
-                key: "IMUserID",
+                key: 'IMUserID',
                 data: userID,
             });
             uni.setStorage({
-                key: "IMToken",
+                key: 'IMToken',
                 data: imToken,
             });
             uni.setStorage({
-                key: "BusinessToken",
+                key: 'BusinessToken',
                 data: chatToken,
             });
         },
@@ -201,49 +192,30 @@ export default {
 </script>
 <style lang="scss" scoped>
 .set_info_container {
-  margin-top: var(--status-bar-height);
-  padding-top: 150rpx;
+    padding: 0 30rpx;
 
-  .title {
-    padding-bottom: 8rpx;
-  }
+    .avatar_container {
+        margin: 70rpx 0;
+        &_wrap {
+            background-color: #d8d8d8;
+            width: 180rpx;
+            height: 180rpx;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 14rpx;
+            margin: 0 auto;
+        }
 
-  .sub_title {
-    color: #333333;
-    padding-bottom: 0;
-  }
-
-  .avatar_container {
-    margin: 100rpx 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    &_wrap {
-      background-color: #d8d8d8;
-      width: 180rpx;
-      height: 180rpx;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 14rpx;
-
-      .image {
-        width: 100%;
-        height: 100%;
-      }
+        .upload_desc {
+            text-align: center;
+            font-size: 24rpx;
+            color: $uni-text-color-grey;
+            margin-top: 14rpx;
+        }
     }
-
-    .upload_desc {
-      font-size: 24rpx;
-      color: #999;
-      margin-top: 14rpx;
+    /deep/.login-input .u-input__content__field-wrapper__field {
+        text-align: center !important;
     }
-  }
-
-  .btn {
-    margin-top: 200rpx;
-  }
 }
 </style>

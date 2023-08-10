@@ -41,6 +41,40 @@ export default {
             };
         },
     },
+    watch: {
+        contactBadgeRely: {
+            handler (newValue) {
+                const { recvFriendApplications, recvGroupApplications, userKey } = newValue;
+                if (!userKey) return;
+                let unHandleFriendApplicationNum = recvFriendApplications.filter(
+                    (application) => application.handleResult === 0
+                ).length;
+                let unHandleGroupApplicationNum = recvGroupApplications.filter(
+                    (application) => application.handleResult === 0
+                ).length;
+                const total = unHandleFriendApplicationNum + unHandleGroupApplicationNum;
+                if (total) {
+                    uni.setTabBarBadge({
+                        index: 1,
+                        text: total < 99 ? total + "" : "99+",
+                    });
+                } else {
+                    uni.removeTabBarBadge({
+                        index: 1,
+                    });
+                }
+                this.$store.commit(
+                    "contact/SET_UNHANDLE_FRIEND_APPLICATION_NUM",
+                    unHandleFriendApplicationNum
+                );
+                this.$store.commit(
+                    "contact/SET_UNHANDLE_GROUP_APPLICATION_NUM",
+                    unHandleGroupApplicationNum
+                );
+            },
+            deep: true,
+        },
+    },
     methods: {
         ...mapActions("message", ["pushNewMessage", "updateOneMessage"]),
         ...mapActions("conversation", ["updateCurrentMemberInGroup"]),
@@ -478,42 +512,6 @@ export default {
                 IMSDK.uuid(),
                 this.storeCurrentConversation.conversationID
             );
-        },
-    },
-    watch: {
-        contactBadgeRely: {
-            handler (newValue) {
-                const { recvFriendApplications, recvGroupApplications, userKey } =
-          newValue;
-                if (!userKey) return;
-                let unHandleFriendApplicationNum = recvFriendApplications.filter(
-                    (application) => application.handleResult === 0
-                ).length;
-                let unHandleGroupApplicationNum = recvGroupApplications.filter(
-                    (application) => application.handleResult === 0
-                ).length;
-                const total =
-          unHandleFriendApplicationNum + unHandleGroupApplicationNum;
-                if (total) {
-                    uni.setTabBarBadge({
-                        index: 1,
-                        text: total < 99 ? total + "" : "99+",
-                    });
-                } else {
-                    uni.removeTabBarBadge({
-                        index: 1,
-                    });
-                }
-                this.$store.commit(
-                    "contact/SET_UNHANDLE_FRIEND_APPLICATION_NUM",
-                    unHandleFriendApplicationNum
-                );
-                this.$store.commit(
-                    "contact/SET_UNHANDLE_GROUP_APPLICATION_NUM",
-                    unHandleGroupApplicationNum
-                );
-            },
-            deep: true,
         },
     },
 };

@@ -47,13 +47,13 @@ image {
 .bg-color {
 	background-color: $uni-bg-color;
 }
-.bg-color-grey {
+.bg-grey {
 	background-color: $uni-bg-color-grey;
 }
-.bg-color-hover {
+.bg-hover {
 	background-color: $uni-bg-color-hover;
 }
-.bg-color-mask {
+.bg-mask {
 	background-color: $uni-bg-color-mask;
 }
 
@@ -72,7 +72,23 @@ image {
 	height: var(--status-bar-height);
 }
 
+.ff-bold {
+	font-family: MiSans-Demibold;
+}
+.ff-medium {
+	font-family: MiSans-Medium;
+}
+.ff-regular {
+	font-family: MiSans-Regular;
+}
+
 @for $i from 0 through 300 {
+	.w-#{$i * 1} {
+		width: #{$i * 1}rpx !important;
+	}
+	.h-#{$i * 1} {
+		height: #{$i * 1}rpx !important;
+	}
 	.mt-#{$i * 1} {
 		margin-top: #{$i * 1}rpx !important;
 	}
@@ -102,4 +118,44 @@ image {
 	.fz-#{$i} {
 		font-size: #{$i}rpx !important;
 	}
+	.br-#{$i * 1} {
+		border-radius: #{$i * 1}rpx !important;
+	}
+}
+
+.flex {
+	display: flex;
+}
+.flex-column {
+	flex-direction: column;
+}
+.justify-center {
+	justify-content: center;
+}
+.justify-end {
+	justify-content: flex-end;
+}
+.justify-start {
+	justify-content: flex-start;
+}
+.justify-around {
+	justify-content: space-around;
+}
+.justify-between {
+	justify-content: space-between;
+}
+.justify-evenly {
+	justify-content: space-evenly;
+}
+.align-center {
+	align-items: center;
+}
+.align-end {
+	align-items: flex-end;
+}
+.align-start {
+	align-items: flex-start;
+}
+.text-center {
+	text-align: center;
 }

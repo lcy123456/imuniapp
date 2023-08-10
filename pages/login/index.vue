@@ -44,6 +44,7 @@
                     </view>
                     <u-input
                         v-model="loginInfo.phoneNumber"
+                        class="login-input"
                         placeholder="请输入您的手机号码"
                         clearable
                     />
@@ -51,6 +52,7 @@
                 <u-form-item prop="password">
                     <u-input
                         v-model="loginInfo.password"
+                        class="login-input"
                         placeholder="请输入您的登录密码"
                         :password="!eying"
                     >
@@ -102,7 +104,7 @@
         <view class="action_bar">
             <text
                 class="primary"
-                @click="toRegisterOrForget(false)"
+                @click="toRegisterOrForget(SmsUserFor.Reset)"
             >
                 忘记密码
             </text>
@@ -112,7 +114,7 @@
                 </text>
                 <text
                     class="primary"
-                    @click="toRegisterOrForget(true)"
+                    @click="toRegisterOrForget(SmsUserFor.Register)"
                 >
                     立即注册
                 </text>
@@ -128,6 +130,7 @@ import { businessLogin } from '@/api/login';
 import AreaPicker from '@/components/AreaPicker';
 import { checkLoginError } from '@/util/common';
 import IMSDK from 'openim-uniapp-polyfill';
+import { SmsUserFor } from '@/constant';
 
 export default {
     components: {
@@ -135,6 +138,7 @@ export default {
     },
     data () {
         return {
+            SmsUserFor,
             loginInfo: {
                 phoneNumber: '',
                 password: '',
@@ -268,7 +272,7 @@ export default {
         },
         toRegisterOrForget (val) {
             uni.$u.route('/pages/login/registerOrForget/index', {
-                isRegister: val
+                usedFor: val
             });
         },
     },
@@ -287,13 +291,6 @@ export default {
 		// }
 
         .loginForm {
-
-            .u-input {
-                height: 96rpx;
-                border-radius: 16rpx;
-                border-width: 2rpx !important;
-                border-color: $uni-color-primary !important;
-            }
 
             .eye {
                 .image {

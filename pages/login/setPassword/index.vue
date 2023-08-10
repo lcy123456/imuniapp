@@ -1,32 +1,18 @@
 <template>
-    <view class="set_password_container  ">
-        <view class="title">
-            请设置账号密码
-        </view>
-        <view class="sub_title">
-            登陆密码用于登陆OpenIM账号
+    <view class="set_password_container">
+        <CustomNavBar :title="isRegister ? '注册' : '修改登录密码'" />
+        <view class="fz-50 ff-bold mt-100 mb-175">
+            请设置{{ isRegister ? '信息与密码' : '新登录密码' }}
         </view>
         <u-form
             ref="loginForm"
-            class="loginForm commonPage-form"
-            label-position="top"
             :model="formData"
-            :rules="rules"
-            :label-style="{
-                fontSize: '14px',
-                marginTop: '20rpx',
-                minWidth: '200rpx',
-            }"
         >
-            <u-form-item
-                label="密码"
-                prop="password"
-                border-bottom
-            >
+            <u-form-item prop="password">
                 <u-input
                     v-model="formData.password"
-                    border="none"
-                    placeholder="请输入密码"
+                    class="login-input"
+                    placeholder="请输入新登录密码"
                     :password="!passwordEying"
                 >
                     <u-icon
@@ -36,15 +22,11 @@
                     />
                 </u-input>
             </u-form-item>
-            <u-form-item
-                label="确认密码"
-                prop="confirmPassword"
-                border-bottom
-            >
+            <u-form-item prop="confirmPassword">
                 <u-input
                     v-model="formData.confirmPassword"
-                    border="none"
-                    placeholder="请输入密码"
+                    class="login-input"
+                    placeholder="再次确认新登录密码"
                     :password="!comfirmEying"
                 >
                     <u-icon
@@ -55,89 +37,122 @@
                 </u-input>
             </u-form-item>
         </u-form>
-        <view class="feild_desc">
-            需6～20位字符
+        <view class="validate-cell">
+            <Alert
+                :value="formData.password"
+                :verify-res="isLen"
+                description="6-20位字符"
+            />
+            <Alert
+                :value="formData.password"
+                :verify-res="isNumAndLetter"
+                description="必须包含字母和数字"
+            />
+            <Alert
+                :value="formData.password"
+                :verify-res="isEqual"
+                description="两次密码不相同"
+            />
         </view>
-        <view class="action_btn">
+        <view class="mt-68">
             <u-button
                 type="primary"
+                :disabled="!isVerifyOk"
+                shape="circle"
+                size="large"
                 @click="doNext"
             >
-                下一步
+                {{ isRegister ? '下一步' : '确定' }}
             </u-button>
         </view>
     </view>
 </template>
 
 <script>
-import { businessReset } from "@/api/login";
+import CustomNavBar from '@/components/CustomNavBar';
+import Alert from '@/components/Alert';
+import { businessReset } from '@/api/login';
+import { regMap } from '@/enum';
+import { checkLoginError } from '@/util/common';
+import md5 from 'md5';
+import { SmsUserFor } from '@/constant';
+
 export default {
+    components: {
+        CustomNavBar,
+        Alert
+    },
     data () {
         return {
-            codeValue: "",
+            codeValue: '',
             userInfo: {
-                phoneNumber: "",
-                areaCode: "",
+                phoneNumber: '',
+                areaCode: '',
             },
+            usedFor: 0,
             formData: {
-                password: "",
-                confirmPassword: "",
+                password: '',
+                confirmPassword: '',
             },
             passwordEying: false,
             comfirmEying: false,
-            rules: {
-                password: [
-                    {
-                        type: "string",
-                        required: true,
-                        message: "请输入密码",
-                        trigger: ["blur", "change"],
-                    },
-                    {
-                        validator: (rule, value, callback) => {
-                            return value.length >= 6;
-                        },
-                        message: "密码太短",
-                        trigger: ["change", "blur"],
-                    },
-                ],
-                confirmPassword: [
-                    {
-                        type: "string",
-                        required: true,
-                        message: "请输入确认密码",
-                        trigger: ["blur", "change"],
-                    },
-                    {
-                        validator: (rule, value, callback) => {
-                            return value === this.formData.password;
-                        },
-                        message: "两次密码不一致",
-                        trigger: ["change", "blur"],
-                    },
-                ],
-            },
         };
     },
+    computed: {
+        isRegister () {
+            return SmsUserFor.Register === this.usedFor;
+        },
+        isLen () {
+            const len = this.formData.password.length;
+            return len >= 6 && len <= 24;
+        },
+        isNumAndLetter () {
+            return regMap.numberLetter.test(this.formData.password);
+        },
+        isEqual () {
+            return this.formData.password === this.formData.confirmPassword;
+        },
+        isVerifyOk () {
+            return this.isLen && this.isNumAndLetter && this.isEqual;
+        }
+    },
     onLoad (options) {
-        const { userInfo, codeValue } = options;
+        const { userInfo, codeValue, usedFor } = options;
         this.userInfo = JSON.parse(userInfo);
         this.codeValue = codeValue;
-    },
-    onBackPress () {
-        return true;
+        this.usedFor = Number(usedFor);
     },
     methods: {
         doNext () {
-            this.$refs.loginForm.validate().then((valid) => {
-                if (valid) {
-                    uni.$u.route("/pages/login/setSelfInfo/index", {
-                        userInfo: JSON.stringify(this.userInfo),
-                        codeValue: this.codeValue,
-                        passWord: this.formData.password,
+            if (this.isRegister) {
+                uni.$u.route('/pages/login/setSelfInfo/index', {
+                    userInfo: JSON.stringify(this.userInfo),
+                    codeValue: this.codeValue,
+                    passWord: this.formData.password,
+                });
+            } else {
+                this.resetPassword();
+            }
+        },
+        async resetPassword () {
+            const { phoneNumber, areaCode } = this.userInfo;
+            try {
+                await businessReset({
+                    areaCode: `+${areaCode}`,
+                    phoneNumber,
+                    verifyCode: this.codeValue,
+                    password: md5(this.formData.password)
+                });
+                uni.$u.toast('修改成功，请重新登录');
+                setTimeout(() => {
+                    uni.reLaunch({
+                        url: '/pages/login/index'
                     });
-                }
-            });
+                }, 1000);
+            } catch (err) {
+                console.log(err);
+                uni.$u.toast(checkLoginError(err));
+            }
         },
         updateEye (key) {
             this[key] = !this[key];
@@ -147,21 +162,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .set_password_container {
-  margin-top: var(--status-bar-height);
-  padding-top: 150rpx;
-
-  .title {
-    padding-bottom: 8rpx;
-  }
-
-  .feild_desc {
-    font-size: 28rpx;
-    color: $u-primary;
-    margin-top: 24rpx;
-  }
-
-  .action_btn {
-    margin-top: 12vh;
-  }
+    padding: 0 30rpx;
 }
 </style>

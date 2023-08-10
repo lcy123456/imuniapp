@@ -3,8 +3,12 @@
         :title="title"
         placeholder
         class="custom_nav_bar"
+        left-icon=""
     >
-        <template slot="left">
+        <template
+            v-if="showLeft"
+            slot="left"
+        >
             <slot name="left">
                 <view class="u-nav-slot">
                     <img
@@ -58,6 +62,10 @@ export default {
             default: false
         },
         route: {
+            type: Boolean,
+            default: true
+        },
+        showLeft: {
             type: Boolean,
             default: true
         }
