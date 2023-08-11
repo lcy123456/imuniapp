@@ -238,39 +238,26 @@
 				"navigationBarTitleText": "",
 				"enablePullDownRefresh": false
 			}
-		},
-		{
-			"path": "pages/workbench/index/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
 		}
 	],
 	"tabBar": {
 		"color": "#666",
 		"selectedColor": "#0D81F5",
 		"borderStyle": "#EBECEE",
-		"backgroundColor": "#ffffff",
+		"backgroundColor": "#f2f2f2",
 		"height": "55px",
 		"list": [
 			{
 				"pagePath": "pages/conversation/conversationList/index",
 				"iconPath": "./static/images/tabbar_conversation.png",
 				"selectedIconPath": "static/images/tabbar_conversation_active.png",
-				"text": "OpenIM"
+				"text": "对话"
 			},
 			{
 				"pagePath": "pages/contact/index/index",
 				"iconPath": "./static/images/tabbar_contacts.png",
 				"selectedIconPath": "static/images/tabbar_contacts_active.png",
 				"text": "通讯录"
-			},
-			{
-				"pagePath": "pages/workbench/index/index",
-				"iconPath": "./static/images/tabbar_workbench.png",
-				"selectedIconPath": "static/images/tabbar_workbench_active.png",
-				"text": "工作台"
 			},
 			{
 				"pagePath": "pages/profile/index/index",

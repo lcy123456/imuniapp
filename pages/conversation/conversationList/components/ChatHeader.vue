@@ -1,78 +1,67 @@
 <template>
     <view class="chat_header">
-        <view class="self_info">
-            <my-avatar
-                :src="storeSelfInfo.faceURL"
-                :desc="storeSelfInfo.nickname"
-                size="48"
-            />
-            <view class="self_info_desc">
-                <!-- <text class="company">托云信息技术</text> -->
-                <view class="user_state">
-                    <text class="nickname">
-                        {{ storeSelfInfo.nickname }}
-                    </text>
-                    <view class="online_state">
-                        <view class="dot" />
-                        <text>手机在线</text>
-                    </view>
-                </view>
-            </view>
-        </view>
-        <view class="right_action">
-            <view class="call_icon">
-                <!-- <image src="@/static/images/common_call.png" ></image> -->
-            </view>
-            <view
-                class="more_icon"
-                @click="showMore"
-            >
-                <image src="@/static/images/common_circle_add.png" />
-            </view>
-            <u-overlay
-                :show="moreMenuVisible"
-                opacity="0"
-                @click="moreMenuVisible = false"
-            >
-                <!-- <u-transition duration="0" :show="moreMenuVisible"> -->
+        <CustomNavBar
+            :show-left="false"
+            bg-color="#eff1f4"
+        >
+            <template slot="center">
+                <u--image
+                    src="/static/images/logo_name_blue.png"
+                    width="200rpx"
+                    height="28rpx"
+                />
+            </template>
+            <template slot="more">
                 <view
-                    :style="{top:popMenuPosition.top,right:popMenuPosition.right}"
-                    class="more_menu"
+                    class="more_icon mr-30"
+                    @click="showMore"
                 >
-                    <view
-                        v-for="item in moreMenus"
-                        :key="item.idx"
-                        class="menu_item"
-                        @click="clickMenu(item)"
-                    >
-                        <image
-                            :src="item.icon"
-                            mode=""
-                        />
-                        <text>{{ item.title }}</text>
-                    </view>
+                    <image
+                        class="w-44 h-44"
+                        src="/static/images/common_circle_add.png"
+                    />
                 </view>
-                <!-- </u-transition> -->
-                <!-- <view class="warp">
-						<view class="rect" @tap.stop></view>
-					</view> -->
-            </u-overlay>
-        </view>
+            </template>
+        </CustomNavBar>
+        <u-overlay
+            :show="moreMenuVisible"
+            opacity="0"
+            @click="moreMenuVisible = false"
+        >
+            <view
+                :style="{top:popMenuPosition.top,right:popMenuPosition.right}"
+                class="more_menu"
+            >
+                <view class="arrow" />
+                <view
+                    v-for="item in moreMenus"
+                    :key="item.idx"
+                    class="menu_item"
+                    @click="clickMenu(item)"
+                >
+                    <image
+                        :src="item.icon"
+                        mode=""
+                    />
+                    <text>{{ item.title }}</text>
+                </view>
+            </view>
+        </u-overlay>
     </view>
 </template>
 
 <script>
-import {
-    mapGetters
-} from 'vuex';
-import MyAvatar from '@/components/MyAvatar/index.vue';
+import CustomNavBar from '@/components/CustomNavBar/index.vue';
+import { mapGetters } from 'vuex';
+import { getEl } from '@/util/common';
+
 import {
     scanQrCodeResult
 } from '@/util/imCommon';
 export default {
     name: 'ChatHeader',
     components: {
-        MyAvatar
+        CustomNavBar
     },
     data () {
         return {
@@ -81,26 +70,27 @@ export default {
                 top: 0,
                 right: 0
             },
-            moreMenus: [{
-                idx: 0,
-                title: '扫一扫',
-                icon: require("static/images/more_qr.png")
-            },
-            {
-                idx: 1,
-                title: '添加好友',
-                icon: require("static/images/more_add_friend.png")
-            },
-            {
-                idx: 2,
-                title: '添加群聊',
-                icon: require("static/images/more_add_group.png")
-            },
-            {
-                idx: 3,
-                title: '创建群聊',
-                icon: require("static/images/more_create_group.png")
-            },
+            moreMenus: [
+                {
+                    idx: 3,
+                    title: '创建群聊',
+                    icon: require("static/images/more_create_group.png")
+                },
+                {
+                    idx: 2,
+                    title: '加入群聊',
+                    icon: require("static/images/more_add_group.png")
+                },
+                {
+                    idx: 1,
+                    title: '搜索好友',
+                    icon: require("static/images/more_add_friend.png")
+                },
+                {
+                    idx: 0,
+                    title: '扫一扫',
+                    icon: require("static/images/more_qr.png")
+                },
             ]
         };
     },
@@ -139,19 +129,10 @@ export default {
             const {
                 right,
                 bottom
-            } = await this.getEl('.more_icon');
-            this.popMenuPosition.right = (uni.getWindowInfo().windowWidth - right) + 'px';
-            this.popMenuPosition.top = bottom + 'px';
+            } = await getEl.call(this, '.more_icon');
+            this.popMenuPosition.right = (uni.getWindowInfo().windowWidth - right - 5) + 'px';
+            this.popMenuPosition.top = bottom + 10 + 'px';
             this.moreMenuVisible = true;
-        },
-        getEl (el) {
-            return new Promise((resolve) => {
-                const query = uni.createSelectorQuery().in(this);
-                query.select(el).boundingClientRect(data => {
-                    // 存在data，且存在宽和高，视为渲染完毕
-                    resolve(data);
-                }).exec();
-            });
         },
     }
 };
@@ -159,103 +140,38 @@ export default {
 
 <style lang="scss" scoped>
 	.chat_header {
-		@include btwBox();
-		padding: 36rpx 44rpx;
-		margin-top: var(--status-bar-height);
+		padding: 0 20rpx;
 
-		.self_info {
-			@include btwBox();
+        .more_menu {
+            position: absolute;
+            z-index: 999;
+            box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.16);
+            width: max-content;
+            border-radius: 12rpx;
+            background-color: $uni-bg-color-inverse;
 
-			&_desc {
-				@include colBox(true);
-				margin-left: 24rpx;
-				color: $uni-text-color;
+            .arrow {
+                position: absolute;
+                top: -38rpx;
+                right: 20rpx;
+                border-width: 20rpx 15rpx;
+                border-style: solid;
+                border-color: transparent transparent $uni-bg-color-inverse transparent;
+            }
 
-				.company {
-					@include nomalEllipsis();
-					font-size: 24rpx;
-					margin-bottom: 10rpx;
-					max-width: 300rpx;
-				}
+            .menu_item {
+                display: flex;
+                align-items: center;
+                padding: 33rpx 35rpx;
+                color: $uni-text-color-inverse;
 
-				.user_state {
-					@include vCenterBox();
-					
-					.nickname {
-						@include nomalEllipsis();
-						font-size: 26rpx;
-						max-width: 240rpx;
-					}
+                image {
+                    width: 42rpx;
+                    height: 42rpx;
+                    margin-right: 18rpx;
+                }
+            }
 
-					.online_state {
-						@include vCenterBox();
-						margin-left: 24rpx;
-						font-size: 24rpx;
-
-						.dot {
-							background-color: #10CC64;
-							width: 12rpx;
-							height: 12rpx;
-							border-radius: 50%;
-							margin-right: 12rpx;
-						}
-					}
-				}
-
-			}
-		}
-
-		.right_action {
-			display: flex;
-			position: relative;
-			
-
-			.call_icon {
-				margin-right: 24rpx;
-				image {
-					width: 23px;
-					height: 23px;
-				}
-			}
-			
-			.more_icon {
-				image {
-					width: 24px;
-					height: 23px;
-				}
-			}
-
-			.more_menu {
-				position: absolute;
-				// bottom: 0;
-				// left: 100%;
-				z-index: 999;
-				// transform: translate(-100%, 100%);
-				box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.16);
-				width: max-content;
-				border-radius: 12rpx;
-				background-color: #fff;
-				padding: 12rpx 0;
-
-				.menu_item {
-					display: flex;
-					padding: 20rpx 48rpx;
-					font-size: 28rpx;
-					color: $uni-text-color;
-					border-bottom: 1px solid #F0F0F0;
-
-					image {
-						width: 24px;
-						height: 24px;
-						margin-right: 24rpx;
-					}
-
-					&:last-child {
-						border: none;
-					}
-				}
-
-			}
-		}
+        }
 	}
 </style>

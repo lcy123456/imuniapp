@@ -4,6 +4,7 @@
         placeholder
         class="custom_nav_bar"
         left-icon=""
+        :bg-color="bgColor"
     >
         <template
             v-if="showLeft"
@@ -56,6 +57,7 @@ export default {
     props: {
         title: {
             type: String,
+            default: ''
         },
         more: {
             type: Boolean,
@@ -68,6 +70,10 @@ export default {
         showLeft: {
             type: Boolean,
             default: true
+        },
+        bgColor: {
+            type: String,
+            default: '#fff'
         }
     },
     data () {
@@ -106,7 +112,7 @@ export default {
 
 		.more_dot {
 			padding: 24rpx;
-			margin-right: 20rpx;
+			margin-right: 30rpx;
 		}
 	}
 </style>

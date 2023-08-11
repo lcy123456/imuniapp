@@ -8,16 +8,16 @@
     >
         <view
             class="conversation_item"
-            :class="{ conversation_item_active: source.isPinned }"
+            :class="{ 'bg-hover': source.isPinned }"
             @tap.prevent="clickConversationItem"
         >
             <view class="left_info">
-                <my-avatar
+                <MyAvatar
                     :is-group="isGroup"
                     :is-notify="isNotify"
                     :src="source.faceURL"
                     :desc="source.showName"
-                    size="48"
+                    size="55"
                 />
                 <view class="details">
                     <text class="conversation_name">
@@ -27,15 +27,15 @@
                         <text
                             v-if="messagePrefix"
                             class="lastest_msg_prefix"
-                            :class="{ lastest_msg_prefix_active: needActivePerfix }"
+                            :class="{
+                                lastest_msg_prefix_active: needActivePerfix,
+                            }"
                         >
                             {{ messagePrefix }}
                         </text>
                         <text class="lastest_msg_content">
                             {{ latestMessage }}
                         </text>
-                        <!-- <u-parse class="lastest_msg_content"
-							:content="latestMessage" /> -->
                     </view>
                 </view>
             </view>
@@ -62,19 +62,17 @@ import IMSDK, {
     GroupAtType,
     MessageReceiveOptType,
     SessionType,
-} from "openim-uniapp-polyfill";
-import MyAvatar from "@/components/MyAvatar/index.vue";
-import UParse from "@/components/gaoyia-parse/parse.vue";
+} from 'openim-uniapp-polyfill';
+import MyAvatar from '@/components/MyAvatar/index.vue';
 import {
     parseMessageByType,
     formatConversionTime,
     prepareConversationState,
-} from "@/util/imCommon";
+} from '@/util/imCommon';
 
 export default {
     components: {
         MyAvatar,
-        UParse,
     },
     props: {
         source: {
@@ -87,32 +85,29 @@ export default {
     },
     computed: {
         messagePrefix () {
-            if (this.source.draftText !== "") {
-                let text = this.source.draftText;
-                return "[草稿]";
+            if (this.source.draftText !== '') {
+                // let text = this.source.draftText;
+                return '[草稿]';
             }
-            let prefix = "";
+            let prefix = '';
 
-            if (
-                this.source?.recvMsgOpt !== MessageReceiveOptType.Nomal &&
-        this.source.unreadCount > 0
-            ) {
+            if (this.notAccept && this.source.unreadCount > 0) {
                 prefix = `[${this.source.unreadCount}条] `;
             }
 
-            if (this.source.groupAtType !== GroupAtType.AtNormal) {
+            if (this.needActivePerfix) {
                 switch (this.source.groupAtType) {
                 case GroupAtType.AtAll:
-                    prefix = "[所有人]";
+                    prefix = '[所有人]';
                     break;
                 case GroupAtType.AtMe:
-                    prefix = "[有人@你]";
+                    prefix = '[有人@你]';
                     break;
                 case GroupAtType.AtAllAtMe:
-                    prefix = "[有人@你]";
+                    prefix = '[有人@你]';
                     break;
                 case GroupAtType.AtGroupNotice:
-                    prefix = "[群公告]";
+                    prefix = '[群公告]';
                     break;
                 }
             }
@@ -120,12 +115,14 @@ export default {
             return prefix;
         },
         latestMessage () {
-            if (this.source.latestMsg === "") return "";
+            if (this.source.latestMsg === '') return '';
             let parsedMessage;
             try {
                 parsedMessage = JSON.parse(this.source.latestMsg);
-            } catch (e) {}
-            if (!parsedMessage) return "";
+            } catch (e) {
+                console.log(e);
+            }
+            if (!parsedMessage) return '';
             return parseMessageByType(parsedMessage);
         },
         needActivePerfix () {
@@ -134,7 +131,7 @@ export default {
         latestMessageTime () {
             return this.source.latestMsgSendTime
                 ? formatConversionTime(this.source.latestMsgSendTime)
-                : "";
+                : '';
         },
         notAccept () {
             return this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
@@ -148,24 +145,24 @@ export default {
         getSwipeActions () {
             let actions = [
                 {
-                    text: `${this.source.isPinned ? "取消" : ""}置顶`,
+                    text: `${this.source.isPinned ? '取消' : ''}置顶`,
                     style: {
-                        backgroundColor: "#3c9cff",
+                        backgroundColor: '#3c9cff',
                     },
                 },
                 {
-                    text: "移除",
+                    text: '移除',
                     style: {
-                        backgroundColor: "#f9ae3d",
+                        backgroundColor: '#f9ae3d',
                     },
                 },
             ];
             if (this.source.unreadCount > 0) {
                 actions = [
                     {
-                        text: "标记已读",
+                        text: '标记已读',
                         style: {
-                            backgroundColor: "#f9ae3d",
+                            backgroundColor: '#f9ae3d',
                         },
                     },
                     ...actions,
@@ -179,7 +176,7 @@ export default {
             console.log(this.source);
             prepareConversationState(this.source);
         },
-        clickConversationMenu ({ name, index }, item) {
+        async clickConversationMenu ({ index }, item) {
             const noUnRead = this.getSwipeActions.length === 2;
 
             if (index === 0 && !noUnRead) {
@@ -187,14 +184,18 @@ export default {
                     IMSDK.IMMethods.MarkConversationMessageAsRead,
                     IMSDK.uuid(),
                     item.conversationID
-                ).catch(() => uni.$u.toast("操作失败"));
+                ).catch(() => uni.$u.toast('操作失败'));
             }
 
             if ((index === 0 && noUnRead) || (index === 1 && !noUnRead)) {
-                IMSDK.asyncApi(IMSDK.IMMethods.PinConversation, IMSDK.uuid(), {
-                    conversationID: item.conversationID,
-                    isPinned: !item.isPinned,
-                }).catch(() => uni.$u.toast("置顶失败"));
+                try {
+                    await IMSDK.asyncApi(IMSDK.IMMethods.PinConversation, IMSDK.uuid(), {
+                        conversationID: item.conversationID,
+                        isPinned: !item.isPinned,
+                    });
+                } catch {
+                    uni.$u.toast('置顶失败');
+                }
             }
 
             if (index === 2 || (noUnRead && index === 1)) {
@@ -205,13 +206,13 @@ export default {
                 )
                     .then(() =>
                         this.$store.dispatch(
-                            "conversation/delConversationByCID",
+                            'conversation/delConversationByCID',
                             item.conversationID
                         )
                     )
-                    .catch(() => uni.$u.toast("移除失败"));
+                    .catch(() => uni.$u.toast('移除失败'));
             }
-            this.$emit("closeAllSwipe");
+            this.$emit('closeAllSwipe');
         },
     },
 };
@@ -219,76 +220,77 @@ export default {
 
 <style lang="scss" scoped>
 .conversation_item {
-  @include btwBox();
-  flex-direction: row;
-  padding: 12rpx 44rpx;
-  margin-bottom: 8rpx;
-  position: relative;
-
-  &_active {
-    background-color: #f3f3f3;
-  }
-
-  .left_info {
     @include btwBox();
+    padding: 20rpx;
+    margin-bottom: 8rpx;
+    position: relative;
 
-    .details {
-      @include colBox(true);
-      margin-left: 24rpx;
-      color: $uni-text-color;
-
-      .conversation_name {
-        @include nomalEllipsis();
-        max-width: 40vw;
-        font-size: 28rpx;
-      }
-
-      .lastest_msg_wrap {
-        display: flex;
-        font-size: 24rpx;
-        margin-top: 10rpx;
-        color: #666;
-
-        .lastest_msg_prefix {
-          margin-right: 6rpx;
-
-          &_active {
-            color: $u-primary;
-          }
+    .left_info {
+        @include btwBox();
+        
+        /deep/.u-avatar {
+            border-radius: 30rpx;
+            overflow: hidden;
         }
 
-        .lastest_msg_content {
-         flex:1;
-		 margin-right: 160rpx;
-          // /deep/uni-view {
-          @include ellipsisWithLine(1);
-          // }
+        .details {
+            @include colBox(true);
+            margin-left: 24rpx;
+            color: $uni-text-color;
+
+            .conversation_name {
+                @include nomalEllipsis();
+                max-width: 40vw;
+                font-size: 32rpx;
+                font-family: MiSans-Medium;
+            }
+
+            .lastest_msg_wrap {
+                display: flex;
+                font-size: 28rpx;
+                margin-top: 10rpx;
+                color: $uni-text-color-grey;
+
+                .lastest_msg_prefix {
+                    margin-right: 6rpx;
+
+                    &_active {
+                        color: $u-primary;
+                    }
+                }
+
+                .lastest_msg_content {
+                    flex: 1;
+                    margin-right: 160rpx;
+                    // /deep/uni-view {
+                    @include ellipsisWithLine(1);
+                    // }
+                }
+            }
         }
-      }
-    }
-  }
-
-  .right_desc {
-    @include colBox(true);
-    align-items: flex-end;
-    position: absolute;
-    right: 44rpx;
-    top: 16rpx;
-
-    .send_time {
-      font-size: 24rpx;
-      color: #999;
-      margin-bottom: 16rpx;
     }
 
-    .u-badge {
-      width: fit-content;
-    }
+    .right_desc {
+        @include colBox(true);
+        align-items: flex-end;
+        position: absolute;
+        right: 44rpx;
+        top: 16rpx;
 
-    image {
-      width: 20px;
-      height: 20px;
+        .send_time {
+            font-size: 24rpx;
+            color: #999;
+            margin-bottom: 16rpx;
+        }
+
+        .u-badge {
+            width: fit-content;
+        }
+
+        image {
+            width: 20px;
+            height: 20px;
+        }
     }
-  }
 }
 </style>

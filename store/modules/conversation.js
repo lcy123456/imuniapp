@@ -1,5 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
-import IMSDK from "openim-uniapp-polyfill";
+import { v4 as uuidv4 } from 'uuid';
+import IMSDK from 'openim-uniapp-polyfill';
 
 const state = {
     conversationList: [],
@@ -22,7 +22,7 @@ const mutations = {
         if (count) {
             uni.setTabBarBadge({
                 index: 0,
-                text: count < 99 ? count + "" : "99+",
+                text: count < 99 ? count + '' : '99+',
             });
         } else {
             uni.removeTabBarBadge({
@@ -54,14 +54,14 @@ const actions = {
                     count: 10,
                 }
             );
-            commit("SET_CONVERSATION_LIST", [
+            commit('SET_CONVERSATION_LIST', [
                 ...(isFirstPage ? [] : state.conversationList),
                 ...data,
             ]);
             return [...data];
         } catch (e) {
             console.log(e);
-            commit("SET_CONVERSATION_LIST", []);
+            commit('SET_CONVERSATION_LIST', []);
             return [];
         }
     },
@@ -72,48 +72,44 @@ const actions = {
         );
         if (idx > -1) {
             tmpList.splice(idx, 1);
-            commit("SET_CONVERSATION_LIST", tmpList);
+            commit('SET_CONVERSATION_LIST', tmpList);
         }
     },
     getCurrentGroup ({ commit }, groupID) {
         IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupsInfo, uuidv4(), [
             groupID,
         ]).then(({ data }) => {
-            commit("SET_CURRENT_GROUP", data[0] ?? {});
+            commit('SET_CURRENT_GROUP', data[0] ?? {});
         });
     },
     getCurrentMemberInGroup ({ commit, rootState }, groupID) {
-        IMSDK.asyncApi(
-            IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,
-            uuidv4(),
-	  {
-                groupID,
-                userIDList: [rootState.user.selfInfo.userID]
-	  }
-        ).then(({ data }) => {
-            commit("SET_CURRENT_MEMBER_IN_GROUP", data[0] ?? {});
+        IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo, uuidv4(), {
+            groupID,
+            userIDList: [rootState.user.selfInfo.userID],
+        }).then(({ data }) => {
+            commit('SET_CURRENT_MEMBER_IN_GROUP', data[0] ?? {});
         });
     },
     getUnReadCount ({ commit }) {
         IMSDK.asyncApi(IMSDK.IMMethods.GetTotalUnreadMsgCount, uuidv4()).then(
             (res) => {
                 console.log(res);
-                commit("SET_UNREAD_COUNT", res.data);
+                commit('SET_UNREAD_COUNT', res.data);
             }
         );
     },
     updateCurrentMemberInGroup ({ commit, state }, memberInfo) {
         if (
             memberInfo.groupID === state.currentMemberInGroup.groupID &&
-      memberInfo.userID === state.currentMemberInGroup.userID
+            memberInfo.userID === state.currentMemberInGroup.userID
         ) {
-            commit("SET_CURRENT_MEMBER_IN_GROUP", memberInfo);
+            commit('SET_CURRENT_MEMBER_IN_GROUP', memberInfo);
         }
     },
     resetConversationState ({ commit }) {
-        commit("SET_CURRENT_MEMBER_IN_GROUP", {});
-        commit("SET_CURRENT_GROUP", {});
-        commit("SET_CURRENT_CONVERSATION", {});
+        commit('SET_CURRENT_MEMBER_IN_GROUP', {});
+        commit('SET_CURRENT_GROUP', {});
+        commit('SET_CURRENT_CONVERSATION', {});
     },
 };
 

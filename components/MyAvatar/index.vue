@@ -56,7 +56,6 @@ export default {
             if (this.isGroup) {
                 return defaultGroupIcon;
             }
-            this.avatarText = this.desc ? this.desc.slice(this.desc.length > 1 ? -2 : -1) : '未知';
             return '';
         },
         getDdefaultUrl () {

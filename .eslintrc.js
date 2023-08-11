@@ -45,7 +45,8 @@ module.exports = {
         'vue/no-parsing-error': [2, { 'x-invalid-end-tag': false }],
         'vue/no-v-text-v-html-on-component': 'off',
         "vue/no-v-html": 'off',
-        'no-async-promise-executor': 0
+        'no-async-promise-executor': 0,
+        "no-case-declarations": 0
     },
 
     root: true,

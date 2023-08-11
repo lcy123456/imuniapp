@@ -5,24 +5,24 @@ export const html2Text = (html) => {
         return '';
     }
     return html
-        .replace(/\&nbsp;/g, " ")
-        .replace(/<br>/g, "\n")
-        .replace(/<p>/g, "")
-        .replace(/<\/p>/g, "")
+        .replace(/&nbsp;/g, ' ')
+        .replace(/<br>/g, '\n')
+        .replace(/<p>/g, '')
+        .replace(/<\/p>/g, '')
         .trim();
 };
 
 export const formatInputHtml = (html) => {
     let atUserList = [];
     let text = html2Text(html);
-    const imgReg = new RegExp("(i?)(<img)([^>]+>)", "gmi");
+    const imgReg = new RegExp('(i?)(<img)([^>]+>)', 'gmi');
     const customDataReg = /data-custom=".+"/;
     text = text.replace(imgReg, (img) => {
         if (img.includes('class="at_el"')) {
             const atInfoArr = img
                 .match(customDataReg)[0]
                 .slice(13, -1)
-                .split("&amp;");
+                .split('&amp;');
             atUserList.push({
                 atUserID: atInfoArr[0].slice(7),
                 groupNickname: atInfoArr[1].slice(15),
@@ -32,7 +32,7 @@ export const formatInputHtml = (html) => {
         if (img.includes('class="emoji_el"')) {
             return img.match(customDataReg)[0].slice(23, -1);
         }
-        return "";
+        return '';
     });
     return {
         text,
@@ -40,7 +40,7 @@ export const formatInputHtml = (html) => {
     };
 };
 
-export const getEl = (el) => {
+export function getEl (el) {
     return new Promise((resolve) => {
         const query = uni.createSelectorQuery().in(this);
         query
@@ -51,13 +51,14 @@ export const getEl = (el) => {
             })
             .exec();
     });
-};
+}
 
 export const getDbDir = () => {
     return new Promise((resolve, reject) => {
         plus.io.requestFileSystem(plus.io.PRIVATE_DOC, (fs) => {
             fs.root.getDirectory(
-                "user", {
+                'user',
+                {
                     create: true,
                 },
                 (entry) => {
@@ -71,7 +72,7 @@ export const getDbDir = () => {
     });
 };
 
-export const formatChooseData = (data, key = "nickname") => {
+export const formatChooseData = (data, key = 'nickname') => {
     const ucfirst = (l1) => {
         if (l1.length > 0) {
             let first = l1.substr(0, 1).toUpperCase();
@@ -84,17 +85,16 @@ export const formatChooseData = (data, key = "nickname") => {
         for (let name in PinYin) {
             if (PinYin[name].indexOf(l1) != -1) {
                 return ucfirst(name);
-                break;
             }
         }
         return false;
     };
 
     const codefans = (l1) => {
-        l1 = l1 ?? "unkown";
+        l1 = l1 ?? 'unkown';
         let l2 = l1.length;
-        let I1 = "";
-        let reg = new RegExp("[a-zA-Z0-9- ]");
+        let I1 = '';
+        let reg = new RegExp('[a-zA-Z0-9- ]');
         for (let i = 0; i < l2; i++) {
             let val = l1.substr(i, 1);
             let name = arraySearch(val, PinYin);
@@ -104,9 +104,9 @@ export const formatChooseData = (data, key = "nickname") => {
                 I1 += name;
             }
         }
-        I1 = I1.replace(/ /g, "-");
-        while (I1.indexOf("--") > 0) {
-            I1 = I1.replace("--", "-");
+        I1 = I1.replace(/ /g, '-');
+        while (I1.indexOf('--') > 0) {
+            I1 = I1.replace('--', '-');
         }
         return I1;
     };
@@ -114,32 +114,32 @@ export const formatChooseData = (data, key = "nickname") => {
     let arr = [],
         firstName;
 
-    for (var i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         firstName = data[i].initial = codefans(data[i][key]).substr(0, 1);
         arr.push(firstName.toUpperCase());
     }
 
     let arrlist = [];
-    for (i = 0; i < arr.length; i++) {
+    for (let i = 0; i < arr.length; i++) {
         if (arrlist.indexOf(arr[i]) == -1) {
             arrlist.push(arr[i]);
         }
     }
 
     let dataSort = [];
-    for (var i = 0; i < arrlist.length; i++) {
+    for (let i = 0; i < arrlist.length; i++) {
         dataSort[i] = {
-            initial: arrlist[i]
+            initial: arrlist[i],
         };
         dataSort[i].data = [];
-        for (var j = 0; j < data.length; j++) {
+        for (let j = 0; j < data.length; j++) {
             if (data[j].initial.toUpperCase() == dataSort[i].initial) {
                 dataSort[i].data.push(data[j]);
             }
         }
     }
-    for (var i = 0; i < dataSort.length - 1; i++) {
-        for (var j = 1; j < dataSort.length - i; j++) {
+    for (let i = 0; i < dataSort.length - 1; i++) {
+        for (let j = 1; j < dataSort.length - i; j++) {
             if (dataSort[j - 1].initial > dataSort[j].initial) {
                 let a = dataSort[j];
                 dataSort[j] = dataSort[j - 1];
@@ -147,9 +147,9 @@ export const formatChooseData = (data, key = "nickname") => {
             }
         }
     }
-    const NomalInitial = "QWERTYUIOPLKJHGFDSAZXCVBNM".split("");
+    const NomalInitial = 'QWERTYUIOPLKJHGFDSAZXCVBNM'.split('');
     const special = {
-        initial: "#",
+        initial: '#',
         data: [],
     };
     const newFilterData = dataSort.filter((d) => {
@@ -162,14 +162,13 @@ export const formatChooseData = (data, key = "nickname") => {
     if (special.data.length > 0) {
         newFilterData.push(special);
     }
-    const indexList = newFilterData.map(item => item.initial);
-    const dataList = newFilterData.map(item => item.data);
+    const indexList = newFilterData.map((item) => item.initial);
+    const dataList = newFilterData.map((item) => item.data);
     return {
         indexList,
-        dataList
+        dataList,
     };
 };
-
 
 export const getPurePath = (path) => {
     const prefix = 'file://';
@@ -185,7 +184,7 @@ export const getPurePath = (path) => {
 
 export const filterEmptyValue = (obj) => {
     for (let key in obj) {
-        if (obj[key] === "") {
+        if (obj[key] === '') {
             delete obj[key];
         }
     }

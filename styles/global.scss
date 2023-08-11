@@ -47,6 +47,9 @@ image {
 .bg-color {
 	background-color: $uni-bg-color;
 }
+.bg-inverse {
+	background-color: $uni-bg-color-inverse;
+}
 .bg-grey {
 	background-color: $uni-bg-color-grey;
 }
@@ -84,42 +87,64 @@ image {
 
 @for $i from 0 through 300 {
 	.w-#{$i * 1} {
-		width: #{$i * 1}rpx !important;
+		width: #{$i * 1}rpx;
 	}
 	.h-#{$i * 1} {
-		height: #{$i * 1}rpx !important;
+		height: #{$i * 1}rpx;
+	}
+	.m-#{$i * 1} {
+		margin: #{$i * 1}rpx;
+	}
+	.mx-#{$i * 1} {
+		margin-left: #{$i * 1}rpx;
+		margin-right: #{$i * 1}rpx;
+	}
+	.my-#{$i * 1} {
+		margin-top: #{$i * 1}rpx;
+		margin-bottom: #{$i * 1}rpx;
 	}
 	.mt-#{$i * 1} {
-		margin-top: #{$i * 1}rpx !important;
+		margin-top: #{$i * 1}rpx;
 	}
 	.mr-#{$i * 1} {
-		margin-right: #{$i * 1}rpx !important;
+		margin-right: #{$i * 1}rpx;
 	}
 	.mb-#{$i * 1} {
-		margin-bottom: #{$i * 1}rpx !important;
+		margin-bottom: #{$i * 1}rpx;
 	}
 	.ml-#{$i * 1} {
-		margin-left: #{$i * 1}rpx !important;
+		margin-left: #{$i * 1}rpx;
+	}
+	.p-#{$i * 1} {
+		padding: #{$i * 1}rpx;
+	}
+	.px-#{$i * 1} {
+		padding-left: #{$i * 1}rpx;
+		padding-right: #{$i * 1}rpx;
+	}
+	.py-#{$i * 1} {
+		padding-top: #{$i * 1}rpx;
+		padding-bottom: #{$i * 1}rpx;
 	}
 	.pt-#{$i * 1} {
-		padding-top: #{$i * 1}rpx !important;
+		padding-top: #{$i * 1}rpx;
 	}
 	.pr-#{$i * 1} {
-		padding-right: #{$i * 1}rpx !important;
+		padding-right: #{$i * 1}rpx;
 	}
 	.pb-#{$i * 1} {
-		padding-bottom: #{$i * 1}rpx !important;
+		padding-bottom: #{$i * 1}rpx;
 	}
 	.pl-#{$i * 1} {
-		padding-left: #{$i * 1}rpx !important;
+		padding-left: #{$i * 1}rpx;
 	}
 }
 @for $i from 12 through 60 {
 	.fz-#{$i} {
-		font-size: #{$i}rpx !important;
+		font-size: #{$i}rpx;
 	}
 	.br-#{$i * 1} {
-		border-radius: #{$i * 1}rpx !important;
+		border-radius: #{$i * 1}rpx;
 	}
 }
 
