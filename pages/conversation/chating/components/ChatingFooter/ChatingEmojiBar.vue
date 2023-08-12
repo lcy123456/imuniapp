@@ -26,12 +26,12 @@ export default {
     },
     data () {
         return {
-				 
+			
         };
     },
     computed: {
         emojiList () {
-			  return emojis;
+            return emojis;
         },
     },
     mounted () {
@@ -49,6 +49,7 @@ export default {
 	.chat_emoji_bar {
 		padding: 24rpx 36rpx;
 		position: relative;
+        background-color: $uni-bg-color;
 
 		.emoji_row {
 			flex-wrap: wrap;

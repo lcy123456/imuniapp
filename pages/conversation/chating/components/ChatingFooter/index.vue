@@ -1,10 +1,23 @@
+<!-- eslint-disable vue/attribute-hyphenation -->
 <template>
     <view
-        :snap-flag="snapFlag"
+        :snapFlag="snapFlag"
         :change:snapFlag="snap.getSnapFlagUpdate"
         :style="{ 'pointer-events': 'auto' }"
     >
         <view class="chat_footer">
+            <view class="flex align-center">
+                <image
+                    class="w-48 h-48 mr-20"
+                    src="/static/images/chating_footer_emoji.png"
+                    @click="updateEmojiBar"
+                />
+                <image
+                    class="w-48 h-48"
+                    src="/static/images/chating_footer_add.png"
+                    @click.prevent="updateActionBar"
+                />
+            </view>
             <view class="input_content">
                 <CustomEditor
                     ref="customEditor"
@@ -15,44 +28,21 @@
                     @input="editorInput"
                 />
             </view>
-
-            <view class="footer_action_area">
+            <view class="flex align-center">
                 <image
-                    class="emoji_action"
-                    src="@/static/images/chating_footer_emoji.png"
-                    alt=""
-                    srcset=""
-                    @click="updateEmojiBar"
-                />
-                <image
-                    v-show="!hasContent"
-                    src="@/static/images/chating_footer_add.png"
-                    alt=""
-                    srcset=""
-                    @click.prevent="updateActionBar"
-                />
-                <view
-                    v-show="hasContent && !emojiBarVisible"
-                    class="send_btn"
+                    v-show="hasContent"
+                    src="/static/images/chating_footer_send.png"
+                    class="w-80 h-80"
                     @touchend.prevent="sendTextMessage"
-                >
-                    发送
-                </view>
-                <view
-                    v-show="hasContent && emojiBarVisible"
-                    class="send_btn"
-                    @click.prevent="sendTextMessage"
-                >
-                    发送
-                </view>
+                />
             </view>
         </view>
-        <chating-action-bar
+        <ChatingActionBar
             v-show="actionBarVisible"
             @sendMessage="sendMessage"
             @prepareMediaMessage="prepareMediaMessage"
         />
-        <chating-emoji-bar
+        <ChatingEmojiBar
             v-show="emojiBarVisible"
             @emojiClick="emojiClick"
         />
@@ -70,26 +60,23 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import { base64ToPath } from "image-tools";
-import { formatInputHtml, getPurePath, html2Text } from "@/util/common";
-import {
-    offlinePushInfo,
-} from "@/util/imCommon";
+import { mapGetters, mapActions } from 'vuex';
+import { base64ToPath } from 'image-tools';
+import { formatInputHtml, getPurePath, html2Text } from '@/util/common';
+import { offlinePushInfo } from '@/util/imCommon';
 import {
     ChatingFooterActionTypes,
     UpdateMessageTypes,
     GroupMemberListTypes,
-} from "@/constant";
+} from '@/constant';
 import IMSDK, {
     IMMethods,
     MessageStatus,
     MessageType,
-} from "openim-uniapp-polyfill";
-import UParse from "@/components/gaoyia-parse/parse.vue";
-import CustomEditor from "./CustomEditor.vue";
-import ChatingActionBar from "./ChatingActionBar.vue";
-import ChatingEmojiBar from "./ChatingEmojiBar.vue";
+} from 'openim-uniapp-polyfill';
+import CustomEditor from './CustomEditor.vue';
+import ChatingActionBar from './ChatingActionBar.vue';
+import ChatingEmojiBar from './ChatingEmojiBar.vue';
 
 const needClearTypes = [
     MessageType.TextMessage,
@@ -99,24 +86,24 @@ const needClearTypes = [
 
 const albumChoose = [
     {
-        name: "图片",
+        name: '图片',
         type: ChatingFooterActionTypes.Album,
         idx: 0,
     },
     {
-        name: "视频",
+        name: '视频',
         type: ChatingFooterActionTypes.Album,
         idx: 1,
     },
 ];
 const cameraChoose = [
     {
-        name: "拍照",
+        name: '拍照',
         type: ChatingFooterActionTypes.Camera,
         idx: 0,
     },
     {
-        name: "录制",
+        name: '录制',
         type: ChatingFooterActionTypes.Camera,
         idx: 1,
     },
@@ -127,16 +114,18 @@ export default {
         CustomEditor,
         ChatingActionBar,
         ChatingEmojiBar,
-        UParse,
     },
     props: {
-        footerOutsideFlag: Number,
+        footerOutsideFlag: {
+            required: true,
+            type: Number,
+        },
     },
     data () {
         return {
             customEditorCtx: null,
-            inputHtml: "",
-            oldText: "",
+            inputHtml: '',
+            oldText: '',
             actionBarVisible: false,
             emojiBarVisible: false,
             isInputFocus: false,
@@ -146,13 +135,13 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(["storeCurrentConversation"]),
+        ...mapGetters(['storeCurrentConversation']),
         hasContent () {
-            return html2Text(this.inputHtml) !== "";
+            return html2Text(this.inputHtml) !== '';
         },
     },
     watch: {
-        footerOutsideFlag (newVal) {
+        footerOutsideFlag () {
             this.onClickActionBarOutside();
             this.onClickEmojiBarOutside();
         },
@@ -166,9 +155,9 @@ export default {
         this.disposeKeyboardListener();
     },
     methods: {
-        ...mapActions("message", ["pushNewMessage", "updateOneMessage"]),
+        ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         async createTextMessage () {
-            let message = "";
+            let message = '';
             const { text } = formatInputHtml(this.inputHtml);
             // TODO：加密文本
             message = await IMSDK.asyncApi(
@@ -188,7 +177,7 @@ export default {
             if (needClearTypes.includes(message.contentType)) {
                 this.customEditorCtx.clear();
             }
-            this.$emit("scrollToBottom");
+            this.$emit('scrollToBottom');
             IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                 recvID: this.storeCurrentConversation.userID,
                 groupID: this.storeCurrentConversation.groupID,
@@ -201,17 +190,17 @@ export default {
                         isSuccess: true,
                     });
                 })
-                .catch(({ data, errCode, errMsg }) => {
+                .catch(({ data, errCode }) => {
                     this.updateOneMessage({
                         message: data,
                         type: UpdateMessageTypes.KeyWords,
                         keyWords: [
                             {
-                                key: "status",
+                                key: 'status',
                                 value: MessageStatus.Failed,
                             },
                             {
-                                key: "errCode",
+                                key: 'errCode',
                                 value: errCode,
                             },
                         ],
@@ -252,12 +241,13 @@ export default {
             const newText = html2Text(e.detail.html);
             if (
                 this.$store.getters.storeCurrentConversation.groupID &&
-        this.oldText.length < newText.length &&
-        newText.endsWith("@")
+                this.oldText.length < newText.length &&
+                newText.endsWith('@')
             ) {
-                uni.$u.route("/pages/conversation/groupMemberList/index", {
+                uni.$u.route('/pages/conversation/groupMemberList/index', {
                     type: GroupMemberListTypes.ChooseAt,
-                    groupID: this.$store.getters.storeCurrentConversation.groupID,
+                    groupID:
+                        this.$store.getters.storeCurrentConversation.groupID,
                 });
             }
             this.inputHtml = e.detail.html;
@@ -276,12 +266,12 @@ export default {
         emojiClick (emoji) {
             const options = {
                 src: emoji.src,
-                width: "24px",
-                height: "18px",
+                width: '24px',
+                height: '18px',
                 data: {
                     emojiText: emoji.context,
                 },
-                extClass: "emoji_el",
+                extClass: 'emoji_el',
             };
             this.$refs.customEditor.insertImage(options);
         },
@@ -302,7 +292,7 @@ export default {
         receiveSnapBase64 ({ base64, path, duration, videoType }) {
             base64ToPath(base64).then(async (snapRelativePath) => {
                 const absolutePath =
-          plus.io.convertLocalFileSystemURL(snapRelativePath);
+                    plus.io.convertLocalFileSystemURL(snapRelativePath);
                 const message = await IMSDK.asyncApi(
                     IMMethods.CreateVideoMessageFromFullPath,
                     IMSDK.uuid(),
@@ -319,12 +309,15 @@ export default {
         },
         selectClick ({ idx }) {
             if (idx === 0) {
-                if (this.actionSheetMenu[0].type === ChatingFooterActionTypes.Album) {
-                    this.chooseOrShotImage(["album"]).then((paths) =>
+                if (
+                    this.actionSheetMenu[0].type ===
+                    ChatingFooterActionTypes.Album
+                ) {
+                    this.chooseOrShotImage(['album']).then((paths) =>
                         this.batchCreateImageMesage(paths)
                     );
                 } else {
-                    this.chooseOrShotImage(["camera"]).then((paths) =>
+                    this.chooseOrShotImage(['camera']).then((paths) =>
                         this.batchCreateImageMesage(paths)
                     );
                 }
@@ -332,10 +325,13 @@ export default {
                 const whenGetFile = (data) => {
                     this.snapFlag = data;
                 };
-                if (this.actionSheetMenu[0].type === ChatingFooterActionTypes.Album) {
-                    this.chooseOrShotVideo(["album"]).then(whenGetFile);
+                if (
+                    this.actionSheetMenu[0].type ===
+                    ChatingFooterActionTypes.Album
+                ) {
+                    this.chooseOrShotVideo(['album']).then(whenGetFile);
                 } else {
-                    this.chooseOrShotVideo(["camera"]).then(whenGetFile);
+                    this.chooseOrShotVideo(['camera']).then(whenGetFile);
                 }
             }
         },
@@ -343,7 +339,7 @@ export default {
             return new Promise((resolve, reject) => {
                 uni.chooseImage({
                     count: 9,
-                    sizeType: ["compressed"],
+                    sizeType: ['compressed'],
                     sourceType,
                     success: function ({ tempFilePaths }) {
                         resolve(tempFilePaths);
@@ -360,16 +356,16 @@ export default {
                 uni.chooseVideo({
                     compressed: true,
                     sourceType,
-                    extension: ["mp4"],
+                    extension: ['mp4'],
                     success: function ({ tempFilePath, duration }) {
-                        const idx = tempFilePath.lastIndexOf(".");
+                        const idx = tempFilePath.lastIndexOf('.');
                         const videoType = tempFilePath.slice(idx + 1);
-                        if (tempFilePath.includes("_doc/")) {
+                        console.log(tempFilePath);
+                        if (tempFilePath.includes('_doc/')) {
                             tempFilePath = `file://${plus.io.convertLocalFileSystemURL(
                                 tempFilePath
                             )}`;
                         }
-                        console.log(tempFilePath);
                         resolve({
                             path: tempFilePath,
                             videoType,
@@ -390,7 +386,7 @@ export default {
                 message,
                 type: UpdateMessageTypes.KeyWords,
                 keyWords: {
-                    key: "uploadProgress",
+                    key: 'uploadProgress',
                     value: progress,
                 },
             });
@@ -476,72 +472,48 @@ export default {
 
 <style lang="scss" scoped>
 .custom_editor {
-  img {
-    vertical-align: sub;
-  }
+    img {
+        vertical-align: sub;
+    }
 }
 
 .chat_footer {
-  display: flex;
-  align-items: center;
-  background-color: #e9f4ff;
-  // height: 50px;
-  max-height: 120px;
-  padding: 24rpx 20rpx;
-
-  .input_content {
-    flex: 1;
-    min-height: 30px;
-    max-height: 120px;
-    margin: 0 24rpx;
-    border-radius: 8rpx;
-    position: relative;
-
-    .record_btn {
-      background-color: #3c9cff;
-      height: 30px;
-      font-size: 24rpx;
-    }
-  }
-
-  .quote_message {
-    @include vCenterBox();
-    justify-content: space-between;
-    margin-top: 12rpx;
-    padding: 8rpx;
-    // padding-top: 20rpx;
-    border-radius: 6rpx;
-    background-color: #fff;
-    color: #666;
-
-    .content {
-      /deep/ uni-view {
-        @include ellipsisWithLine(2);
-      }
-    }
-  }
-
-  .footer_action_area {
     display: flex;
     align-items: center;
+    background-color: $uni-bg-color;
+    // height: 50px;
+    max-height: 300rpx;
+    padding: 30rpx 20rpx;
 
-    .emoji_action {
-      margin-right: 24rpx;
+    .input_content {
+        flex: 1;
+        margin: 0 20rpx;
+        border-radius: 8rpx;
+        position: relative;
+        overflow: hidden;
+
+        .record_btn {
+            background-color: #3c9cff;
+            height: 30px;
+            font-size: 24rpx;
+        }
     }
 
-    image {
-      width: 26px;
-      height: 26px;
-    }
-  }
+    .quote_message {
+        @include vCenterBox();
+        justify-content: space-between;
+        margin-top: 12rpx;
+        padding: 8rpx;
+        // padding-top: 20rpx;
+        border-radius: 6rpx;
+        background-color: #fff;
+        color: #666;
 
-  .send_btn {
-    height: 30px;
-    line-height: 30px;
-    background-color: #4a9cfc;
-    padding: 0 8px;
-    border-radius: 4px;
-    color: #fff;
-  }
+        .content {
+            /deep/ uni-view {
+                @include ellipsisWithLine(2);
+            }
+        }
+    }
 }
 </style>

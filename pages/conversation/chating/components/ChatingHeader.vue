@@ -1,50 +1,46 @@
 <template>
-    <u-navbar
-        placeholder
+    <CustomNavBar
         class="chating_header"
-        @click="click"
+        bg-color="rgba(255,255,255, .8)"
     >
         <view
-            slot="left"
-            class="u-nav-slot"
-            @click="routeBack"
-        >
-            <img
-                class="back_icon"
-                width="12"
-                height="20"
-                src="static/images/common_left_arrow.png"
-                alt=""
-                srcset=""
-            >
-        </view>
-        <view
             slot="center"
-            class="u-nav-slot"
+            class="conversation_info"
         >
+            <view class="title">
+                {{ storeCurrentConversation.showName }}
+            </view>
             <view
-                class="chating_info"
-                :class="{'chating_info_single':isSingle}"
+                v-if="isSingle"
+                class="fz-24 text-grey flex align-center justify-center"
             >
-                <view class="conversation_info">
-                    <view class="title">
-                        {{ storeCurrentConversation.showName }}
-                    </view>
-                    <view
-                        v-if="!isSingle && !isNotify"
-                        class="sub_title"
-                    >
-                        {{ groupMemberCount }}
-                    </view>
-                </view>
+                <view :class="['w-12', 'h-12', 'br-12', isOnline ? 'bg-primary' : 'bg-inverse']" />
+                <text class="ml-10">
+                    {{ onlineStr }}
+                </text>
+            </view>
+            <view
+                v-else-if="isWorkingGroup"
+                class="fz-24 text-grey"
+            >
+                {{ groupMemberCount }}
             </view>
         </view>
-        <view
-            slot="right"
-            class="u-nav-slot"
-        >
+        <view slot="more">
             <view
-                v-if="canGoSetting"
+                v-if="isSingle"
+                class="right_action"
+            >
+                <MyAvatar
+                    :src="storeCurrentConversation.faceURL"
+                    :desc="storeCurrentConversation.showName"
+                    size="60rpx"
+                    shape="circle"
+                    @click="showInfo"
+                />
+            </view>
+            <view
+                v-else-if="isWorkingGroup"
                 class="right_action"
             >
                 <u-icon
@@ -56,54 +52,61 @@
                 />
             </view>
         </view>
-    </u-navbar>
+    </CustomNavBar>
 </template>
 
 <script>
-import {
-    mapGetters,
-} from "vuex";
+import CustomNavBar from '@/components/CustomNavBar';
+import { mapGetters } from "vuex";
 import { SessionType } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
+import { getDesignatedUserOnlineState } from "@/util/imCommon";
+
 export default {
     name: 'ChatingHeader',
     components: {
+        CustomNavBar,
         MyAvatar
     },
     data () {
-        return {};
+        return {
+            isOnline: false,
+            onlineStr: "离线",
+        };
     },
     computed: {
         ...mapGetters(['storeCurrentConversation', 'storeCurrentGroup', 'storeCurrentMemberInGroup']),
+        userID () {
+            return this.storeCurrentConversation.userID;
+        },
         isSingle () {
             return this.storeCurrentConversation.conversationType === SessionType.Single;
+        },
+        isWorkingGroup () {
+            return this.storeCurrentConversation.conversationType === SessionType.WorkingGroup;
         },
         isNotify () {
             return this.storeCurrentConversation.conversationType === SessionType.Notification;
         },
-        canGoSetting () {
-            if (this.isSingle) {
-                return true;
-            }
-            return this.storeCurrentMemberInGroup.groupID === this.storeCurrentConversation.groupID;
-        },
         groupMemberCount () {
-            return `(${this.storeCurrentGroup?.memberCount ?? 0})`;
+            return `${this.storeCurrentGroup?.memberCount ?? 0}位成员`;
         },
     },
     methods: {
-        click (e) {
-            this.$emit('click', e);
+        async getOnlineState () {
+            try {
+                const res = await getDesignatedUserOnlineState(this.userID);
+                this.isOnline = res !== "离线";
+                this.onlineStr = res;
+            } catch {
+                this.isOnline = false;
+            }
         },
-        routeBack () {
-            uni.navigateBack();
+        showInfo () {
+            uni.$u.route(`/pages/common/userCard/index?sourceID=${this.userID}`);
         },
         goSetting () {
-            const url = this.isSingle ? '/pages/conversation/singleSettings/index' :
-                '/pages/conversation/groupSettings/index';
-            uni.navigateTo({
-                url
-            });
+            uni.$u.route('/pages/conversation/groupSettings/index');
         }
     }
 };
@@ -111,70 +114,23 @@ export default {
 
 <style lang="scss" scoped>
 	.chating_header {
-		/deep/ .u-navbar__content__left {
-			padding: 0;
-		}
 
-		.back_icon {
-			padding: 24rpx;
-			margin-left: 20rpx;
-		}
+		.conversation_info {
+			text-align: center;
 
-		.chating_info {
-			&_single {
-				margin-bottom: 24rpx;
+			.title {
+				@include nomalEllipsis();
+				max-width: 280rpx;
+				font-size: 34rpx;
+				font-weight: 500;
+				font-family: MiSans-Medium;
 			}
-
-			.conversation_info {
-				@include vCenterBox();
-
-				.title {
-					@include nomalEllipsis();
-					max-width: 280rpx;
-					font-size: 14px;
-					font-weight: 500;
-				}
-
-				.sub_title {
-					margin-left: 8rpx;
-				}
-			}
-
-
-
-			.online_state {
-				@include vCenterBox();
-				flex-direction: row;
-				position: absolute;
-				bottom: 2px;
-				left: 50%;
-				transform: translateX(-50%);
-				font-size: 20rpx;
-				color: #999;
-
-				.dot {
-					background-color: #10CC64;
-					width: 12rpx;
-					height: 12rpx;
-					border-radius: 50%;
-					margin-right: 12rpx;
-				}
-
-				.online_str {
-					@include nomalEllipsis();
-					max-width: 280rpx;
-				}
-			}
-		}
-
-		/deep/ .u-navbar__content__right {
-			padding: 0;
 		}
 
 		.right_action {
 			@include vCenterBox();
 			flex-direction: row;
-			margin-right: 24rpx;
+			margin-right: 30rpx;
 
 			.action_item {
 				padding: 12rpx;
@@ -183,95 +139,6 @@ export default {
 			.u-icon {
 				margin-left: 12rpx;
 			}
-		}
-	}
-
-	.group_announcement_tab {
-		display: flex;
-		align-items: center;
-		position: absolute;
-		left: 0;
-		// bottom: -44px;
-		margin: 40rpx 24rpx 0;
-		padding: 14rpx 32rpx;
-		background-color: #F0F6FF;
-		border-radius: 12rpx;
-
-		.announcement_content {
-			@include ellipsisWithLine(2);
-			margin: 0 12rpx;
-			font-size: 24rpx;
-			color: #617183;
-		}
-
-		image {
-			width: 16px;
-			height: 16px;
-			min-width: 16px;
-		}
-	}
-
-	.group_calling_tab {
-		position: absolute;
-		left: 0;
-		width: 80%;
-		margin-top: 12px;
-		margin-left: 5%;
-		padding: 24rpx;
-		background-color: #f4f9ff;
-		border-radius: 8rpx;
-		color: #5496EB;
-		font-size: 24rpx;
-
-		.base_row {
-			display: flex;
-			align-items: center;
-
-			image {
-				width: 10px;
-				height: 10px;
-			}
-
-			text {
-				margin-left: 16rpx;
-			}
-
-			.arrow {
-				width: 9px;
-				height: 6px;
-				position: absolute;
-				right: 24rpx;
-			}
-		}
-
-		.member_row {
-			display: flex;
-			// justify-content: space-between;
-			flex-wrap: wrap;
-			padding: 24rpx 28rpx;
-			margin-top: 24rpx;
-			background-color: #fff;
-			border-bottom: 1px solid rgba(151, 151, 151, 0.16);
-			border-top-left-radius: 8rpx;
-			border-top-right-radius: 8rpx;
-
-			.u-avatar {
-				margin-bottom: 16rpx;
-
-				&:not(:nth-child(6n)) {
-					margin-right: calc(6% / 2);
-				}
-			}
-		}
-
-		.action_row {
-			display: flex;
-			justify-content: center;
-			padding: 24rpx;
-			background-color: #fff;
-			font-size: 28rpx;
-			border-bottom-left-radius: 8rpx;
-			border-bottom-right-radius: 8rpx;
 		}
 	}
 </style>

@@ -23,9 +23,7 @@
 </template>
 
 <script>
-import {
-    ChatingFooterActionTypes,
-} from "@/constant";
+import { ChatingFooterActionTypes } from '@/constant';
 
 export default {
     components: {},
@@ -35,14 +33,14 @@ export default {
                 {
                     idx: 0,
                     type: ChatingFooterActionTypes.Album,
-                    title: "相册",
-                    icon: require("static/images/chating_action_image.png"),
+                    title: '相册',
+                    icon: require('static/images/chating_action_image.png'),
                 },
                 {
                     idx: 1,
                     type: ChatingFooterActionTypes.Camera,
-                    title: "拍摄",
-                    icon: require("static/images/chating_action_camera.png"),
+                    title: '拍摄',
+                    icon: require('static/images/chating_action_camera.png'),
                 },
             ],
         };
@@ -52,7 +50,7 @@ export default {
             switch (action.type) {
             case ChatingFooterActionTypes.Album:
             case ChatingFooterActionTypes.Camera:
-                this.$emit("prepareMediaMessage", action.type);
+                this.$emit('prepareMediaMessage', action.type);
                 break;
             default:
                 break;
@@ -64,28 +62,29 @@ export default {
 
 <style lang="scss" scoped>
 .chat_action_bar {
-  padding: 24rpx 36rpx;
+    padding: 24rpx 36rpx;
+    background-color: $uni-bg-color;
 
-  .action_row {
-    flex-wrap: wrap;
-    margin-bottom: 24rpx;
-  }
-
-  .action_item {
-    @include centerBox();
-    flex-direction: column;
-    margin-top: 24rpx;
-
-    image {
-      width: 96rpx;
-      height: 96rpx;
+    .action_row {
+        flex-wrap: wrap;
+        margin-bottom: 24rpx;
     }
 
-    &_title {
-      font-size: 24rpx;
-      color: #999;
-      margin-top: 6rpx;
+    .action_item {
+        @include centerBox();
+        flex-direction: column;
+        margin-top: 24rpx;
+
+        image {
+            width: 96rpx;
+            height: 96rpx;
+        }
+
+        &_title {
+            font-size: 24rpx;
+            color: #999;
+            margin-top: 6rpx;
+        }
     }
-  }
 }
 </style>

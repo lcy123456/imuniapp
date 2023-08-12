@@ -17,7 +17,7 @@
                 :status="loadMoreStatus"
             />
             <view
-                v-for="(item,index) in storeHistoryMessageList"
+                v-for="item in storeHistoryMessageList"
                 :key="item.clientMsgID"
             >
                 <message-item-render
@@ -36,24 +36,19 @@
 </template>
 
 <script>
-import {
-    mapGetters,
-    mapActions
-} from "vuex";
-import dayjs from 'dayjs';
-import {
-    SendMessageFailedType
-} from "@/constant";
+import { mapGetters, mapActions } from "vuex";
 import MessageItemRender from './MessageItem/index.vue';
-import { MessageStatus } from "openim-uniapp-polyfill";
 
 export default {
-    name: "",
+    name: "ChatingList",
     components: {
         MessageItemRender
     },
     props: {
-        menuOutsideFlag: Number,
+        menuOutsideFlag: {
+            required: true,
+            type: Number
+        },
     },
     data () {
         return {
@@ -180,51 +175,15 @@ export default {
 <style lang="scss" scoped>
 	#scroll_view {
 		flex: 1;
-		background-repeat: no-repeat;
+        
+        .uni-scroll-view {
+            position: relative;
+        }
+
+        #scroll_wrap {
+            overflow: hidden;
+            padding: 0 30rpx;
+        }
 	}
 
-	.uni-scroll-view {
-		position: relative;
-	}
-
-	.new_message_flag {
-		position: sticky;
-		background: #FFFFFF;
-		box-shadow: 0px 3px 8px 0px rgba(0, 0, 0, 0.1);
-		border-radius: 14px;
-		padding: 4px 8px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		bottom: 12px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: fit-content;
-		font-size: 24rpx;
-		color: #006AFF;
-
-	}
-
-	.time_gap_line {
-		padding: 0 10vw 12rpx;
-		text-align: center;
-		// font-size: 24rpx;
-		font-size: 0.93rem;
-		color: #999;
-	}
-
-	.fade-leave,
-	.fade-enter-to {
-		opacity: 1;
-	}
-
-	.fade-leave-active,
-	.fade-enter-active {
-		transition: all 0.3s;
-	}
-
-	.fade-leave-to,
-	.fade-enter {
-		opacity: 0;
-	}
 </style>

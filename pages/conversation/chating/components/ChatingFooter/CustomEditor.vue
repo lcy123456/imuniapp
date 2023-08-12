@@ -1,6 +1,7 @@
+<!-- eslint-disable vue/attribute-hyphenation -->
 <template>
     <view
-        :insert-image-flag="insertImageFlag"
+        :insertImageFlag="insertImageFlag"
         :change:insertImageFlag="input.insertImageFlagUpdate"
         class="editor_wrap"
     >
@@ -198,11 +199,12 @@ export default {
 	}
 
 	#editor2 {
-		background-color: #fff;
-		min-height: 30px;
-		max-height: 120px;
+		background-color: $uni-bg-color-grey;
+		min-height: 60rpx;
+		max-height: 240rpx;
 		height: auto;
 		word-break: break-all;
+        padding: 10rpx 20rpx;
 	}
 
 	/deep/.ql-editor {

@@ -1,12 +1,6 @@
 <template>
-    <view
-        :style="{ backgroundColor: '#f8f8f8' }"
-        class="chating_container"
-    >
-        <chating-header
-            ref="chatingHeaderRef"
-            @click="pageClick"
-        />
+    <view class="chating_container">
+        <chating-header />
         <chating-list
             ref="chatingListRef"
             :menu-outside-flag="menuOutsideFlag"
@@ -30,6 +24,7 @@ import ChatingList from "./components/ChatingList.vue";
 import {
     markConversationAsRead,
 } from "@/util/imCommon";
+import { getEl } from '@/util/common';
 
 export default {
     components: {
@@ -69,12 +64,11 @@ export default {
             // this.$refs.chatingListRef.scrollToAnchor(`auchor${clientMsgID}`, isRecv);
             this.$refs.chatingListRef.scrollToBottom(false, isRecv);
         },
-        async pageClick (e) {
-            this.getEl(".message_menu_container").then((res) => {
-                if (res) {
-                    this.menuOutsideFlag += 1;
-                }
-            });
+        async pageClick () {
+            const res = await getEl.call(this, '.message_menu_container');
+            if (res) {
+                this.menuOutsideFlag += 1;
+            }
 
             this.footerOutsideFlag += 1;
         },
@@ -94,7 +88,7 @@ export default {
             this.initLoading = false;
         },
     },
-    onBackPress (options) {
+    onBackPress () {
         if (this.back2Tab) {
             uni.switchTab({
                 url: '/pages/conversation/conversationList/index'
@@ -112,7 +106,8 @@ export default {
   @include colBox(false);
   height: 100vh;
   overflow: hidden;
-  background-color: #fff !important;
+  background: url('/static/images/chat-bg.png') no-repeat;
+  background-size: cover;
 
   .mutiple_action_container {
     display: flex;

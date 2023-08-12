@@ -5,6 +5,7 @@ import {
     AddGroupQrCodePrefix,
 } from "@/constant";
 import { getOnlineStateFromSvr } from "@/api/imApi";
+import { businessSearchUserInfo } from '@/api/login';
 import IMSDK, {
     GroupAtType,
     MessageType,
@@ -580,4 +581,31 @@ export const offlinePushInfo = {
     ex: "",
     iOSPushSound: "",
     iOSBadgeCount: true,
+};
+
+export const getSourceUserInfo = (sourceID) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let info = null;
+            const { total, users } = await businessSearchUserInfo(sourceID);
+            if (total > 0) {
+                const { data } = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetUsersInfo,
+                    IMSDK.uuid(),
+                    [sourceID]
+                );
+                const imData = data[0]?.friendInfo ?? data[0]?.publicInfo ?? {};
+                info = {
+                    ...imData,
+                    ...users[0],
+                };
+            }
+            resolve({
+                ...info,
+            });
+        } catch (e) {
+            uni.$u.toast("获取用户信息失败");
+            reject(e);
+        }
+    });
 };

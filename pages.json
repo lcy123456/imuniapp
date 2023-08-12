@@ -240,6 +240,15 @@
 			}
 		}
 	],
+	"condition": { 
+		"current": 0, 
+		"list": [
+			{
+				"name": "swiper",
+				"path": "pages/conversation/conversationList/index"
+			}
+		]
+	},
 	"tabBar": {
 		"color": "#666",
 		"selectedColor": "#0D81F5",
