@@ -1,208 +1,209 @@
 <template>
     <view class="application_list_container">
-        <custom-nav-bar :title="isGroupApplication ? '群通知' : '新的好友'" />
-        <view class="search_bar_wrap">
-            <u-search
-                disabled
-                class="search_bar"
-                shape="square"
-                :placeholder="`通过${isGroupApplication ? '群' : '用户'}ID搜索添加`"
-                :show-action="false"
-                @click="toSearch"
-            />
-        </view>
-
-        <u-tabs
-            :scrollable="false"
-            :list="tabList"
-            @click="clickTab"
+        <CustomNavBar
+            :title="isGroupApplication ? '群通知' : '新的朋友'"
+            is-bg-color2
         />
-
-        <view
-            class="pane_row"
-            :style="{'transform': `translateX(${isRecv? '0': '-100%' })`}"
-        >
-            <view class="pane_content">
-                <view class="pane_title">
-                    <text>{{ isGroupApplication ? '群通知' : '新的好友请求' }}</text>
-                </view>
-                <u-list
-                    v-if="getRecvRenderData.length>0"
-                    class="application_list"
-                >
-                    <u-list-item
-                        v-for="application in getRecvRenderData"
-                        :key="application[!isGroupApplication ? 'fromUserID' : 'userID']+application.groupID"
-                    >
-                        <application-item
-                            :is-recv="true"
-                            :application="application"
-                        />
-                    </u-list-item>
-                </u-list>
-                <u-empty
-                    v-else
-                    mode="list"
-                />
-            </view>
-
-            <view class="pane_content">
-                <view class="pane_title">
-                    <text>我的请求</text>
-                </view>
-                <u-list
-                    v-if="getSendRenderData.length>0"
-                    class="application_list"
-                >
-                    <u-list-item
-                        v-for="application in getSendRenderData"
-                        :key="application[!isGroupApplication ? 'toUserID' : 'groupID']"
-                    >
-                        <application-item :application="application" />
-                    </u-list-item>
-                </u-list>
-                <u-empty
-                    v-else
-                    mode="list"
-                />
-            </view>
+        <view class="px-20 pb-20 pt-10">
+            <u-search
+                shape="square"
+                :placeholder="`搜索${isGroupApplication ? '群' : '朋友'}`"
+                :show-action="false"
+                input-align="center"
+                bg-color="#fff"
+                height="70rpx"
+            />
         </view>
 
-        <view
-            v-if="isRecv ? getRecvRenderData.length>0 : getSendRenderData.length>0"
-            class="view_all"
-        >
-            <u-button
-                type="primary"
-                :plain="true"
-                :text="`查看全部${isGroupApplication ? '群通知' : '好友请求'}`"
-                @click="previewAll"
+        <view class="bg-color px-30 py-28">
+            <MyTabs
+                :list="tabList"
+                @change="tabsChange"
             />
+        </view>
+        <view class="pane_row">
+            <view
+                class="pane_transform"
+                :style="{ transform: `translateX(${isRecv ? '0' : '-100%'})` }"
+            >
+                <view class="pane_content">
+                    <u-list
+                        v-if="getRecvRenderData.length > 0"
+                        class="application_list"
+                    >
+                        <u-list-item
+                            v-for="application in getRecvRenderData"
+                            :key="
+                                application[
+                                    !isGroupApplication
+                                        ? 'fromUserID'
+                                        : 'userID'
+                                ] + application.groupID
+                            "
+                        >
+                            <ApplicationItem
+                                :is-recv="true"
+                                :application="application"
+                            />
+                        </u-list-item>
+                    </u-list>
+                    <u-empty
+                        v-else
+                        mode="list"
+                    />
+                </view>
+                <view class="pane_content">
+                    <u-list
+                        v-if="getSendRenderData.length > 0"
+                        class="application_list"
+                    >
+                        <u-list-item
+                            v-for="application in getSendRenderData"
+                            :key="
+                                application[
+                                    !isGroupApplication ? 'toUserID' : 'groupID'
+                                ]
+                            "
+                        >
+                            <ApplicationItem :application="application" />
+                        </u-list-item>
+                    </u-list>
+                    <u-empty
+                        v-else
+                        mode="list"
+                    />
+                </view>
+            </view>
+
+            <!-- <view
+                v-if="
+                    isRecv
+                        ? getRecvRenderData.length > 0
+                        : getSendRenderData.length > 0
+                "
+                class="view_all"
+            >
+                <u-button
+                    type="primary"
+                    :plain="true"
+                    :text="`查看全部${isGroupApplication ? '群通知' : '好友请求'}`"
+                    @click="previewAll"
+                />
+            </view> -->
         </view>
     </view>
 </template>
 
 <script>
-import {
-    mapGetters
-} from 'vuex';
-import {
-    ContactMenuTypes
-} from '@/constant';
+import { mapGetters } from 'vuex';
+import { ContactMenuTypes } from '@/constant';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
+import MyTabs from '@/components/MyTabs/index.vue';
 import ApplicationItem from './ApplicationItem.vue';
+
 export default {
     components: {
+        MyTabs,
         CustomNavBar,
-        ApplicationItem
+        ApplicationItem,
     },
     data () {
         return {
-            keyword: "",
+            keyword: '',
             isRecv: true,
             isGroupApplication: false,
         };
     },
     computed: {
-        ...mapGetters(['storeRecvFriendApplications', 'storeSentFriendApplications', 'storeRecvGroupApplications',
-            'storeSentGroupApplications', 'storeUnHandleFriendApplicationNum', 'storeUnHandleGroupApplicationNum'
+        ...mapGetters([
+            'storeRecvFriendApplications',
+            'storeSentFriendApplications',
+            'storeRecvGroupApplications',
+            'storeSentGroupApplications',
+            'storeUnHandleFriendApplicationNum',
+            'storeUnHandleGroupApplicationNum',
         ]),
         getRecvRenderData () {
-            const tmpList = this.isGroupApplication ? this.storeRecvGroupApplications : this
-                .storeRecvFriendApplications;
-            tmpList.sort((a, b) => (a.handleResult === 0 ? -1 : 1));
-            return tmpList.slice(0, 4);
+            const tmpList = this.isGroupApplication
+                ? this.storeRecvGroupApplications
+                : this.storeRecvFriendApplications;
+            tmpList.sort((a) => (a.handleResult === 0 ? -1 : 1));
+            return [...tmpList];
         },
         getSendRenderData () {
-            const tmpList = this.isGroupApplication ? this.storeSentGroupApplications : this
-                .storeSentFriendApplications;
-            tmpList.sort((a, b) => (a.handleResult === 0 ? -1 : 1));
-            return tmpList.slice(0, 4);
+            const tmpList = this.isGroupApplication
+                ? this.storeSentGroupApplications
+                : this.storeSentFriendApplications;
+            tmpList.sort((a) => (a.handleResult === 0 ? -1 : 1));
+            return [...tmpList];
         },
         tabList () {
-            return [{
-                name: this.isGroupApplication ? '入群申请' : '好友请求'
-            },
-            {
-                name: '我的请求'
-            }
+            return [
+                {
+                    label: this.isGroupApplication ? '入群申请' : '好友请求',
+                    value: 0,
+                },
+                { label: '我的请求', value: 1 },
             ];
         },
     },
     onLoad (params) {
-        const {
-            applicationType
-        } = params;
+        const { applicationType } = params;
         this.isGroupApplication = applicationType === ContactMenuTypes.NewGroup;
     },
     methods: {
-        clickTab ({
-            index
-        }) {
-            this.isRecv = index === 0;
+        tabsChange ({ value }) {
+            this.isRecv = value === 0;
         },
-        previewAll () {
-            uni.navigateTo({
-                url: `/pages/contact/applicationListDetails/index?isGroupApplication=${this.isGroupApplication}&isRecv=${this.isRecv}`
-            });
-        },
+        // previewAll () {
+        //     uni.navigateTo({
+        //         url: `/pages/contact/applicationListDetails/index?isGroupApplication=${this.isGroupApplication}&isRecv=${this.isRecv}`,
+        //     });
+        // },
         toSearch () {
             uni.navigateTo({
-                url: `/pages/common/searchUserOrGroup/index?isSearchGroup=${this.isGroupApplication}`
+                url: `/pages/common/searchUserOrGroup/index?isSearchGroup=${this.isGroupApplication}`,
             });
-        }
-    }
+        },
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-	.application_list_container {
-		@include colBox(false);
-		height: 100vh;
-		background-color: #F8F8F8;
-		overflow-x: hidden;
+.application_list_container {
+    @include colBox(false);
+    height: 100vh;
+    background-color: $uni-bg-color-grey;
 
-		.search_bar_wrap {
-			height: 34px;
-			padding: 12px 22px;
-			background-color: #fff;
-		}
+    .pane_row {
+        flex: 1;
+        overflow: hidden;
 
-		.u-tabs {
-			background-color: #fff;
-		}
+        .pane_transform {
+            transition: all 0.3s ease 0s !important;
+            height: 100%;
+            display: flex;
 
-		.pane_row {
-			display: flex;
-			transition: all 0.3s ease 0s !important;
-			background-color: #fff;
+            .pane_content {
+                flex: 0 0 100%;
+                background-color: #fff;
 
-			.pane_content {
-				@include colBox(false);
-				height: 100%;
-				flex: 0 0 100%;
+                .application_list {
+                    height: 100% !important;
+                }
+                .u-empty {
+                    height: 100%;
+                }
+            }
+        }
+    }
 
-				.pane_title {
-					font-size: 28rpx;
-					color: #999;
-					padding: 12rpx 44rpx;
-					background-color: #F8F8F8;
-				}
+    .view_all {
+        margin-top: 48rpx;
 
-				.application_list {
-					flex: 1;
-					height: 100% !important;
-				}
-			}
-		}
-
-		.view_all {
-			margin-top: 48rpx;
-
-			.u-button {
-				border: none;
-			}
-		}
-
-	}
+        .u-button {
+            border: none;
+        }
+    }
+}
 </style>

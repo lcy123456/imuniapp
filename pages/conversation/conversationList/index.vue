@@ -96,7 +96,6 @@ export default {
     @include colBox(false);
     height: 100vh;
     overflow-y: hidden;
-    padding-bottom: $uni-tabber-height;
 }
 
 .z-paging-content {

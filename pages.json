@@ -245,7 +245,7 @@
 		"list": [
 			{
 				"name": "swiper",
-				"path": "pages/conversation/conversationList/index"
+				"path": "pages/contact/index/index"
 			}
 		]
 	},

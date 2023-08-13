@@ -1,53 +1,46 @@
 <template>
     <view class="contact_container">
-        <custom-nav-bar>
-            <view
-                slot="left"
-                class="contact_title"
-            >
-                <text>通讯录</text>
-            </view>
+        <CustomNavBar
+            :show-left="false" 
+            is-bg-color2
+            title="通讯录"
+        >
             <view
                 slot="more"
-                class="contact_action"
+                class="mr-30"
+                @click="contactAddClick"
             >
-                <view class="search_icon">
-                    <image
-                        src="@/static/images/common_search.png"
-                        alt=""
-                        srcset=""
-                    />
-                </view>
-                <view
-                    class=""
-                    @click="contactAddClick"
-                >
-                    <image
-                        src="@/static/images/common_circle_add.png"
-                        alt=""
-                        srcset=""
-                    />
-                </view>
+                <image
+                    src="@/static/images/common_circle_add.png"
+                    class="w-44 h-44"
+                />
             </view>
-        </custom-nav-bar>
-
-        <contact-menus />
+        </CustomNavBar>
+        <view class="px-20 pb-20 pt-10">
+            <u-search
+                v-model="keyword"
+                :show-action="false"
+                shape="square"
+                input-align="center"
+                bg-color="#fff"
+                height="70rpx"
+                placeholder="搜索"
+            />
+        </view>
+        <ContactMenus />
 
         <view class="list_title">
-            <text>
-                常用联系人
-            </text>
+            <text>常用联系人</text>
         </view>
 
         <u-list
             class="user_list"
-            height="1"
         >
             <u-list-item
                 v-for="user in frequentContacts"
                 :key="user.userID"
             >
-                <user-item
+                <UserItem
                     :item="user"
                     @itemClick="userClick"
                 />
@@ -68,6 +61,7 @@ export default {
     },
     data () {
         return {
+            keyword: '',
             frequentContacts: []
         };
     },
@@ -98,37 +92,19 @@ export default {
 	.contact_container {
 		@include colBox(false);
 		height: 100vh;
-		background-color: #f6f6f6;
-
-		.contact_title {
-			padding-left: 44rpx;
-			font-size: 44rpx;
-			color: #1B72EC;
-		}
-
-		.contact_action {
-			padding-right: 44rpx;
-			display: flex;
-
-			.search_icon {
-				margin-right: 24rpx;
-			}
-			image {
-				width: 24px;
-				height: 24px;
-			}
-		}
+		background-color: $uni-bg-color-grey;
 
 		.list_title {
 			font-size: 24rpx;
-			color: #999;
-			margin-left: 44rpx;
+			color: $uni-text-color-grey;
+			margin-left: 30rpx;
 		}
 
 		.user_list {
 			flex: 1;
+            overflow: hidden;
 			margin-top: 24rpx;
-			background-color: #fff;
+			background-color: $uni-bg-color;
 		}
 	}
 </style>

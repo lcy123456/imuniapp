@@ -1,102 +1,99 @@
 <template>
     <view class="group_list_container">
-        <custom-nav-bar title="我的群组">
+        <CustomNavBar
+            title="我的群组"
+            is-bg-color2
+        >
             <view
                 slot="more"
-                class="nav_right_action"
+                class="mr-30 primary ff-medium fz-30"
                 @click="toCreateGroup"
             >
                 <text>发起群聊</text>
             </view>
-        </custom-nav-bar>
-        <view class="search_bar_wrap">
+        </CustomNavBar>
+        <view class="px-20 pb-20 pt-10">
             <u-search
-                class="search_bar"
+                v-model="keyword"
                 shape="square"
                 placeholder="搜索群组"
-                disabled
                 :show-action="false"
-                @click="toSearch"
+                input-align="center"
+                bg-color="#fff"
+                height="70rpx"
             />
         </view>
 
-        <u-tabs
-            :scrollable="false"
-            :list="tabList"
-            @click="clickTab"
-        />
-
-        <view
-            class="pane_row"
-            :style="{'transform': `translateX(${isMyCreate? '0': '-100%' })`}"
-        >
-            <view class="pane_content">
-                <view class="pane_title">
-                    <text>我创建的</text>
-                </view>
-                <u-list
-                    v-if="getMyCreateGroupList.length >0"
-                    class="group_list"
-                    :height="`${getListHeight}px`"
-                >
-                    <u-list-item
-                        v-for="group in getMyCreateGroupList"
-                        :key="group.groupID"
+        <view class="bg-color px-30 py-28">
+            <MyTabs
+                :list="tabList"
+                @change="tabsChange"
+            />
+        </view>
+        <view class="pane_row">
+            <view
+                class="pane_transform"
+                :style="{
+                    transform: `translateX(${isMyCreate ? '0' : '-100%'})`,
+                }"
+            >
+                <view class="pane_content">
+                    <u-list
+                        v-if="getMyCreateGroupList.length > 0"
+                        class="group_list"
                     >
-                        <group-item :group-info="group" />
-                    </u-list-item>
-                </u-list>
-                <u-empty
-                    v-else
-                    mode="list"
-                />
-            </view>
-
-            <view class="pane_content">
-                <view class="pane_title">
-                    <text>我加入的</text>
+                        <u-list-item
+                            v-for="group in getMyCreateGroupList"
+                            :key="group.groupID"
+                        >
+                            <GroupItem :group-info="group" />
+                        </u-list-item>
+                    </u-list>
+                    <u-empty
+                        v-else
+                        mode="list"
+                    />
                 </view>
-                <u-list
-                    v-if="getMyJoinedGroupList.length >0"
-                    class="group_list"
-                    :height="`${getListHeight}px`"
-                >
-                    <u-list-item
-                        v-for="group in getMyJoinedGroupList"
-                        :key="group.groupID"
+                <view class="pane_content">
+                    <u-list
+                        v-if="getMyJoinedGroupList.length > 0"
+                        class="application_list"
                     >
-                        <group-item :group-info="group" />
-                    </u-list-item>
-                </u-list>
-                <u-empty
-                    v-else
-                    mode="list"
-                />
+                        <u-list-item
+                            v-for="group in getMyJoinedGroupList"
+                            :key="group.groupID"
+                        >
+                            <GroupItem :group-info="group" />
+                        </u-list-item>
+                    </u-list>
+                    <u-empty
+                        v-else
+                        mode="list"
+                    />
+                </view>
             </view>
         </view>
     </view>
 </template>
 
 <script>
-import {
-    mapGetters
-} from 'vuex';
+import { mapGetters } from 'vuex';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
+import MyTabs from '@/components/MyTabs/index.vue';
 import GroupItem from './GroupItem.vue';
+
 export default {
     components: {
         CustomNavBar,
-        GroupItem
+        MyTabs,
+        GroupItem,
     },
     data () {
         return {
-            keyword: "",
-            tabList: [{
-                name: '我创建的'
-            },
-            {
-                name: '我加入的'
-            }
+            keyword: '',
+            tabList: [
+                { label: '我创建的', value: 0 },
+                { label: '我加入的', value: 1 },
             ],
             isMyCreate: true,
         };
@@ -104,75 +101,63 @@ export default {
     computed: {
         ...mapGetters(['storeGroupList', 'storeCurrentUserID']),
         getMyCreateGroupList () {
-            return this.storeGroupList.filter(group => group.ownerUserID === this.storeCurrentUserID);
+            return this.storeGroupList.filter(
+                (group) => group.ownerUserID === this.storeCurrentUserID
+            );
         },
-        getListHeight () {
-            const statusBar = uni.getWindowInfo().statusBarHeight;
-            const searchBar = 58;
-            const tabAndNavBar = 44 * 2;
-            const titleBar = 32;
-            return uni.getWindowInfo().safeArea.height - statusBar - searchBar - tabAndNavBar - titleBar;
-        },
+        // getListHeight () {
+        //     const statusBar = uni.getWindowInfo().statusBarHeight;
+        //     const searchBar = 58;
+        //     const tabAndNavBar = 44 * 2;
+        //     const titleBar = 32;
+        //     return uni.getWindowInfo().safeArea.height - statusBar - searchBar - tabAndNavBar - titleBar;
+        // },
         getMyJoinedGroupList () {
             // console.log(this.storeGroupList.filter(group => group.ownerUserID !== this.storeCurrentUserID));
-            return this.storeGroupList.filter(group => group.ownerUserID !== this.storeCurrentUserID);
-        }
+            return this.storeGroupList.filter(
+                (group) => group.ownerUserID !== this.storeCurrentUserID
+            );
+        },
     },
-    mounted () {
-
-    },
+    mounted () {},
     methods: {
-        clickTab ({
-            index
-        }) {
-            this.isMyCreate = index === 0;
+        tabsChange ({ value }) {
+            this.isMyCreate = value === 0;
         },
         toCreateGroup () {
             uni.navigateTo({
-                url: `/pages/common/createGroup/index`
+                url: `/pages/common/createGroup/index`,
             });
         },
-        toSearch () {
-            uni.$u.route('/pages/contact/searchJoinedGroup/index');
-        }
-    }
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-	.group_list_container {
-		@include colBox(false);
-		height: 100vh;
-		overflow: hidden;
+.group_list_container {
+    @include colBox(false);
+    height: 100vh;
+    background-color: $uni-bg-color-grey;
 
-		.nav_right_action {
-			padding-right: 44rpx;
-		}
+    .pane_row {
+        flex: 1;
+        overflow: hidden;
 
-		.search_bar_wrap {
-			height: 34px;
-			padding: 12px 22px;
-		}
+        .pane_transform {
+            transition: all 0.3s ease 0s !important;
+            height: 100%;
+            display: flex;
 
-		.pane_row {
-			display: flex;
-			flex: 1;
-			transition: all 0.3s ease 0s !important;
-			// overflow-x: hidden;
+            .pane_content {
+                flex: 0 0 100%;
+                background-color: #fff;
 
-			.pane_content {
-				@include colBox(false);
-				height: 100%;
-				flex: 0 0 100%;
-
-				.pane_title {
-					font-size: 14px;
-					color: #999;
-					padding: 6px 22px;
-					background-color: #F8F8F8;
-				}
-			}
-		}
-
-	}
+                .group_list,
+                .u-empty {
+                    height: 100% !important;
+                }
+            }
+        }
+    }
+}
 </style>

@@ -4,7 +4,7 @@
         placeholder
         class="custom_nav_bar"
         left-icon=""
-        :bg-color="bgColor"
+        :bg-color="isBgColor2 ? bgColor2 : bgColor"
     >
         <template
             v-if="showLeft"
@@ -74,6 +74,14 @@ export default {
         bgColor: {
             type: String,
             default: '#fff'
+        },
+        isBgColor2: {
+            type: Boolean,
+            default: false
+        },
+        bgColor2: {
+            type: String,
+            default: '#eff1f4'
         }
     },
     data () {
@@ -100,6 +108,12 @@ export default {
 		/deep/ .u-navbar__content__left {
 			padding: 0;
 		}
+
+        /deep/ .u-navbar__content, 
+        /deep/.u-navbar__content__title {
+            font-size: 36rpx;
+            font-family: MiSans-Medium;
+        }
 
 		/deep/ .u-navbar__content__right {
 			padding: 0;

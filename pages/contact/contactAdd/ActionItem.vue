@@ -46,7 +46,7 @@ export default {
 <style lang="scss" scoped>
 	.action_item {
 		@include vCenterBox();
-		padding: 24rpx 44rpx;
+		padding: 20rpx 30rpx;
 
 		.action_icon {
 			width: 30px;
@@ -60,18 +60,19 @@ export default {
 
 		.action_details {
 			@include colBox(false);
-			margin-left: 48rpx;
+			margin-left: 20rpx;
 			width: 100%;
 			position: relative;
 
 			.title {
+                font-size: 28rpx;
 				font-weight: 500;
-				padding-bottom: 12rpx;
+				margin-bottom: 10rpx;
 			}
 
 			.desc {
 				font-size: 24rpx;
-				color: #999;
+				color: $uni-text-color-grey;
 			}
 
 			.bottom_line {
@@ -79,7 +80,7 @@ export default {
 				width: 100%;
 				background-color: #F0F0F0;
 				position: absolute;
-				bottom: -24rpx;
+				bottom: -20rpx;
 			}
 
 		}

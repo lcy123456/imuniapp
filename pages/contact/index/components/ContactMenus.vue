@@ -7,12 +7,12 @@
             @click="menuClick(item)"
         >
             <image
-                class="menu_icon"
+                class="w-80 h-80"
                 :src="item.icon"
                 mode=""
             />
             <view class="item_content">
-                <text class="title">
+                <text class="fz-34">
                     {{ item.title }}
                 </text>
                 <view class="icon">
@@ -52,14 +52,14 @@ export default {
             return [{
                 idx: 0,
                 type: ContactMenuTypes.NewFriend,
-                title: '新的好友',
+                title: '新的朋友',
                 icon: require("static/images/contact_new_friend.png"),
                 badge: this.storeUnHandleFriendApplicationNum
             },
             {
                 idx: 1,
                 type: ContactMenuTypes.NewGroup,
-                title: '新的群组',
+                title: '新的群聊',
                 icon: require("static/images/contact_new_group.png"),
                 badge: this.storeUnHandleGroupApplicationNum
             },
@@ -128,20 +128,12 @@ export default {
 
 		&_item {
 			@include vCenterBox();
-			margin: 0 44rpx;
-			padding: 24rpx 0;
-
-			.menu_icon {
-				width: 42px;
-				min-width: 42px;
-				height: 42px;
-				min-height: 42px;
-			}
+			padding: 20rpx 30rpx;
 
 			.item_content {
 				@include btwBox();
-				margin-left: 24rpx;
-				width: 100%;
+				margin-left: 20rpx;
+                flex: 1;
 				position: relative;
 
 				.icon {
@@ -159,7 +151,7 @@ export default {
 					width: 100%;
 					background-color: #F1F1F1;
 					position: absolute;
-					bottom: -44rpx;
+					bottom: -36rpx;
 				}
 			}
 

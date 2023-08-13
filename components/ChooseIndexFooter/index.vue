@@ -1,56 +1,58 @@
 <template>
-    <view class="member_checked_desc">
-        <view
-            class="left_info"
-            @click="showSelected = true"
-        >
-            <text class="text">
-                {{ `已选择：${choosedData.length}人` }}
-            </text>
-            <u-icon
-                name="arrow-up"
-                size="14"
-                color="#007aff"
-            />
-        </view>
-        <view class="">
-            <u-button
-                :loading="comfirmLoading"
-                :disabled="choosedData.length === 0"
-                type="primary"
-                :text="isRemove ? '移除' : '确认'"
-                @click="clickComfirm"
-            />
-            <u-popup
-                round="24"
-                :show="showSelected"
-                mode="bottom"
-                @close="close"
+    <view class="member_checked_desc bg-grey">
+        <view class="flex justify-between">
+            <view
+                class="left_info "
+                @click="showSelected = true"
             >
-                <view class="selected_container">
-                    <view class="top_desc">
-                        <text>{{ `已选择：${choosedData.length}人` }}</text>
-                        <text
-                            class="comfirm_text"
-                            @click="close"
-                        >
-                            确认
-                        </text>
-                    </view>
-                    <u-list class="selected_list">
-                        <u-list-item
-                            v-for="item in choosedData"
-                            :key="item.userID || item.groupID"
-                        >
-                            <selected-member
-                                :source="item"
-                                @removeItem="removeItem(item)"
-                            />
-                        </u-list-item>
-                    </u-list>
-                </view>
-            </u-popup>
+                <text class="text">
+                    {{ `已选择：${choosedData.length}人` }}
+                </text>
+                <u-icon
+                    name="arrow-up"
+                    size="14"
+                    color="#007aff"
+                />
+            </view>
+            <view>
+                <u-button
+                    :loading="comfirmLoading"
+                    :disabled="choosedData.length === 0"
+                    type="primary"
+                    :text="isRemove ? '移除' : '确认'"
+                    @click="clickComfirm"
+                />
+            </view>
         </view>
+        <u-popup
+            round="24"
+            :show="showSelected"
+            mode="bottom"
+            @close="close"
+        >
+            <view class="selected_container">
+                <view class="top_desc">
+                    <text>{{ `已选择：${choosedData.length}人` }}</text>
+                    <text
+                        class="comfirm_text"
+                        @click="close"
+                    >
+                        确认
+                    </text>
+                </view>
+                <u-list class="selected_list">
+                    <u-list-item
+                        v-for="item in choosedData"
+                        :key="item.userID || item.groupID"
+                    >
+                        <selected-member
+                            :source="item"
+                            @removeItem="removeItem(item)"
+                        />
+                    </u-list-item>
+                </u-list>
+            </view>
+        </u-popup>
     </view>
 </template>
 
@@ -89,12 +91,7 @@ export default {
 
 <style lang="scss" scoped>
 	.member_checked_desc {
-		@include btwBox();
-		align-items: flex-start;
-		padding: 24rpx 44rpx 0;
-		height: 72px;
-		max-height: 72px;
-		box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.15);
+        padding: 20rpx;
 
 		.left_info {
 			@include vCenterBox();

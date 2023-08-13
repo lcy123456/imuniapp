@@ -11,7 +11,7 @@
                     class="user_anchor"
                     :text="indexList[index]"
                 />
-                <user-item
+                <UserItem
                     v-for="cell in item"
                     :key="cell.userID"
                     :checked="checkedIDList.includes(cell.userID)"
@@ -81,6 +81,7 @@ export default {
 <style scoped lang="scss">
 	.user_list {
 		flex: 1;
+        overflow: hidden;
 		/deep/uni-scroll-view {
 			max-height: 100% !important;
 		}

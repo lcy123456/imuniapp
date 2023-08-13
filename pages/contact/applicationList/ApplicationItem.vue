@@ -3,11 +3,11 @@
         class="application_item"
         @click="clickItem"
     >
-        <my-avatar
+        <MyAvatar
             :src="getAvatarUrl"
             :is-group="isGroupApplication"
             :desc="application[isRecv ? 'fromNickname' : 'toNickname']"
-            size="42"
+            size="110rpx"
         />
         <view class="application_item_details">
             <view class="content">
@@ -36,13 +36,23 @@
                 >
                     {{ getStateStr }}
                 </text>
-                <text
+                <!-- <text
                     v-if="showGreet"
                     class="status_tip greet"
                     @tap.stop="greetToUser"
                 >
                     打招呼
-                </text>
+                </text> -->
+                <button 
+                    v-if="showGreet"
+                    type="primary" 
+                    class="access_btn"
+                    :plain="true"
+                    size="mini"
+                    @tap.stop="greetToUser"
+                >
+                    打招呼
+                </button>
                 <button
                     v-if="showAccept"
                     :loading="accessLoading"
@@ -91,17 +101,17 @@ export default {
             }
             return this.application[this.isGroupApplication ? 'groupName' : 'toNickname'];
         },
-        showGreet () {
+        showGreet () {  // 打招呼
             return !this.isGroupApplication && this.application.handleResult === 1;
         },
-        showStateStr () {
-            if ((this.isRecv && this.application.handleResult === 0) || this.showGreet) {
+        showAccept () { // 收到入群或好友请求，等待处理
+            return this.application.handleResult === 0 && this.isRecv;
+        },
+        showStateStr () {   // 其他
+            if (this.showAccept || this.showGreet) {
                 return false;
             }
             return true;
-        },
-        showAccept () {
-            return this.application.handleResult === 0 && this.isRecv;
         },
         getStateStr () {
             if (this.application.handleResult === -1) {
@@ -163,12 +173,17 @@ export default {
 
 <style lang="scss" scoped>
 .application_item {
-	// @include vCenterBox();
+    height: 150rpx;
 	display: flex;
 	justify-content: flex-start;
-	padding: 24rpx 44rpx;
+	padding: 20rpx;
 	color: $uni-text-color;
 	background-color: #fff;
+
+    /deep/.u-avatar {
+        border-radius: 30rpx;
+        overflow: hidden;
+    }
 
 	&_details {
 		@include vCenterBox();
@@ -177,31 +192,34 @@ export default {
 		position: relative;
 
 		.content {
-			@include colBox(false);
-			font-size: 26rpx;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+			font-size: 24rpx;
 			width: 100%;
 
 			.user_name {
 				@include nomalEllipsis();
 				max-width: 400rpx;
-				font-size: 28rpx;
+				font-size: 32rpx;
 				color: $uni-text-color;
-				margin-bottom: 10rpx;
-			}
-
-			.req_message {
-				@include ellipsisWithLine(2);
-				max-width: 80%;
-				color: #999;
+                font-family: MiSans-Medium
 			}
 
 			.title {
-				margin-bottom: 20rpx;
+				// margin-top: 10rpx;
 
 				.group_name {
 					margin-left: 12rpx;
 					color: $uni-color-primary;
 				}
+			}
+
+			.req_message {
+				// margin-top: 10rpx;
+				@include ellipsisWithLine(2);
+				max-width: 80%;
+				color: $uni-text-color-grey;
 			}
 		}
 
@@ -218,10 +236,6 @@ export default {
 				padding: 0 12rpx;
 				height: 48rpx;
 				line-height: 48rpx;
-			}
-
-			.greet {
-				color: #418AE5;
 			}
 		}
 
