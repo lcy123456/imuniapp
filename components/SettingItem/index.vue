@@ -1,12 +1,12 @@
 <template>
     <view
         class="setting_item"
-        :class="{'setting_item_border':border}"
+        :class="{ setting_item_border: border }"
         @click="onClick"
     >
         <text>{{ title }}</text>
         <u-switch
-            v-if="is_switch"
+            v-if="isSwitch"
             :loading="loading"
             :async-change="true"
             size="20"
@@ -30,30 +30,30 @@
 
 <script>
 export default {
-    name: "",
+    name: '',
     components: {},
     props: {
         title: String,
-        is_switch: {
+        isSwitch: {
             type: Boolean,
-            default: false
+            default: false,
         },
         switchValue: {
             type: Boolean,
-            default: false
+            default: false,
         },
         loading: {
             type: Boolean,
-            default: false
+            default: false,
         },
         border: {
             type: Boolean,
-            default: true
+            default: false,
         },
         arrow: {
             type: Boolean,
-            default: true
-        }
+            default: true,
+        },
     },
     data () {
         return {};
@@ -64,23 +64,24 @@ export default {
         },
         onChange (value) {
             this.$emit('switch', value);
-        }
-    }
+        },
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-	.setting_item {
-		@include btwBox();
-		padding: 24rpx 44rpx;
-		color: $uni-text-color;
+.setting_item {
+    @include btwBox();
+    height: 130rpx;
+    padding: 0 40rpx;
+    color: $uni-text-color;
 
-		.setting_right {
-			@include vCenterBox();
-		}
+    .setting_right {
+        @include vCenterBox();
+    }
 
-		&_border {
-			border-bottom: 1px solid rgba(153, 153, 153, 0.2);
-		}
-	}
+    &_border {
+        border-bottom: 1px solid rgba(153, 153, 153, 0.2);
+    }
+}
 </style>

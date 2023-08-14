@@ -1,43 +1,51 @@
 <template>
     <view class="page_container">
+        <view class="status-bar-height" />
         <view class="self_info_row">
-            <my-avatar
+            <MyAvatar
                 :src="selfInfo.faceURL"
                 :desc="selfInfo.nickname"
-                size="73"
+                size="190rpx"
             />
             <text class="nickname">
                 {{ selfInfo.nickname }}
             </text>
             <view class="id_row">
-                <text>ID: {{ selfInfo.userID }}</text>
-                <img
-                    src="static/images/profile_top_qr.png"
-                    alt=""
-                    @click="toSelfQr"
-                >
+                <text>{{ selfInfo.userID }}</text>
+                <image
+                    class="w-32 h-32 ml-20"
+                    src="/static/images/profile_copy.png"
+                    @click="copyID"
+                />
             </view>
+            <image
+                class="qrCode w-38 h-38"
+                src="/static/images/profile_top_qr.png"
+                @click="toSelfQr"
+            />
         </view>
 
-        <view
-            v-for="item in profileMenus"
-            :key="item.idx"
-            class="profile_menu_item"
-            @click="profileMenuClick(item)"
-        >
-            <view class="menu_left">
-                <image
-                    :style="{'width':item.size[0],'height':item.size[1]}"
-                    :src="item.icon"
-                    mode=""
+        <view class="px-40">
+            <view
+                v-for="item in profileMenus"
+                :key="item.idx"
+                class="profile_menu_item"
+                @click="profileMenuClick(item)"
+            >
+                <view class="menu_left">
+                    <image
+                        class="w-38 h-38"
+                        :src="item.icon"
+                        mode=""
+                    />
+                    <text>{{ item.title }}</text>
+                </view>
+                <u-icon
+                    class="text-grey"
+                    name="arrow-right"
+                    size="20rpx"
                 />
-                <text>{{ item.title }}</text>
             </view>
-            <u-icon
-                name="arrow-right"
-                size="16"
-                color="#999"
-            />
         </view>
 
         <u-modal
@@ -53,8 +61,10 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import IMSDK from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
+
 export default {
     components: {
         MyAvatar,
@@ -62,58 +72,72 @@ export default {
     data () {
         return {
             showComfirm: false,
-            profileMenus: [{
-                idx: 0,
-                title: "我的信息",
-                icon: require("static/images/profile_menu_info.png"),
-                size: ['22px', '22px']
-            }, {
-                idx: 2,
-                title: "账号设置",
-                icon: require("static/images/profile_menu_account.png"),
-                size: ['20px', '23px']
-            }, {
-                idx: 3,
-                title: "关于我们",
-                icon: require("static/images/profile_menu_about.png"),
-                size: ['22px', '22px']
-            }, {
-                idx: 4,
-                title: "退出登录",
-                icon: require("static/images/profile_menu_logout.png"),
-                size: ['22px', '22px']
-            }
-            ]
+            profileMenus: [
+                {
+                    idx: 0,
+                    title: '我的信息',
+                    icon: require('static/images/profile_menu_info.png'),
+                },
+                {
+                    idx: 2,
+                    title: '账号设置',
+                    icon: require('static/images/profile_menu_account.png'),
+                },
+                {
+                    idx: 3,
+                    title: '关于我们',
+                    icon: require('static/images/profile_menu_about.png'),
+                },
+                {
+                    idx: 4,
+                    title: '退出登录',
+                    icon: require('static/images/profile_menu_logout.png'),
+                },
+            ],
         };
     },
     computed: {
-        selfInfo () {
-            return this.$store.getters.storeSelfInfo;
-        }
+        ...mapGetters({
+            selfInfo: 'storeSelfInfo'
+        }),
     },
     methods: {
-        profileMenuClick ({
-            idx
-        }) {
+        toSelfQr () {
+            uni.navigateTo({
+                url: `/pages/common/userOrGroupQrCode/index`,
+            });
+        },
+        copyID () {
+            uni.setClipboardData({
+                data: this.selfInfo.userID,
+                success: () => {
+                    uni.hideToast();
+                    this.$nextTick(() => {
+                        uni.$u.toast('复制成功');
+                    });
+                }
+            });
+        },
+        profileMenuClick ({ idx }) {
             switch (idx) {
             case 0:
                 uni.navigateTo({
-                    url: "/pages/profile/selfInfo/index"
+                    url: '/pages/profile/selfInfo/index',
                 });
                 break;
             case 1:
                 uni.navigateTo({
-                    url: "/pages/profile/messageNotification/index"
+                    url: '/pages/profile/messageNotification/index',
                 });
                 break;
             case 2:
                 uni.navigateTo({
-                    url: "/pages/profile/accountSetting/index"
+                    url: '/pages/profile/accountSetting/index',
                 });
                 break;
             case 3:
                 uni.navigateTo({
-                    url: "/pages/profile/about/index"
+                    url: '/pages/profile/about/index',
                 });
                 break;
             case 4:
@@ -127,12 +151,14 @@ export default {
             IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid())
                 .then(() => {
                     uni.removeStorage({
-                        key: 'IMToken'
+                        key: 'IMToken',
                     });
                     uni.removeStorage({
-                        key: 'BusinessToken'
+                        key: 'BusinessToken',
                     });
-                }).catch((err) => console.log(err)).finally(() => {
+                })
+                .catch((err) => console.log(err))
+                .finally(() => {
                     this.showComfirm = false;
                     uni.$u.route('/pages/login/index');
                 });
@@ -140,62 +166,65 @@ export default {
         closeModal () {
             this.showComfirm = false;
         },
-        toSelfQr () {
-            uni.navigateTo({
-                url: `/pages/common/userOrGroupQrCode/index`
-            });
-        }
-    }
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-	.page_container {
-		.self_info_row {
-			display: flex;
-			flex-direction: column;
-			justify-content: flex-end;
-			align-items: center;
-			width: 100%;
-			height: 220px;
-			padding-top: var(--status-bar-height);
-			margin-bottom: 24rpx;
-			background-image: url("@/static/images/profile_top_bg.png");
-			background-repeat: round;
-			color: #fff;
+.page_container {
+    height: 100vh;
+    background-color: $uni-bg-color-grey;
 
-			.nickname {
-				@include nomalEllipsis();
-				max-width: 400rpx;
-				margin-top: 24rpx;
-				font-size: 40rpx;
-			}
+    .self_info_row {
+        margin-top: 20rpx;
+        padding-top: 60rpx;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 50rpx;
+        position: relative;
 
-			.id_row {
-				@include vCenterBox();
-				margin: 20rpx 0 36rpx;
-				font-size: 28rpx;
+        .u-avatar {
+            border-radius: 60rpx;
+            overflow: hidden;
+        }
 
-				img {
-					width: 18px;
-					height: 18px;
-					margin-left: 16rpx;
-				}
-			}
-		}
+        .nickname {
+            @include nomalEllipsis();
+            max-width: 400rpx;
+            margin-top: 20rpx;
+            font-size: 50rpx;
+        }
 
-		.profile_menu_item {
-			@include btwBox();
-			padding: 24rpx 44rpx;
+        .id_row {
+            @include vCenterBox();
+            font-size: 36rpx;
+            color: $uni-text-color-grey;
+        }
 
-			.menu_left {
-				@include vCenterBox();
-				color: $uni-text-color;
+        .qrCode {
+            position: absolute;
+            top: 6rpx;
+            right: 30rpx;
+        }
+    }
 
-				image {
-					margin-right: 24rpx;
-				}
-			}
-		}
-	}
+    .profile_menu_item {
+        @include btwBox();
+        height: 130rpx;
+        padding: 0 44rpx;
+        background-color: $uni-bg-color;
+        border-radius: 30rpx;
+        margin-bottom: 20rpx;
+
+        .menu_left {
+            @include vCenterBox();
+            color: $uni-text-color;
+
+            image {
+                margin-right: 24rpx;
+            }
+        }
+    }
+}
 </style>

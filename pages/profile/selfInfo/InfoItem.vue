@@ -28,7 +28,7 @@
 
 <script>
 export default {
-    name: "",
+    name: '',
     props: {
         title: String,
         content: String,
@@ -39,46 +39,43 @@ export default {
         loading: {
             type: Boolean,
             default: false,
-        }
+        },
     },
     data () {
-        return {
-				
-        };
+        return {};
     },
     methods: {
         clickItem () {
             this.$emit('click');
-        }
-    }
+        },
+    },
 };
 </script>
 
 <style lang="scss" scoped>
 .info_item {
-			@include btwBox();
-			height: 112rpx;
-			padding: 0 44rpx;
-			color: $uni-text-color;
-			border-bottom: 1px solid rgba(153,153,153,0.3);
-			position: relative;
-			
-			.right_value {
-				@include vCenterBox();
-				.content {
-					font-size: 28rpx;
-					color: #999;
-				}
-				.u-icon {
-					margin-left: 12rpx;
-				}
-			}
-			
-			.loading_icon {
-				position: absolute;
-				left: 50%;
-				top: 50%;
-				transform: translate(-50%,-50%);
-			}
-		}
+    @include btwBox();
+    height: 130rpx;
+    padding: 0 44rpx;
+    color: $uni-text-color;
+    position: relative;
+
+    .right_value {
+        @include vCenterBox();
+        .content {
+            font-size: 28rpx;
+            color: $uni-text-color-grey;
+        }
+        .u-icon {
+            margin-left: 12rpx;
+        }
+    }
+
+    .loading_icon {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
 </style>

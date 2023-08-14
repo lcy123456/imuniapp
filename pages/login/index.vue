@@ -3,16 +3,13 @@
         <view class="login">
             <view class="navbar-height" />
             <view class="box-logo">
-                <u--image
-                    class="logo"
+                <image
+                    class="logo w-130 h-120"
                     src="/static/images/logo@2x.png"
-                    width="130rpx"
-                    height="120rpx"
                 />
-                <u--image
+                <image
+                    class="w-249 h-37"
                     src="/static/images/logo_name.png"
-                    width="290rpx"
-                    height="37rpx"
                 />
             </view>
             <u-form
@@ -285,10 +282,6 @@ export default {
     .login {
         color: #333333;
         padding: 0 30rpx 0;
-
-		// .box-logo {
-        //     margin-top: 122rpx;
-		// }
 
         .loginForm {
 

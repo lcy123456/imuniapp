@@ -1,6 +1,6 @@
 <template>
     <view class="page_container">
-        <custom-nav-bar title="通讯录黑名单" />
+        <CustomNavBar title="通讯录黑名单" />
 
         <u-list
             v-if="blockList.length>0"
@@ -11,7 +11,7 @@
                 v-for="item in blockList"
                 :key="item.userID"
             >
-                <user-item :item="item">
+                <UserItem :item="item">
                     <view
                         slot="action"
                         class="user_action"
@@ -19,7 +19,7 @@
                     >
                         移除
                     </view>
-                </user-item>
+                </UserItem>
             </u-list-item>
         </u-list>
 
@@ -86,7 +86,7 @@ export default {
 	.page_container {
 		@include colBox(false);
 		height: 100vh;
-		background-color: #f8f8f8;
+		background-color: $uni-bg-color-grey;
 
 		.block_list {
 			flex: 1;

@@ -2,16 +2,13 @@
     <view class="register_container">
         <CustomNavBar :title="isRegister ? '注册' : '忘记密码'" />
         <view class="box-logo">
-            <u--image
-                class="logo"
+            <image
+                class="logo w-130 h-120"
                 src="/static/images/logo@2x.png"
-                width="130rpx"
-                height="120rpx"
             />
-            <u--image
+            <image
+                class="w-249 h-37"
                 src="/static/images/logo_name.png"
-                width="290rpx"
-                height="37rpx"
             />
         </view>
         <u-form

@@ -1,6 +1,9 @@
 <template>
     <view class="page_container">
-        <custom-nav-bar title="我的信息" />
+        <CustomNavBar
+            title="我的信息"
+            is-bg-color2
+        />
 
         <view class="info_wrap">
             <info-item
@@ -8,15 +11,15 @@
                 title="头像"
                 @click="updateAvatar"
             >
-                <my-avatar
+                <MyAvatar
                     slot="value"
                     :src="selfInfo.faceURL"
                     :desc="selfInfo.nickname"
-                    size="42"
+                    size="80rpx"
                 />
             </info-item>
             <info-item
-                title="昵称"
+                title="姓名"
                 :content="selfInfo.nickname"
                 @click="updateNickname"
             />
@@ -30,8 +33,10 @@
                 :loading="loadingState.birth"
                 title="生日"
                 :content="getBirth"
-                @click="() => showDatePicker = true"
+                @click="() => (showDatePicker = true)"
             />
+        </view>
+        <view class="info_wrap">
             <info-item
                 :show-arrow="false"
                 title="手机号码"
@@ -42,13 +47,13 @@
                 title="邮箱"
                 :content="selfInfo.email || '-'"
             />
-            <info-item
+            <!-- <info-item
                 title="二维码名片"
                 @click="toQrCode"
             >
                 <image
                     slot="value"
-                    class="qr_icon"
+                    class="w-48 h-48"
                     src="@/static/images/self_info_qr.png"
                     mode=""
                 />
@@ -58,7 +63,7 @@
                 title="ID"
                 :content="selfInfo.userID"
                 @click="copyID"
-            />
+            /> -->
         </view>
 
         <u-datetime-picker
@@ -68,28 +73,24 @@
             :show="showDatePicker"
             mode="date"
             @confirm="confirmDate"
-            @cancel="() => showDatePicker = false"
+            @cancel="() => (showDatePicker = false)"
         />
     </view>
 </template>
 
 <script>
-import {
-    businessInfoUpdate
-} from '@/api/login';
+import { businessInfoUpdate } from '@/api/login';
 import IMSDK from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import dayjs from 'dayjs';
 import InfoItem from './InfoItem.vue';
-import {
-    getPurePath
-} from '@/util/common';
+import { getPurePath } from '@/util/common';
 export default {
     components: {
         CustomNavBar,
         MyAvatar,
-        InfoItem
+        InfoItem,
     },
     data () {
         return {
@@ -99,7 +100,7 @@ export default {
                 gender: false,
                 birth: false,
             },
-            nowDate: Date.now()
+            nowDate: Date.now(),
         };
     },
     computed: {
@@ -118,56 +119,60 @@ export default {
         getBirth () {
             const birth = this.selfInfo.birth;
             return birth ? dayjs(birth).format('YYYY-MM-DD') : '-';
-        }
+        },
     },
     methods: {
         updateNickname () {
             uni.navigateTo({
-                url: `/pages/common/markOrIDPage/index?isSelfNickname=true&sourceInfo=${JSON.stringify(this.selfInfo)}`
+                url: `/pages/common/markOrIDPage/index?isSelfNickname=true&sourceInfo=${JSON.stringify(
+                    this.selfInfo
+                )}`,
             });
         },
         updateGender () {
             uni.showActionSheet({
                 itemList: ['男', '女'],
-                success: async ({
-                    tapIndex
-                }) => {
+                success: async ({ tapIndex }) => {
                     this.loadingState.gender = true;
-                    await this.updateSelfInfo({
-                        gender: tapIndex + 1
-                    }, 'gender');
-                }
+                    await this.updateSelfInfo(
+                        { gender: tapIndex + 1, },
+                        'gender'
+                    );
+                },
             });
         },
         updateAvatar () {
             uni.chooseImage({
                 count: 1,
                 sizeType: ['compressed'],
-                success: async ({
-                    tempFilePaths
-                }) => {
+                success: async ({ tempFilePaths }) => {
                     const path = tempFilePaths[0];
                     const nameIdx = path.lastIndexOf('/') + 1;
                     const typeIdx = path.lastIndexOf('.') + 1;
                     const fileName = path.slice(nameIdx);
                     const fileType = path.slice(typeIdx);
                     this.loadingState.faceURL = true;
-                    const { data: { url } } = await IMSDK.asyncApi(IMSDK.IMMethods.UploadFile, IMSDK.uuid(), {
-                        filepath: getPurePath(tempFilePaths[0]),
-                        name: fileName,
-                        contentType: `image/${fileType}`,
-                        uuid: IMSDK.uuid()
-                    });
-                    this.updateSelfInfo({
-                        faceURL: url
-                    }, 'faceURL');
+                    const { data: { url }, } = await IMSDK.asyncApi(
+                        IMSDK.IMMethods.UploadFile,
+                        IMSDK.uuid(),
+                        {
+                            filepath: getPurePath(tempFilePaths[0]),
+                            name: fileName,
+                            contentType: `image/${fileType}`,
+                            uuid: IMSDK.uuid(),
+                        }
+                    );
+                    this.updateSelfInfo(
+                        { faceURL: url, },
+                        'faceURL'
+                    );
                     this.loadingState.faceURL = false;
-                }
+                },
             });
         },
         toQrCode () {
             uni.navigateTo({
-                url: `/pages/common/userOrGroupQrCode/index`
+                url: `/pages/common/userOrGroupQrCode/index`,
             });
         },
         copyID () {
@@ -178,14 +183,14 @@ export default {
                     this.$nextTick(() => {
                         uni.$u.toast('复制成功');
                     });
-                }
+                },
             });
         },
         async updateSelfInfo (data, key) {
             try {
                 await businessInfoUpdate({
                     ...data,
-                    userID: this.selfInfo.userID
+                    userID: this.selfInfo.userID,
                 });
                 await this.$store.dispatch('user/updateBusinessInfo');
                 uni.$u.toast('修改成功');
@@ -195,31 +200,31 @@ export default {
             }
             this.loadingState[key] = false;
         },
-        confirmDate ({
-            value
-        }) {
+        confirmDate ({ value }) {
             this.loadingState.birth = true;
-            this.updateSelfInfo({
-                birth: value
-            }, 'birth');
+            this.updateSelfInfo(
+                { birth: value, },
+                'birth'
+            );
             this.showDatePicker = false;
         },
-    }
+    },
 };
 </script>
 
 <style lang="scss" scoped>
 .page_container {
-	background-color: #f8f8f8;
+    background-color: $uni-bg-color-grey;
+    padding: 40rpx;
 
-	.info_wrap {
-		background-color: #fff;
-		margin-top: 24rpx;
-
-		.qr_icon {
-			width: 22px;
-			height: 23px;
-		}
-	}
+    .info_wrap {
+        background-color: $uni-bg-color;
+        border-radius: 30rpx;
+        margin-bottom: 30rpx;
+        .u-avatar {
+            border-radius: 20rpx;
+            overflow: hidden;
+        }
+    }
 }
 </style>

@@ -1,35 +1,33 @@
 <template>
     <view class="mark_id_container">
-        <custom-nav-bar :title="getTitle" />
+        <CustomNavBar :title="getTitle">
+            <template slot="more">
+                <text
+                    class="primary mr-30 fz-32"
+                    @click="saveOrCopy"
+                >
+                    完成
+                </text>
+            </template>
+        </CustomNavBar>
 
-        <view class="content_row">
+        <view class="py-40 px-60 bg-color">
             <u-input
                 v-model="content"
-                :disabled="!isRemark&&!isSelfNickname"
-                disabled-color="transparent"
                 maxlength="20"
-                placeholder="请输入内容"
-                border="bottom"
+                placeholder="请输入您的信息"
+                border="none"
                 clearable
-            >
-                <template slot="suffix">
-                    <u-button
-                        :loading="loading"
-                        type="primary"
-                        :text="getConfirmText"
-                        @click="saveOrCopy"
-                    />
-                </template>
-            </u-input>
+            />
         </view>
     </view>
 </template>
 
 <script>
 import IMSDK from 'openim-uniapp-polyfill';
-
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import { businessInfoUpdate } from '@/api/login';
+
 export default {
     components: {
         CustomNavBar
@@ -43,7 +41,6 @@ export default {
             isRemark: false,
             isSelfNickname: false,
             sourceInfo: {},
-            loading: false
         };
     },
     computed: {
@@ -52,12 +49,9 @@ export default {
                 return '设置备注';
             }
             if (this.isSelfNickname) {
-                return '修改昵称';
+                return '修改姓名';
             }
-            return 'ID号';
-        },
-        getConfirmText () {
-            return (this.isRemark || this.isSelfNickname) ? '保存' : '复制';
+            return '';
         }
     },
     onLoad (options) {
@@ -78,8 +72,10 @@ export default {
     },
     methods: {
         async saveOrCopy () {
+            uni.showLoading({
+                title: '加载中'
+            });
             if (this.isRemark) {
-                this.loading = true;
                 IMSDK.asyncApi(IMSDK.IMMethods.SetFriendRemark, IMSDK.uuid(), {
                     toUserID: this.sourceInfo.userID,
                     remark: this.content
@@ -89,10 +85,8 @@ export default {
                 }).catch((error) => {
                     console.log(error);
                     uni.$u.toast('设置失败');
-                })
-                    .finally(() => this.loading = false);
+                });
             } else if (this.isSelfNickname) {
-                this.loading = true;
                 try {
                     await businessInfoUpdate({
                         userID: this.sourceInfo.userID,
@@ -105,17 +99,6 @@ export default {
                     console.log(e);
                     uni.$u.toast('修改失败');
                 }
-                this.loading = false;
-            } else {
-                uni.setClipboardData({
-                    data: this.sourceInfo.userID,
-                    success: () => {
-                        uni.hideToast();
-                        this.$nextTick(() => {
-                            uni.$u.toast('复制成功');
-                        });
-                    }
-                });
             }
         }
     }
@@ -125,15 +108,7 @@ export default {
 <style lang="scss" scoped>
 	.mark_id_container {
 		@include colBox(false);
-		height: 100vh;
-
-		.content_row {
-			margin-top: 96rpx;
-			margin: 72rpx 44rpx 0;
-
-			.u-button {
-				height: 60rpx;
-			}
-		}
+        height: 100vh;
+        background-color: $uni-bg-color-grey;
 	}
 </style>
