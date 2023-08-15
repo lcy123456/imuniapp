@@ -64,6 +64,7 @@
                 :disabled="!canLogin"
                 shape="circle"
                 size="large"
+                :loading="loading"
                 @click="sendSms"
             >
                 {{ isRegister ? '下一步' : '获取验证码' }}
@@ -129,7 +130,7 @@ export default {
                     },
                 ],
             },
-            pageStatus: 'normal',
+            loading: false
         };
     },
     computed: {
@@ -171,8 +172,10 @@ export default {
                     invitationCode: this.userInfo.invitationCode,
                 };
                 try {
+                    this.loading = true;
                     await businessSendSms(options);
                     uni.$u.toast('验证码已发送！');
+                    this.loading = false;
                     setTimeout(
                         () =>
                             uni.$u.route('/pages/login/verifyCode/index', {

@@ -6,48 +6,52 @@
         />
 
         <view class="info_wrap">
-            <info-item
+            <SettingItem
                 :loading="loadingState.faceURL"
                 title="头像"
+                show-arrow
                 @click="updateAvatar"
             >
                 <MyAvatar
-                    slot="value"
+                    slot="right"
                     :src="selfInfo.faceURL"
                     :desc="selfInfo.nickname"
                     size="80rpx"
                 />
-            </info-item>
-            <info-item
+            </SettingItem>
+            <SettingItem
                 title="姓名"
                 :content="selfInfo.nickname"
+                show-arrow
                 @click="updateNickname"
             />
-            <info-item
+            <SettingItem
                 :loading="loadingState.gender"
                 title="性别"
                 :content="getGender"
+                show-arrow
                 @click="updateGender"
             />
-            <info-item
+            <SettingItem
                 :loading="loadingState.birth"
                 title="生日"
                 :content="getBirth"
+                show-arrow
                 @click="() => (showDatePicker = true)"
             />
         </view>
         <view class="info_wrap">
-            <info-item
+            <SettingItem
                 :show-arrow="false"
                 title="手机号码"
                 :content="selfInfo.phoneNumber || '-'"
             />
-            <info-item
+            <SettingItem
                 :show-arrow="false"
                 title="邮箱"
                 :content="selfInfo.email || '-'"
             />
-            <!-- <info-item
+            <!-- <SettingItem
                 title="二维码名片"
                 @click="toQrCode"
             >
@@ -57,8 +61,8 @@
                     src="@/static/images/self_info_qr.png"
                     mode=""
                 />
-            </info-item>
-            <info-item
+            </SettingItem>
+            <SettingItem
                 :show-arrow="false"
                 title="ID"
                 :content="selfInfo.userID"
@@ -84,13 +88,15 @@ import IMSDK from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import dayjs from 'dayjs';
-import InfoItem from './InfoItem.vue';
+import SettingItem from '@/components/SettingItem/index.vue';
 import { getPurePath } from '@/util/common';
+import { CustomMarkType } from '@/constant';
+
 export default {
     components: {
         CustomNavBar,
         MyAvatar,
-        InfoItem,
+        SettingItem,
     },
     data () {
         return {
@@ -124,7 +130,7 @@ export default {
     methods: {
         updateNickname () {
             uni.navigateTo({
-                url: `/pages/common/markOrIDPage/index?isSelfNickname=true&sourceInfo=${JSON.stringify(
+                url: `/pages/common/markOrIDPage/index?type=${CustomMarkType.SelfNickname}&sourceInfo=${JSON.stringify(
                     this.selfInfo
                 )}`,
             });

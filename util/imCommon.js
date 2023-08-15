@@ -11,13 +11,14 @@ import IMSDK, {
     MessageType,
     SessionType,
 } from "openim-uniapp-polyfill";
-import dayjs from "dayjs";
+import emojis from "../common/emojis";
+import { getPurePath } from '@/util/common';
 
+import dayjs from "dayjs";
 import calendar from "dayjs/plugin/calendar";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
 import "dayjs/locale/zh-cn";
-import emojis from "../common/emojis";
 
 dayjs.extend(calendar);
 dayjs.extend(relativeTime);
@@ -608,4 +609,22 @@ export const getSourceUserInfo = (sourceID) => {
             reject(e);
         }
     });
+};
+
+export const uploadFile = async (path, contentType = 'image') => {
+    const nameIdx = path.lastIndexOf('/') + 1;
+    const typeIdx = path.lastIndexOf('.') + 1;
+    const fileName = path.slice(nameIdx);
+    const fileType = path.slice(typeIdx);
+    const { data: { url }, } = await IMSDK.asyncApi(
+        IMSDK.IMMethods.UploadFile,
+        IMSDK.uuid(),
+        {
+            filepath: getPurePath(path),
+            name: fileName,
+            contentType: `${contentType}/${fileType}`,
+            uuid: IMSDK.uuid(),
+        }
+    );
+    return url;
 };

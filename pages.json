@@ -92,13 +92,6 @@
 			}
 		},
 		{
-			"path": "pages/common/userCardMore/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
-		},
-		{
 			"path": "pages/common/markOrIDPage/index",
 			"style": {
 				"navigationBarTitleText": "",

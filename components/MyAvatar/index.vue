@@ -1,7 +1,7 @@
 <template>
     <u-avatar
         :src="getAvatarUrl"
-        :text="avatarText"
+        :text="getAvatarUrl ? undefined : avatarText"
         bg-color="#5496EB"
         :default-url="getDdefaultUrl"
         :shape="shape"
@@ -63,21 +63,13 @@ export default {
         }
     },
     watch: {
-        src () {
-            this.redirectShow();
-        },
         desc () {
-            this.redirectShow();
+            this.errorHandle();
         }
     },
     methods: {
         errorHandle () {
             this.avatarText = this.desc ? this.desc.slice(this.desc.length > 1 ? -2 : -1) : '未知';
-        },
-        redirectShow () {
-            if (this.avatarText) {
-                this.avatarText = undefined;
-            }
         },
         click () {
             this.$emit('click');

@@ -1,7 +1,6 @@
 <template>
     <view
         class="group_members_container"
-        @click="pageClick"
     >
         <group-member-list-header
             :check-visible.sync="showCheck"
@@ -45,14 +44,14 @@
             </view>
         </u-list>
 
-        <choose-index-footer
+        <!-- <choose-index-footer
             v-if="showCheck"
             :comfirm-loading="comfirmLoading"
             :choosed-data="getChoosedData"
             :is-remove="isRemove"
             @removeItem="updateCheck"
             @confirm="confirm"
-        />
+        /> -->
 
         <u-modal
             :show="showConfirmModal"
@@ -72,6 +71,7 @@ import IMSDK, { GroupMemberRole } from "openim-uniapp-polyfill";
 import UserItem from "@/components/UserItem/index.vue";
 import GroupMemberListHeader from "./components/GroupMemberListHeader.vue";
 import ChooseIndexFooter from "@/components/ChooseIndexFooter/index.vue";
+
 export default {
     components: {
         GroupMemberListHeader,
@@ -98,7 +98,7 @@ export default {
     computed: {
         getChoosedData () {
             const tmpList = [...this.choosedMemberIDList];
-            return [...this.groupMemberList, ...this.searchChoosedList].filter(
+            const a = [...this.groupMemberList, ...this.searchChoosedList].filter(
                 (member) => {
                     const idx = tmpList.findIndex((item) => item === member.userID);
                     if (idx > -1) {
@@ -107,12 +107,11 @@ export default {
                     return idx > -1;
                 }
             );
+            console.log('xxx', a);
+            return a;
         },
         isRemove () {
             return this.type === GroupMemberListTypes.Kickout;
-        },
-        isChecked () {
-            return (userID) => this.choosedMemberIDList.includes(userID);
         },
         isOwner () {
             return (
@@ -126,36 +125,34 @@ export default {
         GroupMemberRole.Admin
             );
         },
-        canCheck () {
-            return ({ roleLevel, userID }) => {
-                if (this.type === GroupMemberListTypes.Kickout) {
-                    return (
-                        (this.isOwner ||
-              (this.isAdmin && roleLevel !== GroupMemberRole.Owner)) &&
-            userID !== this.$store.getters.storeCurrentUserID
-                    );
-                }
-                return userID !== this.$store.getters.storeCurrentUserID;
-            };
-        },
     },
     onLoad (options) {
-        const { groupID, type, } = options;
+        const { groupID, type } = options;
         this.loadMemberList(groupID);
         this.type = type;
         this.groupID = groupID;
         this.isRightKick = type === GroupMemberListTypes.Kickout;
-        if (
-            this.isRightKick 
-        ) {
+        if (this.isRightKick) {
             this.showCheck = true;
         }
-        this.setIMListener();
     },
     onUnload () {
         this.disposeIMListener();
     },
     methods: {
+        isChecked (userID) {
+            return this.choosedMemberIDList.includes(userID);
+        },
+        canCheck ({ roleLevel, userID }) {
+            if (this.type === GroupMemberListTypes.Kickout) {
+                return (
+                    (this.isOwner ||
+            (this.isAdmin && roleLevel !== GroupMemberRole.Owner)) &&
+        userID !== this.$store.getters.storeCurrentUserID
+                );
+            }
+            return userID !== this.$store.getters.storeCurrentUserID;
+        },
         confirm () {
             this.showConfirmModal = true;
         },
@@ -221,7 +218,7 @@ export default {
             });
         },
     },
-    onBackPress (options) {
+    onBackPress () {
         if (this.showCheck && this.isRightKick) {
             this.showCheck = false;
             this.type = GroupMemberListTypes.Preview;

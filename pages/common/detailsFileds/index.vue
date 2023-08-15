@@ -1,64 +1,43 @@
 <template>
-    <view class="details_container">
-        <custom-nav-bar title="更多资料" />
+    <view class="page_container">
+        <CustomNavBar
+            title="更多资料"
+            is-bg-color2
+        />
 
-        <view class="info_list">
-            <user-info-row-item
-                class="info_item"
-                lable="头像"
-                arrow
+        <view class="info_wrap">
+            <SettingItem
+                title="头像"
             >
-                <my-avatar
+                <MyAvatar
+                    slot="right"
                     :src="sourceInfo.faceURL"
                     :desc="sourceInfo.nickname"
-                    size="42"
+                    size="80rpx"
                 />
-            </user-info-row-item>
-            <user-info-row-item
-                class="info_item"
-                lable="昵称"
-                arrow
-            >
-                <text class="right_content">
-                    {{ sourceInfo.nickname }}
-                </text>
-            </user-info-row-item>
-            <user-info-row-item
-                class="info_item"
-                lable="性别"
-                arrow
-            >
-                <text class="right_content">
-                    {{ getGender }}
-                </text>
-            </user-info-row-item>
-            <user-info-row-item
-                class="info_item"
-                lable="生日"
-                arrow
-            >
-                <text class="right_content">
-                    {{ getBirthStr }}
-                </text>
-            </user-info-row-item>
-            <user-info-row-item
-                class="info_item"
-                lable="手机号码"
-                arrow
-            >
-                <text class="right_content">
-                    {{ sourceInfo.phoneNumber || '-' }}
-                </text>
-            </user-info-row-item>
-            <user-info-row-item
-                class="info_item"
-                lable="邮箱"
-                arrow
-            >
-                <text class="right_content">
-                    {{ sourceInfo.email || '-' }}
-                </text>
-            </user-info-row-item>
+            </SettingItem>
+            <SettingItem
+                title="姓名"
+                :content="sourceInfo.nickname"
+            />
+            <SettingItem
+                title="性别"
+                :content="getGender"
+            />
+            <SettingItem
+                title="生日"
+                :content="getBirth"
+            />
+        </view>
+        <view class="info_wrap">
+            <SettingItem
+                title="手机号码"
+                :content="sourceInfo.phoneNumber || '-'"
+            />
+            <SettingItem
+                title="邮箱"
+                :content="sourceInfo.email || '-'"
+            />
         </view>
     </view>
 </template>
@@ -67,16 +46,17 @@
 import dayjs from 'dayjs';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
-import UserInfoRowItem from '../userCard/components/UserInfoRowItem.vue';
+import SettingItem from '@/components/SettingItem/index.vue';
+
 export default {
     components: {
         CustomNavBar,
         MyAvatar,
-        UserInfoRowItem
+        SettingItem
     },
     data () {
         return {
-            sourceInfo: {}
+            sourceInfo: {},
         };
     },
     computed: {
@@ -90,37 +70,30 @@ export default {
             return '保密';
         },
         getBirthStr () {
-            return this.sourceInfo.birth ? dayjs(this.sourceInfo.birth).format("YYYY-MM-DD") : '-';
-        }
+            const birth = this.sourceInfo.birth;
+            return birth ? dayjs(birth).format('YYYY-MM-DD') : '-';
+        },
     },
     onLoad (options) {
-        const {
-            sourceInfo
-        } = options;
+        const { sourceInfo } = options;
         this.sourceInfo = JSON.parse(sourceInfo);
-    }
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-	.details_container {
-		@include colBox(false);
-		height: 100vh;
-		background-color: #F6F6F6;
+.page_container {
+    background-color: $uni-bg-color-grey;
+    padding: 40rpx;
 
-		.info_list {
-			margin-top: 24rpx;
-
-			.info_item {
-				background-color: #fff;
-				border-bottom: 1px solid rgba(153, 153, 153, 0.3);
-
-				.right_content {
-					color: #999;
-				}
-			}
-		}
-
-
-	}
+    .info_wrap {
+        background-color: $uni-bg-color;
+        border-radius: 30rpx;
+        margin-bottom: 30rpx;
+        .u-avatar {
+            border-radius: 20rpx;
+            overflow: hidden;
+        }
+    }
+}
 </style>

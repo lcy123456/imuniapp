@@ -5,26 +5,35 @@
         @click="onClick"
     >
         <text>{{ title }}</text>
-        <u-switch
-            v-if="isSwitch"
-            :loading="loading"
-            :async-change="true"
-            size="20"
-            :value="switchValue"
-            @change="onChange"
-        />
-        <view
-            v-else
-            class="setting_right"
-        >
-            <slot />
+        <view class="setting_right">
+            <slot name="right" />
+            <text
+                v-if="content"
+                class="fz-28 text-grey"
+            >
+                {{ content }}
+            </text>
+            <u-switch
+                v-if="showSwitch"
+                :loading="loading"
+                :async-change="true"
+                size="20"
+                :value="switchValue"
+                inactive-color="#999"
+                @change="switchChange"
+            />
             <u-icon
-                v-if="arrow"
+                v-if="showArrow"
                 name="arrow-right"
-                color="#999"
                 size="18"
+                color="#999"
+                class="ml-12"
             />
         </view>
+        <u-loading-icon
+            v-show="loading"
+            class="loading_icon"
+        />
     </view>
 </template>
 
@@ -33,8 +42,19 @@ export default {
     name: '',
     components: {},
     props: {
-        title: String,
-        isSwitch: {
+        title: {
+            type: String,
+            default: ''
+        },
+        content: {
+            type: String,
+            default: ''
+        },
+        showArrow: {
+            type: Boolean,
+            default: false,
+        },
+        showSwitch: {
             type: Boolean,
             default: false,
         },
@@ -62,7 +82,7 @@ export default {
         onClick () {
             this.$emit('click');
         },
-        onChange (value) {
+        switchChange (value) {
             this.$emit('switch', value);
         },
     },
@@ -75,6 +95,7 @@ export default {
     height: 130rpx;
     padding: 0 40rpx;
     color: $uni-text-color;
+    position: relative;
 
     .setting_right {
         @include vCenterBox();
@@ -82,6 +103,12 @@ export default {
 
     &_border {
         border-bottom: 1px solid rgba(153, 153, 153, 0.2);
+    }
+    .loading_icon {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
     }
 }
 </style>

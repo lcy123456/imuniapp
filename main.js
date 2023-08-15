@@ -1,5 +1,6 @@
 import App from './App';
 import Vue from 'vue';
+import MyPlugin from './plugins/index';
 
 // vuex
 import store from './store';
@@ -10,6 +11,7 @@ Vue.use(uView);
 
 
 Vue.prototype.$store = store;
+Vue.use(MyPlugin);
 
 
 Vue.config.productionTip = false;

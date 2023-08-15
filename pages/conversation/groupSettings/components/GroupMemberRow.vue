@@ -1,101 +1,127 @@
 <template>
-    <view
-        class="member_row"
-        @click="toMemberList"
-    >
+    <view class="member_row">
         <view class="member_title">
-            <text>群成员</text>
-            <view class="member_desc">
-                <text>{{ `${memberCount}人` }}</text>
-                <u-icon
-                    name="arrow-right"
-                    color="#999"
-                    size="16"
-                />
-            </view>
-        </view>
-        <view class="member_list">
-            <my-avatar
-                v-for="member in groupMemberList"
-                :key="member.userID"
-                :src="member.faceURL"
-                :desc="member.nickname"
-                class="member_item"
-                size="42"
-            />
-            <image
-                style="width: 36px; height: 36px; min-width: 36px"
-                class="member_item"
-                src="@/static/images/group_setting_invite.png"
-                alt=""
+            <view
+                class="member_desc"
                 @click.stop="inviteMember"
-            />
-            <image
-                v-if="!isNomal"
-                style="width: 36px; height: 36px; min-width: 36px"
-                class="member_item"
-                src="@/static/images/group_setting_remove.png"
-                alt=""
-                @click.stop="kickMember"
-            />
+            >
+                <image
+                    src="/static/images/contact_add_search_user.png"
+                    class="w-44 h-44"
+                />
+                <text class="ml-20 primary ">
+                    邀请新成员
+                </text>
+            </view>
+            <text class="text-grey">
+                {{ `${memberCount}位成员` }}
+            </text>
         </view>
+        <u-swipe-action class="member_list">
+            <template v-for="member in list">
+                <u-swipe-action-item
+                    v-if="getSwipOptions(member)"
+                    :key="member.userID" 
+                    :options="getSwipOptions(member)"
+                    @click="swipeClick(member)"
+                >
+                    <UserItem
+                        :item="member"
+                        @itemClick="userClick"
+                    />
+                </u-swipe-action-item>
+                <UserItem
+                    v-else
+                    :key="member.userID"
+                    :item="member"
+                    @itemClick="userClick"
+                />
+            </template>
+        </u-swipe-action>
     </view>
 </template>
 
 <script>
-import IMSDK from "openim-uniapp-polyfill";
-import MyAvatar from "@/components/MyAvatar/index.vue";
-import { ContactChooseTypes, GroupMemberListTypes } from "@/constant";
+import { ContactChooseTypes } from "@/constant";
+import UserItem from "@/components/UserItem/index.vue";
+import { GroupMemberRole } from 'openim-uniapp-polyfill';
+
 export default {
     name: "",
     components: {
-        MyAvatar,
+        UserItem
     },
     props: {
-        isNomal: Boolean,
-        memberCount: Number,
-        groupID: String,
+        list: {
+            type: Array,
+            default: () => []
+        },
+        isOwner: {
+            type: Boolean,
+            default: false
+        },
+        isAdmin: {
+            type: Boolean,
+            default: false
+        },
+        memberCount: {
+            type: Number,
+            default: 0
+        },
+        groupID: {
+            type: String,
+            default: ''
+        },
     },
     data () {
         return {
-            groupMemberList: [],
+            swipeOptions: [
+                {
+                    text: '删除',
+                    style: {
+                        backgroundColor: '#ec4b37',
+                    },
+                },
+            ],
         };
     },
-    watch: {
-        memberCount () {
-            this.getGroupMemberList();
-        },
-    },
-    mounted () {
-        this.getGroupMemberList();
+    computed: {
+        isNormal () {
+            return !this.isOwner && !this.isAdmin;
+        }
     },
     methods: {
-        getGroupMemberList () {
-            IMSDK.asyncApi(IMSDK.IMMethods.GetGroupMemberList, IMSDK.uuid(), {
-                groupID: this.groupID,
-                filter: 0,
-                offset: 0,
-                count: this.isNomal ? 6 : 5,
-            }).then(({ data }) => {
-                console.log(data);
-                this.groupMemberList = [...data];
-            }).catch((err) => {
-                console.log(err);
-            });
-        },
-        toMemberList () {
-            uni.navigateTo({
-                url: `/pages/conversation/groupMemberList/index?type=${GroupMemberListTypes.Preview}&groupID=${this.groupID}`,
-            });
-        },
+        // toMemberList () {
+        //     uni.navigateTo({
+        //         url: `/pages/conversation/groupMemberList/index?type=${GroupMemberListTypes.Preview}&groupID=${this.groupID}`,
+        //     });
+        // },
+        // kickMember () {
+        //     uni.navigateTo({
+        //         url: `/pages/conversation/groupMemberList/index?type=${GroupMemberListTypes.Kickout}&groupID=${this.groupID}`,
+        //     });
+        // },
         inviteMember () {
             uni.navigateTo({
                 url: `/pages/common/contactChoose/index?type=${ContactChooseTypes.Invite}&groupID=${this.groupID}`,
             });
         },
-        kickMember () {
-            uni.navigateTo({
-                url: `/pages/conversation/groupMemberList/index?type=${GroupMemberListTypes.Kickout}&groupID=${this.groupID}`,
+        getSwipOptions (member) {
+            if (this.isOwner && [GroupMemberRole.Owner].includes(member.roleLevel)) {
+                return false;
+            } else if (this.isAdmin && [GroupMemberRole.Owner, GroupMemberRole.Admin].includes(member.roleLevel)) {
+                return false;
+            } else if (this.isNormal) {
+                return false;
+            }
+            return this.swipeOptions;
+        },
+        swipeClick (member) {
+            this.$emit('kick', member);
+        },
+        userClick (member) {
+            uni.$u.route("/pages/common/userCard/index", {
+                sourceID: member.userID,
             });
         },
     },
@@ -105,27 +131,22 @@ export default {
 <style lang="scss" scoped>
 .member_row {
   @include colBox(false);
-  padding: 36rpx 44rpx;
-  margin: 12rpx 0;
-  background-color: #fff;
-  color: $uni-text-color;
+  background-color: $uni-bg-color;
+  border-radius: 30rpx;
+  flex: 1;
+  overflow: hidden;
 
   .member_title {
     @include btwBox();
+    padding: 30rpx 20rpx;
 
     .member_desc {
       @include vCenterBox();
-      font-size: 26rpx;
     }
   }
-
   .member_list {
-    @include vCenterBox();
-    margin-top: 24rpx;
-
-    .member_item {
-      margin-right: 16rpx;
-    }
+    flex: 1;
+    overflow-y: auto;
   }
 }
 </style>

@@ -65,3 +65,9 @@ export const CustomMessageStatus = {
     Timeout: 'timeout',
     AccessByOther: 'accessByOther'
 };
+
+export const CustomMarkType = {
+    SelfNickname: 'selfNickname',
+    Remark: 'remark',
+    GroupName: 'groupName',
+};

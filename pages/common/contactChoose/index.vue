@@ -116,6 +116,7 @@ export default {
                 this.disabledUserIDList = data.map((member) => member.userID);
             });
         },
+        // TODO: 优化：写法繁琐
         updateCheckedUser ({ userID }) {
             if (this.checkedUserIDList.includes(userID)) {
                 const idx = this.checkedUserIDList.findIndex(
@@ -129,30 +130,30 @@ export default {
             }
         },
         confirm () {
-            this.comfirmLoading = true;
-            if (this.type === ContactChooseTypes.GetList) {
-                let pages = getCurrentPages();
-                let prevPage = pages[pages.length - 2];
-                prevPage.$vm.getCheckedUsers(this.getCheckedInfo);
-                this.comfirmLoading = false;
+            // this.comfirmLoading = true;
+            // if (this.type === ContactChooseTypes.GetList) {
+            let pages = getCurrentPages();
+            let prevPage = pages[pages.length - 2];
+            prevPage.$vm.getCheckedUsers(this.getCheckedInfo);
+            // this.comfirmLoading = false;
 
-                uni.navigateBack({
-                    delta: 1,
-                });
-                return;
-            }
+            uni.navigateBack({
+                delta: 1,
+            });
+            //     return;
+            // }
 
-            IMSDK.asyncApi(IMSDK.IMMethods.InviteUserToGroup, IMSDK.uuid(), {
-                groupID: this.groupID,
-                reason: '',
-                userIDList: this.getCheckedInfo.map((user) => user.userID),
-            })
-                .then(() => {
-                    toastWithCallback('操作成功', () => uni.navigateBack());
-                    this.comfirmLoading = false;
-                })
-                .catch(() => toastWithCallback('操作失败'));
-            this.comfirmLoading = false;
+            // IMSDK.asyncApi(IMSDK.IMMethods.InviteUserToGroup, IMSDK.uuid(), {
+            //     groupID: this.groupID,
+            //     reason: '',
+            //     userIDList: this.getCheckedInfo.map((user) => user.userID),
+            // })
+            //     .then(() => {
+            //         toastWithCallback('操作成功', () => uni.navigateBack());
+            //         this.comfirmLoading = false;
+            //     })
+            //     .catch(() => toastWithCallback('操作失败'));
+            // this.comfirmLoading = false;
         },
     },
 };

@@ -16,28 +16,30 @@
             />
         </view>
 
-        <my-avatar
+        <MyAvatar
             :src="item.faceURL"
             :desc="item.remark || item.nickname || item.showName"
             :is-group="item.groupName !== undefined || isGroupConversation"
-            size="42"
+            size="78rpx"
         />
         <view class="user_item_details">
             <text class="user_name">
                 {{ item.remark||item.nickname||item.groupName|| item.showName }}
             </text>
-            <text
-                v-if="item.roleLevel === 100"
-                class="user_role"
-            >
-                群主
-            </text>
-            <text
-                v-if="item.roleLevel === 60"
-                class="user_role admin_role"
-            >
-                管理员
-            </text>
+            <view>
+                <text
+                    v-if="item.roleLevel === 100"
+                    class="user_role"
+                >
+                    群主
+                </text>
+                <text
+                    v-else-if="item.roleLevel === 60"
+                    class="user_role"
+                >
+                    管理员
+                </text>
+            </view>
             <view class="bottom_line" />
         </view>
 
@@ -48,6 +50,7 @@
 <script>
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { SessionType } from 'openim-uniapp-polyfill';
+
 export default {
     name: "UserItem",
     components: {
@@ -66,7 +69,10 @@ export default {
             type: Boolean,
             default: false
         },
-        item: Object
+        item: {
+            type: Object,
+            default: () => ({})
+        }
     },
     data () {
         return {
@@ -117,8 +123,13 @@ export default {
 			}
 		}
 
+        .u-avatar {
+            border-radius: 30rpx;
+            overflow: hidden;
+        }
+
 		&_details {
-			@include vCenterBox();
+			@include btwBox();
 			margin-left: 24rpx;
 			width: 100%;
 			position: relative;
@@ -138,17 +149,8 @@ export default {
 			}
 
 			.user_role {
-				font-size: 24rpx;
-				background-color: #f4da9a;
-				color: #FF8C00;
-				padding: 8rpx 24rpx;
-				border-radius: 24rpx;
-				margin-left: 24rpx;
-			}
-
-			.admin_role {
-				background-color: #A2C9F8;
-				color: #2691ED;
+				font-size: 28rpx;
+				color: $uni-text-color-grey;
 			}
 		}
 

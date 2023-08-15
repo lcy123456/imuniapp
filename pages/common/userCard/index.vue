@@ -1,48 +1,67 @@
 <template>
     <view class="user_card_container">
-        <custom-nav-bar title="" />
+        <CustomNavBar
+            title=""
+            is-bg-color2
+        />
 
         <view class="base_info">
-            <my-avatar
-                :desc="sourceUserInfo.remark || sourceUserInfo.nickname"
+            <MyAvatar
                 :src="sourceUserInfo.faceURL"
-                size="48"
+                :desc="sourceUserInfo.remark || sourceUserInfo.nickname"
+                size="190rpx"
             />
-            <view>
-                <view class="user_name">
-                    <text class="text">
-                        {{ getShowName }}
-                    </text>
-                    <view class="online_state">
-                        <view
-                            class="dot"
-                            :style="{ backgroundColor: isOnline ? '#10CC64' : '#999' }"
-                        />
-                        <view class="online_str">
-                            {{ onlineStr }}
-                        </view>
-                    </view>
-                </view>
+            <text class="nickname">
+                {{ getShowName }}
+            </text>
+            <view class="id_row">
+                ID：<text>{{ sourceID }}</text>
+                <image
+                    class="w-32 h-32 ml-20"
+                    src="/static/images/profile_copy.png"
+                    @click="copyID"
+                />
             </view>
         </view>
 
-        <view class="info_row">
-            <user-info-row-item
-                lable="ID号"
-                :content="sourceUserInfo.userID"
+        <view v-if="isFriend">
+            <view class="flex justify-between mb-30">
+                <view
+                    v-for="item in infoMenus"
+                    :key="item.idx"
+                    class="w-210 h-130 bg-color br-30 flex flex-column justify-evenly align-center"
+                    @click="infoMenusClick(item)"
+                >
+                    <image
+                        class="w-54 h-54"
+                        :src="item.icon"
+                    />
+                    <view class="fz-26">
+                        {{ item.title }}
+                    </view>
+                </view>
+            </view>
+            <SettingItem
+                class="info-row"
+                title="加入黑名单"
+                show-switch
+                :loading="blackLoading"
+                :switch-value="isBlacked"
+                @switch="blackChange"
             />
+            <view 
+                class="info-row flex justify-center align-center error"
+                @click="()=>showConfirm=true"
+            >
+                解除好友关系
+            </view>
         </view>
-
-        <view
-            v-if="isFriend"
-            class="info_row"
-        >
-            <user-info-row-item
-                lable="个人资料"
-                arrow
-                @click="toMoreInfo"
-            />
-        </view>
+        <!-- <SettingItem
+            class="info-row"
+            :title="infoMenus[1].title"
+            show-arrow
+            @click="infoMenusClick(infoMenus[1])"
+        /> -->
 
         <view class="action_row">
             <view
@@ -68,44 +87,70 @@
                 <text>添加好友</text>
             </view>
         </view>
+        
+        <u-modal
+            :content="`确定要解除与${sourceUserInfo.nickname}的好友关系吗？`"
+            async-close
+            :show="showConfirm"
+            show-cancel-button
+            @confirm="confirmRemove"
+            @cancel="() => showConfirm = false"
+        />
     </view>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { CommonIsAllow } from "@/constant";
+import { mapGetters } from 'vuex';
+import { CommonIsAllow, CustomMarkType } from '@/constant';
 import {
     getDesignatedUserOnlineState,
     navigateToDesignatedConversation,
-} from "@/util/imCommon";
-import IMSDK, {
-    SessionType,
-} from "openim-uniapp-polyfill";
-import MyAvatar from "@/components/MyAvatar/index.vue";
-import CustomNavBar from "@/components/CustomNavBar/index.vue";
-import UserInfoRowItem from "./components/UserInfoRowItem.vue";
-import { businessSearchUserInfo } from "@/api/login";
+} from '@/util/imCommon';
+import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
+import MyAvatar from '@/components/MyAvatar/index.vue';
+import CustomNavBar from '@/components/CustomNavBar/index.vue';
+import SettingItem from '@/components/SettingItem/index.vue';
+import { businessSearchUserInfo } from '@/api/login';
+import { checkLoginError } from '@/util/common';
 
 export default {
     components: {
         CustomNavBar,
         MyAvatar,
-        UserInfoRowItem,
+        SettingItem,
     },
     data () {
         return {
-            sourceID: "",
+            sourceID: '',
             sourceUserInfo: {},
-            onlineStr: "离线",
+            onlineStr: '离线',
             isOnline: false,
+            infoMenus: [
+                {
+                    idx: 0,
+                    title: '备注',
+                    icon: require('static/images/profile_menu_info.png'),
+                },
+                {
+                    idx: 1,
+                    title: '更多资料',
+                    icon: require('static/images/profile_menu_account.png'),
+                },
+                {
+                    idx: 2,
+                    title: '创建群聊',
+                    icon: require('static/images/user_card_group.png'),
+                },
+            ],
+            blackLoading: false,
+            showConfirm: false,
         };
     },
     computed: {
         ...mapGetters([
-            "storeFriendList",
-            "storeCurrentMemberInGroup",
-            "storeCurrentUserID",
-            "storeAppConfig",
+            'storeFriendList',
+            'storeBlackList',
+            'storeAppConfig',
         ]),
         isFriend () {
             return (
@@ -115,15 +160,19 @@ export default {
             );
         },
         getShowName () {
-            let suffix = "";
+            let suffix = '';
             if (this.sourceUserInfo.remark) {
                 suffix = `(${this.sourceUserInfo.remark})`;
             }
             return this.sourceUserInfo.nickname + suffix;
         },
+        isBlacked () {
+            return this.storeBlackList.some(black => black.userID === this.sourceID);
+        },
         showSendMessage () {
             const businessAllow =
-        this.storeAppConfig.allowSendMsgNotFriend === CommonIsAllow.Allow;
+                this.storeAppConfig.allowSendMsgNotFriend ===
+                CommonIsAllow.Allow;
             return businessAllow ? businessAllow : this.isFriend;
         },
     },
@@ -146,17 +195,21 @@ export default {
         this.disposeIMListener();
     },
     methods: {
+        // TODO：已抽取到imcommon.js中，getSourceUserInfo
         async getSourceUserInfo () {
             try {
                 let info = null;
-                const { total, users } = await businessSearchUserInfo(this.sourceID);
+                const { total, users } = await businessSearchUserInfo(
+                    this.sourceID
+                );
                 if (total > 0) {
                     const { data } = await IMSDK.asyncApi(
                         IMSDK.IMMethods.GetUsersInfo,
                         IMSDK.uuid(),
                         [this.sourceID]
                     );
-                    const imData = data[0]?.friendInfo ?? data[0]?.publicInfo ?? {};
+                    const imData =
+                        data[0]?.friendInfo ?? data[0]?.publicInfo ?? {};
                     info = {
                         ...imData,
                         ...users[0],
@@ -165,20 +218,21 @@ export default {
                 this.sourceUserInfo = {
                     ...info,
                 };
+                console.log('xxx', this.sourceUserInfo);
             } catch (e) {
-                uni.$u.toast("获取用户信息失败");
+                uni.$u.toast('获取用户信息失败');
             }
         },
         async getOnlineState () {
             getDesignatedUserOnlineState(this.sourceID)
                 .then((str) => {
-                    this.isOnline = str !== "离线";
+                    this.isOnline = str !== '离线';
                     this.onlineStr = str;
                 })
                 .catch(() => (this.isOnline = false));
         },
         toAddFriend () {
-            uni.$u.route("/pages/common/sendAddRequest/index", {
+            uni.$u.route('/pages/common/sendAddRequest/index', {
                 isGroup: false,
                 sourceID: this.sourceID,
                 isScan: false,
@@ -188,18 +242,66 @@ export default {
         toDesignatedConversation () {
             navigateToDesignatedConversation(
                 this.sourceID,
-                SessionType.Single,
-            ).catch(() => uni.$u.toast("获取会话信息失败"));
+                SessionType.Single
+            ).catch(() => uni.$u.toast('获取会话信息失败'));
         },
-        toMoreInfo () {
-            uni.navigateTo({
-                url: `/pages/common/userCardMore/index?sourceInfo=${JSON.stringify(
-                    this.sourceUserInfo
-                )}`,
+        copyID () {
+            uni.setClipboardData({
+                data: this.sourceID,
+                success: () => {
+                    uni.$u.toast('复制成功');
+                },
             });
         },
+        infoMenusClick ({ idx }) {
+            const sourceInfo = JSON.stringify(this.sourceUserInfo);
+            let url = '';
+            switch (idx) {
+            case 0:
+                url = `/pages/common/markOrIDPage/index?type=${CustomMarkType.Remark}&sourceInfo=${sourceInfo}`;
+                break;
+            case 1:
+                url = `/pages/common/detailsFileds/index?sourceInfo=${sourceInfo}`;
+                break;
+            case 2:
+                const checkedMemberList = JSON.stringify([
+                    {
+                        userID: this.sourceID,
+                        faceURL: this.sourceUserInfo.faceURL,
+                        nickname: this.sourceUserInfo.nickname,
+                    },
+                ]);
+                url = `/pages/common/createGroup/index?checkedMemberList=${checkedMemberList}`;
+                break;
+            }
+            uni.navigateTo({ url });
+        },
+        async blackChange (isBlack) {
+            this.blackLoading = true;
+            try {
+                const funcName = isBlack ? IMSDK.IMMethods.AddBlack : IMSDK.IMMethods.RemoveBlack;
+                await IMSDK.asyncApi(funcName, IMSDK.uuid(), this.sourceID);
+                this.$toast('操作成功');
+                this.$store.dispatch('contact/getBlacklist');
+            } catch (err) {
+                console.log(err);
+                this.$toast(checkLoginError(err));
+            }
+            this.blackLoading = false;
+        },
+        async confirmRemove () {
+            try {
+                await IMSDK.asyncApi(IMSDK.IMMethods.DeleteFriend, IMSDK.uuid(), this.sourceID);
+                this.$store.dispatch('contact/getFriendList');
+                this.$toast('操作成功');
+            } catch (err) {
+                console.log(err);
+                this.$toast(checkLoginError(err));
+            }
+            this.showConfirm = false;
+        },
         friendInfoChangeHandler ({ data }) {
-            if (data.userID === this.sourceUserInfo.userID) {
+            if (data.userID === this.sourceID) {
                 this.sourceUserInfo = {
                     ...this.sourceUserInfo,
                     ...data,
@@ -224,100 +326,101 @@ export default {
 
 <style lang="scss" scoped>
 .user_card_container {
-  @include colBox(false);
-  height: 100vh;
-  background-color: #f6f6f6;
-  overflow-y: auto;
-  position: relative;
+    height: 100vh;
+    background-color: $uni-bg-color-grey;
+    padding: 0 30rpx;
 
-  .base_info {
-    @include vCenterBox();
-    background-color: #fff;
-    padding: 44rpx;
-    margin-bottom: 18rpx;
+    .base_info {
+        margin-top: 20rpx;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 50rpx;
+        position: relative;
 
-    .u-avatar {
-      margin-right: 24rpx;
+        .u-avatar {
+            border-radius: 60rpx;
+            overflow: hidden;
+        }
+
+        .nickname {
+            @include nomalEllipsis();
+            max-width: 400rpx;
+            margin-top: 20rpx;
+            font-size: 50rpx;
+        }
+
+        .id_row {
+            @include vCenterBox();
+            font-size: 36rpx;
+            color: $uni-text-color-grey;
+        }
     }
 
-    .user_name {
-      display: flex;
-      margin-bottom: 12rpx;
-
-      .text {
-        @include nomalEllipsis();
-        max-width: 300rpx;
-      }
+    .info-row {
+        height: 130rpx;
+        background-color: $uni-bg-color;
+        border-radius: 30rpx;
+        margin-bottom: 30rpx;
     }
 
-    .company {
-      font-size: 28rpx;
-      color: $u-primary;
-    }
-  }
-
-  .info_row {
-    background-color: #fff;
-    margin-bottom: 24rpx;
-  }
-
-  .mute_right {
-    display: flex;
-    align-items: center;
-  }
-
-  .company_row {
-    padding: 20rpx 0;
-
-    .desc_title {
-      padding-left: 44rpx;
-    }
-    /deep/.title {
-      width: 200rpx;
-      color: #999 !important;
-    }
-  }
-
-  .action_row {
-    @include vCenterBox();
-    justify-content: space-around;
-    margin: 44rpx;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-
-    .action_item {
-      @include colBox(false);
-      align-items: center;
-      color: $u-primary;
-
-      img {
-        width: 100rpx;
-        height: 100rpx;
-        margin-bottom: 12rpx;
-      }
-    }
-  }
-
-  .online_state {
-    @include vCenterBox();
-    margin-left: 24rpx;
-    font-size: 24rpx;
-    color: #999;
-
-    .dot {
-      background-color: #10cc64;
-      width: 12rpx;
-      height: 12rpx;
-      border-radius: 50%;
-      margin-right: 12rpx;
+    .mute_right {
+        display: flex;
+        align-items: center;
     }
 
-    .online_str {
-      @include nomalEllipsis();
-      max-width: 280rpx;
+    .company_row {
+        padding: 20rpx 0;
+
+        .desc_title {
+            padding-left: 44rpx;
+        }
+        /deep/.title {
+            width: 200rpx;
+            color: #999 !important;
+        }
     }
-  }
+
+    .action_row {
+        @include vCenterBox();
+        justify-content: space-around;
+        margin: 44rpx;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        .action_item {
+            @include colBox(false);
+            align-items: center;
+            color: $u-primary;
+
+            img {
+                width: 100rpx;
+                height: 100rpx;
+                margin-bottom: 12rpx;
+            }
+        }
+    }
+
+    .online_state {
+        @include vCenterBox();
+        margin-left: 24rpx;
+        font-size: 24rpx;
+        color: #999;
+
+        .dot {
+            background-color: #10cc64;
+            width: 12rpx;
+            height: 12rpx;
+            border-radius: 50%;
+            margin-right: 12rpx;
+        }
+
+        .online_str {
+            @include nomalEllipsis();
+            max-width: 280rpx;
+        }
+    }
 }
 </style>

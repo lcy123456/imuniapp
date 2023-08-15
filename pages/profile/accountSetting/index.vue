@@ -6,15 +6,16 @@
         />
 
         <view class="info_wrap">
-            <setting-item
+            <SettingItem
                 title="通讯录黑名单"
+                show-arrow
                 @click="toBlockList"
             />
-            <setting-item
+            <SettingItem
                 :loading="loading"
                 title="勿扰模式"
                 :switch-value="globalOptEnable"
-                :is-switch="true"
+                show-switch
                 @switch="switchGlobalOpt"
             />
         </view>
