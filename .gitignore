@@ -23,6 +23,7 @@ uniCloud-aliyun
 /unpackage/debug
 /unpackage/dist
 /unpackage/resources
+/unpackage/release
 
 # misc
 .DS_Store

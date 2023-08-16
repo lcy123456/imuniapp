@@ -87,9 +87,9 @@
                 "androidStyle" : "default",
                 "iosStyle" : "common",
                 "android" : {
-                    "hdpi" : "static/images/480.9.png",
-                    "xhdpi" : "static/images/720.9.png",
-                    "xxhdpi" : "static/images/1080.9.png"
+                    "hdpi" : "unpackage/res/480_762.png",
+                    "xhdpi" : "unpackage/res/720_1242.png",
+                    "xxhdpi" : "unpackage/res/1080_1882.png"
                 }
             },
             "icons" : {
