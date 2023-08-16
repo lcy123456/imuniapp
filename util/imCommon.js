@@ -13,6 +13,7 @@ import IMSDK, {
 } from "openim-uniapp-polyfill";
 import emojis from "../common/emojis";
 import { getPurePath } from '@/util/common';
+import { DecryptoAES } from '@/util/crypto';
 
 import dayjs from "dayjs";
 import calendar from "dayjs/plugin/calendar";
@@ -161,7 +162,7 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
     };
     switch (pmsg.contentType) {
     case MessageType.TextMessage:
-        return pmsg.textElem.content;
+        return DecryptoAES(pmsg.textElem.content);
     case MessageType.AtTextMessage:
         return parseAt(pmsg.atTextElem);
     case MessageType.PictureMessage:

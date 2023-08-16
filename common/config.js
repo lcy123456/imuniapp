@@ -7,12 +7,12 @@ let registerUrl = 'http://192.168.2.244:10008';
 let configUrl = 'http://192.168.2.244:10009';
 let apiUrl = 'http://192.168.2.244:10002';
 let wsUrl = 'ws://192.168.2.244:10001';
-if (['production', 'development'].includes(process.env.NODE_ENV)) {
-    registerUrl = 'https://imlogic.qncjkeusoge.cfd';
-    configUrl = 'https://imcms.qncjkeusoge.cfd';
-    apiUrl = 'https://imapi.qncjkeusoge.cfd';
-    wsUrl = 'wss://imws.qncjkeusoge.cfd';
-}
+// if (['production', 'development'].includes(process.env.NODE_ENV)) {
+//     registerUrl = 'https://imlogic.qncjkeusoge.cfd';
+//     configUrl = 'https://imcms.qncjkeusoge.cfd';
+//     apiUrl = 'https://imapi.qncjkeusoge.cfd';
+//     wsUrl = 'wss://imws.qncjkeusoge.cfd';
+// }
 const getRegisterUrl = () => uni.getStorageSync("IMRegisteUrl") || registerUrl;
 const getConfigUrl = () => uni.getStorageSync('IMConfigUrl') || configUrl;
 const getApiUrl = () => uni.getStorageSync('IMApiUrl') || apiUrl;

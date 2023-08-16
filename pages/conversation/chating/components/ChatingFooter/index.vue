@@ -4,6 +4,7 @@
         :snapFlag="snapFlag"
         :change:snapFlag="snap.getSnapFlagUpdate"
         :style="{ 'pointer-events': 'auto' }"
+        class="pb-50 bg-color"
     >
         <view class="chat_footer">
             <view class="flex align-center">
@@ -235,6 +236,7 @@ export default {
         },
         editorFocus () {
             this.isInputFocus = true;
+            this.$emit('scrollToBottom');
         },
         editorBlur () {
             this.isInputFocus = false;
@@ -287,7 +289,7 @@ export default {
                 if (!message) {
                     return;
                 }
-                console.log('xxx', index, message);
+                console.log('xxx', path, index, message);
                 this.sendMessage(message);
             });
         },
@@ -482,7 +484,6 @@ export default {
 .chat_footer {
     display: flex;
     align-items: center;
-    background-color: $uni-bg-color;
     // height: 50px;
     max-height: 300rpx;
     padding: 30rpx 20rpx;

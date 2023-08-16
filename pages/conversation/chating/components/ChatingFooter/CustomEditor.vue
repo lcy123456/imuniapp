@@ -32,7 +32,7 @@ export default {
     props: {
         placeholder: {
             type: String,
-            default: ''
+            default: 'Say what you think…'
         }
     },
     data () {
@@ -208,6 +208,12 @@ export default {
 	}
 
 	/deep/.ql-editor {
+        &.ql-blank:before {
+            font-style: normal;
+            color: $uni-text-color-placeholder;
+            line-height: 60rpx;
+            padding-left: 8rpx;
+        }
 		img {
 			vertical-align: sub !important;
 		}

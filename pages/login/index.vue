@@ -238,7 +238,7 @@ export default {
             });
         },
         saveLoginProfile (data) {
-            const { imToken, chatToken, userID } = data;
+            const { imToken, chatToken, userID, cryptoPadding } = data;
             uni.setStorage({
                 key: 'IMUserID',
                 data: userID,
@@ -250,6 +250,10 @@ export default {
             uni.setStorage({
                 key: 'BusinessToken',
                 data: chatToken,
+            });
+            uni.setStorage({
+                key: 'CryptoPadding',
+                data: cryptoPadding,
             });
         },
         saveLoginInfo () {

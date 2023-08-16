@@ -2,7 +2,6 @@
     <scroll-view
         id="scroll_view"
         :scroll-with-animation="withAnimation"
-        :style="{height:'1px'}"
         :scroll-top="scrollTop"
         scroll-y
         :scroll-into-view="scrollIntoView"
@@ -20,7 +19,7 @@
                 v-for="item in storeHistoryMessageList"
                 :key="item.clientMsgID"
             >
-                <message-item-render
+                <MessageItemRender
                     :menu-outside-flag="menuOutsideFlag"
                     :source="item"
                     :is-sender="item.sendID === storeCurrentUserID"
@@ -155,7 +154,7 @@ export default {
                 uni.createSelectorQuery().in(this).select('#scroll_wrap').boundingClientRect((res) => {
                     // let top = res.height - this.scrollViewHeight;
                     // if (top > 0) {
-                    this.scrollTop = res.height;
+                    this.scrollTop = res.height + Math.random();
                     if (isInit) {
                         this.$emit('initSuccess');
                     }
@@ -175,6 +174,7 @@ export default {
 <style lang="scss" scoped>
 	#scroll_view {
 		flex: 1;
+        overflow: hidden;
         
         .uni-scroll-view {
             position: relative;
