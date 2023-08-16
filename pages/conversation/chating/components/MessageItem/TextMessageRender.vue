@@ -12,6 +12,7 @@
 <script>
 import { parseAt, parseEmoji } from "@/util/imCommon";
 import { MessageType } from "openim-uniapp-polyfill";
+import { DecryptoAES } from '@/util/crypto';
 
 export default {
     name: "TextMessageRender",
@@ -33,7 +34,7 @@ export default {
                 return parseEmoji(parseAt(this.message.atTextElem));
             }
 
-            return parseEmoji(this.message.textElem?.content);
+            return parseEmoji(DecryptoAES(this.message.textElem?.content));
         },
     },
     methods: {

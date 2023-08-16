@@ -1,5 +1,7 @@
 import { MessageType } from "openim-uniapp-polyfill";
 
+export const CryptoKey = 'e314af8638ce3473';
+
 export const CustomType = {
     VideoCall: "c100",
     VoiceCall: "c101",

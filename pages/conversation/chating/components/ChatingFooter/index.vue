@@ -77,6 +77,7 @@ import IMSDK, {
 import CustomEditor from './CustomEditor.vue';
 import ChatingActionBar from './ChatingActionBar.vue';
 import ChatingEmojiBar from './ChatingEmojiBar.vue';
+import { EncryptoAES } from '@/util/crypto';
 
 const needClearTypes = [
     MessageType.TextMessage,
@@ -163,8 +164,9 @@ export default {
             message = await IMSDK.asyncApi(
                 IMMethods.CreateTextMessage,
                 IMSDK.uuid(),
-                text
+                EncryptoAES(text)
             );
+            console.log('xxx', message);
             return message;
         },
         async sendTextMessage () {

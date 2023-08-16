@@ -211,6 +211,7 @@ export default {
                     this.loading = false;
                     return;
                 }
+                console.log('xxx', data);
                 const { imToken, userID } = data;
                 await IMSDK.asyncApi(IMSDK.IMMethods.Login, uuidv4(), {
                     userID,

@@ -241,13 +241,6 @@
 		}
 	],
 	"condition": { 
-		"current": 0, 
-		"list": [
-			{
-				"name": "swiper",
-				"path": "pages/contact/index/index"
-			}
-		]
 	},
 	"tabBar": {
 		"color": "#666",
