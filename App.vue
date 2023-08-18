@@ -523,6 +523,7 @@ export default {
 @import "@/styles/base.scss";
 @import "@/styles/login.scss";
 @import "@/styles/global.scss";
+@import "@/styles/pages.scss";
 
 uni-page-body {
   height: 100vh;

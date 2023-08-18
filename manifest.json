@@ -48,8 +48,9 @@
                     "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
                 ],
-                "abiFilters" : [ "armeabi-v7a", "arm64-v8a" ],
-                "minSdkVersion" : 21
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ],
+                "minSdkVersion" : 21,
+                "targetSdkVersion" : 31
             },
             "ios" : {
                 "dSYMs" : false,
@@ -87,9 +88,9 @@
                 "androidStyle" : "default",
                 "iosStyle" : "common",
                 "android" : {
-                    "hdpi" : "unpackage/res/480_762.png",
-                    "xhdpi" : "unpackage/res/720_1242.png",
-                    "xxhdpi" : "unpackage/res/1080_1882.png"
+                    "hdpi" : "unpackage/res/cover/480_762.png",
+                    "xhdpi" : "unpackage/res/cover/720_1242.png",
+                    "xxhdpi" : "unpackage/res/cover/1080_1882.png"
                 }
             },
             "icons" : {

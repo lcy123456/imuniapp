@@ -1,34 +1,58 @@
 <template>
     <view class="chat_action_bar">
-        <u-row class="action_row">
-            <u-col
-                v-for="item in actionList"
-                :key="item.idx"
-                span="3"
-                @click="actionClick(item)"
+        <view
+            v-for="item in actionList"
+            :key="item.idx"
+            class="action_item"
+            :style="`width: ${width};height:${height}`"
+            @click="actionClick(item)"
+        >
+            <!-- <CheckFile
+                v-if="item.type === ChatingFooterActionTypes.File"
+                ref="checkFileRef"
+                :width="width"
+                :height="height"
+                @change="actionClick({
+                    ...item,
+                    files: $event
+                })"
             >
-                <view class="action_item">
-                    <image
-                        :src="item.icon"
-                        alt=""
-                        srcset=""
-                    />
+                <view class="action_item_sub">
+                    <image :src="item.icon" />
                     <text class="action_item_title">
                         {{ item.title }}
                     </text>
                 </view>
-            </u-col>
-        </u-row>
+            </CheckFile> -->
+            <!-- v-else -->
+            <view
+                class="action_item_sub"
+            >
+                <image :src="item.icon" />
+                <text class="action_item_title">
+                    {{ item.title }}
+                </text>
+            </view>
+        </view>
+        <view
+            v-for="v in 10"
+            :key="v + 100"
+            :style="`width: ${width};height:${0}`"
+        />
     </view>
 </template>
 
 <script>
 import { ChatingFooterActionTypes } from '@/constant';
+// import CheckFile from '@/components/CheckFile';
 
 export default {
-    components: {},
+    components: {
+        // CheckFile
+    },
     data () {
         return {
+            ChatingFooterActionTypes: Object.freeze(ChatingFooterActionTypes),
             actionList: [
                 {
                     idx: 0,
@@ -42,7 +66,15 @@ export default {
                     title: '拍摄',
                     icon: require('static/images/chating_action_camera.png'),
                 },
+                // {
+                //     idx: 2,
+                //     type: ChatingFooterActionTypes.File,
+                //     title: '文件',
+                //     icon: require('static/images/chating_action_camera.png'),
+                // },
             ],
+            width: '140rpx',
+            height: '140rpx',
         };
     },
     methods: {
@@ -52,39 +84,47 @@ export default {
             case ChatingFooterActionTypes.Camera:
                 this.$emit('prepareMediaMessage', action.type);
                 break;
-            default:
+            case ChatingFooterActionTypes.File:
+                this.$emit('prepareFileMessage', action);
                 break;
+            default:
             }
         },
+        checkFileLayout (val) {
+            this.$refs.checkFileRef[0][val]();
+        }
     },
 };
 </script>
 
 <style lang="scss" scoped>
-.chat_action_bar {
+.chat_action_bar {  
     padding: 24rpx 36rpx;
     background-color: $uni-bg-color;
-
-    .action_row {
-        flex-wrap: wrap;
-        margin-bottom: 24rpx;
-    }
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-evenly;
 
     .action_item {
-        @include centerBox();
-        flex-direction: column;
-        margin-top: 24rpx;
+        margin-bottom: 20rpx;
+        .action_item_sub {
+            height: 100%;
+            @include centerBox();
+            flex-direction: column;
 
-        image {
-            width: 96rpx;
-            height: 96rpx;
-        }
+            image {
+                width: 96rpx;
+                height: 96rpx;
+            }
 
-        &_title {
-            font-size: 24rpx;
-            color: #999;
-            margin-top: 6rpx;
+            &_title {
+                font-size: 24rpx;
+                color: $uni-bg-color-grey;
+                margin-top: 6rpx;
+            }
         }
     }
+
 }
 </style>

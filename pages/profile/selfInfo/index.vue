@@ -69,6 +69,12 @@
                 @click="copyID"
             /> -->
         </view>
+        <view 
+            class="operation-btn error"
+            @click="handleAccountCancel"
+        >
+            注销账号
+        </view>
 
         <u-datetime-picker
             v-model="selfInfo.birth"
@@ -214,6 +220,12 @@ export default {
             );
             this.showDatePicker = false;
         },
+        handleAccountCancel () {
+            uni.$u.route('/pages/common/markOrIDPage/index', {
+                type: CustomMarkType.AccountCancel,
+                sourceInfo: JSON.stringify(this.selfInfo)
+            });
+        }
     },
 };
 </script>

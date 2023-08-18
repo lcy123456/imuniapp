@@ -5,6 +5,7 @@ export const businessVerifyCode = (params) => uni.$u?.http.post('/account/code/v
 export const businessRegister = (params) => uni.$u?.http.post('/account/register', JSON.stringify(params));
 export const businessReset = (params) => uni.$u?.http.post('/account/password/reset', JSON.stringify(params));
 export const businessModify = (params) => uni.$u?.http.post('/account/password/change', JSON.stringify(params));
+export const businessCancellation = (params) => uni.$u?.http.post('/account/cancellation', JSON.stringify(params));
 
 
 

@@ -40,6 +40,7 @@
         </view>
         <ChatingActionBar
             v-show="actionBarVisible"
+            ref="ChatingActionBarRef"
             @sendMessage="sendMessage"
             @prepareMediaMessage="prepareMediaMessage"
         />
@@ -147,6 +148,18 @@ export default {
             this.onClickActionBarOutside();
             this.onClickEmojiBarOutside();
         },
+        actionBarVisible (val) {
+            const fn = val ? 'show' : 'hide';
+            this.$nextTick(() => {
+                this.$refs.ChatingActionBarRef.checkFileLayout(fn);
+            });
+        },
+        showActionSheet (val) {
+            const fn = val ? 'hide' : 'show';
+            this.$nextTick(() => {
+                this.$refs.ChatingActionBarRef.checkFileLayout(fn);
+            });
+        }
     },
     mounted () {
         this.setSendMessageListener();
@@ -188,6 +201,7 @@ export default {
                 offlinePushInfo,
             })
                 .then(({ data }) => {
+                    console.log('xxx', data);
                     this.updateOneMessage({
                         message: data,
                         isSuccess: true,
@@ -264,6 +278,14 @@ export default {
                 this.actionSheetMenu = [...cameraChoose];
             }
             this.showActionSheet = true;
+        },
+        async prepareFileMessage ({type, files}) {
+            console.log('xxx', type, files);
+            for (let i = 0; i < files.length; i++) {
+                const relPath = await this.base64ToPath(files[0].base64);
+                const path = plus.io.convertLocalFileSystemURL(relPath);
+                console.log(relPath, path);
+            }
         },
 
         // from comp

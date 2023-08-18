@@ -70,4 +70,5 @@ export const CustomMarkType = {
     SelfNickname: 'selfNickname',
     Remark: 'remark',
     GroupName: 'groupName',
+    AccountCancel: 'accountCancel',
 };
