@@ -33,6 +33,10 @@
                     v-else-if="showMediaRender"
                     :message="source"
                 />
+                <FileMessageRender
+                    v-else-if="showFileRender"
+                    :message="source"
+                />
                 <ErrorMessageRender v-else />
             </view>
             <MessageReadState
@@ -81,6 +85,7 @@ import MyAvatar from '@/components/MyAvatar/index.vue';
 import ChatingList from '../ChatingList.vue';
 import TextMessageRender from './TextMessageRender.vue';
 import MediaMessageRender from './MediaMessageRender.vue';
+import FileMessageRender from './FileMessageRender.vue';
 import ErrorMessageRender from './ErrorMessageRender.vue';
 import MessageMenu from './MessageMenu.vue';
 import MessageReadState from './MessageReadState.vue';
@@ -94,12 +99,14 @@ const textRenderTypes = [
 ];
 
 const mediaRenderTypes = [MessageType.VideoMessage, MessageType.PictureMessage];
+const FileRenderTypes = [MessageType.FileMessage];
 
 export default {
     components: {
         MyAvatar,
         TextMessageRender,
         MediaMessageRender,
+        FileMessageRender,
         ErrorMessageRender,
         MessageMenu,
         MessageReadState,
@@ -138,6 +145,9 @@ export default {
         },
         showMediaRender () {
             return mediaRenderTypes.includes(this.source.contentType);
+        },
+        showFileRender () {
+            return FileRenderTypes.includes(this.source.contentType);
         },
         isSuccessMessage () {
             return this.source.status === MessageStatus.Succeed;

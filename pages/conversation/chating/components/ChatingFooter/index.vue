@@ -40,9 +40,8 @@
         </view>
         <ChatingActionBar
             v-show="actionBarVisible"
-            ref="ChatingActionBarRef"
-            @sendMessage="sendMessage"
             @prepareMediaMessage="prepareMediaMessage"
+            @prepareFileMessage="prepareFileMessage"
         />
         <ChatingEmojiBar
             v-show="emojiBarVisible"
@@ -70,6 +69,8 @@ import {
     ChatingFooterActionTypes,
     UpdateMessageTypes,
     GroupMemberListTypes,
+    ImageType,
+    VideoType
 } from '@/constant';
 import IMSDK, {
     IMMethods,
@@ -80,6 +81,7 @@ import CustomEditor from './CustomEditor.vue';
 import ChatingActionBar from './ChatingActionBar.vue';
 import ChatingEmojiBar from './ChatingEmojiBar.vue';
 import { EncryptoAES } from '@/util/crypto';
+import { chooseFile } from '@/util/unisdk';
 
 const needClearTypes = [
     MessageType.TextMessage,
@@ -148,18 +150,6 @@ export default {
             this.onClickActionBarOutside();
             this.onClickEmojiBarOutside();
         },
-        actionBarVisible (val) {
-            const fn = val ? 'show' : 'hide';
-            this.$nextTick(() => {
-                this.$refs.ChatingActionBarRef.checkFileLayout(fn);
-            });
-        },
-        showActionSheet (val) {
-            const fn = val ? 'hide' : 'show';
-            this.$nextTick(() => {
-                this.$refs.ChatingActionBarRef.checkFileLayout(fn);
-            });
-        }
     },
     mounted () {
         this.setSendMessageListener();
@@ -279,15 +269,31 @@ export default {
             }
             this.showActionSheet = true;
         },
-        async prepareFileMessage ({type, files}) {
-            console.log('xxx', type, files);
-            for (let i = 0; i < files.length; i++) {
-                const relPath = await this.base64ToPath(files[0].base64);
-                const path = plus.io.convertLocalFileSystemURL(relPath);
-                console.log(relPath, path);
+        async prepareFileMessage () {
+            const { fileType, filePath, fileName } = await chooseFile();
+            if (ImageType.includes(fileType)) {
+                this.batchCreateImageMesage([filePath]);
+            } else if (VideoType.includes(fileType)) {
+                uni.getVideoInfo({
+                    src: filePath,
+                    success: (res) => {
+                        this.snapFlag = {
+                            path: filePath,
+                            videoType: fileType,
+                            duration: res.duration
+                        };
+                    },
+                    fail: (err) => {
+                        console.log(err);
+                    }
+                });
+            } else {
+                this.batchCreateFileMesage({
+                    path: filePath,
+                    name: fileName
+                });
             }
         },
-
         // from comp
         emojiClick (emoji) {
             const options = {
@@ -302,7 +308,7 @@ export default {
             this.$refs.customEditor.insertImage(options);
         },
         batchCreateImageMesage (paths) {
-            paths.forEach(async (path, index) => {
+            paths.forEach(async path => {
                 const message = await IMSDK.asyncApi(
                     IMMethods.CreateImageMessageFromFullPath,
                     IMSDK.uuid(),
@@ -311,27 +317,36 @@ export default {
                 if (!message) {
                     return;
                 }
-                console.log('xxx', path, index, message);
                 this.sendMessage(message);
             });
         },
-        receiveSnapBase64 ({ base64, path, duration, videoType }) {
-            base64ToPath(base64).then(async (snapRelativePath) => {
-                const absolutePath =
-                    plus.io.convertLocalFileSystemURL(snapRelativePath);
-                const message = await IMSDK.asyncApi(
-                    IMMethods.CreateVideoMessageFromFullPath,
-                    IMSDK.uuid(),
-                    {
-                        videoPath: getPurePath(path),
-                        videoType: videoType,
-                        duration: Number(duration.toFixed()),
-                        snapshotPath: absolutePath,
-                    }
-                );
+        async receiveSnapBase64 ({ base64, path, duration, videoType }) {
+            const snapRelativePath = await base64ToPath(base64);
+            const absolutePath = plus.io.convertLocalFileSystemURL(snapRelativePath);
+            const message = await IMSDK.asyncApi(
+                IMMethods.CreateVideoMessageFromFullPath,
+                IMSDK.uuid(),
+                {
+                    videoPath: getPurePath(path),
+                    videoType: videoType,
+                    duration: Number(duration.toFixed()),
+                    snapshotPath: absolutePath,
+                }
+            );
 
-                this.sendMessage(message);
-            });
+            this.sendMessage(message);
+        },
+        async batchCreateFileMesage ({ path, name }) {
+            const message = await IMSDK.asyncApi(
+                IMMethods.CreateFileMessageFromFullPath,
+                IMSDK.uuid(),
+                {
+                    filePath: getPurePath(path),
+                    fileName: name
+                }
+            );
+            console.log('xxx', path, message);
+            this.sendMessage(message);
         },
         selectClick ({ idx }) {
             if (idx === 0) {

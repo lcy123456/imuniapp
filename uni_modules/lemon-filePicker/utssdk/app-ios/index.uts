@@ -1,0 +1,71 @@
+// 引用 iOS 原生平台 api
+import {  UIDocumentPickerViewController, UIDocumentPickerMode, UIDocumentPickerDelegate, UIViewController } from "UIKit";
+import { DispatchQueue } from 'Dispatch';
+import { UTSiOS } from "DCloudUTSFoundation"
+import { URL ,FileManager } from 'Foundation'
+/**
+ * 定义 接口参数
+ */
+type InfoOptions = {
+	success ?: (res : UTSJSONObject) => void;
+	fail ?: (res : UTSJSONObject) => void;
+	complete ?: (res : UTSJSONObject) => void;
+};
+class DocumentPicker extends UIViewController implements UIDocumentPickerDelegate {
+	docPicker! : UIDocumentPickerViewController
+	infoOptions ?: InfoOptions
+
+	documentPicker(controller : UIDocumentPickerViewController, @argumentLabel("didPickDocumentsAt") urls : URL[]) {
+		const fileName=urls[0].lastPathComponent
+		try {
+			const res = {
+				code: "0",
+				filePath:urls[0].absoluteString,
+				fileName: fileName,
+				errMsg: 'fileselect:ok',
+				detail: "文件读取成功"
+			}
+			
+			if (this.infoOptions != null) {
+				this.infoOptions?.success?.(res)
+				this.infoOptions?.complete?.(res)
+			}
+		}catch (e) {
+			console.log(e.message)
+			const res_fail = {
+				code: "1002",
+				errMsg: 'fileselect:fail',
+				detail: "文件不存在"
+			}
+			this.infoOptions?.fail?.(res_fail)
+			this.infoOptions?.complete?.(res_fail)
+		}
+	}
+	documentPickerWasCancelled(controller : UIDocumentPickerViewController) {
+		const res = {
+			code: "1004",
+			errMsg: 'fileselect:fail',
+			detail: "取消选择"
+		}
+		this.infoOptions?.fail?.(res)
+		this.infoOptions?.complete?.(res)
+	}
+	fileSelect(options : InfoOptions) {
+
+		this.infoOptions = options
+		DispatchQueue.main.async(execute = () : void => {
+			const types = ["public.data"]
+			if (this.docPicker == null) {
+				this.docPicker = new UIDocumentPickerViewController(documentTypes = types, in = UIDocumentPickerMode.import)
+				this.docPicker.delegate = this
+			}
+			UTSiOS.getCurrentViewController().present(this.docPicker, animated = true)
+		})
+	}
+}
+const docPicker : DocumentPicker = new DocumentPicker();
+
+export default function fileSelect(options : InfoOptions) {
+
+	docPicker.fileSelect(options)
+}

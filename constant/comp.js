@@ -72,3 +72,6 @@ export const CustomMarkType = {
     GroupName: 'groupName',
     AccountCancel: 'accountCancel',
 };
+
+export const ImageType = ['jpg', 'jpeg', 'png', 'gif'];
+export const VideoType = ['mp4', 'avi', 'ogg', 'fiv'];

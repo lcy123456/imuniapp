@@ -175,7 +175,6 @@ export default {
                     this.loading = true;
                     await businessSendSms(options);
                     uni.$u.toast('验证码已发送！');
-                    this.loading = false;
                     setTimeout(
                         () =>
                             uni.$u.route('/pages/login/verifyCode/index', {
@@ -188,6 +187,7 @@ export default {
                     console.error(err);
                     uni.$u.toast(checkLoginError(err));
                 }
+                this.loading = false;
             });
         },
         back () {
