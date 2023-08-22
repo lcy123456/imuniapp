@@ -27,7 +27,9 @@ export default {
         message: Object,
     },
     data () {
-        return {};
+        return {
+            path: ''
+        };
     },
     computed: {
         fileElem () {
@@ -37,20 +39,34 @@ export default {
     methods: {
         bytesToSize,
         clickFileItem () {
-            uni.downloadFile({
-                url: this.fileElem.sourceUrl,
-                success: function (res) {
-                    const path = res.tempFilePath;
-                    uni.openDocument({
-                        filePath: path,
-                        fail: function (err) {
-                            console.log('打开文档失败', err);
-                            this.$toast('暂不支持的文件格式，请保存到本地进行预览');
-                        }
-                    });
+            this.$loading('加载中');
+            if (this.path) {
+                this.openDoc(this.path);
+            } else {
+                uni.downloadFile({
+                    url: this.fileElem.sourceUrl,
+                    success: (res) => {
+                        const path = this.path = res.tempFilePath;
+                        this.openDoc(path);
+                    },
+                    complete: () => {
+                        this.$hideLoading();
+                    }
+                });
+            }
+        },
+        openDoc (path) {
+            uni.openDocument({
+                filePath: path,
+                success: () => {
+                    this.$hideLoading();
+                },
+                fail: (err) => {
+                    console.log('打开文档失败', err);
+                    this.$toast('暂不支持的文件格式，请保存到本地进行预览');
                 }
             });
-        },
+        }
     },
 };
 </script>
