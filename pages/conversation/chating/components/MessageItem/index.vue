@@ -45,11 +45,11 @@
             />
 
             <transition name="fade">
-                <message-menu
+                <MessageMenu
                     v-if="menuState.visible"
                     :message="source"
                     :is-sender="isSender"
-                    :is_bottom="menuState.isBottom"
+                    :is-bottom="menuState.isBottom"
                     :pater-width="menuState.paterWidth"
                     @close="menuState.visible = false"
                 />
@@ -251,9 +251,7 @@ export default {
                 this.isSender ||
                 this.source.isRead === true ||
                 this.source.sessionType !== SessionType.Single
-            ) {
-                return;
-            }
+            ) return;
 
             const observer = uni.createIntersectionObserver(ChatingList);
             observer
@@ -279,6 +277,7 @@ export default {
                                             this.source.clientMsgID,
                                         ],
                                     }
+                                // eslint-disable-next-line vue/no-mutating-props
                                 ).then(() => (this.source.isRead = true));
                             }
 
@@ -301,7 +300,6 @@ export default {
 .message_item {
     display: flex;
     padding: 16rpx 0;
-    position: relative;
 
     .my_avatar {
         margin-right: 24rpx;
@@ -338,9 +336,9 @@ export default {
     }
 
     .message_send_state {
+        align-self: center;
         @include centerBox();
         margin-left: 12rpx;
-        margin-top: 48rpx;
         width: 48rpx;
         height: 48rpx;
 

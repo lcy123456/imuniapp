@@ -222,7 +222,6 @@ export default {
 .conversation_item {
     @include btwBox();
     padding: 20rpx;
-    margin-bottom: 8rpx;
     position: relative;
 
     .left_info {

@@ -211,7 +211,7 @@ export default {
                     this.loading = false;
                     return;
                 }
-                console.log('xxx', data);
+                console.log('login', data);
                 const { imToken, userID } = data;
                 await IMSDK.asyncApi(IMSDK.IMMethods.Login, uuidv4(), {
                     userID,
@@ -239,32 +239,14 @@ export default {
         },
         saveLoginProfile (data) {
             const { imToken, chatToken, userID, cryptoPadding } = data;
-            uni.setStorage({
-                key: 'IMUserID',
-                data: userID,
-            });
-            uni.setStorage({
-                key: 'IMToken',
-                data: imToken,
-            });
-            uni.setStorage({
-                key: 'BusinessToken',
-                data: chatToken,
-            });
-            uni.setStorage({
-                key: 'CryptoPadding',
-                data: cryptoPadding,
-            });
+            uni.setStorageSync('IMUserID', userID);
+            uni.setStorageSync('IMToken', imToken);
+            uni.setStorageSync('BusinessToken', chatToken);
+            uni.setStorageSync('CryptoPadding', cryptoPadding);
         },
         saveLoginInfo () {
-            uni.setStorage({
-                key: 'lastPhoneNumber',
-                data: this.loginInfo.phoneNumber,
-            });
-            uni.setStorage({
-                key: 'lastAreaCode',
-                data: this.loginInfo.areaCode,
-            });
+            uni.setStorageSync('lastPhoneNumber', this.loginInfo.phoneNumber);
+            uni.setStorageSync('lastAreaCode', this.loginInfo.areaCode);
         },
         showPicker () {
             this.$refs.AreaPicker.init();

@@ -1,15 +1,19 @@
 <template>
     <view
-        :style="{ left: getLeft, right: getRight }"
+        :style="{
+            left: getLeft,
+            right: getRight,
+            width: menuList.length * 37 - 12 + 'px',
+        }"
         class="message_menu_container"
-        :class="{ message_menu_container_bottom: is_bottom }"
+        :class="{ message_menu_container_bottom: isBottom }"
     >
         <view
             v-for="item in menuList"
-            v-if="item.visible"
             :key="item.idx"
             class="message_menu_item"
             @click="menuClick(item)"
+            @touchstart.stop
         >
             <image
                 :src="item.icon"
@@ -22,17 +26,13 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import { MessageMenuTypes, ContactChooseTypes, PageEvents } from "@/constant";
-import IMSDK, {
-    GroupMemberRole,
-    MessageType,
-    SessionType,
-} from "openim-uniapp-polyfill";
+import { mapGetters, mapActions } from 'vuex';
+import { MessageMenuTypes } from '@/constant';
+import IMSDK, { MessageType } from 'openim-uniapp-polyfill';
 
-import copy from "@/static/images/chating_message_copy.png";
-import revoke from "@/static/images/chating_message_revoke.png";
-import del from "@/static/images/chating_message_del.png";
+import copy from '@/static/images/chating_message_copy.png';
+import revoke from '@/static/images/chating_message_revoke.png';
+import del from '@/static/images/chating_message_del.png';
 
 const canCopyTypes = [
     MessageType.TextMessage,
@@ -44,34 +44,38 @@ export default {
     components: {},
     props: {
         message: {
+            required: true,
             type: Object,
         },
-        is_bottom: {
+        isBottom: {
             type: Boolean,
             default: true,
         },
         isSender: Boolean,
-        paterWidth: Number,
+        paterWidth: {
+            required: true,
+            type: Number,
+        },
     },
     data () {
         return {};
     },
     computed: {
-        ...mapGetters(["storeCurrentMemberInGroup", "storeCurrentUserID"]),
+        ...mapGetters(['storeCurrentMemberInGroup', 'storeCurrentUserID']),
         getLeft () {
             if (this.isSender && this.paterWidth < 174) {
-                return "auto";
+                return 'auto';
             }
             if (!this.isSender && this.paterWidth < 174) {
-                return "0";
+                return '0';
             }
-            return "20%";
+            return '20%';
         },
         getRight () {
             if (this.isSender && this.paterWidth < 174) {
-                return "0";
+                return '0';
             }
-            return "auto";
+            return 'auto';
         },
         canRevoke () {
             return this.isSender;
@@ -81,29 +85,29 @@ export default {
                 {
                     idx: 0,
                     type: MessageMenuTypes.Copy,
-                    title: "复制",
+                    title: '复制',
                     icon: copy,
                     visible: canCopyTypes.includes(this.message.contentType),
                 },
                 {
                     idx: 1,
                     type: MessageMenuTypes.Del,
-                    title: "删除",
+                    title: '删除',
                     icon: del,
                     visible: true,
                 },
                 {
                     idx: 4,
                     type: MessageMenuTypes.Revoke,
-                    title: "撤回",
+                    title: '撤回',
                     icon: revoke,
                     visible: this.canRevoke,
                 },
-            ];
+            ].filter((v) => v.visible);
         },
     },
     methods: {
-        ...mapActions("message", ["deleteMessages", "updateOneMessage"]),
+        ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
         menuClick ({ type }) {
             switch (type) {
             case MessageMenuTypes.Copy:
@@ -112,29 +116,39 @@ export default {
                     success: () => {
                         uni.hideToast();
                         this.$nextTick(() => {
-                            uni.$u.toast("复制成功");
+                            uni.$u.toast('复制成功');
                         });
                     },
                 });
                 break;
             case MessageMenuTypes.Del:
-                IMSDK.asyncApi(IMSDK.IMMethods.DeleteMessage, IMSDK.uuid(), {
-                    conversationID:
-              this.$store.getters.storeCurrentConversation.conversationID,
-                    clientMsgID: this.message.clientMsgID,
-                })
+                IMSDK.asyncApi(
+                    IMSDK.IMMethods.DeleteMessage,
+                    IMSDK.uuid(),
+                    {
+                        conversationID:
+                                this.$store.getters.storeCurrentConversation
+                                    .conversationID,
+                        clientMsgID: this.message.clientMsgID,
+                    }
+                )
                     .then(() => {
                         this.deleteMessages([this.message]);
-                        uni.$u.toast("删除成功");
+                        uni.$u.toast('删除成功');
                     })
-                    .catch(() => uni.$u.toast("删除失败"));
+                    .catch(() => uni.$u.toast('删除失败'));
                 break;
             case MessageMenuTypes.Revoke:
-                IMSDK.asyncApi(IMSDK.IMMethods.RevokeMessage, IMSDK.uuid(), {
-                    conversationID:
-              this.$store.getters.storeCurrentConversation.conversationID,
-                    clientMsgID: this.message.clientMsgID,
-                })
+                IMSDK.asyncApi(
+                    IMSDK.IMMethods.RevokeMessage,
+                    IMSDK.uuid(),
+                    {
+                        conversationID:
+                                this.$store.getters.storeCurrentConversation
+                                    .conversationID,
+                        clientMsgID: this.message.clientMsgID,
+                    }
+                )
                     .then(() => {
                         this.updateOneMessage({
                             message: {
@@ -142,27 +156,32 @@ export default {
                                 contentType: MessageType.RevokeMessage,
                                 notificationElem: {
                                     detail: JSON.stringify({
-                                        clientMsgID: this.message.clientMsgID,
+                                        clientMsgID:
+                                                this.message.clientMsgID,
                                         revokeTime: Date.now(),
                                         revokerID: this.storeCurrentUserID,
-                                        revokerNickname: "你",
+                                        revokerNickname: '你',
                                         revokerRole: 0,
                                         seq: this.message.seq,
-                                        sessionType: this.message.sessionType,
-                                        sourceMessageSendID: this.message.sendID,
-                                        sourceMessageSendTime: this.message.sendTime,
-                                        sourceMessageSenderNickname: this.message.senderNickname,
+                                        sessionType:
+                                                this.message.sessionType,
+                                        sourceMessageSendID:
+                                                this.message.sendID,
+                                        sourceMessageSendTime:
+                                                this.message.sendTime,
+                                        sourceMessageSenderNickname:
+                                                this.message.senderNickname,
                                     }),
                                 },
                             },
                         });
                     })
-                    .catch(() => uni.$u.toast("撤回失败"));
+                    .catch(() => uni.$u.toast('撤回失败'));
                 break;
             default:
                 break;
             }
-            this.$emit("close");
+            this.$emit('close');
         },
         getCopyText () {
             if (this.message.contentType === MessageType.AtTextMessage) {
@@ -179,43 +198,44 @@ export default {
 
 <style scoped lang="scss">
 .message_menu_container {
-  display: flex;
-  flex-wrap: wrap;
-  min-width: 145px;
-  max-width: 145px;
-  background-color: #5b5b5b;
-  padding: 12px 20px;
-  padding-bottom: 0;
-  border-radius: 8px;
-  position: absolute;
-  top: -12px;
-  // left: 0%;
-  transform: translateY(-100%);
-  z-index: 9;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #5b5b5b;
+    padding: 12px 20px 0;
+    border-radius: 8px;
+    position: absolute;
+    top: -12px;
+    // left: 0%;
+    transform: translateY(-100%);
+    z-index: 9;
+    box-sizing: content-box;
 
-  &_bottom {
-    top: unset;
-    bottom: 0;
-    transform: translateY(110%);
-  }
-
-  .message_menu_item {
-    @include colBox(false);
-    align-items: center;
-    font-size: 12px;
-    color: #fff;
-    padding-right: 16px;
-    padding-bottom: 12px;
-
-    &:nth-child(4n) {
-      padding-right: 0;
+    &_bottom {
+        top: unset;
+        bottom: 0;
+        transform: translateY(110%);
     }
 
-    image {
-      width: 17px;
-      height: 19px;
-      margin-bottom: 4px;
+    .message_menu_item {
+        flex: 0 0 25px;
+        @include colBox(false);
+        align-items: center;
+        font-size: 12px;
+        color: #fff;
+        margin: 0 12px 12px 0;
+
+        &:nth-child(5n) {
+            margin-right: 0;
+        }
+        &:last-child {
+            margin-right: 0;
+        }
+
+        image {
+            width: 17px;
+            height: 19px;
+            margin-bottom: 4px;
+        }
     }
-  }
 }
 </style>

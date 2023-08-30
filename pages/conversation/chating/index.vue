@@ -1,10 +1,13 @@
 <template>
-    <view class="chating_container">
+    <view
+        class="chating_container"
+        @touchstart="pageClick"
+    >
         <chating-header />
         <chating-list
             ref="chatingListRef"
             :menu-outside-flag="menuOutsideFlag"
-            @click="pageClick"
+            @touchstart="chatListClick"
             @initSuccess="initSuccess"
         />
         <chating-footer
@@ -69,7 +72,8 @@ export default {
             if (res) {
                 this.menuOutsideFlag += 1;
             }
-
+        },
+        chatListClick () {
             this.footerOutsideFlag += 1;
         },
         getEl (el) {

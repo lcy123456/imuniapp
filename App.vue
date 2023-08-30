@@ -458,12 +458,8 @@ export default {
                             })
                             .catch((err) => {
                                 console.log(err);
-                                uni.removeStorage({
-                                    key: "IMToken",
-                                });
-                                uni.removeStorage({
-                                    key: "BusinessToken",
-                                });
+                                uni.removeStorageSync('IMToken');
+                                uni.removeStorageSync('BusinessToken');
                                 plus.navigator.closeSplashscreen();
                             });
                     } else {

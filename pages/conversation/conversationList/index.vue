@@ -13,6 +13,7 @@
             />
         </view>
         <z-paging
+            v-if="!storeIsSyncing"
             ref="paging"
             :fixed="false"
             :auto="false"
@@ -22,11 +23,10 @@
             @query="queryList"
         >
             <u-swipe-action
-                v-show="!storeIsSyncing"
                 ref="swipeWrapperRef"
                 class="swipe_wrapper"
             >
-                <conversation-item
+                <ConversationItem
                     v-for="item in storeConversationList"
                     :key="item.conversationID"
                     :source="item"
@@ -36,7 +36,7 @@
         </z-paging>
 
         <view
-            v-if="storeIsSyncing"
+            v-else
             class="loading_wrap"
         >
             <u-loading-icon text="同步中" />

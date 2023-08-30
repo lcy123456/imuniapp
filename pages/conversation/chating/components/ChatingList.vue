@@ -6,7 +6,6 @@
         scroll-y
         :scroll-into-view="scrollIntoView"
         upper-threshold="250"
-        @click="click"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
     >
@@ -122,9 +121,6 @@ export default {
                 this.messageLoadState.loading = false;
             });
         },
-        click (e) {
-            this.$emit('click', e);
-        },
         onScroll (event) {
             const {
                 scrollHeight,
@@ -175,12 +171,9 @@ export default {
 	#scroll_view {
 		flex: 1;
         overflow: hidden;
-        
-        .uni-scroll-view {
-            position: relative;
-        }
 
         #scroll_wrap {
+            min-height: 100%;
             overflow: hidden;
             padding: 0 30rpx;
         }
