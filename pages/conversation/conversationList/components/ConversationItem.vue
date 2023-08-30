@@ -148,13 +148,13 @@ export default {
                     text: `${this.source.isPinned ? '取消' : ''}置顶`,
                     style: {
                         backgroundColor: '#3c9cff',
-                    },
+                    }
                 },
                 {
                     text: '移除',
                     style: {
                         backgroundColor: '#f9ae3d',
-                    },
+                    }
                 },
             ];
             if (this.source.unreadCount > 0) {
@@ -163,7 +163,7 @@ export default {
                         text: '标记已读',
                         style: {
                             backgroundColor: '#f9ae3d',
-                        },
+                        }
                     },
                     ...actions,
                 ];

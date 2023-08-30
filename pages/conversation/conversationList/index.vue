@@ -12,8 +12,8 @@
                 placeholder="搜索"
             />
         </view>
+        <!-- v-if="!storeIsSyncing" -->
         <z-paging
-            v-if="!storeIsSyncing"
             ref="paging"
             :fixed="false"
             :auto="false"
@@ -27,7 +27,7 @@
                 class="swipe_wrapper"
             >
                 <ConversationItem
-                    v-for="item in storeConversationList"
+                    v-for="item in showConversationList"
                     :key="item.conversationID"
                     :source="item"
                     @closeAllSwipe="closeAllSwipe"
@@ -35,12 +35,12 @@
             </u-swipe-action>
         </z-paging>
 
-        <view
+        <!-- <view
             v-else
             class="loading_wrap"
         >
             <u-loading-icon text="同步中" />
-        </view>
+        </view> -->
     </view>
 </template>
 
@@ -62,18 +62,21 @@ export default {
     },
     computed: {
         ...mapGetters(['storeConversationList', 'storeIsSyncing']),
+        showConversationList () {
+            return this.storeConversationList.filter(v => {
+                return v.showName.includes(this.keyword);
+            });
+        }
     },
     onReady () {
         this.$nextTick(() => plus.navigator.closeSplashscreen());
     },
     watch: {
-        storeIsSyncing (newVal) {
-            if (!newVal) {
-                this.$nextTick(() =>
-                    this.$refs.paging.complete([...this.storeConversationList])
-                );
-            }
-        },
+        showConversationList (val) {
+            this.$nextTick(() => {
+                this.$refs.paging.complete([...val]);
+            });
+        }
     },
     methods: {
         async queryList (pageNo) {
@@ -82,7 +85,6 @@ export default {
                 pageNo === 1
             );
             console.log('xxx', data);
-            this.$nextTick(() => this.$refs.paging.complete(data));
         },
         closeAllSwipe () {
             this.$refs.swipeWrapperRef.closeAll();

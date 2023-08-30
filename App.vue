@@ -393,11 +393,13 @@ export default {
                     (c) =>
                         c.conversationID === this.storeCurrentConversation.conversationID
                 );
-                if (idx !== -1)
+                if (idx !== -1) {
                     this.$store.commit(
                         "conversation/SET_CURRENT_CONVERSATION",
                         data[idx]
                     );
+                }
+                    
                 const result = [...data, ...filterArr];
                 this.$store.commit(
                     "conversation/SET_CONVERSATION_LIST",
