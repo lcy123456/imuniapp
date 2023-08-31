@@ -1,3 +1,18 @@
+## v2.4.2（2023-05-14）
+1. `A` `editable` 插件支持修改文字颜色 [详细](https://github.com/jin-yufeng/mp-html/issues/254)
+2. `F` 修复了 `svg` 中有 `style` 不生效的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/505)
+3. `F` 修复了使用旧版编译器可能报错 `Bad attr nodes` 的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/472)
+4. `F` 修复了 `app` 端可能出现无法读取 `lazyLoad` 的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/513)
+5. `F` 修复了 `editable` 插件在点击换图时未拼接 `domain` 的问题 [详细](https://github.com/jin-yufeng/mp-html/pull/497) by [@TwoKe945](https://github.com/TwoKe945)
+6. `F` 修复了 `latex` 插件部分情况下不显示的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/515) 
+7. `F` 修复了 `editable` 插件点击音视频时其他标签框不消失的问题
+## v2.4.1（2022-12-25）
+1. `F` 修复了没有图片时 `ready` 事件可能不触发的问题
+2. `F` 修复了加载过程中可能出现 `Root label not found` 错误的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/470)
+3. `F` 修复了 `audio` 插件退出页面可能会报错的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/457)
+4. `F` 修复了 `vue3` 运行到 `app` 在 `HBuilder X 3.6.10` 以上报错的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/480)
+5. `F` 修复了 `nvue` 端链接中包含 `%22` 时可能无法显示的问题
+6. `F` 修复了 `vue3` 使用 `highlight` 插件可能报错的问题
 ## v2.4.0（2022-08-27）
 1. `A` 增加了 [setPlaybackRate](https://jin-yufeng.gitee.io/mp-html/#/advanced/api#setPlaybackRate) 的 `api`，可以设置音视频的播放速率 [详细](https://github.com/jin-yufeng/mp-html/issues/452)
 2. `A` 示例小程序代码开源 [详细](https://github.com/jin-yufeng/mp-html-demo)
