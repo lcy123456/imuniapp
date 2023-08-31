@@ -170,7 +170,6 @@ export default {
                 IMSDK.uuid(),
                 EncryptoAES(text)
             );
-            console.log('xxx', message);
             return message;
         },
         async sendTextMessage () {
@@ -191,7 +190,7 @@ export default {
                 offlinePushInfo,
             })
                 .then(({ data }) => {
-                    console.log('xxx', data);
+                    console.log('消息发送成功', message);
                     this.updateOneMessage({
                         message: data,
                         isSuccess: true,

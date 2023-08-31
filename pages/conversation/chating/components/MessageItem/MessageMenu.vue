@@ -33,6 +33,7 @@ import IMSDK, { MessageType } from 'openim-uniapp-polyfill';
 import copy from '@/static/images/chating_message_copy.png';
 import revoke from '@/static/images/chating_message_revoke.png';
 import del from '@/static/images/chating_message_del.png';
+import { DecryptoAES } from '@/util/crypto';
 
 const canCopyTypes = [
     MessageType.TextMessage,
@@ -190,7 +191,7 @@ export default {
             if (this.message.contentType === MessageType.QuoteMessage) {
                 return this.message.quoteElem.text;
             }
-            return this.message.textElem.content;
+            return DecryptoAES(this.message.textElem.content);
         },
     },
 };

@@ -71,7 +71,6 @@ export default {
             'storeCurrentUserID'
         ]),
         loadMoreStatus () {
-            console.log(this.storeHistoryMessageList);
             if (!this.storeHasMoreMessage) {
                 return 'nomore';
             }
