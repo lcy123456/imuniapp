@@ -110,6 +110,7 @@ export default {
     methods: {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
         menuClick ({ type }) {
+            this.$loading('加载中');
             switch (type) {
             case MessageMenuTypes.Copy:
                 uni.setClipboardData({

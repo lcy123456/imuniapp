@@ -107,7 +107,7 @@ export default {
                 }&checkedUserIDList=${JSON.stringify(checkedIDList)}`,
             });
         },
-        complateCreate () {
+        async complateCreate () {
             this.createLoading = true;
             const options = {
                 adminUserIDs: [],
@@ -120,18 +120,18 @@ export default {
                     faceURL: this.groupFaceUrl,
                 },
             };
-            IMSDK.asyncApi(IMSDK.IMMethods.CreateGroup, IMSDK.uuid(), options)
-                .then(({ data }) => {
-                    this.showToast('创建成功', () =>
-                        navigateToDesignatedConversation(
-                            data.groupID,
-                            SessionType.WorkingGroup,
-                            true
-                        )
-                    );
-                })
-                .catch(() => this.showToast('创建失败'))
-                .finally(() => (this.createLoading = false));
+            try {
+                const {data} = await IMSDK.asyncApi(IMSDK.IMMethods.CreateGroup, IMSDK.uuid(), options);
+                this.$toast('创建成功');
+                await navigateToDesignatedConversation(
+                    data.groupID,
+                    SessionType.WorkingGroup,
+                    true
+                );
+            } catch (err) {
+                this.$toast('创建失败');
+            }
+            this.createLoading = false;
         },
         getCheckedUsers (list) {
             this.checkedMemberList = [...list];

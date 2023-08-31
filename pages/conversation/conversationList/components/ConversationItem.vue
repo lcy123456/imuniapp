@@ -177,17 +177,16 @@ export default {
             prepareConversationState(this.source);
         },
         async clickConversationMenu ({ index }, item) {
+            this.$loading('加载中');
             const noUnRead = this.getSwipeActions.length === 2;
 
             if (index === 0 && !noUnRead) {
-                IMSDK.asyncApi(
+                await IMSDK.asyncApi(
                     IMSDK.IMMethods.MarkConversationMessageAsRead,
                     IMSDK.uuid(),
                     item.conversationID
                 ).catch(() => uni.$u.toast('操作失败'));
-            }
-
-            if ((index === 0 && noUnRead) || (index === 1 && !noUnRead)) {
+            } else if ((index === 0 && noUnRead) || (index === 1 && !noUnRead)) {
                 try {
                     await IMSDK.asyncApi(IMSDK.IMMethods.PinConversation, IMSDK.uuid(), {
                         conversationID: item.conversationID,
@@ -196,10 +195,8 @@ export default {
                 } catch {
                     uni.$u.toast('置顶失败');
                 }
-            }
-
-            if (index === 2 || (noUnRead && index === 1)) {
-                IMSDK.asyncApi(
+            } else if (index === 2 || (noUnRead && index === 1)) {
+                await IMSDK.asyncApi(
                     IMSDK.IMMethods.DeleteConversationAndDeleteAllMsg,
                     IMSDK.uuid(),
                     item.conversationID
@@ -212,6 +209,7 @@ export default {
                     )
                     .catch(() => uni.$u.toast('移除失败'));
             }
+            this.$hideLoading();
             this.$emit('closeAllSwipe');
         },
     },
