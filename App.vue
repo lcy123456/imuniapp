@@ -118,29 +118,29 @@ export default {
             IMSDK.subscribe(IMSDK.IMEvents.OnConnectSuccess, (data) => {
                 console.log(data);
             });
-            IMSDK.subscribe(IMSDK.IMEvents.OnKickedOffline, (data) => {
+            IMSDK.subscribe(IMSDK.IMEvents.OnKickedOffline, () => {
                 kickHander("您的账号在其他设备登录，请重新登陆！");
             });
-            IMSDK.subscribe(IMSDK.IMEvents.OnUserTokenExpired, (data) => {
+            IMSDK.subscribe(IMSDK.IMEvents.OnUserTokenExpired, () => {
                 kickHander("您的登录已过期，请重新登陆！");
             });
 
             // sync
             const syncStartHandler = () => {
-                uni.showLoading({
-                    title: "同步中",
-                    mask: true,
-                });
+                // uni.showLoading({
+                //     title: "同步中",
+                //     mask: true,
+                // });
                 this.$store.commit("user/SET_IS_SYNCING", true);
             };
             const syncFinishHandler = () => {
-                uni.hideLoading();
+                // uni.hideLoading();
                 this.$store.dispatch("conversation/getConversationList");
                 this.$store.dispatch("conversation/getUnReadCount");
                 this.$store.commit("user/SET_IS_SYNCING", false);
             };
             const syncFailedHandler = () => {
-                uni.hideLoading();
+                // uni.hideLoading();
                 uni.$u.toast("同步消息失败");
                 this.$store.dispatch("conversation/getConversationList");
                 this.$store.dispatch("conversation/getUnReadCount");
