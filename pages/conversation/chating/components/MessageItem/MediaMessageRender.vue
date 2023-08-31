@@ -9,7 +9,7 @@
             :width="loadingWidth"
             :height="maxHeight"
             mode="heightFix"
-            :src="getImgUrl"
+            :src="imgUrl"
             @load="onLoaded"
             @click="clickMediaItem"
         >
@@ -41,22 +41,24 @@ import { MessageType } from "openim-uniapp-polyfill";
 export default {
     name: "",
     props: {
-        message: Object
+        message: {
+            type: Object,
+            default: () => ({})
+        },
+        isSender: {
+            type: Boolean,
+            default: false
+        }
     },
     data () {
         return {
-            loadingWidth: '200px'
+            loadingWidth: '200px',
+            imgUrl: ''
         };
     },
     computed: {
         isVideo () {
             return this.message.contentType === MessageType.VideoMessage;
-        },
-        getImgUrl () {
-            if (this.isVideo) {
-                return this.message.videoElem.snapshotUrl;
-            }
-            return this.message.pictureElem.sourcePicture.url;
         },
         getDuration () {
             if (!this.isVideo) {
@@ -70,6 +72,27 @@ export default {
             return (imageHeight || 0) > 240 ? 240 : imageHeight;
         }
     },
+    created () {
+        let filePath = this.message.pictureElem?.sourcePath;
+        if (this.isVideo) {
+            filePath = this.message.videoElem?.snapshotPath;
+        }
+        uni.getFileInfo({
+            filePath,
+            success: () => {
+                this.imgUrl = this.message.pictureElem?.sourcePath;
+                if (this.isVideo) {
+                    this.imgUrl = this.message.videoElem?.snapshotPath;
+                }
+            },
+            fail: () => {
+                this.imgUrl = this.message.pictureElem?.sourcePicture.url;
+                if (this.isVideo) {
+                    this.imgUrl = this.message.videoElem?.snapshotUrl;
+                }
+            }
+        });
+    },
     methods: {
         clickMediaItem () {
             if (this.isVideo) {
@@ -79,7 +102,7 @@ export default {
             } else {
                 uni.previewImage({
                     current: 0,
-                    urls: [this.getImgUrl],
+                    urls: [this.imgUrl],
                     fail (err) {
                         console.log(err);
                     }

@@ -31,6 +31,7 @@
                 />
                 <MediaMessageRender
                     v-else-if="showMediaRender"
+                    :is-sender="isSender"
                     :message="source"
                 />
                 <FileMessageRender

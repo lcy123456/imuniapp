@@ -116,7 +116,7 @@ export default {
                 uni.setClipboardData({
                     data: this.getCopyText(),
                     success: () => {
-                        uni.hideToast();
+                        this.$hideLoading();
                         this.$nextTick(() => {
                             uni.$u.toast('复制成功');
                         });
@@ -152,6 +152,7 @@ export default {
                     }
                 )
                     .then(() => {
+                        this.$hideLoading();
                         this.updateOneMessage({
                             message: {
                                 ...this.message,

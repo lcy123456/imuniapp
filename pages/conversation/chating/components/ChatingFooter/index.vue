@@ -4,7 +4,7 @@
         :snapFlag="snapFlag"
         :change:snapFlag="snap.getSnapFlagUpdate"
         :style="{ 'pointer-events': 'auto' }"
-        class="pb-50 bg-color"
+        class="bg-color"
     >
         <view class="chat_footer">
             <view class="flex align-center">
@@ -178,6 +178,7 @@ export default {
             this.sendMessage(message);
         },
         sendMessage (message) {
+            console.log('消息创建成功', message);
             this.pushNewMessage(message);
             if (needClearTypes.includes(message.contentType)) {
                 this.customEditorCtx.clear();
@@ -190,7 +191,7 @@ export default {
                 offlinePushInfo,
             })
                 .then(({ data }) => {
-                    console.log('消息发送成功', message);
+                    console.log('消息发送成功', data);
                     this.updateOneMessage({
                         message: data,
                         isSuccess: true,

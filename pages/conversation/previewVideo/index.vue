@@ -1,5 +1,6 @@
 <template>
     <view class="preview_video_container">
+        <view class="status-bar-height" />
         <video
             autoplay
             class="video_player"
@@ -19,22 +20,22 @@
                 @click="download"
             />
         </view>
-        <u-toast ref="uToast" />
     </view>
 </template>
 
 <script>
 export default {
-    name: "",
+    name: '',
     components: {},
     data () {
         return {
             downloading: false,
-            previewVideoUrl: "",
+            previewVideoUrl: '',
         };
     },
     onLoad (options) {
         this.previewVideoUrl = options.previewVideoUrl;
+        console.log(this.previewVideoUrl);
     },
     methods: {
         back () {
@@ -42,7 +43,7 @@ export default {
         },
         download () {
             if (this.downloading) return;
-            this.showToast('下载中', "loading");
+            this.showToast('下载中', 'loading');
             this.downloading = true;
             uni.downloadFile({
                 url: this.previewVideoUrl,
@@ -51,19 +52,22 @@ export default {
                         uni.saveVideoToPhotosAlbum({
                             filePath: res.tempFilePath,
                             success: () => {
-                                this.showToast('下载成功,已保存到相册', "success");
+                                this.showToast(
+                                    '下载成功,已保存到相册',
+                                    'success'
+                                );
                             },
                             fail: () => {
-                                this.showToast("保存失败", "error");
-                            }
+                                this.showToast('保存失败', 'error');
+                            },
                         });
                     } else {
-                        this.showToast("下载失败", "error");
+                        this.showToast('下载失败', 'error');
                     }
                 },
                 fail: () => {
-                    this.showToast("下载失败", "error");
-                }
+                    this.showToast('下载失败', 'error');
+                },
             });
         },
         showToast (message, icon) {
@@ -72,31 +76,28 @@ export default {
             uni.showToast({
                 title: message,
                 duration: 1500,
-                icon
+                icon,
             });
-        }
-    }
+        },
+    },
 };
 </script>
 
 <style lang="scss">
-	.preview_video_container {
-		@include colBox(false);
-		height: 100vh;
-		background-color: #000;
+.preview_video_container {
+    @include colBox(false);
+    height: 100vh;
 
-		.video_player {
-			flex: 1;
-			// height: 80%;
-			width: 100%;
-			// margin-top: 50%;
-		}
+    .video_player {
+        flex: 1;
+        width: 100%;
+    }
 
-		.play_action_bar {
-			padding: 24rpx 48rpx 48rpx;
-			// margin-top: 24rpx;
-			display: flex;
-			justify-content: space-between;
-		}
-	}
+    .play_action_bar {
+        background-color: #000;
+        padding: 24rpx 48rpx 48rpx;
+        display: flex;
+        justify-content: space-between;
+    }
+}
 </style>
