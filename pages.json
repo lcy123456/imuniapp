@@ -40,9 +40,6 @@
 		{
 			"path": "pages/conversation/chating/index",
 			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false,
-				"disableScroll": true,
 				"app-plus": {
 					"softinputMode": "adjustResize"
 				}

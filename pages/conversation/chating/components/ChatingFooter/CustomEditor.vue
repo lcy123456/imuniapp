@@ -195,33 +195,29 @@ export default {
 
 <style lang="scss" scoped>
 	.editor_wrap {
-		position: relative;
-	}
-
-	#editor2 {
+		// position: relative;
 		background-color: $uni-bg-color-grey;
-		min-height: 60rpx;
-		max-height: 240rpx;
+	}
+
+	/deep/.ql-container {
+        width: 100%;
+		min-height: 52rpx;
 		height: auto;
-		word-break: break-all;
-        padding: 10rpx 20rpx;
-	}
-
-	/deep/.ql-editor {
-        &.ql-blank:before {
-            font-style: normal;
-            color: $uni-text-color-placeholder;
-            line-height: 60rpx;
-            padding-left: 8rpx;
+        padding: 20rpx 30rpx;
+        
+        .ql-editor {
+            max-height: 240rpx;
+            line-height: 52rpx;
+            &.ql-blank:before {
+                font-style: normal;
+                color: $uni-text-color-placeholder;
+            }
+            img {
+                vertical-align: sub !important;
+            }
         }
-		img {
-			vertical-align: sub !important;
-		}
-
-		p {
-			padding: 4px;
-		}
 	}
+
 
 	.canvas_container {
 		position: fixed;
