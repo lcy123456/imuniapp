@@ -25,6 +25,7 @@ const state = {
     appConfig: {},
     authData: {},
     isSyncing: false,
+    isProd: true
 };
 
 const mutations = {
@@ -45,6 +46,9 @@ const mutations = {
     },
     SET_IS_SYNCING (state, data) {
         state.isSyncing = data;
+    },
+    SET_IS_PROD (state) {
+        state.isProd = !state.isProd;
     },
 };
 

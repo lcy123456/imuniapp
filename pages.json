@@ -235,6 +235,9 @@
 				"navigationBarTitleText": "",
 				"enablePullDownRefresh": false
 			}
+		},
+		{
+			"path": "pages/common/msgForward/index"
 		}
 	],
 	"condition": { 

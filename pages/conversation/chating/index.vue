@@ -33,7 +33,7 @@ export default {
     components: {
         ChatingHeader,
         ChatingFooter,
-        ChatingList,
+        ChatingList
     },
     data () {
         return {
@@ -90,7 +90,7 @@ export default {
         initSuccess () {
             console.log("initSuccess");
             this.initLoading = false;
-        },
+        }
     },
     onBackPress () {
         if (this.back2Tab) {

@@ -21,25 +21,10 @@
             >
                 <text>{{ source.senderNickname }}</text>
             </view>
-            <view
-                class="message_content_wrap"
-                @longpress.prevent="showMenu"
-            >
-                <TextMessageRender
-                    v-if="showTextRender"
-                    :message="source"
-                />
-                <MediaMessageRender
-                    v-else-if="showMediaRender"
-                    :is-sender="isSender"
-                    :message="source"
-                />
-                <FileMessageRender
-                    v-else-if="showFileRender"
-                    :message="source"
-                />
-                <ErrorMessageRender v-else />
-            </view>
+            <MessageContentWrap
+                :message="source"
+                @longpress.prevent.native="showMenu"
+            />
             <MessageReadState
                 v-if="isSender && isSuccessMessage"
                 :message="source"
@@ -84,10 +69,7 @@ import IMSDK, {
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import ChatingList from '../ChatingList.vue';
-import TextMessageRender from './TextMessageRender.vue';
-import MediaMessageRender from './MediaMessageRender.vue';
-import FileMessageRender from './FileMessageRender.vue';
-import ErrorMessageRender from './ErrorMessageRender.vue';
+import MessageContentWrap from './MessageContentWrap.vue';
 import MessageMenu from './MessageMenu.vue';
 import MessageReadState from './MessageReadState.vue';
 import { noticeMessageTypes, UpdateMessageTypes } from '@/constant';
@@ -105,10 +87,7 @@ const FileRenderTypes = [MessageType.FileMessage];
 export default {
     components: {
         MyAvatar,
-        TextMessageRender,
-        MediaMessageRender,
-        FileMessageRender,
-        ErrorMessageRender,
+        MessageContentWrap,
         MessageMenu,
         MessageReadState,
     },
@@ -320,20 +299,6 @@ export default {
             color: #666;
             margin-bottom: 6rpx;
         }
-
-        .message_content_wrap {
-            @include vCenterBox();
-            @include ellipsisWithLine(10);
-            color: $uni-text-color;
-            width: fit-content;
-            max-width: 100%;
-
-            .bg_container {
-                padding: 20rpx;
-                border-radius: 16rpx;
-                background-color: $uni-bg-color;
-            }
-        }
     }
 
     .message_send_state {
@@ -362,7 +327,6 @@ export default {
             align-items: flex-end;
 
             .message_content_wrap {
-
                 .bg_container {
                     background-color: #c5e3ff !important;
                 }

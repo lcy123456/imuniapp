@@ -20,4 +20,5 @@ export default {
     storeAppConfig: (state) => state.user.appConfig,
     storeIsSyncing: (state) => state.user.isSyncing,
     storeAuthData: (state) => state.user.authData,
+    storeIsProd: (state) => state.user.isProd,
 };

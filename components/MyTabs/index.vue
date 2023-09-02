@@ -1,6 +1,6 @@
 <template>
     <view
-        class="list flex align-center bg-grey"
+        :class="['ul flex align-center bg-grey', type === 'square' ? 'line_tab' : 'btn_tab']"
         :style="{
             height: height + 'rpx', 
             'borderRadius': Math.ceil(height / 2) + 'rpx'
@@ -36,7 +36,11 @@ export default {
         height: {
             type: Number,
             default: 64
-        }
+        },
+        type: {
+            type: String,
+            default: ''
+        },
     },
 
     data () {
@@ -60,11 +64,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.list {
-    padding: 5rpx;
+.ul {
+    padding: 5rpx 0;
     .item {
         height: 100%;
-        flex: 1;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -72,8 +75,25 @@ export default {
         font-family: MiSans-Demibold;
 
         &.active {
-            background-color: $uni-bg-color;
             color: $uni-color-primary;
+        }
+    }
+    &.btn_tab {
+        .item {
+            flex: 1;
+
+            &.active {
+                background-color: $uni-bg-color;
+            }
+        }
+    }
+    &.line_tab {
+        border-radius: 0 !important;
+        .item {
+            border-radius: 0 !important;
+            flex: none;
+            background-color: inherit;
+            border-bottom: 4rpx solid $u-primary;
         }
     }
 }

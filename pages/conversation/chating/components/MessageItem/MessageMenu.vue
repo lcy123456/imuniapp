@@ -3,7 +3,6 @@
         :style="{
             left: getLeft,
             right: getRight,
-            width: menuList.length * 37 - 12 + 'px',
         }"
         class="message_menu_container"
         :class="{ message_menu_container_bottom: isBottom }"
@@ -15,12 +14,12 @@
             @click="menuClick(item)"
             @touchstart.stop
         >
+            <text>{{ item.title }}</text>
             <image
                 :src="item.icon"
                 alt=""
                 srcset=""
             />
-            <text>{{ item.title }}</text>
         </view>
     </view>
 </template>
@@ -30,9 +29,6 @@ import { mapGetters, mapActions } from 'vuex';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, { MessageType } from 'openim-uniapp-polyfill';
 
-import copy from '@/static/images/chating_message_copy.png';
-import revoke from '@/static/images/chating_message_revoke.png';
-import del from '@/static/images/chating_message_del.png';
 import { DecryptoAES } from '@/util/crypto';
 
 const canCopyTypes = [
@@ -64,84 +60,100 @@ export default {
     computed: {
         ...mapGetters(['storeCurrentMemberInGroup', 'storeCurrentUserID']),
         getLeft () {
-            if (this.isSender && this.paterWidth < 174) {
-                return 'auto';
-            }
-            if (!this.isSender && this.paterWidth < 174) {
-                return '0';
-            }
-            return '20%';
+            if (this.isSender) return 'auto';
+            return 0;
         },
         getRight () {
-            if (this.isSender && this.paterWidth < 174) {
-                return '0';
-            }
+            if (this.isSender) return '0';
             return 'auto';
-        },
-        canRevoke () {
-            return this.isSender;
         },
         menuList () {
             return [
                 {
                     idx: 0,
-                    type: MessageMenuTypes.Copy,
-                    title: '复制',
-                    icon: copy,
-                    visible: canCopyTypes.includes(this.message.contentType),
-                },
-                {
-                    idx: 1,
-                    type: MessageMenuTypes.Del,
-                    title: '删除',
-                    icon: del,
+                    type: MessageMenuTypes.Forward,
+                    title: '转发',
+                    icon: '/static/images/chating_message_forward.png',
                     visible: true,
                 },
                 {
-                    idx: 4,
+                    idx: 1,
+                    type: MessageMenuTypes.Reply,
+                    title: '回复',
+                    icon: '/static/images/chating_message_reply.png',
+                    visible: true,
+                },
+                {
+                    idx: 2,
+                    type: MessageMenuTypes.Copy,
+                    title: '复制',
+                    icon: '/static/images/chating_message_copy.png',
+                    visible: canCopyTypes.includes(this.message.contentType),
+                },
+                {
+                    idx: 3,
                     type: MessageMenuTypes.Revoke,
                     title: '撤回',
-                    icon: revoke,
-                    visible: this.canRevoke,
+                    icon: '/static/images/chating_message_revoke.png',
+                    visible: this.isSender,
+                },
+                {
+                    idx: 4,
+                    type: MessageMenuTypes.Multiple,
+                    title: '多选',
+                    icon: '/static/images/chating_message_multiple.png',
+                    visible: true,
+                },
+                {
+                    idx: 5,
+                    type: MessageMenuTypes.Del,
+                    title: '删除',
+                    icon: '/static/images/chating_message_del.png',
+                    visible: true,
                 },
             ].filter((v) => v.visible);
         },
     },
     methods: {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
-        menuClick ({ type }) {
-            this.$loading('加载中');
+        async menuClick ({ type }) {
             switch (type) {
+            case MessageMenuTypes.Forward:
+                uni.$u.route('/pages/common/msgForward/index', {
+                    message: encodeURIComponent(JSON.stringify(this.message))
+                });
+                break;
             case MessageMenuTypes.Copy:
+                await this.handleCopy();
+                break;
+            case MessageMenuTypes.Revoke:
+                await this.handleRevoke();
+                break;
+            case MessageMenuTypes.Del:
+                await this.handleDel();
+                break;
+            }
+            this.$emit('close');
+        },
+        handleCopy () {
+            return new Promise((resolve, reject) => {
                 uni.setClipboardData({
                     data: this.getCopyText(),
                     success: () => {
-                        this.$hideLoading();
-                        this.$nextTick(() => {
-                            uni.$u.toast('复制成功');
-                        });
+                        uni.$u.toast('复制成功');
+                        resolve();
                     },
-                });
-                break;
-            case MessageMenuTypes.Del:
-                IMSDK.asyncApi(
-                    IMSDK.IMMethods.DeleteMessage,
-                    IMSDK.uuid(),
-                    {
-                        conversationID:
-                                this.$store.getters.storeCurrentConversation
-                                    .conversationID,
-                        clientMsgID: this.message.clientMsgID,
+                    fail: () => {
+                        reject();
+                        uni.$u.toast('复制失败');
                     }
-                )
-                    .then(() => {
-                        this.deleteMessages([this.message]);
-                        uni.$u.toast('删除成功');
-                    })
-                    .catch(() => uni.$u.toast('删除失败'));
-                break;
-            case MessageMenuTypes.Revoke:
-                IMSDK.asyncApi(
+                });
+            });
+        },
+        async handleRevoke () {
+            try {
+                this.$loading('撤回中');
+                await IMSDK.asyncApi(
                     IMSDK.IMMethods.RevokeMessage,
                     IMSDK.uuid(),
                     {
@@ -150,41 +162,50 @@ export default {
                                     .conversationID,
                         clientMsgID: this.message.clientMsgID,
                     }
-                )
-                    .then(() => {
-                        this.$hideLoading();
-                        this.updateOneMessage({
-                            message: {
-                                ...this.message,
-                                contentType: MessageType.RevokeMessage,
-                                notificationElem: {
-                                    detail: JSON.stringify({
-                                        clientMsgID:
-                                                this.message.clientMsgID,
-                                        revokeTime: Date.now(),
-                                        revokerID: this.storeCurrentUserID,
-                                        revokerNickname: '你',
-                                        revokerRole: 0,
-                                        seq: this.message.seq,
-                                        sessionType:
-                                                this.message.sessionType,
-                                        sourceMessageSendID:
-                                                this.message.sendID,
-                                        sourceMessageSendTime:
-                                                this.message.sendTime,
-                                        sourceMessageSenderNickname:
-                                                this.message.senderNickname,
-                                    }),
-                                },
-                            },
-                        });
-                    })
-                    .catch(() => uni.$u.toast('撤回失败'));
-                break;
-            default:
-                break;
+                );
+                this.$hideLoading();
+                this.updateOneMessage({
+                    message: {
+                        ...this.message,
+                        contentType: MessageType.RevokeMessage,
+                        notificationElem: {
+                            detail: JSON.stringify({
+                                clientMsgID: this.message.clientMsgID,
+                                revokeTime: Date.now(),
+                                revokerID: this.storeCurrentUserID,
+                                revokerNickname: '你',
+                                revokerRole: 0,
+                                seq: this.message.seq,
+                                sessionType: this.message.sessionType,
+                                sourceMessageSendID: this.message.sendID,
+                                sourceMessageSendTime: this.message.sendTime,
+                                sourceMessageSenderNickname: this.message.senderNickname,
+                            }),
+                        },
+                    }
+                });
+            } catch {
+                uni.$u.toast('撤回失败');
             }
-            this.$emit('close');
+        },
+        async handleDel () {
+            try {
+                this.$loading('删除中');
+                await IMSDK.asyncApi(
+                    IMSDK.IMMethods.DeleteMessage,
+                    IMSDK.uuid(),
+                    {
+                        conversationID:
+                                this.$store.getters.storeCurrentConversation
+                                    .conversationID,
+                        clientMsgID: this.message.clientMsgID,
+                    }
+                );
+                uni.$u.toast('删除成功');
+                this.deleteMessages([this.message]);
+            } catch {
+                uni.$u.toast('删除失败');
+            }
         },
         getCopyText () {
             if (this.message.contentType === MessageType.AtTextMessage) {
@@ -201,43 +222,30 @@ export default {
 
 <style scoped lang="scss">
 .message_menu_container {
-    display: flex;
-    flex-wrap: wrap;
-    background-color: #5b5b5b;
-    padding: 12px 20px 0;
-    border-radius: 8px;
+    width: 428rpx;
+    background-color: rgba($uni-bg-color-inverse, 0.6);
+    border-radius: 30rpx;
     position: absolute;
-    top: -12px;
-    // left: 0%;
-    transform: translateY(-100%);
+    top: 0;
+    transform: translateY(-110%);
     z-index: 9;
-    box-sizing: content-box;
+    color: $uni-text-color-inverse;
 
     &_bottom {
-        top: unset;
+        top: inherit;
         bottom: 0;
         transform: translateY(110%);
     }
 
     .message_menu_item {
-        flex: 0 0 25px;
-        @include colBox(false);
-        align-items: center;
-        font-size: 12px;
-        color: #fff;
-        margin: 0 12px 12px 0;
-
-        &:nth-child(5n) {
-            margin-right: 0;
-        }
-        &:last-child {
-            margin-right: 0;
-        }
+        height: 80rpx;
+        padding: 0 30rpx;
+        @include btwBox();
+        border-bottom: 2rpx solid $uni-border-color;
 
         image {
-            width: 17px;
-            height: 19px;
-            margin-bottom: 4px;
+            width: 38rpx;
+            height: 38rpx;
         }
     }
 }

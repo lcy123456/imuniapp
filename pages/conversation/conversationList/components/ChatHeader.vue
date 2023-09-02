@@ -148,7 +148,7 @@ export default {
             box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.16);
             width: max-content;
             border-radius: 12rpx;
-            background-color: $uni-bg-color-inverse;
+            background-color: $uni-bg-color-black;
 
             .arrow {
                 position: absolute;
@@ -156,7 +156,7 @@ export default {
                 right: 20rpx;
                 border-width: 20rpx 15rpx;
                 border-style: solid;
-                border-color: transparent transparent $uni-bg-color-inverse transparent;
+                border-color: transparent transparent $uni-bg-color-black transparent;
             }
 
             .menu_item {

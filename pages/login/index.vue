@@ -2,7 +2,10 @@
     <view class="page_container">
         <view class="login">
             <view class="navbar-height" />
-            <view class="box-logo">
+            <view
+                class="box-logo"
+                @click="chooseDomain"
+            >
                 <image
                     class="logo w-130 h-120"
                     src="/static/images/logo@2x.png"
@@ -121,6 +124,7 @@
 </template>
 
 <script>
+import { mapMutations, mapGetters } from 'vuex';
 import { v4 as uuidv4 } from 'uuid';
 import md5 from 'md5';
 import { businessLogin } from '@/api/login';
@@ -129,6 +133,8 @@ import { checkLoginError } from '@/util/common';
 import IMSDK from 'openim-uniapp-polyfill';
 import { SmsUserFor } from '@/constant';
 
+let timer;
+
 export default {
     components: {
         AreaPicker,
@@ -136,6 +142,7 @@ export default {
     data () {
         return {
             SmsUserFor,
+            domainCount: 0,
             loginInfo: {
                 phoneNumber: '',
                 password: '',
@@ -166,6 +173,7 @@ export default {
         };
     },
     computed: {
+        ...mapGetters(['storeIsProd']),
         canLogin () {
             return (
                 this.checked[0] &&
@@ -178,6 +186,7 @@ export default {
         this.init();
     },
     methods: {
+        ...mapMutations('user', ['SET_IS_PROD']),
         init () {
             // if (process.env.NODE_ENV === 'development') {
             this.loginInfo.phoneNumber =
@@ -188,6 +197,17 @@ export default {
             //     this.loginInfo.phoneNumber = '';
             //     this.loginInfo.password = '';
             // }
+        },
+        chooseDomain () {
+            this.domainCount = this.domainCount + 1;
+            clearTimeout(timer);
+            if (this.domainCount === 20) {
+                this.SET_IS_PROD();
+                this.$toast(`${this.storeIsProd ? '生产' : '测试'}环境`);
+            }
+            timer = setTimeout(() => {
+                this.domainCount = 0;
+            }, 2000);
         },
         updateEye () {
             this.eying = !this.eying;

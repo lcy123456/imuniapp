@@ -12,12 +12,12 @@ module.exports = (vm) => {
             config.data = config.data || {};
             if (config.custom.isIMApi) {
                 config.baseURL = appConfig.getApiUrl();
-            }
-            if (config.custom.isConfigApi) {
+            } else if (config.custom.isConfigApi) {
                 config.baseURL = appConfig.getConfigUrl();
-            }
-            if (config.custom.isPgyerApi) {
+            } else if (config.custom.isPgyerApi) {
                 config.baseURL = "https://www.pgyer.com";
+            } else {
+                config.baseURL = appConfig.getRegisterUrl();
             }
             config.header = {
                 ...config.header,

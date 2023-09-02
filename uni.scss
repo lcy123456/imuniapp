@@ -31,13 +31,16 @@ $uni-text-color-disable:#c0c0c0;
 
 /* 背景颜色 */
 $uni-bg-color:#ffffff;
-$uni-bg-color-inverse:#5d5d5d;
+$uni-bg-color-inverse:#000;
+$uni-bg-color-black:#5d5d5d;
 $uni-bg-color-grey:#eff1f4;
 $uni-bg-color-hover:#e2e0e0;//点击状态颜色
 $uni-bg-color-mask:rgba(0, 0, 0, 0.4);//遮罩颜色
 
 /* 边框颜色 */
-$uni-border-color:#c8c7cc;
+$uni-border-color:#fff;
+$uni-border-color-grey:#C4C4C4;
+$uni-border-color-inverse:#666666;
 
 /* 尺寸变量 */
 $uni-navbar-height: 44px;
