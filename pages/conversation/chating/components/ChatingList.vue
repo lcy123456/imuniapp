@@ -23,29 +23,42 @@
                     :source="item"
                     :is-sender="item.sendID === storeCurrentUserID"
                     @messageItemRender="messageItemRender"
+                    @menuRect="menuRect"
                 />
             </view>
             <view
                 id="auchormessage_bottom_item"
-                style="visibility: hidden;height: 12px;"
+                style="visibility: hidden; height: 12px"
             />
+        </view>
+        <view style="height: 0">
+            <transition name="fade">
+                <MessageMenu
+                    v-if="menuState.visible"
+                    :message="menuState.message"
+                    :pater-rect="menuState.paterRect"
+                    @close="menuState.visible = false"
+                />
+            </transition>
         </view>
     </scroll-view>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions } from 'vuex';
 import MessageItemRender from './MessageItem/index.vue';
+import MessageMenu from './MessageMenu.vue';
 
 export default {
-    name: "ChatingList",
+    name: 'ChatingList',
     components: {
-        MessageItemRender
+        MessageItemRender,
+        MessageMenu,
     },
     props: {
         menuOutsideFlag: {
             required: true,
-            type: Number
+            type: Number,
         },
     },
     data () {
@@ -62,13 +75,21 @@ export default {
             withAnimation: false,
             messageLoadState: {
                 lastMinSeq: 0,
-                loading: false
+                loading: false,
+            },
+            menuState: {
+                visible: false,
+                paterRect: {},
+                message: {}
             },
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentConversation', 'storeHistoryMessageList', 'storeHasMoreMessage',
-            'storeCurrentUserID'
+        ...mapGetters([
+            'storeCurrentConversation',
+            'storeHistoryMessageList',
+            'storeHasMoreMessage',
+            'storeCurrentUserID',
         ]),
         loadMoreStatus () {
             if (!this.storeHasMoreMessage) {
@@ -77,15 +98,26 @@ export default {
             return this.messageLoadState.loading ? 'loading' : 'loadmore';
         },
     },
+    watch: {
+        menuOutsideFlag () {
+            if (this.menuState.visible) {
+                this.menuState.visible = false;
+            }
+        },
+    },
     mounted () {
         this.loadMessageList();
     },
     methods: {
         ...mapActions('message', ['getHistoryMesageList']),
         messageItemRender (clientMsgID) {
-            if (this.initFlag && clientMsgID === this.storeHistoryMessageList[this.storeHistoryMessageList
-                .length - 1]
-                .clientMsgID) {
+            if (
+                this.initFlag &&
+                clientMsgID ===
+                    this.storeHistoryMessageList[
+                        this.storeHistoryMessageList.length - 1
+                    ].clientMsgID
+            ) {
                 this.initFlag = false;
                 setTimeout(() => this.scrollToBottom(true), 200);
             }
@@ -95,17 +127,16 @@ export default {
             const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
             const options = {
                 conversationID: this.storeCurrentConversation.conversationID,
-                userID: "",
-                groupID: "",
+                userID: '',
+                groupID: '',
                 count: 20,
-                startClientMsgID: this.storeHistoryMessageList[0]?.clientMsgID ?? "",
+                startClientMsgID:
+                    this.storeHistoryMessageList[0]?.clientMsgID ?? '',
                 lastMinSeq: this.messageLoadState.lastMinSeq,
             };
             try {
-                const {
-                    emptyFlag,
-                    lastMinSeq
-                } = await this.getHistoryMesageList(options);
+                const { emptyFlag, lastMinSeq } =
+                    await this.getHistoryMesageList(options);
                 this.messageLoadState.lastMinSeq = lastMinSeq;
                 if (emptyFlag) {
                     this.$emit('initSuccess');
@@ -121,11 +152,10 @@ export default {
             });
         },
         onScroll (event) {
-            const {
-                scrollHeight,
-                scrollTop
-            } = event.target;
-            this.needScoll = (scrollHeight - scrollTop) < uni.getWindowInfo().windowHeight * 1.2;
+            const { scrollHeight, scrollTop } = event.target;
+            this.needScoll =
+                scrollHeight - scrollTop <
+                uni.getWindowInfo().windowHeight * 1.2;
         },
         throttleScroll (event) {
             uni.$u.throttle(() => this.onScroll(event), 200);
@@ -142,19 +172,23 @@ export default {
 
             if (!isInit) {
                 this.withAnimation = true;
-                setTimeout(() => this.withAnimation = false, 100);
+                setTimeout(() => (this.withAnimation = false), 100);
             }
 
             this.$nextTick(() => {
-                uni.createSelectorQuery().in(this).select('#scroll_wrap').boundingClientRect((res) => {
-                    // let top = res.height - this.scrollViewHeight;
-                    // if (top > 0) {
-                    this.scrollTop = res.height + Math.random();
-                    if (isInit) {
-                        this.$emit('initSuccess');
-                    }
-                    // }
-                }).exec();
+                uni.createSelectorQuery()
+                    .in(this)
+                    .select('#scroll_wrap')
+                    .boundingClientRect((res) => {
+                        // let top = res.height - this.scrollViewHeight;
+                        // if (top > 0) {
+                        this.scrollTop = res.height + Math.random();
+                        if (isInit) {
+                            this.$emit('initSuccess');
+                        }
+                        // }
+                    })
+                    .exec();
             });
         },
         scrollToAnchor (auchor) {
@@ -162,20 +196,28 @@ export default {
                 this.scrollIntoView = auchor;
             });
         },
-    }
+        menuRect (res) {
+            console.log('menuRect', res);
+            this.menuState.paterRect = {
+                ...res,
+                message: undefined
+            };
+            this.menuState.message = res.message;
+            this.menuState.visible = true;
+        }
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-	#scroll_view {
-		flex: 1;
+#scroll_view {
+    flex: 1;
+    overflow: hidden;
+
+    #scroll_wrap {
+        min-height: 100%;
         overflow: hidden;
-
-        #scroll_wrap {
-            min-height: 100%;
-            overflow: hidden;
-            padding: 0 30rpx;
-        }
-	}
-
+        padding: 0 30rpx;
+    }
+}
 </style>

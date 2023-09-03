@@ -174,7 +174,7 @@ export default {
                 this.$toast(checkLoginError(err));
             });
         },
-        async getCheckedUsers (data) {
+        async getCheckUsers (data) {
             try {
                 await IMSDK.asyncApi(IMSDK.IMMethods.InviteUserToGroup, IMSDK.uuid(), {
                     groupID: this.currentGroup.groupID,

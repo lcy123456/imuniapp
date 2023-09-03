@@ -40,7 +40,6 @@
                     管理员
                 </text>
             </view>
-            <view class="bottom_line" />
         </view>
 
         <slot name="action" />
@@ -96,22 +95,17 @@ export default {
 
 <style lang="scss" scoped>
 	.user_item {
+        height: 108rpx;
+		padding: 0 20rpx;
 		@include vCenterBox();
-		padding: 24rpx 44rpx;
-		color: $uni-text-color;
-		position: relative;
 
 		.check_wrap {
-			@include centerBox();
-			box-sizing: border-box;
-			width: 40rpx;
-			min-width: 40rpx;
-			height: 40rpx;
-			min-height: 40rpx;
+            flex: 0 0 46rpx;
+            height: 46rpx;
 			border: 2px solid #979797;
 			border-radius: 50%;
-			margin-top: 16rpx;
-			margin-right: 24rpx;
+            margin-right: 30rpx;
+			@include centerBox();
 
 			&_active {
 				background-color: #1D6BED;
@@ -129,18 +123,11 @@ export default {
         }
 
 		&_details {
-			@include btwBox();
-			margin-left: 24rpx;
 			width: 100%;
-			position: relative;
-
-			.bottom_line {
-				height: 1px;
-				width: 100%;
-				background-color: #F0F0F0;
-				position: absolute;
-				bottom: -44rpx;
-			}
+            height: 100%;
+			margin-left: 20rpx;
+            border-bottom: 2rpx solid $uni-border-color-grey;
+			@include btwBox();
 
 			.user_name {
 				@include nomalEllipsis();
@@ -154,11 +141,5 @@ export default {
 			}
 		}
 
-	}
-
-	.u-list-item:last-child {
-		.bottom_line {
-			height: 0;
-		}
 	}
 </style>

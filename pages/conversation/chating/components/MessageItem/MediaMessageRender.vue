@@ -1,13 +1,14 @@
 <template>
     <view
         class="media_message_container"
+        :style="{height: imageHeight + 'px'}"
         @click="clickMediaItem"
     >
         <!-- <view :style="{height:wrapperHeight}" class="media_message_container"> -->
         <u--image
             :show-loading="true"
             :width="loadingWidth"
-            :height="maxHeight"
+            :height="imageHeight"
             mode="heightFix"
             :src="imgUrl"
             @load="onLoaded"
@@ -53,6 +54,7 @@ export default {
     data () {
         return {
             loadingWidth: '200px',
+            imageHeight: 240,
             imgUrl: ''
         };
     },
@@ -66,32 +68,29 @@ export default {
             }
             return secFormat(this.message.videoElem.duration);
         },
-        maxHeight () {
-            const imageHeight = this.isVideo ? this.message.videoElem.snapshotHeight : this.message.pictureElem
-                .sourcePicture.height;
-            return (imageHeight || 0) > 240 ? 240 : imageHeight;
-        }
     },
     created () {
-        let filePath = this.message.pictureElem?.sourcePath;
+        const { pictureElem, videoElem} = this.message;
+        let filePath = pictureElem?.sourcePath;
         if (this.isVideo) {
-            filePath = this.message.videoElem?.snapshotPath;
+            filePath = videoElem?.snapshotPath;
         }
         uni.getFileInfo({
             filePath,
             success: () => {
-                this.imgUrl = this.message.pictureElem?.sourcePath;
-                if (this.isVideo) {
-                    this.imgUrl = this.message.videoElem?.snapshotPath;
-                }
+                this.imgUrl = filePath;
             },
             fail: () => {
-                this.imgUrl = this.message.pictureElem?.sourcePicture.url;
+                this.imgUrl = pictureElem?.sourcePicture.url;
                 if (this.isVideo) {
-                    this.imgUrl = this.message.videoElem?.snapshotUrl;
+                    this.imgUrl = videoElem?.snapshotUrl;
                 }
             }
         });
+        const imageHeight = (this.isVideo ? videoElem?.snapshotHeight : pictureElem?.sourcePicture.height) || 0;
+        if (imageHeight < this.imageHeight) {
+            this.imageHeight = imageHeight;
+        }
     },
     methods: {
         clickMediaItem () {

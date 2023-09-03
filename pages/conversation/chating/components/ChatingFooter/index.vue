@@ -7,35 +7,59 @@
         class="bg-color"
     >
         <view class="chat_footer">
-            <view class="flex align-center">
+            <view
+                v-if="quoteMessage"
+                class="quote_box"
+            >
+                <view class="icon_box">
+                    <image
+                        src="/static/images/chating_footer_quote_reply.png"
+                        class="w-38 h-38"
+                    />
+                </view>
+                <view class="message_box">
+                    <view class="primary title">
+                        回复 {{ quoteMessage.senderNickname }}
+                    </view>
+                    <ChatQuote :message="quoteMessage" />
+                </view>
                 <image
-                    class="w-48 h-48 mr-20"
-                    src="/static/images/chating_footer_emoji.png"
-                    @click="updateEmojiBar"
-                />
-                <image
-                    class="w-48 h-48"
-                    src="/static/images/chating_footer_add.png"
-                    @click.prevent="updateActionBar"
+                    src="/static/images/chating_footer_quote_close.png"
+                    class="w-30 h-30 ml-40"
+                    @click="quoteMessage = null"
                 />
             </view>
-            <view class="input_content">
-                <CustomEditor
-                    ref="customEditor"
-                    class="custom_editor"
-                    @ready="editorReady"
-                    @focus="editorFocus"
-                    @blur="editorBlur"
-                    @input="editorInput"
-                />
-            </view>
-            <view class="flex align-center">
+            <view class="send_box">
+                <view class="flex align-center">
+                    <image
+                        class="w-48 h-48 mr-20"
+                        src="/static/images/chating_footer_emoji.png"
+                        @click="updateEmojiBar"
+                    />
+                    <image
+                        class="w-48 h-48"
+                        src="/static/images/chating_footer_add.png"
+                        @click.prevent="updateActionBar"
+                    />
+                </view>
+                <view class="input_content">
+                    <CustomEditor
+                        ref="customEditor"
+                        class="custom_editor"
+                        @ready="editorReady"
+                        @focus="editorFocus"
+                        @blur="editorBlur"
+                        @input="editorInput"
+                    />
+                </view>
                 <image
                     v-show="hasContent"
                     src="/static/images/chating_footer_send.png"
-                    class="w-80 h-80"
+                    class="w-80 h-80 ml-20"
                     @touchend.prevent="sendTextMessage"
                 />
+                <!-- <view class="flex align-center">
+                </view> -->
             </view>
         </view>
         <ChatingActionBar
@@ -80,6 +104,7 @@ import IMSDK, {
 import CustomEditor from './CustomEditor.vue';
 import ChatingActionBar from './ChatingActionBar.vue';
 import ChatingEmojiBar from './ChatingEmojiBar.vue';
+import ChatQuote from '@/components/ChatQuote';
 import { EncryptoAES } from '@/util/crypto';
 import { chooseFile } from '@/util/unisdk';
 
@@ -119,6 +144,7 @@ export default {
         CustomEditor,
         ChatingActionBar,
         ChatingEmojiBar,
+        ChatQuote
     },
     props: {
         footerOutsideFlag: {
@@ -137,6 +163,7 @@ export default {
             actionSheetMenu: [],
             showActionSheet: false,
             snapFlag: null,
+            quoteMessage: null
         };
     },
     computed: {
@@ -154,10 +181,12 @@ export default {
     mounted () {
         this.setSendMessageListener();
         this.setKeyboardListener();
+        uni.$on('quote_message', this.handleQuoteListener);
     },
     beforeDestroy () {
         this.disposeSendMessageListener();
         this.disposeKeyboardListener();
+        uni.$off('quote_message', this.handleQuoteListener);
     },
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
@@ -165,54 +194,64 @@ export default {
             let message = '';
             const { text } = formatInputHtml(this.inputHtml);
             // TODO：加密文本
-            message = await IMSDK.asyncApi(
-                IMMethods.CreateTextMessage,
-                IMSDK.uuid(),
-                EncryptoAES(text)
-            );
+            if (this.quoteMessage) {
+                message = await IMSDK.asyncApi(
+                    IMMethods.CreateQuoteMessage,
+                    IMSDK.uuid(),
+                    {
+                        text: EncryptoAES(text),
+                        message: this.quoteMessage
+                    }
+                );
+                this.quoteMessage = null;
+            } else {
+                message = await IMSDK.asyncApi(
+                    IMMethods.CreateTextMessage,
+                    IMSDK.uuid(),
+                    EncryptoAES(text)
+                );
+            }
             return message;
         },
         async sendTextMessage () {
-            if (!this.hasContent) return;
             const message = await this.createTextMessage();
             this.sendMessage(message);
         },
-        sendMessage (message) {
+        async sendMessage (message) {
             console.log('消息创建成功', message);
             this.pushNewMessage(message);
             if (needClearTypes.includes(message.contentType)) {
                 this.customEditorCtx.clear();
             }
             this.$emit('scrollToBottom');
-            IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                recvID: this.storeCurrentConversation.userID,
-                groupID: this.storeCurrentConversation.groupID,
-                message,
-                offlinePushInfo,
-            })
-                .then(({ data }) => {
-                    console.log('消息发送成功', data);
-                    this.updateOneMessage({
-                        message: data,
-                        isSuccess: true,
-                    });
-                })
-                .catch(({ data, errCode }) => {
-                    this.updateOneMessage({
-                        message: data,
-                        type: UpdateMessageTypes.KeyWords,
-                        keyWords: [
-                            {
-                                key: 'status',
-                                value: MessageStatus.Failed,
-                            },
-                            {
-                                key: 'errCode',
-                                value: errCode,
-                            },
-                        ],
-                    });
+            try {
+                const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                    recvID: this.storeCurrentConversation.userID,
+                    groupID: this.storeCurrentConversation.groupID,
+                    message,
+                    offlinePushInfo,
                 });
+                console.log('消息发送成功', data);
+                this.updateOneMessage({
+                    message: data,
+                    isSuccess: true,
+                });
+            } catch ({ data, errCode }) {
+                this.updateOneMessage({
+                    message: data,
+                    type: UpdateMessageTypes.KeyWords,
+                    keyWords: [
+                        {
+                            key: 'status',
+                            value: MessageStatus.Failed,
+                        },
+                        {
+                            key: 'errCode',
+                            value: errCode,
+                        },
+                    ],
+                });
+            }
         },
 
         // action
@@ -444,9 +483,9 @@ export default {
                 this.sendProgressHandler
             );
         },
-
         // keyboard
-        keyboardChangeHander ({ height }) {
+        keyboardChangeHander (data) {
+            const { height } = data;
             if (height > 0) {
                 if (this.emojiBarVisible) {
                     this.emojiBarVisible = false;
@@ -455,6 +494,7 @@ export default {
                     this.actionBarVisible = false;
                 }
             }
+            uni.$emit('keyboardChange', data);
         },
         setKeyboardListener () {
             uni.onKeyboardHeightChange(this.keyboardChangeHander);
@@ -462,6 +502,11 @@ export default {
         disposeKeyboardListener () {
             uni.offKeyboardHeightChange(this.keyboardChangeHander);
         },
+        handleQuoteListener (val) {
+            console.log('引用', val);
+            this.$refs.customEditor.editorCtx.insertText({text: ''});
+            this.quoteMessage = val;
+        }
     },
 };
 </script>
@@ -519,39 +564,43 @@ export default {
 }
 
 .chat_footer {
-    display: flex;
-    align-items: center;
-    // height: 50px;
-    max-height: 300rpx;
-    padding: 30rpx 20rpx;
-
-    .input_content {
-        flex: 1;
-        margin: 0 20rpx;
-        border-radius: 8rpx;
-        position: relative;
-        overflow: hidden;
-
-        .record_btn {
-            background-color: #3c9cff;
-            height: 30px;
-            font-size: 24rpx;
+    .quote_box {
+        height: 100rpx;
+        @include vCenterBox();
+        padding: 10rpx 20rpx;
+        border-bottom: 2rpx solid $uni-border-color-thinGrey;
+        .icon_box {
+            height: 100%;
+            padding-right: 40rpx;
+            @include vCenterBox();
+            border-right: 4rpx solid $uni-color-primary;
+            margin-right: 10rpx;
+        }
+        .message_box {
+            flex: 1;
+            overflow: hidden;
+            font-size: 28rpx;
+            .title {
+                @include nomalEllipsis();
+            }
         }
     }
-
-    .quote_message {
-        @include vCenterBox();
-        justify-content: space-between;
-        margin-top: 12rpx;
-        padding: 8rpx;
-        // padding-top: 20rpx;
-        border-radius: 6rpx;
-        background-color: #fff;
-        color: #666;
-
-        .content {
-            /deep/ uni-view {
-                @include ellipsisWithLine(2);
+    .send_box {
+        display: flex;
+        align-items: center;
+        padding: 30rpx 20rpx;
+    
+        .input_content {
+            flex: 1;
+            margin-left: 20rpx;
+            border-radius: 8rpx;
+            position: relative;
+            overflow: hidden;
+    
+            .record_btn {
+                background-color: #3c9cff;
+                height: 30px;
+                font-size: 24rpx;
             }
         }
     }

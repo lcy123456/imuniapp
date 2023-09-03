@@ -25,7 +25,7 @@ const state = {
     appConfig: {},
     authData: {},
     isSyncing: false,
-    isProd: true
+    isProd: process.env.NODE_ENV === 'production'
 };
 
 const mutations = {

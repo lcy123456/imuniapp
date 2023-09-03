@@ -5,7 +5,10 @@
             is-bg-color2
         >
             <template slot="more">
-                <text class="primary mr-32 fz-32">
+                <text
+                    class="primary mr-32 fz-32"
+                    @click="chooseContact"
+                >
                     选择联系人
                 </text>
             </template>
@@ -17,14 +20,12 @@
                 placeholder="搜索"
             />
         </view>
-        <view class="px-32">
-            <MyTabs
-                :list="tabList"
-                type="square"
-                class="fz-28"
-                :height="86"
-            />
-        </view>
+        <MyTabs
+            :list="tabList"
+            type="square"
+            class="fz-28 mx-32"
+            :height="86"
+        />
         <view class="conversation_box bg-color px-32">
             <view
                 v-for="item in showConversationList" 
@@ -51,26 +52,28 @@
                 @confirm="handleConfirm"
                 @cancel="showModal = false"
             >
-                <view class="flex-grow">
+                <view class="flex-grow over-hide">
                     <view class="ff-bold fz-36 mb-20">
                         发送给:
                     </view>
-                    <view
-                        v-for="item in sendConversationArr"
-                        :key="item.conversationID"
-                        class="flex align-center"
-                    >
+                    <view class="flex align-center">
                         <MyAvatar
+                            v-for="item in sendObjectArr"
+                            :key="item.userID"
                             :is-group="item.conversationType === SessionType.WorkingGroup"
                             :src="item.faceURL"
                             :desc="item.showName"
                             size="78rpx"
+                            class="mr-20"
                         />
-                        <view class="name_box flex-grow ml-20 ">
-                            {{ item.showName }}
+                        <view
+                            v-if="sendObjectArr.length === 1"
+                            class="name_box flex-grow"
+                        >
+                            {{ sendObjectArr[0].showName }}
                         </view>
                     </view>
-                    <view class="flex justify-center">
+                    <view :class="['flex mt-10', isTextRender ? '' : 'justify-center']">
                         <MessageContentWrap :message="message" />
                     </view>
                 </view>
@@ -80,16 +83,19 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import IMSDK, {
     IMMethods,
     SessionType,
+    MessageStatus,
 } from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyTabs from '@/components/MyTabs/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import MessageContentWrap from '../../conversation/chating/components/MessageItem/MessageContentWrap.vue';
 import { offlinePushInfo } from '@/util/imCommon';
+import { ContactChooseTypes, UpdateMessageTypes, textRenderTypes } from '@/constant';
+
 
 export default {
     components: {
@@ -108,49 +114,101 @@ export default {
             ],
             showModal: false,
             message: {},
-            sendConversationArr: []
+            sendObjectArr: [],
+            isGetCheckUsers: false
         };
     },
     computed: {
-        ...mapGetters(['storeConversationList']),
+        ...mapGetters(['storeConversationList', 'storeCurrentConversation']),
         showConversationList () {
             return this.storeConversationList.filter(v => {
                 return v.showName.includes(this.keyword);
             });
-        }
+        },
+        isTextRender () {
+            return textRenderTypes.includes(this.message.contentType);
+        },
     },
     onLoad (params) {
         const { message } = params;
         this.message = JSON.parse(decodeURIComponent(message));
     },
-
+    onShow () {
+        if (this.isGetCheckUsers) {
+            this.showModal = true;
+            this.isGetCheckUsers = false;
+        }
+    },
     methods: {
+        ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         chooseConversation (item) {
             // 单选
-            this.sendConversationArr = [item];
+            this.sendObjectArr = [item];
             this.showModal = true;
         },
         async handleConfirm () {
-            console.log('xxx', this.message, this.sendConversationArr);
-            const conversation = this.sendConversationArr[0];
-            this.$loading('转发中');
-            const message = await IMSDK.asyncApi(IMMethods.CreateForwardMessage, IMSDK.uuid(), this.message);
-            console.log('创建消息成功', message);
-            IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                recvID: conversation.userID,
-                groupID: conversation.groupID,
-                data: message,
-                offlinePushInfo,
-            }).then(({data}) => {
-                console.log('发送消息成功', data);
-                this.$toast('转发成功');
-                setTimeout(() => {
-                    uni.navigateBack();
-                }, 1000);
-            }).catch(() => {
-                this.$toast('转发失败');
-            }); 
+            for (let i = 0; i < this.sendObjectArr.length; i++) {
+                const sendObject = this.sendObjectArr[i];
+                const isCurConversation = this.storeCurrentConversation.userID === sendObject.userID;
+                try {
+                    this.$loading('转发中');
+                    const message = await IMSDK.asyncApi(IMMethods.CreateForwardMessage, IMSDK.uuid(), this.message);
+                    if (isCurConversation) {
+                        this.pushNewMessage(message);
+                    }
+                
+                    const res = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                        recvID: sendObject.userID,
+                        groupID: sendObject.groupID,
+                        message,
+                        offlinePushInfo,
+                    });
+                    this.$toast('转发成功');
+                    if (isCurConversation) {
+                        this.updateOneMessage({
+                            message: res.data,
+                            isSuccess: true,
+                        });
+                    }
+                } catch ({data, errCode}) {
+                    if (isCurConversation) {
+                        this.updateOneMessage({
+                            message: data,
+                            type: UpdateMessageTypes.KeyWords,
+                            keyWords: [
+                                {
+                                    key: 'status',
+                                    value: MessageStatus.Failed,
+                                },
+                                {
+                                    key: 'errCode',
+                                    value: errCode,
+                                },
+                            ],
+                        });
+                    }
+                    this.$toast('转发失败');
+                }
+            }
             this.showModal = false;
+            setTimeout(() => {
+                uni.navigateBack();
+            }, 1000);
+        },
+        chooseContact () {
+            uni.$u.route('/pages/common/contactChoose/index', {
+                type: ContactChooseTypes.Forward
+            });
+        },
+        getCheckUsers (val) {
+            this.sendObjectArr = val.map((v) => {
+                return {
+                    ...v,
+                    groupID: '',
+                    showName: v.nickname
+                };
+            });
+            this.isGetCheckUsers = true;
         }
     },
 };
@@ -173,6 +231,12 @@ export default {
             height: 100%;
             @include vCenterBox();
             border-bottom: 2rpx solid $uni-border-color-grey;
+        }
+    }
+    /deep/.text_message_container {
+        padding: 0;
+        & > view {
+            @include ellipsisWithLine(2);
         }
     }
 }

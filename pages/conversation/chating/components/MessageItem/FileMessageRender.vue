@@ -8,10 +8,10 @@
             src="@/static/images/chating_message_file.png"
         />
         <view class="right flex flex-column">
-            <text class="mb-10">
+            <text class="">
                 {{ fileElem.fileName }}
             </text>
-            <text class="primary">
+            <text class="primary file_size mt-10">
                 {{ bytesToSize(fileElem.fileSize) }}
             </text>
         </view>

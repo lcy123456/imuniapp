@@ -13,6 +13,11 @@
             :message="message"
         />
         <ErrorMessageRender v-else />
+        <ChatQuote
+            v-if="getQuoteElem"
+            :message="getQuoteElem.quoteMessage"
+            show-detail
+        />
     </view>
 </template>
 
@@ -22,15 +27,13 @@ import TextMessageRender from './TextMessageRender.vue';
 import MediaMessageRender from './MediaMessageRender.vue';
 import FileMessageRender from './FileMessageRender.vue';
 import ErrorMessageRender from './ErrorMessageRender.vue';
+import ChatQuote from '@/components/ChatQuote';
+import { 
+    TextRenderTypes,
+    MediaRenderTypes,
+    FileRenderTypes
+} from '@/constant';
 
-const textRenderTypes = [
-    MessageType.TextMessage,
-    MessageType.AtTextMessage,
-    MessageType.QuoteMessage,
-];
-
-const mediaRenderTypes = [MessageType.VideoMessage, MessageType.PictureMessage];
-const FileRenderTypes = [MessageType.FileMessage];
 
 export default {
     components: {
@@ -38,6 +41,7 @@ export default {
         MediaMessageRender,
         FileMessageRender,
         ErrorMessageRender,
+        ChatQuote,
     },
 
     props: {
@@ -54,14 +58,20 @@ export default {
     },
     computed: {
         showTextRender () {
-            return textRenderTypes.includes(this.message.contentType);
+            return TextRenderTypes.includes(this.message.contentType);
         },
         showMediaRender () {
-            return mediaRenderTypes.includes(this.message.contentType);
+            return MediaRenderTypes.includes(this.message.contentType);
         },
         showFileRender () {
             return FileRenderTypes.includes(this.message.contentType);
         },
+        getQuoteElem () {
+            if (this.message.contentType === MessageType.QuoteMessage) {
+                return this.message.quoteElem;
+            }
+            return false;
+        }
     },
 
     mounted () {
@@ -76,11 +86,12 @@ export default {
 
 <style lang="scss" scoped>
 .message_content_wrap {
-    @include vCenterBox();
-    @include ellipsisWithLine(10);
+    // @include vCenterBox();
+    // @include ellipsisWithLine(10);
     color: $uni-text-color;
     width: fit-content;
     max-width: 100%;
+    overflow: hidden;
 
     .bg_container {
         padding: 20rpx;

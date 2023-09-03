@@ -88,7 +88,8 @@ export default {
 	}
 
 	.user_anchor {
-		background-color: #F8F8F8 !important;
+        padding-left: 95rpx;
+        background-color: $uni-bg-color !important;
 		border: none !important;
 	}
 </style>

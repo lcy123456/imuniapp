@@ -133,7 +133,7 @@ export default {
             }
             this.createLoading = false;
         },
-        getCheckedUsers (list) {
+        getCheckUsers (list) {
             this.checkedMemberList = [...list];
         },
         chooseImage () {

@@ -33,3 +33,12 @@ export const noticeMessageTypes = [
     MessageType.GroupNameUpdated,
     MessageType.BurnMessageChange
 ];
+
+export const TextRenderTypes = [
+    MessageType.TextMessage,
+    MessageType.AtTextMessage,
+    MessageType.QuoteMessage,
+];
+
+export const MediaRenderTypes = [MessageType.VideoMessage, MessageType.PictureMessage];
+export const FileRenderTypes = [MessageType.FileMessage];

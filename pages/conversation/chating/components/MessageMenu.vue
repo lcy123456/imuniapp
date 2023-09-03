@@ -1,16 +1,17 @@
 <template>
     <view
-        :style="{
-            left: getLeft,
-            right: getRight,
-        }"
         class="message_menu_container"
-        :class="{ message_menu_container_bottom: isBottom }"
+        :style="{
+            width: menuWidth + 'px',
+            left: getLeft + 'px',
+            top: getTop + 'px'
+        }"
     >
         <view
             v-for="item in menuList"
             :key="item.idx"
             class="message_menu_item"
+            :style="{height: menuItemHight + 'px'}"
             @click="menuClick(item)"
             @touchstart.stop
         >
@@ -22,6 +23,7 @@
             />
         </view>
     </view>
+    <!-- <u-modal :show="show" :title="title" :content='content'></u-modal> -->
 </template>
 
 <script>
@@ -44,28 +46,35 @@ export default {
             required: true,
             type: Object,
         },
-        isBottom: {
-            type: Boolean,
-            default: true,
-        },
-        isSender: Boolean,
-        paterWidth: {
+        paterRect: {
+            type: Object,
             required: true,
-            type: Number,
-        },
+        }
     },
     data () {
-        return {};
+        return {
+            menuWidth: 200,
+            menuItemHight: 40,
+        };
     },
     computed: {
         ...mapGetters(['storeCurrentMemberInGroup', 'storeCurrentUserID']),
-        getLeft () {
-            if (this.isSender) return 'auto';
-            return 0;
+        isSender () {
+            return this.paterRect.left > 50;
         },
-        getRight () {
-            if (this.isSender) return '0';
-            return 'auto';
+        getLeft () {
+            const { left, right } = this.paterRect;
+            if (this.isSender) return right - 200;
+            return left;
+        },
+        getTop () {
+            const { top, bottom } = this.paterRect;
+            const menuHight = this.menuItemHight * this.menuList.length;
+            if (top - menuHight < 100) {
+                return bottom + 10;
+            } else {
+                return top - menuHight - 10;
+            }
         },
         menuList () {
             return [
@@ -123,17 +132,26 @@ export default {
                     message: encodeURIComponent(JSON.stringify(this.message))
                 });
                 break;
+            case MessageMenuTypes.Reply:
+                await this.handleQuote();
+                break;
             case MessageMenuTypes.Copy:
                 await this.handleCopy();
                 break;
             case MessageMenuTypes.Revoke:
                 await this.handleRevoke();
                 break;
+            case MessageMenuTypes.Multiple:
+                await this.handleMultiple();
+                break;
             case MessageMenuTypes.Del:
                 await this.handleDel();
                 break;
             }
             this.$emit('close');
+        },
+        handleQuote () {
+            uni.$emit('quote_message', this.message);
         },
         handleCopy () {
             return new Promise((resolve, reject) => {
@@ -188,6 +206,9 @@ export default {
                 uni.$u.toast('撤回失败');
             }
         },
+        handleMultiple () {
+
+        },
         async handleDel () {
             try {
                 this.$loading('删除中');
@@ -208,13 +229,14 @@ export default {
             }
         },
         getCopyText () {
-            if (this.message.contentType === MessageType.AtTextMessage) {
-                return this.message.atTextElem.text;
+            const { contentType, atTextElem, quoteElem, textElem } = this.message;
+            if (contentType === MessageType.AtTextMessage) {
+                return atTextElem.text;
             }
-            if (this.message.contentType === MessageType.QuoteMessage) {
-                return this.message.quoteElem.text;
+            if (contentType === MessageType.QuoteMessage) {
+                return DecryptoAES(quoteElem.text);
             }
-            return DecryptoAES(this.message.textElem.content);
+            return DecryptoAES(textElem.content);
         },
     },
 };
@@ -222,30 +244,24 @@ export default {
 
 <style scoped lang="scss">
 .message_menu_container {
-    width: 428rpx;
+    // width: 200px;
     background-color: rgba($uni-bg-color-inverse, 0.6);
-    border-radius: 30rpx;
-    position: absolute;
+    border-radius: 15px;
+    position: fixed;
     top: 0;
-    transform: translateY(-110%);
+    left: 0;
     z-index: 9;
     color: $uni-text-color-inverse;
 
-    &_bottom {
-        top: inherit;
-        bottom: 0;
-        transform: translateY(110%);
-    }
-
     .message_menu_item {
-        height: 80rpx;
-        padding: 0 30rpx;
+        // height: 80rpx;
+        padding: 0 15px;
         @include btwBox();
-        border-bottom: 2rpx solid $uni-border-color;
+        border-bottom: 1px solid $uni-border-color;
 
         image {
-            width: 38rpx;
-            height: 38rpx;
+            width: 19px;
+            height: 19px;
         }
     }
 }

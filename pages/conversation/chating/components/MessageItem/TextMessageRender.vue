@@ -16,25 +16,37 @@ import { DecryptoAES } from '@/util/crypto';
 
 export default {
     name: "TextMessageRender",
-    components: {},
+    components: {
+    },
     props: {
-        message: Object,
+        message: {
+            type: Object,
+            default: () => ({})
+        },
+        showNickname: {
+            type: Boolean,
+            default: false
+        }
     },
     data () {
         return {};
     },
     computed: {
         getContent () {
+            let text = '';
+            const { contentType, quoteElem, atTextElem, textElem, senderNickname } = this.message;
             // TODO：解密文本
-            // console.log('getContent', this.message.textElem)
-            if (this.message.contentType === MessageType.QuoteMessage) {
-                return parseEmoji(this.message.quoteElem.text);
+            if (contentType === MessageType.QuoteMessage) {
+                text = parseEmoji(DecryptoAES(quoteElem?.text));
+            } else if (contentType === MessageType.AtTextMessage) {
+                text = parseEmoji(parseAt(atTextElem));
+            } else {
+                text = parseEmoji(DecryptoAES(textElem?.content));
             }
-            if (this.message.contentType === MessageType.AtTextMessage) {
-                return parseEmoji(parseAt(this.message.atTextElem));
+            if (this.showNickname) {
+                text = senderNickname + '：' + text;
             }
-
-            return parseEmoji(DecryptoAES(this.message.textElem?.content));
+            return text;
         },
     },
     methods: {

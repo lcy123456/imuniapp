@@ -1,6 +1,6 @@
 <template>
     <view
-        v-if="!getNoticeContent"
+        v-if="!isNoticeMessage"
         :id="`auchor${source.clientMsgID}`"
         class="message_item"
         :class="{ message_item_self: isSender }"
@@ -29,17 +29,6 @@
                 v-if="isSender && isSuccessMessage"
                 :message="source"
             />
-
-            <transition name="fade">
-                <MessageMenu
-                    v-if="menuState.visible"
-                    :message="source"
-                    :is-sender="isSender"
-                    :is-bottom="menuState.isBottom"
-                    :pater-width="menuState.paterWidth"
-                    @close="menuState.visible = false"
-                />
-            </transition>
         </view>
         <view class="message_send_state">
             <u-loading-icon v-if="showSending" />
@@ -64,31 +53,20 @@
 import IMSDK, {
     IMMethods,
     MessageStatus,
-    MessageType,
     SessionType,
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import ChatingList from '../ChatingList.vue';
 import MessageContentWrap from './MessageContentWrap.vue';
-import MessageMenu from './MessageMenu.vue';
 import MessageReadState from './MessageReadState.vue';
 import { noticeMessageTypes, UpdateMessageTypes } from '@/constant';
 import { tipMessaggeFormat, offlinePushInfo } from '@/util/imCommon';
 
-const textRenderTypes = [
-    MessageType.TextMessage,
-    MessageType.AtTextMessage,
-    MessageType.QuoteMessage,
-];
-
-const mediaRenderTypes = [MessageType.VideoMessage, MessageType.PictureMessage];
-const FileRenderTypes = [MessageType.FileMessage];
 
 export default {
     components: {
         MyAvatar,
         MessageContentWrap,
-        MessageMenu,
         MessageReadState,
     },
     props: {
@@ -100,34 +78,16 @@ export default {
             type: Boolean,
             default: false,
         },
-        menuOutsideFlag: {
-            required: true,
-            type: Number,
-        },
     },
     data () {
         return {
-            menuState: {
-                visible: false,
-                isBottom: false,
-                paterWidth: false,
-                sendingDelay: true,
-            },
             conversationID: '',
+            isShowMenu: false
         };
     },
     computed: {
         isSingle () {
             return this.source.sessionType === SessionType.Single;
-        },
-        showTextRender () {
-            return textRenderTypes.includes(this.source.contentType);
-        },
-        showMediaRender () {
-            return mediaRenderTypes.includes(this.source.contentType);
-        },
-        showFileRender () {
-            return FileRenderTypes.includes(this.source.contentType);
         },
         isSuccessMessage () {
             return this.source.status === MessageStatus.Succeed;
@@ -141,24 +101,21 @@ export default {
                 !this.sendingDelay
             );
         },
+        isNoticeMessage () {
+            return noticeMessageTypes.includes(this.source.contentType);
+        },
         getNoticeContent () {
-            const isNoticeMessage = noticeMessageTypes.includes(
-                this.source.contentType
+            return tipMessaggeFormat(
+                this.source,
+                this.$store.getters.storeCurrentUserID
             );
-            return !isNoticeMessage
-                ? ''
-                : tipMessaggeFormat(
-                    this.source,
-                    this.$store.getters.storeCurrentUserID
-                );
         },
     },
-    watch: {
-        menuOutsideFlag () {
-            if (this.menuState.visible) {
-                this.menuState.visible = false;
-            }
-        },
+    created () {
+        uni.$on('keyboardChange', this.handleMenuPosition);
+    },
+    beforeDestroy () {
+        uni.$off('keyboardChange', this.handleMenuPosition);
     },
     mounted () {
         this.$emit('messageItemRender', this.source.clientMsgID);
@@ -209,15 +166,27 @@ export default {
                 });
         },
         async showMenu () {
+            this.isShowMenu = true;
+            setTimeout(() => {
+                this.isShowMenu = false;
+            }, 300);
             uni.createSelectorQuery()
                 .in(this)
                 .select('.message_content_wrap')
                 .boundingClientRect((res) => {
-                    this.menuState.paterWidth = res.width;
-                    this.menuState.isBottom = res.top < 250;
-                    this.menuState.visible = true;
+                    this.$emit('menuRect', {
+                        ...res,
+                        message: this.source
+                    });
                 })
                 .exec();
+        },
+        handleMenuPosition () {
+            if (this.isShowMenu) {
+                setTimeout(() => {
+                    this.showMenu();
+                }, 300);
+            }
         },
         setSendingDelay () {
             if (this.source.status === MessageStatus.Sending) {
@@ -314,12 +283,6 @@ export default {
         }
     }
 
-    /deep/.emoji_display {
-        width: 24px;
-        height: 18px;
-        vertical-align: sub;
-    }
-
     &_self {
         flex-direction: row-reverse;
 
@@ -327,6 +290,9 @@ export default {
             align-items: flex-end;
 
             .message_content_wrap {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
                 .bg_container {
                     background-color: #c5e3ff !important;
                 }

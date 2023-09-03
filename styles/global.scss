@@ -199,6 +199,9 @@ image {
 .text-right {
 	text-align: right;
 }
+.over-hide {
+	overflow: hidden;
+}
 
 
 // 插件
@@ -206,9 +209,13 @@ image {
 	padding: 0 !important;
 	.uni-searchbar__box {
 		padding: 0 8px !important;
+		height: 100% !important;
 		.uni-searchbar__box-icon-search {
 			padding: 0;
 		}
+	}
+	.uni-searchbar__cancel {
+		@include vCenterBox();
 	}
 }
 .u-popup__content {
