@@ -23,7 +23,7 @@
             </view>
             <MessageContentWrap
                 :message="source"
-                @longpress.prevent.native="showMenu"
+                @longpress.prevent.native="handleLongPress"
             />
             <MessageReadState
                 v-if="isSender && isSuccessMessage"
@@ -78,11 +78,15 @@ export default {
             type: Boolean,
             default: false,
         },
+        isShowMenuFlag: {
+            type: Boolean,
+            default: false,
+        },
     },
     data () {
         return {
             conversationID: '',
-            isShowMenu: false
+            keyBoardFlag: false
         };
     },
     computed: {
@@ -165,29 +169,6 @@ export default {
                     });
                 });
         },
-        async showMenu () {
-            this.isShowMenu = true;
-            setTimeout(() => {
-                this.isShowMenu = false;
-            }, 300);
-            uni.createSelectorQuery()
-                .in(this)
-                .select('.message_content_wrap')
-                .boundingClientRect((res) => {
-                    this.$emit('menuRect', {
-                        ...res,
-                        message: this.source
-                    });
-                })
-                .exec();
-        },
-        handleMenuPosition () {
-            if (this.isShowMenu) {
-                setTimeout(() => {
-                    this.showMenu();
-                }, 300);
-            }
-        },
         setSendingDelay () {
             if (this.source.status === MessageStatus.Sending) {
                 setTimeout(() => {
@@ -241,6 +222,33 @@ export default {
                 `/pages/common/userCard/index?sourceID=${this.source.sendID}`
             );
         },
+        async handleLongPress () {
+            if (!this.isShowMenuFlag) return;
+            this.keyBoardFlag = true;
+            setTimeout(() => {
+                this.keyBoardFlag = false;
+            }, 300);
+            this.getMegRect();
+        },
+        handleMenuPosition () {
+            if (this.keyBoardFlag) {
+                setTimeout(() => {
+                    this.getMegRect();
+                }, 300);
+            }
+        },
+        getMegRect () {
+            uni.createSelectorQuery()
+                .in(this)
+                .select('.message_content_wrap')
+                .boundingClientRect((res) => {
+                    this.$emit('menuRect', {
+                        ...res,
+                        message: this.source
+                    });
+                })
+                .exec();
+        }
     },
 };
 </script>

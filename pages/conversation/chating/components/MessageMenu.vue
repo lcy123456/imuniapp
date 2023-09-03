@@ -207,7 +207,7 @@ export default {
             }
         },
         handleMultiple () {
-
+            uni.$emit('quote_multiple', this.message);
         },
         async handleDel () {
             try {

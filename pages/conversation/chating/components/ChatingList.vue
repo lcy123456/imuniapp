@@ -6,6 +6,7 @@
         scroll-y
         :scroll-into-view="scrollIntoView"
         upper-threshold="250"
+        @touchstart="isShowMenuFlag = true"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
     >
@@ -22,6 +23,7 @@
                     :menu-outside-flag="menuOutsideFlag"
                     :source="item"
                     :is-sender="item.sendID === storeCurrentUserID"
+                    :is-show-menu-flag="isShowMenuFlag"
                     @messageItemRender="messageItemRender"
                     @menuRect="menuRect"
                 />
@@ -77,6 +79,7 @@ export default {
                 lastMinSeq: 0,
                 loading: false,
             },
+            isShowMenuFlag: false,
             menuState: {
                 visible: false,
                 paterRect: {},
@@ -104,6 +107,12 @@ export default {
                 this.menuState.visible = false;
             }
         },
+    },
+    created () {
+        uni.$on('quote_multiple', this.handleQuoteMultiple);
+    },
+    beforeDestroy () {
+        uni.$off('quote_multiple', this.handleQuoteMultiple);
     },
     mounted () {
         this.loadMessageList();
@@ -156,8 +165,12 @@ export default {
             this.needScoll =
                 scrollHeight - scrollTop <
                 uni.getWindowInfo().windowHeight * 1.2;
+            if (this.menuState.visible) {
+                this.menuState.visible = false;
+            }
         },
         throttleScroll (event) {
+            this.isShowMenuFlag = false;
             uni.$u.throttle(() => this.onScroll(event), 200);
         },
         scrolltoupper () {
@@ -204,6 +217,9 @@ export default {
             };
             this.menuState.message = res.message;
             this.menuState.visible = true;
+        },
+        handleQuoteMultiple () {
+            console.log('开启多选');
         }
     },
 };
