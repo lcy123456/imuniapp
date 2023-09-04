@@ -32,7 +32,7 @@ export default {
 		cursorSpacing: 30,
 		selectionStart: -1,
 		selectionEnd: -1,
-		adjustPosition: true,
+		adjustPosition: false,
 		inputAlign: 'left',
 		fontSize: '15px',
 		color: '#303133',
