@@ -1,7 +1,10 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/login/index"
+			"path": "pages/login/index",
+			"style": {
+				"disableScroll": true
+			}
 		},
 		{
 			"path": "pages/login/registerOrForget/index"
@@ -21,8 +24,6 @@
 		{
 			"path": "pages/conversation/conversationList/index",
 			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false,
 				"disableScroll": true,
 				"app-plus": {
 					"bounce": "none"

@@ -2,55 +2,74 @@
     <CustomNavBar
         class="chating_header"
         bg-color="rgba(255,255,255, .8)"
+        :route="!isMultipleMsg"
     >
         <view
-            slot="center"
-            class="conversation_info"
+            v-if="isMultipleMsg"
+            slot="left"
+            :class="['ml-30', checkedMsgIds.length === 0 ? 'text-grey' : 'primary']"
+            @click="handleMultipleDelAll"
         >
-            <view class="title">
-                {{ storeCurrentConversation.showName }}
-            </view>
-            <view
-                v-if="isSingle"
-                class="fz-24 text-grey flex align-center justify-center"
-            >
-                <view :class="['w-12', 'h-12', 'br-12', isOnline ? 'bg-primary' : 'bg-inverse']" />
-                <text class="ml-10">
-                    {{ onlineStr }}
-                </text>
-            </view>
-            <view
-                v-else-if="isWorkingGroup"
-                class="fz-24 text-grey"
-            >
-                {{ groupMemberCount }}
-            </view>
+            全部删除
         </view>
-        <view slot="more">
+        <template slot="center">
             <view
-                v-if="isSingle"
-                class="right_action"
+                v-if="isMultipleMsg"
+                class="ff-bold"
             >
-                <MyAvatar
-                    :src="storeCurrentConversation.faceURL"
-                    :desc="storeCurrentConversation.showName"
-                    size="60rpx"
-                    shape="circle"
-                    @click="showInfo"
-                />
+                已选中{{ checkedMsgIds.length }}条
             </view>
             <view
+                v-else
+                class="conversation_info"
+            >
+                <view class="title">
+                    {{ storeCurrentConversation.showName }}
+                </view>
+                <view
+                    v-if="isSingle"
+                    class="fz-24 text-grey flex align-center justify-center"
+                >
+                    <view :class="['w-12', 'h-12', 'br-12', isOnline ? 'bg-primary' : 'bg-inverse']" />
+                    <text class="ml-10">
+                        {{ onlineStr }}
+                    </text>
+                </view>
+                <view
+                    v-else-if="isWorkingGroup"
+                    class="fz-24 text-grey"
+                >
+                    {{ groupMemberCount }}
+                </view>
+            </view>
+        </template>
+        <view
+            slot="more" 
+            class="right_action"
+        >
+            <view
+                v-if="isMultipleMsg"
+                class="primary"
+                @click="handleMultiple"
+            >
+                取消
+            </view>
+            <MyAvatar
+                v-else-if="isSingle"
+                :src="storeCurrentConversation.faceURL"
+                :desc="storeCurrentConversation.showName"
+                size="60rpx"
+                shape="circle"
+                @click="showInfo"
+            />
+            <u-icon
                 v-else-if="isWorkingGroup"
-                class="right_action"
-            >
-                <u-icon
-                    class="action_item"
-                    name="more-dot-fill"
-                    size="23"
-                    color="#333"
-                    @click="goSetting"
-                />
-            </view>
+                class="action_item"
+                name="more-dot-fill"
+                size="23"
+                color="#333"
+                @click="goSetting"
+            />
         </view>
     </CustomNavBar>
 </template>
@@ -61,12 +80,23 @@ import { mapGetters } from "vuex";
 import { SessionType } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { getDesignatedUserOnlineState } from "@/util/imCommon";
+import { MessageMenuTypes } from '@/constant';
 
 export default {
     name: 'ChatingHeader',
     components: {
         CustomNavBar,
         MyAvatar
+    },
+    props: {
+        isMultipleMsg: {
+            type: Boolean,
+            default: false,
+        },
+        checkedMsgIds: {
+            type: Array,
+            default: () => []
+        }
     },
     data () {
         return {
@@ -107,6 +137,17 @@ export default {
         },
         goSetting () {
             uni.$u.route('/pages/conversation/groupSettings/index');
+        },
+        handleMultipleDelAll () {
+            uni.$emit('multiple_message', {
+                show: true,
+                type: MessageMenuTypes.DelAll
+            });
+        },
+        handleMultiple () {
+            uni.$emit('multiple_message', {
+                show: false
+            });
         }
     }
 };
@@ -114,7 +155,7 @@ export default {
 
 <style lang="scss" scoped>
 	.chating_header {
-
+        padding: 0 30rpx;
 		.conversation_info {
 			text-align: center;
 
@@ -128,17 +169,16 @@ export default {
 		}
 
 		.right_action {
+            margin-right: 30rpx;
 			@include vCenterBox();
-			flex-direction: row;
-			margin-right: 30rpx;
 
-			.action_item {
-				padding: 12rpx;
-			}
+			// .action_item {
+			// 	padding: 12rpx;
+			// }
 
-			.u-icon {
-				margin-left: 12rpx;
-			}
+			// .u-icon {
+			// 	margin-left: 12rpx;
+			// }
 		}
 	}
 </style>

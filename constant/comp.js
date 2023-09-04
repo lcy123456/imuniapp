@@ -13,10 +13,14 @@ export const ChatingFooterActionTypes = {
 export const MessageMenuTypes = {
     Copy: 'Copy',
     Del: 'Del',
+    DelAll: 'DelAll',
     Forward: 'Forward',
+    ForwardAll: 'ForwardAll',
     Reply: 'Reply',
     Revoke: 'Revoke',
-    Multiple: 'Multiple'
+    Multiple: 'Multiple',
+    Init: 'init',
+    Checked: 'checked'
 };
 
 export const ContactMenuTypes = {

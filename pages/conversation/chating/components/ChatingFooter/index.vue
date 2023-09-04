@@ -8,59 +8,76 @@
     >
         <view class="chat_footer">
             <view
-                v-if="quoteMessage"
-                class="quote_box"
+                v-if="isMultipleMsg"
+                class="h-110 flex justify-between align-center px-36"
             >
-                <view class="icon_box">
-                    <image
-                        src="/static/images/chating_footer_quote_reply.png"
-                        class="w-38 h-38"
-                    />
-                </view>
-                <view class="message_box">
-                    <view class="primary title">
-                        回复 {{ quoteMessage.senderNickname }}
+                <image
+                    :src="`/static/images/chating_message_del_${checkedMsgIds.length === 0 ? 'grey' : 'active'}.png`"
+                    class="w-44 h-44"
+                    @click="handleMultiple(MessageMenuTypes.DelAll)"
+                />
+                <image
+                    :src="`/static/images/chating_message_forward_${checkedMsgIds.length === 0 ? 'grey' : 'active'}.png`"
+                    class="w-44 h-44"
+                    @click="handleMultiple(MessageMenuTypes.ForwardAll)"
+                />
+            </view>
+            <template v-else>
+                <view
+                    v-if="quoteMessage"
+                    class="quote_box"
+                >
+                    <view class="icon_box">
+                        <image
+                            src="/static/images/chating_footer_quote_reply.png"
+                            class="w-38 h-38"
+                        />
                     </view>
-                    <ChatQuote :message="quoteMessage" />
-                </view>
-                <image
-                    src="/static/images/chating_footer_quote_close.png"
-                    class="w-30 h-30 ml-40"
-                    @click="quoteMessage = null"
-                />
-            </view>
-            <view class="send_box">
-                <view class="flex align-center">
+                    <view class="message_box">
+                        <view class="primary title">
+                            回复 {{ quoteMessage.senderNickname }}
+                        </view>
+                        <ChatQuote :message="quoteMessage" />
+                    </view>
                     <image
-                        class="w-48 h-48 mr-20"
-                        src="/static/images/chating_footer_emoji.png"
-                        @click="updateEmojiBar"
+                        src="/static/images/chating_footer_quote_close.png"
+                        class="w-30 h-30 ml-40"
+                        @click="quoteMessage = null"
                     />
+                </view>
+                <view class="send_box">
+                    <view class="flex align-center">
+                        <image
+                            class="w-48 h-48 mr-20"
+                            src="/static/images/chating_footer_emoji.png"
+                            @click="updateEmojiBar"
+                        />
+                        <image
+                            class="w-48 h-48"
+                            src="/static/images/chating_footer_add.png"
+                            @click.prevent="updateActionBar"
+                        />
+                    </view>
+                    <view class="input_content">
+                        <CustomEditor
+                            ref="customEditor"
+                            class="custom_editor"
+                            @ready="editorReady"
+                            @focus="editorFocus"
+                            @blur="editorBlur"
+                            @input="editorInput"
+                        />
+                    </view>
                     <image
-                        class="w-48 h-48"
-                        src="/static/images/chating_footer_add.png"
-                        @click.prevent="updateActionBar"
+                        v-show="hasContent"
+                        src="/static/images/chating_footer_send.png"
+                        class="w-80 h-80 ml-20"
+                        @touchend.prevent="sendTextMessage"
                     />
+                    <!-- <view class="flex align-center">
+                    </view> -->
                 </view>
-                <view class="input_content">
-                    <CustomEditor
-                        ref="customEditor"
-                        class="custom_editor"
-                        @ready="editorReady"
-                        @focus="editorFocus"
-                        @blur="editorBlur"
-                        @input="editorInput"
-                    />
-                </view>
-                <image
-                    v-show="hasContent"
-                    src="/static/images/chating_footer_send.png"
-                    class="w-80 h-80 ml-20"
-                    @touchend.prevent="sendTextMessage"
-                />
-                <!-- <view class="flex align-center">
-                </view> -->
-            </view>
+            </template>
         </view>
         <ChatingActionBar
             v-show="actionBarVisible"
@@ -94,7 +111,8 @@ import {
     UpdateMessageTypes,
     GroupMemberListTypes,
     ImageType,
-    VideoType
+    VideoType,
+    MessageMenuTypes
 } from '@/constant';
 import IMSDK, {
     IMMethods,
@@ -151,9 +169,18 @@ export default {
             required: true,
             type: Number,
         },
+        isMultipleMsg: {
+            type: Boolean,
+            default: false,
+        },
+        checkedMsgIds: {
+            type: Array,
+            default: () => []
+        }
     },
     data () {
         return {
+            MessageMenuTypes: Object.freeze(MessageMenuTypes),
             customEditorCtx: null,
             inputHtml: '',
             oldText: '',
@@ -457,6 +484,12 @@ export default {
                         reject(err);
                     },
                 });
+            });
+        },
+        handleMultiple (type) {
+            uni.$emit('multiple_message', {
+                show: true,
+                type
             });
         },
 

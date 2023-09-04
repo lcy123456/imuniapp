@@ -207,8 +207,13 @@ export default {
             }
         },
         handleMultiple () {
-            uni.$emit('quote_multiple', this.message);
+            uni.$emit('multiple_message', {
+                show: true,
+                message: this.message,
+                type: MessageMenuTypes.Init
+            });
         },
+        // TODO: 可以移动到chating统一处理
         async handleDel () {
             try {
                 this.$loading('删除中');

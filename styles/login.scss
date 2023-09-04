@@ -2,7 +2,7 @@
 	display: flex;
 	align-items: center;
 	flex-direction: column;
-	margin: calc(122rpx - #{$uni-navbar-height}) 0 80rpx;
+	margin: calc(122rpx - #{$uni-navbar-height-all}) 0 80rpx;
 	.logo {
 		margin-bottom: 34rpx;
 	}

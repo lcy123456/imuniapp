@@ -6,7 +6,7 @@
         scroll-y
         :scroll-into-view="scrollIntoView"
         upper-threshold="250"
-        @touchstart="isShowMenuFlag = true"
+        @touchstart="handleTouchstart"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
     >
@@ -24,6 +24,8 @@
                     :source="item"
                     :is-sender="item.sendID === storeCurrentUserID"
                     :is-show-menu-flag="isShowMenuFlag"
+                    :is-multiple-msg="isMultipleMsg"
+                    :is-checked="checkedMsgIds.includes(item.clientMsgID)"
                     @messageItemRender="messageItemRender"
                     @menuRect="menuRect"
                 />
@@ -62,6 +64,14 @@ export default {
             required: true,
             type: Number,
         },
+        isMultipleMsg: {
+            type: Boolean,
+            default: false,
+        },
+        checkedMsgIds: {
+            type: Array,
+            default: () => []
+        }
     },
     data () {
         return {
@@ -85,6 +95,7 @@ export default {
                 paterRect: {},
                 message: {}
             },
+            checkedMessage: []
         };
     },
     computed: {
@@ -107,12 +118,6 @@ export default {
                 this.menuState.visible = false;
             }
         },
-    },
-    created () {
-        uni.$on('quote_multiple', this.handleQuoteMultiple);
-    },
-    beforeDestroy () {
-        uni.$off('quote_multiple', this.handleQuoteMultiple);
     },
     mounted () {
         this.loadMessageList();
@@ -159,6 +164,10 @@ export default {
                 }
                 this.messageLoadState.loading = false;
             });
+        },
+        handleTouchstart () {
+            this.isShowMenuFlag = true;
+            this.$emit('touchstart');
         },
         onScroll (event) {
             const { scrollHeight, scrollTop } = event.target;
@@ -210,16 +219,13 @@ export default {
             });
         },
         menuRect (res) {
-            console.log('menuRect', res);
+            // console.log('menuRect', res);
             this.menuState.paterRect = {
                 ...res,
                 message: undefined
             };
             this.menuState.message = res.message;
             this.menuState.visible = true;
-        },
-        handleQuoteMultiple () {
-            console.log('开启多选');
         }
     },
 };
@@ -234,6 +240,21 @@ export default {
         min-height: 100%;
         overflow: hidden;
         padding: 0 30rpx;
+    }
+
+    .fade-leave,
+    .fade-enter-to {
+        opacity: 1;
+    }
+
+    .fade-leave-active,
+    .fade-enter-active {
+        transition: all 0.5s;
+    }
+
+    .fade-leave-to,
+    .fade-enter {
+        opacity: 0;
     }
 }
 </style>

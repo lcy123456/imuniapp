@@ -72,8 +72,11 @@ image {
 };
 
 /* 导航栏高度，含状态栏 */
+.navbar-height-all {
+	height: calc(#{$uni-navbar-height-all} + var(--status-bar-height));
+}
 .navbar-height {
-	height: calc(#{$uni-navbar-height} + var(--status-bar-height));
+	height: $uni-navbar-height-all;
 }
 
 /* 状态栏高度 */
@@ -144,6 +147,18 @@ image {
 	.pl-#{$i * 1} {
 		padding-left: #{$i * 1}rpx;
 	}
+	.l-#{$i} {
+		left: #{$i * 1}rpx;
+	}
+	.r-#{$i * 1} {
+		right: #{$i * 1}rpx;
+	}
+	.b-#{$i * 1} {
+		bottom: #{$i * 1}rpx;
+	}
+	.t-#{$i * 1} {
+		top: #{$i * 1}rpx;
+	}
 }
 @for $i from 12 through 60 {
 	.fz-#{$i} {
@@ -152,6 +167,30 @@ image {
 	.br-#{$i * 1} {
 		border-radius: #{$i * 1}rpx;
 	}
+}
+
+.w-full {
+	width: 100%;
+}
+.h-full {
+	height: 100%;
+}
+.absolute {
+	position: absolute;
+}
+.relative {
+	position: relative;
+}
+.fixed {
+	position: fixed;
+}
+.left-center {
+	left: 50%;;
+	transform: translateX(-50%);
+}
+.top-center {
+	top: 50%;;
+	transform: translateY(-50%);
 }
 
 .flex {

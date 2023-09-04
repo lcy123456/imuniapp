@@ -4,39 +4,54 @@
         :id="`auchor${source.clientMsgID}`"
         class="message_item"
         :class="{ message_item_self: isSender }"
+        @click="handleMultiple"
     >
-        <MyAvatar
-            v-if="!(isSingle || isSender)"
-            size="80rpx"
-            :desc="source.senderNickname"
-            :src="source.senderFaceUrl"
-            shape="circle"
-            class="my_avatar"
-            @click="showInfo"
-        />
-        <view class="message_container">
-            <view 
-                v-if="!(isSingle || isSender)"
-                class="message_sender"
-            >
-                <text>{{ source.senderNickname }}</text>
-            </view>
-            <MessageContentWrap
-                :message="source"
-                @longpress.prevent.native="handleLongPress"
-            />
-            <MessageReadState
-                v-if="isSender && isSuccessMessage"
-                :message="source"
+        <view
+            v-show="isMultipleMsg"
+            class="check_wrap"
+            :class="{'check_wrap_active':isChecked}"
+        >
+            <u-icon
+                v-show="isChecked"
+                name="checkbox-mark"
+                size="12"
+                color="#fff"
             />
         </view>
-        <view class="message_send_state">
-            <u-loading-icon v-if="showSending" />
-            <image
-                v-if="isFailedMessage"
-                src="@/static/images/chating_message_failed.png"
-                @click="reSendMessage"
+        <view class="item_right">
+            <MyAvatar
+                v-if="!(isSingle || isSender)"
+                size="80rpx"
+                :desc="source.senderNickname"
+                :src="source.senderFaceUrl"
+                shape="circle"
+                class="my_avatar"
+                @click="showInfo"
             />
+            <view class="message_container">
+                <view 
+                    v-if="!(isSingle || isSender)"
+                    class="message_sender"
+                >
+                    <text>{{ source.senderNickname }}</text>
+                </view>
+                <MessageContentWrap
+                    :message="source"
+                    @longpress.prevent.native="handleLongPress"
+                />
+                <MessageReadState
+                    v-if="isSender && isSuccessMessage"
+                    :message="source"
+                />
+            </view>
+            <view class="message_send_state">
+                <u-loading-icon v-if="showSending" />
+                <image
+                    v-if="isFailedMessage"
+                    src="@/static/images/chating_message_failed.png"
+                    @click="reSendMessage"
+                />
+            </view>
         </view>
     </view>
 
@@ -59,7 +74,7 @@ import MyAvatar from '@/components/MyAvatar/index.vue';
 import ChatingList from '../ChatingList.vue';
 import MessageContentWrap from './MessageContentWrap.vue';
 import MessageReadState from './MessageReadState.vue';
-import { noticeMessageTypes, UpdateMessageTypes } from '@/constant';
+import { noticeMessageTypes, UpdateMessageTypes, MessageMenuTypes } from '@/constant';
 import { tipMessaggeFormat, offlinePushInfo } from '@/util/imCommon';
 
 
@@ -79,6 +94,14 @@ export default {
             default: false,
         },
         isShowMenuFlag: {
+            type: Boolean,
+            default: false,
+        },
+        isMultipleMsg: {
+            type: Boolean,
+            default: false,
+        },
+        isChecked: {
             type: Boolean,
             default: false,
         },
@@ -228,16 +251,16 @@ export default {
             setTimeout(() => {
                 this.keyBoardFlag = false;
             }, 300);
-            this.getMegRect();
+            this.getMsgRect();
         },
         handleMenuPosition () {
             if (this.keyBoardFlag) {
                 setTimeout(() => {
-                    this.getMegRect();
+                    this.getMsgRect();
                 }, 300);
             }
         },
-        getMegRect () {
+        getMsgRect () {
             uni.createSelectorQuery()
                 .in(this)
                 .select('.message_content_wrap')
@@ -248,7 +271,15 @@ export default {
                     });
                 })
                 .exec();
-        }
+        },
+        handleMultiple () {
+            if (!this.isMultipleMsg) return;
+            uni.$emit('multiple_message', {
+                show: true,
+                message: this.source,
+                type: MessageMenuTypes.Checked
+            });
+        },
     },
 };
 </script>
@@ -258,58 +289,80 @@ export default {
     display: flex;
     padding: 16rpx 0;
 
-    .my_avatar {
-        margin-right: 24rpx;
-    }
-
-    .message_container {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        max-width: 80%;
-        position: relative;
-
-        .message_sender {
-            @include nomalEllipsis();
-            max-width: 480rpx;
-            font-size: 24rpx;
-            color: #666;
-            margin-bottom: 6rpx;
-        }
-    }
-
-    .message_send_state {
-        align-self: center;
+    .check_wrap {
+        flex: 0 0 46rpx;
+        height: 46rpx;
+        border: 2px solid #979797;
+        border-radius: 50%;
+        margin: 10rpx 30rpx 0 0;
         @include centerBox();
-        margin-left: 12rpx;
-        width: 48rpx;
-        height: 48rpx;
 
-        image {
-            width: 16px;
-            height: 16px;
+        &_active {
+            background-color: #1D6BED;
+            border: none;
         }
     }
 
-    &_self {
-        flex-direction: row-reverse;
-
+    .item_right {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        .my_avatar {
+            margin-right: 24rpx;
+        }
+    
         .message_container {
-            align-items: flex-end;
-
-            .message_content_wrap {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-                .bg_container {
-                    background-color: #c5e3ff !important;
-                }
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            max-width: 80%;
+            position: relative;
+    
+            .message_sender {
+                @include nomalEllipsis();
+                max-width: 480rpx;
+                font-size: 24rpx;
+                color: #666;
+                margin-bottom: 6rpx;
             }
         }
-
+    
         .message_send_state {
-            margin-left: 0rpx;
-            margin-right: 12rpx;
+            align-self: center;
+            @include centerBox();
+            margin-left: 12rpx;
+            width: 48rpx;
+            height: 48rpx;
+    
+            image {
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
+
+
+    &_self {
+        justify-content: space-between;
+        .item_right {
+            flex-direction: row-reverse;
+            .message_container {
+                align-items: flex-end;
+
+                .message_content_wrap {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    .bg_container {
+                        background-color: #c5e3ff !important;
+                    }
+                }
+            }
+
+            .message_send_state {
+                margin-left: 0rpx;
+                margin-right: 12rpx;
+            }
         }
     }
 }
@@ -323,18 +376,5 @@ export default {
     color: #999;
 }
 
-.fade-leave,
-.fade-enter-to {
-    opacity: 1;
-}
 
-.fade-leave-active,
-.fade-enter-active {
-    transition: all 0.5s;
-}
-
-.fade-leave-to,
-.fade-enter {
-    opacity: 0;
-}
 </style>

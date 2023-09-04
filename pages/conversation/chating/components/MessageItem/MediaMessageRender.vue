@@ -118,7 +118,6 @@ export default {
 <style lang="scss" scoped>
 	.media_message_container {
 		position: relative;
-		border-radius: 16rpx;
 		overflow: hidden;
 
 		.play_icon {

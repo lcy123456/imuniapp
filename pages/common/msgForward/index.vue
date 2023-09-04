@@ -73,8 +73,14 @@
                             {{ sendObjectArr[0].showName }}
                         </view>
                     </view>
-                    <view :class="['flex mt-10', isTextRender ? '' : 'justify-center']">
-                        <MessageContentWrap :message="message" />
+                    <view :class="['flex mt-10', (isTextRender && isMergeRender) ? '' : 'justify-center']">
+                        <view v-if="isMergeRender">
+                            [合并消息]{{ message.mergeElem.title }}
+                        </view>
+                        <MessageContentWrap
+                            v-else
+                            :message="message"
+                        />
                     </view>
                 </view>
             </u-modal>
@@ -94,7 +100,12 @@ import MyTabs from '@/components/MyTabs/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import MessageContentWrap from '../../conversation/chating/components/MessageItem/MessageContentWrap.vue';
 import { offlinePushInfo } from '@/util/imCommon';
-import { ContactChooseTypes, UpdateMessageTypes, textRenderTypes } from '@/constant';
+import { 
+    ContactChooseTypes, 
+    UpdateMessageTypes, 
+    TextRenderTypes,
+    MergeRenderTypes
+} from '@/constant';
 
 
 export default {
@@ -126,7 +137,10 @@ export default {
             });
         },
         isTextRender () {
-            return textRenderTypes.includes(this.message.contentType);
+            return TextRenderTypes.includes(this.message.contentType);
+        },
+        isMergeRender () {
+            return MergeRenderTypes.includes(this.message.contentType);
         },
     },
     onLoad (params) {
@@ -152,7 +166,12 @@ export default {
                 const isCurConversation = this.storeCurrentConversation.userID === sendObject.userID;
                 try {
                     this.$loading('转发中');
-                    const message = await IMSDK.asyncApi(IMMethods.CreateForwardMessage, IMSDK.uuid(), this.message);
+                    let message;
+                    if (this.isMergeRender) {
+                        message = this.message;
+                    } else {
+                        message = await IMSDK.asyncApi(IMMethods.CreateForwardMessage, IMSDK.uuid(), this.message);
+                    }
                     if (isCurConversation) {
                         this.pushNewMessage(message);
                     }
@@ -191,6 +210,7 @@ export default {
                 }
             }
             this.showModal = false;
+            uni.$emit('forward_finish');
             setTimeout(() => {
                 uni.navigateBack();
             }, 1000);

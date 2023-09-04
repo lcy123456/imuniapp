@@ -1,7 +1,7 @@
 <template>
     <view class="page_container">
         <view class="login">
-            <view class="navbar-height" />
+            <view class="navbar-height-all" />
             <view
                 class="box-logo"
                 @click="chooseDomain"
