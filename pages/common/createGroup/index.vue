@@ -9,7 +9,7 @@
             <MyAvatar
                 :is-group="true"
                 :src="groupFaceUrl"
-                size="44"
+                size="62"
                 @click="chooseImage"
             />
             <u--input
@@ -19,7 +19,7 @@
             />
         </view>
 
-        <view
+        <!-- <view
             class="member_row"
             @click="toChooseMember"
         >
@@ -34,7 +34,7 @@
                     class="member_item"
                 >
                     <MyAvatar
-                        :src="member.userID"
+                        :src="member.faceURL"
                         :desc="member.nickname"
                         size="42"
                     />
@@ -43,17 +43,17 @@
                     </text>
                 </view>
             </view>
-        </view>
+        </view> -->
 
         <view class="my-30">
             <u-button
                 :loading="createLoading"
-                :disabled="disabledCreate"
+                :disabled="disabledNext"
                 type="primary"
-                text="完成创建"
+                text="下一步"
                 shape="circle"
                 size="large"
-                @click="complateCreate"
+                @click="toChooseMember"
             />
         </view>
         <u-toast ref="uToast" />
@@ -86,34 +86,32 @@ export default {
         };
     },
     computed: {
-        disabledCreate () {
-            return !this.groupName || this.checkedMemberList.length === 0;
+        disabledNext () {
+            return !this.groupName;
         },
+        checkedIDList () {
+            return this.checkedMemberList.map(v => v.userID);
+        }
     },
     onLoad (options) {
         const { checkedMemberList } = options;
         this.checkedMemberList = checkedMemberList
             ? JSON.parse(checkedMemberList)
             : [];
+        console.log(this.checkedMemberList);
     },
     methods: {
         toChooseMember () {
-            const checkedIDList = this.checkedMemberList.map(
-                (member) => member.userID
-            );
-            uni.navigateTo({
-                url: `/pages/common/contactChoose/index?type=${
-                    ContactChooseTypes.GetList
-                }&checkedUserIDList=${JSON.stringify(checkedIDList)}`,
+            uni.$u.route('/pages/common/contactChoose/index', {
+                type: ContactChooseTypes.GetList,
+                checkUserIDList: JSON.stringify(this.checkedIDList)
             });
         },
         async complateCreate () {
             this.createLoading = true;
             const options = {
                 adminUserIDs: [],
-                memberUserIDs: this.checkedMemberList.map(
-                    (member) => member.userID
-                ),
+                memberUserIDs: this.checkedIDList,
                 groupInfo: {
                     groupType: GroupType.WorkingGroup,
                     groupName: this.groupName,
@@ -135,6 +133,7 @@ export default {
         },
         getCheckUsers (list) {
             this.checkedMemberList = [...list];
+            setTimeout(this.complateCreate, 500);
         },
         chooseImage () {
             uni.chooseImage({
@@ -190,14 +189,20 @@ export default {
     flex-direction: column;
 
     .group_base_info {
+        height: 176rpx;
         @include vCenterBox();
-        padding: 40rpx;
         background-color: $uni-bg-color;
-        margin: 10rpx 0 30rpx;
+        margin: 10rpx 0 120rpx;
+        padding: 0 44rpx;
         border-radius: 20rpx;
 
+        /deep/.u-avatar {
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
         .u-input {
-            margin-left: 48rpx;
+            margin-left: 56rpx;
         }
     }
 

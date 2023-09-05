@@ -19,7 +19,6 @@
                 v-model="keyword"
                 class="h-60"
                 placeholder="搜索好友"
-                focus
                 cancel-button="none"
             >
                 <view
@@ -155,16 +154,17 @@ export default {
         border-radius: 20rpx 20rpx 0 0;
         padding: 0 20rpx;
         @include vCenterBox();
-        .uni-searchbar {
-            flex: 1;
-            min-width: 200rpx;
-        }
         /deep/.u-avatar {
             border-radius: 30rpx;
             overflow: hidden;
         }
-        /deep/.uni-searchbar__box {
-            background-color: $uni-bg-color !important;
+        .uni-searchbar {
+            flex: 1;
+            min-width: 200rpx;
+            /deep/.uni-searchbar__box {
+                justify-content: flex-start;
+                background-color: $uni-bg-color !important;
+            }
         }
     }
     /deep/.u-index-list {

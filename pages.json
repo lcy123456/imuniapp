@@ -46,13 +46,6 @@
 			}
 		},
 		{
-			"path": "pages/conversation/singleSettings/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
-		},
-		{
 			"path": "pages/conversation/groupSettings/index",
 			"style": {
 				"navigationBarTitleText": "",
@@ -105,9 +98,6 @@
 		{
 			"path": "pages/common/contactChoose/index",
 			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false,
-				"disableScroll": true
 			}
 		},
 		{
