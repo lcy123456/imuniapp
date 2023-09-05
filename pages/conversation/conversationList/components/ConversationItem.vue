@@ -185,7 +185,10 @@ export default {
                     IMSDK.IMMethods.MarkConversationMessageAsRead,
                     IMSDK.uuid(),
                     item.conversationID
-                ).catch(() => uni.$u.toast('操作失败'));
+                ).catch((err) => {
+                    console.log(err, item.conversationID);
+                    uni.$u.toast('操作失败');
+                });
             } else if ((index === 0 && noUnRead) || (index === 1 && !noUnRead)) {
                 try {
                     await IMSDK.asyncApi(IMSDK.IMMethods.PinConversation, IMSDK.uuid(), {

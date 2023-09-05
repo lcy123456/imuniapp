@@ -158,7 +158,7 @@ export default {
             } catch (e) {
                 console.log(e);
             }
-            this.$nextTick(function () {
+            this.$nextTick(() => {
                 if (isLoadMore && lastMsgID) {
                     this.scrollToAnchor(`auchor${lastMsgID}`);
                 }
@@ -204,7 +204,8 @@ export default {
                     .boundingClientRect((res) => {
                         // let top = res.height - this.scrollViewHeight;
                         // if (top > 0) {
-                        this.scrollTop = res.height + Math.random();
+                        this.scrollTop = res.height + (Math.random() + 500);
+                        console.log(this.scrollTop);
                         if (isInit) {
                             this.$emit('initSuccess');
                         }

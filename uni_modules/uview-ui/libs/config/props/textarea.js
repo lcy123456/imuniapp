@@ -26,7 +26,7 @@ export default {
 		showConfirmBar: true,
 		selectionStart: -1,
 		selectionEnd: -1,
-		adjustPosition: false,
+		adjustPosition: true,
 		disableDefaultPadding: false,
 		holdKeyboard: false,
 		maxlength: 140,
