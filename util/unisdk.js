@@ -1,5 +1,5 @@
 
-// import fileSelect from "@/uni_modules/lemon-filePicker";
+import fileSelect from "@/uni_modules/lemon-filePicker";
 
 // 提示框
 export const showToast = ({title, duration = 2000, icon = "none", mask = true}) => {

@@ -18,7 +18,7 @@
         />
         <ErrorMessageRender v-else />
         <ChatQuote
-            v-if="getQuoteElem"
+            v-if="getQuoteElem && getQuoteElem.quoteMessage"
             :message="getQuoteElem.quoteMessage"
             show-detail
         />

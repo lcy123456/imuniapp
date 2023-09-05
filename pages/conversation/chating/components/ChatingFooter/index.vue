@@ -601,7 +601,7 @@ export default {
         height: 100rpx;
         @include vCenterBox();
         padding: 10rpx 20rpx;
-        border-bottom: 2rpx solid $uni-border-color-thinGrey;
+        border-bottom: 2rpx solid $uni-color-thinGrey;
         .icon_box {
             height: 100%;
             padding-right: 40rpx;

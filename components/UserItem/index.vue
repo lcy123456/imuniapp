@@ -126,7 +126,7 @@ export default {
 			width: 100%;
             height: 100%;
 			margin-left: 20rpx;
-            border-bottom: 2rpx solid $uni-border-color-grey;
+            border-bottom: 2rpx solid $uni-color-grey;
 			@include btwBox();
 
 			.user_name {

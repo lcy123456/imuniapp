@@ -250,7 +250,7 @@ export default {
         .name_box {
             height: 100%;
             @include vCenterBox();
-            border-bottom: 2rpx solid $uni-border-color-grey;
+            border-bottom: 2rpx solid $uni-color-thinGrey;
         }
     }
     /deep/.text_message_container {

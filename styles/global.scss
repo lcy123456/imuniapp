@@ -65,7 +65,7 @@ image {
 	border: 2rpx solid $uni-border-color;
 };
 .border-grey {
-	border: 2rpx solid $uni-border-color-grey;
+	border: 2rpx solid $uni-color-grey;
 };
 .border-inverse {
 	border: 2rpx solid $uni-border-color-inverse;
@@ -100,6 +100,9 @@ image {
 	}
 	.h-#{$i * 1} {
 		height: #{$i * 1}rpx;
+	}
+	.lh-#{$i * 1} {
+		line-height: #{$i * 1}rpx;
 	}
 	.m-#{$i * 1} {
 		margin: #{$i * 1}rpx;

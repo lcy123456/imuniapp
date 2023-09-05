@@ -9,9 +9,12 @@
             v-else-if="showDetail"
             class="flex"
         >
-            <text class="flex-shrink">
+            <view class="name_box">
                 {{ message.senderNickname }}：
-            </text>
+                <template v-if="!(showMediaRender || showFileRender)">
+                    {{ getQuoteText }}
+                </template>
+            </view>
             <MediaMessageRender
                 v-if="showMediaRender"
                 :message="message"
@@ -20,9 +23,6 @@
                 v-else-if="showFileRender"
                 :message="message"
             />
-            <view v-else>
-                {{ getQuoteText }}
-            </view>
         </view>
         <view v-else>
             {{ getQuoteText }}
@@ -56,6 +56,10 @@ export default {
         showDetail: {
             type: Boolean,
             default: false
+        },
+        originType: {
+            type: String,
+            default: ''
         }
     },
     data () {
@@ -85,6 +89,11 @@ export default {
                 return '[视频]';
             case MessageType.FileMessage:
                 return '[文件]';
+            case MessageType.MergeMessage:
+                if (this.originType === 'merge_record') {
+                    return '[聊天记录]';
+                }
+                return `[聊天记录]${this.message.mergeElem.title}`;
             case MessageType.RevokeMessage:
                 return '[引用内容已撤回]';
             default:
@@ -108,7 +117,7 @@ export default {
             @include ellipsisWithLine(1);
         }
     }
-    .file_name {
+    .name_box {
         @include ellipsisWithLine(2);
     }
 }

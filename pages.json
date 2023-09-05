@@ -216,6 +216,9 @@
 			}
 		},
 		{
+			"path": "pages/conversation/previewMerge/index"
+		},
+		{
 			"path": "pages/login/chooseDefaultAvatar/index",
 			"style": {
 				"navigationBarTitleText": "",

@@ -1,14 +1,38 @@
 <template>
-    <view class="merge_message_container bg_container">
+    <view
+        class="merge_message_container bg_container"
+        @click="clickMergeItem"
+    >
         <view class="ff-bold">
             {{ message.mergeElem.title }}
         </view>
-        <view>待开发...</view>
+        <view
+            v-for="v in multiMessage.slice(0, 3)"
+            :key="v.clientMsgID"
+            class="flex fz-28"
+        >
+            <text class="name_box">
+                {{ v.senderNickname }}：
+            </text>
+            <ChatQuote
+                :message="v"
+                origin-type="merge_record"
+            />
+        </view>
+        <view class="record_box">
+            聊天记录
+        </view>
     </view> 
 </template>
 
 <script>
+import ChatQuote from '@/components/ChatQuote';
+import { MessageType } from 'openim-uniapp-polyfill';
+
 export default {
+    components: {
+        ChatQuote,
+    },
 
     props: {
         message: {
@@ -21,13 +45,27 @@ export default {
             
         };
     },
+    computed: {
+        multiMessage () {
+            return this.message.mergeElem.multiMessage;
+        }
+    },
 
     mounted () {
-        
     },
 
     methods: {
-        
+        clickMergeItem () {
+            let temp = JSON.parse(JSON.stringify(this.message));
+            temp.mergeElem.multiMessage.forEach(v => {
+                if (v.contentType === MessageType.QuoteMessage) {
+                    v.quoteElem.quoteMessage = undefined;
+                }
+            });
+            uni.$u.route('/pages/conversation/previewMerge/index', {
+                message: encodeURIComponent(JSON.stringify(temp))
+            });
+        }
     },
 };
 </script>
@@ -36,6 +74,18 @@ export default {
 .merge_message_container {
     max-width: 100%;
     width: 100vw;
+
+    .name_box {
+        flex-shrink: 0;
+        max-width: 200rpx;
+        @include nomalEllipsis();
+    }
     
+    .record_box {
+        font-size: 24rpx;
+        margin: 10rpx 0 -10rpx 0;
+        padding-top: 10rpx;
+        border-top: 2rpx solid $uni-color-thinGrey;
+    }
 }
 </style>
