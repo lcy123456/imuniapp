@@ -1,5 +1,8 @@
 <template>
-    <view class="conversation_container">
+    <view
+        class="conversation_container"
+        @click="closeAllSwipe"
+    >
         <chat-header ref="chatHeaderRef" />
         <view class="px-20 pb-20 pt-10 bg-grey">
             <uni-search-bar

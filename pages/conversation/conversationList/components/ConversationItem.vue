@@ -3,7 +3,7 @@
         :index="source.conversationID"
         :name="source.conversationID"
         :options="getSwipeActions || []"
-        @click="clickConversationMenu($event, source)"
+        @click="clickConversationMenu"
         @touchmove.stop
     >
         <view
@@ -145,28 +145,35 @@ export default {
         getSwipeActions () {
             let actions = [
                 {
-                    text: `${this.source.isPinned ? '取消' : ''}置顶`,
+                    text: `${this.notAccept ? '打开' : '关闭'}通知`,
+                    icon: `/static/images/conversation_${this.notAccept ? 'accept' : 'not_accept_white' }.png`,
                     style: {
-                        backgroundColor: '#3c9cff',
-                    }
+                        backgroundColor: '#e39f4e',
+                    },
                 },
                 {
-                    text: '移除',
+                    text: `${this.source.isPinned ? '取消' : ''}置顶`,
+                    icon: `/static/images/conversation${this.source.isPinned ? '_not' : ''}_pinned.png`,
                     style: {
-                        backgroundColor: '#f9ae3d',
+                        backgroundColor: '#4ee36f',
+                    },
+                },
+                {
+                    text: '删除',
+                    icon: `/static/images/conversation_del.png`,
+                    style: {
+                        backgroundColor: '#ec4b37',
                     }
                 },
             ];
             if (this.source.unreadCount > 0) {
-                actions = [
-                    {
-                        text: '标记已读',
-                        style: {
-                            backgroundColor: '#f9ae3d',
-                        }
-                    },
-                    ...actions,
-                ];
+                actions.unshift({
+                    text: '标记已读',
+                    icon: `/static/images/conversation_read.png`,
+                    style: {
+                        backgroundColor: '#3478f5',
+                    }
+                });
             }
             return actions;
         },
@@ -176,45 +183,78 @@ export default {
             console.log(this.source);
             prepareConversationState(this.source);
         },
-        async clickConversationMenu ({ index }, item) {
+        async clickConversationMenu ({ index }) {
             this.$loading('加载中');
-            const noUnRead = this.getSwipeActions.length === 2;
+            const noUnRead = this.getSwipeActions.length === 3;
 
-            if (index === 0 && !noUnRead) {
-                await IMSDK.asyncApi(
-                    IMSDK.IMMethods.MarkConversationMessageAsRead,
-                    IMSDK.uuid(),
-                    item.conversationID
-                ).catch((err) => {
-                    console.log(err, item.conversationID);
-                    uni.$u.toast('操作失败');
-                });
-            } else if ((index === 0 && noUnRead) || (index === 1 && !noUnRead)) {
-                try {
-                    await IMSDK.asyncApi(IMSDK.IMMethods.PinConversation, IMSDK.uuid(), {
-                        conversationID: item.conversationID,
-                        isPinned: !item.isPinned,
-                    });
-                } catch {
-                    uni.$u.toast('置顶失败');
-                }
-            } else if (index === 2 || (noUnRead && index === 1)) {
-                await IMSDK.asyncApi(
-                    IMSDK.IMMethods.DeleteConversationAndDeleteAllMsg,
-                    IMSDK.uuid(),
-                    item.conversationID
-                )
-                    .then(() =>
-                        this.$store.dispatch(
-                            'conversation/delConversationByCID',
-                            item.conversationID
-                        )
-                    )
-                    .catch(() => uni.$u.toast('移除失败'));
+            let tempIndex = index;
+            if (noUnRead) tempIndex += 1;
+
+            switch (tempIndex) {
+            case 0:
+                await this.handleAsRead();
+                break;
+            case 1:
+                await this.handleAccept();
+                break;
+            case 2:
+                await this.handlePin();
+                break;
+            case 3:
+                await this.handleDel();
+                break;
             }
             this.$hideLoading();
             this.$emit('closeAllSwipe');
         },
+        async handleAsRead () {
+            try {
+                return await IMSDK.asyncApi(
+                    IMSDK.IMMethods.MarkConversationMessageAsRead,
+                    IMSDK.uuid(),
+                    this.source.conversationID
+                );
+            } catch (err) {
+                console.log(err, this.source.conversationID);
+                uni.$u.toast('已读失败');
+            }
+        },
+        async handleAccept () {
+            try {
+                return await IMSDK.asyncApi(IMSDK.IMMethods.SetConversationRecvMessageOpt, IMSDK.uuid(), {
+                    conversationID: this.source.conversationID,
+                    opt: this.notAccept ? MessageReceiveOptType.Nomal : MessageReceiveOptType.NotNotify,
+                });
+            } catch {
+                uni.$u.toast('通知失败');
+            }
+        },
+        async handleDel () {
+            try {
+                const res = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.DeleteConversationAndDeleteAllMsg,
+                    IMSDK.uuid(),
+                    this.source.conversationID
+                );
+                this.$store.dispatch(
+                    'conversation/delConversationByCID',
+                    this.source.conversationID
+                );
+                return res;
+            } catch {
+                uni.$u.toast('删除失败');
+            }
+        },
+        async handlePin () {
+            try {
+                return await IMSDK.asyncApi(IMSDK.IMMethods.PinConversation, IMSDK.uuid(), {
+                    conversationID: this.source.conversationID,
+                    isPinned: !this.source.isPinned,
+                });
+            } catch {
+                uni.$u.toast('置顶失败');
+            }
+        }
     },
 };
 </script>
@@ -290,6 +330,27 @@ export default {
         image {
             width: 20px;
             height: 20px;
+        }
+    }
+}
+/deep/.u-swipe-action-item__right__button {
+    width: 142rpx;
+    .u-swipe-action-item__right__button__wrapper {
+        width: 100%;
+        padding: 0 20rpx !important;
+        flex-direction: column !important;
+        justify-content: space-evenly;
+        .u-icon {
+            width: 50rpx;
+            height: 50rpx;
+            .u-icon__img {
+                width: 100% !important;
+                height: 100% !important;
+            }
+        }
+        .u-swipe-action-item__right__button__wrapper__text {
+            font-size: 26rpx !important;
+            max-width: initial;
         }
     }
 }

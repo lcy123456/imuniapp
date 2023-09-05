@@ -7,7 +7,7 @@ MyPlugin.install = (Vue) => {
     Vue.prototype.$showToast = showToast;
     Vue.prototype.$toast = (title, duration) => showToast({title, duration});
     Vue.prototype.$showLoading = showLoading;
-    Vue.prototype.$loading = (title, duration) => showLoading({title, duration});
+    Vue.prototype.$loading = title => showLoading({title});
     Vue.prototype.$hideLoading = uni.hideLoading;
 };
 
