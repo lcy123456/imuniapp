@@ -106,6 +106,7 @@ export default {
 
     .bg_container {
         padding: 20rpx;
+        border-radius: 16rpx;
         background-color: $uni-bg-color;
     }
 }

@@ -318,6 +318,11 @@ export default {
             max-width: 80%;
             position: relative;
     
+            .message_content_wrap {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
             .message_sender {
                 @include nomalEllipsis();
                 max-width: 480rpx;
@@ -350,8 +355,6 @@ export default {
                 align-items: flex-end;
 
                 .message_content_wrap {
-                    display: flex;
-                    flex-direction: column;
                     align-items: flex-end;
                     .bg_container {
                         background-color: #c5e3ff !important;

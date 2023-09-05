@@ -2,14 +2,12 @@
     <view class="conversation_container">
         <chat-header ref="chatHeaderRef" />
         <view class="px-20 pb-20 pt-10 bg-grey">
-            <u-search
+            <uni-search-bar
                 v-model="keyword"
-                :show-action="false"
-                shape="square"
-                input-align="center"
                 bg-color="#fff"
-                height="70rpx"
+                class="h-70"
                 placeholder="搜索"
+                readonly
             />
         </view>
         <!-- v-if="!storeIsSyncing" -->

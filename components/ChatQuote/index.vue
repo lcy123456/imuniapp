@@ -117,6 +117,7 @@ export default {
     padding: 16rpx;
     margin-top: 10rpx;
     background-color: $uni-bg-color-grey;
+    border-radius: 16rpx;
     /deep/.text_message_container > view {
         @include ellipsisWithLine(2);
     }
