@@ -262,7 +262,7 @@ export default {
                     message: data,
                     isSuccess: true,
                 });
-                uni.$emit(PageEvents.ScrollToBottom, {});
+                uni.$emit(PageEvents.ScrollToBottom);
             } catch ({ data, errCode }) {
                 this.updateOneMessage({
                     message: data,
@@ -305,7 +305,14 @@ export default {
             this.customEditorCtx.clear();
         },
         editorFocus () {
-            uni.$emit(PageEvents.ScrollToBottom, {});
+            // #ifdef APP-IOS
+            setTimeout(() => {
+                uni.$emit(PageEvents.ScrollToBottom);
+            }, 500);
+            // #endif
+            // #ifndef APP-IOS
+            uni.$emit(PageEvents.ScrollToBottom);
+            // #endif
             this.isInputFocus = true;
         },
         editorBlur () {

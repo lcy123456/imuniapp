@@ -174,7 +174,7 @@ export default {
                 this.scrollIntoView = auchor;
             });
         },
-        async scrollToBottom ({isInit = false, isRecv = false}) {
+        async scrollToBottom ({isInit = false, isRecv = false} = {}) {
             await this.$nextTick();
             setTimeout(() => {
 

@@ -60,7 +60,7 @@ export default {
     computed: {
         ...mapGetters(['storeCurrentMemberInGroup', 'storeCurrentUserID']),
         isSender () {
-            return this.paterRect.left > 50;
+            return this.paterRect.right > uni.getWindowInfo().windowWidth - 30;
         },
         getLeft () {
             const { left, right } = this.paterRect;
