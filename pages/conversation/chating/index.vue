@@ -20,7 +20,6 @@
             :is-multiple-msg="isMultipleMsg"
             :footer-outside-flag="footerOutsideFlag"
             :checked-msg-ids="checkedMsgIds"
-            @scrollToBottom="scrollToBottom"
         />
         <u-loading-page :loading="initLoading" />
     </view>
@@ -88,10 +87,6 @@ export default {
     methods: {
         ...mapActions('message', ['resetMessageState', 'deleteMessages']),
         ...mapActions('conversation', ['resetConversationState']),
-        scrollToBottom (isRecv = false) {
-            // this.$refs.chatingListRef.scrollToAnchor(`auchor${clientMsgID}`, isRecv);
-            this.$refs.chatingListRef.scrollToBottom(false, isRecv);
-        },
         async pageClick () {
             const res = await getEl.call(this, '.message_menu_container');
             if (res) {

@@ -1,4 +1,4 @@
-import IMSDK, { MessageStatus, MessageType } from 'openim-uniapp-polyfill';
+import IMSDK from 'openim-uniapp-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateMessageTypes } from '@/constant';
 
@@ -18,7 +18,6 @@ const mutations = {
 
 const actions = {
     async getHistoryMesageList ({ commit, state }, params) {
-        let emptyFlag = true;
         let lastMinSeq = 0;
         try {
             const { data } = await IMSDK.asyncApi(
@@ -29,7 +28,6 @@ const actions = {
             console.log(data);
             const isFistPage = !params.startClientMsgID && !params.lastMinSeq;
             const messages = data.messageList ?? [];
-            emptyFlag = messages.length === 0;
             lastMinSeq = data.lastMinSeq;
             commit('SET_HISTORY_MESSAGE_LIST', [
                 ...messages,
@@ -37,13 +35,12 @@ const actions = {
             ]);
             commit(
                 'SET_HAS_MORE_MESSAGE',
-                !data.isEnd && messages.length === 20
+                !data.isEnd && messages.length === params.count
             );
         } catch (e) {
             commit('SET_HISTORY_MESSAGE_LIST', []);
         }
         return {
-            emptyFlag,
             lastMinSeq,
         };
     },

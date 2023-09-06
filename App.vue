@@ -483,7 +483,7 @@ export default {
                 ) {
                     newServerMsg.isAppend = true;
                     this.pushNewMessage(newServerMsg);
-                    setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, true));
+                    setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
                     uni.$u.debounce(this.markConversationAsRead, 2000);
                 }
             }

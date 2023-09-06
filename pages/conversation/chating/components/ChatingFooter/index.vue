@@ -111,7 +111,8 @@ import {
     UpdateMessageTypes,
     ImageType,
     VideoType,
-    MessageMenuTypes
+    MessageMenuTypes,
+    PageEvents
 } from '@/constant';
 import IMSDK, {
     IMMethods,
@@ -249,7 +250,6 @@ export default {
             if (needClearTypes.includes(message.contentType)) {
                 this.customEditorCtx.clear();
             }
-            this.$emit('scrollToBottom');
             try {
                 const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                     recvID: this.storeCurrentConversation.userID,
@@ -262,6 +262,7 @@ export default {
                     message: data,
                     isSuccess: true,
                 });
+                uni.$emit(PageEvents.ScrollToBottom, {});
             } catch ({ data, errCode }) {
                 this.updateOneMessage({
                     message: data,
@@ -304,8 +305,8 @@ export default {
             this.customEditorCtx.clear();
         },
         editorFocus () {
+            uni.$emit(PageEvents.ScrollToBottom, {});
             this.isInputFocus = true;
-            this.$emit('scrollToBottom');
         },
         editorBlur () {
             this.isInputFocus = false;

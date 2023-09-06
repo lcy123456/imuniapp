@@ -9,6 +9,7 @@
         @touchstart="handleTouchstart"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
+        @scrolltolower="isRecvToBottom = true"
     >
         <view id="scroll_wrap">
             <u-loadmore
@@ -26,9 +27,9 @@
                     :is-show-menu-flag="isShowMenuFlag"
                     :is-multiple-msg="isMultipleMsg"
                     :is-checked="checkedMsgIds.includes(item.clientMsgID)"
-                    @messageItemRender="messageItemRender"
                     @menuRect="menuRect"
                 />
+                <!-- @messageItemRender="messageItemRender" -->
             </view>
             <view
                 id="auchormessage_bottom_item"
@@ -52,6 +53,7 @@
 import { mapGetters, mapActions } from 'vuex';
 import MessageItemRender from './MessageItem/index.vue';
 import MessageMenu from './MessageMenu.vue';
+import { PageEvents } from "@/constant";
 
 export default {
     name: 'ChatingList',
@@ -76,15 +78,10 @@ export default {
     data () {
         return {
             scrollIntoView: '',
-            scrollWithAnimation: false,
             scrollTop: 0,
-            // old: {
-            // 	scrollTop: 0
-            // },
-            initFlag: true,
-            isOverflow: false,
-            needScoll: true,
-            withAnimation: false,
+            withAnimation: true,
+            isRecvToBottom: true,
+            hasNewMessage: false,
             messageLoadState: {
                 lastMinSeq: 0,
                 loading: false,
@@ -119,23 +116,15 @@ export default {
             }
         },
     },
-    mounted () {
+    created () {
+        uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
         this.loadMessageList();
+    },
+    beforeDestroy () {
+        uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
     },
     methods: {
         ...mapActions('message', ['getHistoryMesageList']),
-        messageItemRender (clientMsgID) {
-            if (
-                this.initFlag &&
-                clientMsgID ===
-                    this.storeHistoryMessageList[
-                        this.storeHistoryMessageList.length - 1
-                    ].clientMsgID
-            ) {
-                this.initFlag = false;
-                setTimeout(() => this.scrollToBottom(true), 200);
-            }
-        },
         async loadMessageList (isLoadMore = false) {
             this.messageLoadState.loading = true;
             const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
@@ -144,42 +133,35 @@ export default {
                 userID: '',
                 groupID: '',
                 count: 20,
-                startClientMsgID:
-                    this.storeHistoryMessageList[0]?.clientMsgID ?? '',
+                startClientMsgID: this.storeHistoryMessageList[0]?.clientMsgID ?? '',
                 lastMinSeq: this.messageLoadState.lastMinSeq,
             };
             try {
-                const { emptyFlag, lastMinSeq } =
-                    await this.getHistoryMesageList(options);
+                const { lastMinSeq } = await this.getHistoryMesageList(options);
                 this.messageLoadState.lastMinSeq = lastMinSeq;
-                if (emptyFlag) {
-                    this.$emit('initSuccess');
+                if (isLoadMore) {
+                    lastMsgID && this.scrollToAnchor(`auchor${lastMsgID}`);
+                } else {
+                    this.scrollToBottom({ isInit: true });
                 }
+                this.messageLoadState.loading = false;
             } catch (e) {
                 console.log(e);
             }
-            this.$nextTick(() => {
-                if (isLoadMore && lastMsgID) {
-                    this.scrollToAnchor(`auchor${lastMsgID}`);
-                }
-                this.messageLoadState.loading = false;
-            });
         },
         handleTouchstart () {
             this.isShowMenuFlag = true;
             this.$emit('touchstart');
         },
         onScroll (event) {
-            const { scrollHeight, scrollTop } = event.target;
-            this.needScoll =
-                scrollHeight - scrollTop <
-                uni.getWindowInfo().windowHeight * 1.2;
+            const { scrollTop, scrollHeight } = event.target;
+            this.isRecvToBottom = scrollHeight - scrollTop - uni.getWindowInfo().windowHeight < 80;
+            this.isShowMenuFlag = false;
             if (this.menuState.visible) {
                 this.menuState.visible = false;
             }
         },
         throttleScroll (event) {
-            this.isShowMenuFlag = false;
             uni.$u.throttle(() => this.onScroll(event), 200);
         },
         scrolltoupper () {
@@ -187,37 +169,32 @@ export default {
                 this.loadMessageList(true);
             }
         },
-        scrollToBottom (isInit = false, isRecv = false) {
-            if (isRecv && !this.needScoll) {
-                return;
-            }
-
-            if (!isInit) {
-                this.withAnimation = true;
-                setTimeout(() => (this.withAnimation = false), 100);
-            }
-
-            this.$nextTick(() => {
-                uni.createSelectorQuery()
-                    .in(this)
-                    .select('#scroll_wrap')
-                    .boundingClientRect((res) => {
-                        // let top = res.height - this.scrollViewHeight;
-                        // if (top > 0) {
-                        this.scrollTop = res.height + (Math.random() + 500);
-                        console.log(this.scrollTop);
-                        if (isInit) {
-                            this.$emit('initSuccess');
-                        }
-                        // }
-                    })
-                    .exec();
-            });
-        },
         scrollToAnchor (auchor) {
             this.$nextTick(function () {
                 this.scrollIntoView = auchor;
             });
+        },
+        async scrollToBottom ({isInit = false, isRecv = false}) {
+            await this.$nextTick();
+            setTimeout(() => {
+
+                if (isInit) {
+                    this.withAnimation = false;
+                    setTimeout(() => (this.withAnimation = true), 500);
+                } else if (isRecv && !this.isRecvToBottom) {
+                    this.hasNewMessage = true;
+                    return;
+                }
+                
+                uni.createSelectorQuery()
+                    .in(this)
+                    .select('#scroll_wrap')
+                    .boundingClientRect((res) => {
+                        this.scrollTop = res.height + Math.random();
+                        isInit && this.$emit('initSuccess');
+                    })
+                    .exec();
+            }, 100);
         },
         menuRect (res) {
             // console.log('menuRect', res);

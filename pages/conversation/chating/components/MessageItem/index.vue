@@ -145,7 +145,7 @@ export default {
         uni.$off('keyboardChange', this.handleMenuPosition);
     },
     mounted () {
-        this.$emit('messageItemRender', this.source.clientMsgID);
+        // this.$emit('messageItemRender', this.source.clientMsgID);
         this.isReadObserver();
         this.setSendingDelay();
         this.conversationID =
