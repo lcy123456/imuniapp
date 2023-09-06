@@ -182,11 +182,13 @@ export default {
 				if (newValue === null) {
 					return;
 				}
+                const dom = this.$el.querySelector('.ql-editor');
 				if (newValue) {
-					this.$el.querySelector('.ql-editor').setAttribute('inputmode', 'none')
+					dom.setAttribute('inputmode', 'none')
 					ownerVm.callMethod('internalInsertImage')
 				} else {
-					this.$el.querySelector('.ql-editor').removeAttribute('inputmode')
+                    dom.blur();
+					dom.removeAttribute('inputmode')
 				}
 			},
 		},

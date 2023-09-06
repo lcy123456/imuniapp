@@ -27,13 +27,11 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
-import ChatingHeader from "./components/ChatingHeader.vue";
-import ChatingFooter from "./components/ChatingFooter/index.vue";
-import ChatingList from "./components/ChatingList.vue";
-import {
-    markConversationAsRead,
-} from "@/util/imCommon";
+import { mapActions, mapGetters } from 'vuex';
+import ChatingHeader from './components/ChatingHeader.vue';
+import ChatingFooter from './components/ChatingFooter/index.vue';
+import ChatingList from './components/ChatingList.vue';
+import { markConversationAsRead } from '@/util/imCommon';
 import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, { IMMethods } from 'openim-uniapp-polyfill';
@@ -42,7 +40,7 @@ export default {
     components: {
         ChatingHeader,
         ChatingFooter,
-        ChatingList
+        ChatingList,
     },
     data () {
         return {
@@ -52,18 +50,20 @@ export default {
             initLoading: true,
             back2Tab: false,
             isMultipleMsg: false,
-            checkedMsgIds: []
+            checkedMsgIds: [],
         };
     },
     computed: {
         ...mapGetters([
-            'storeCurrentConversation', 
+            'storeCurrentConversation',
             'storeSelfInfo',
             'storeHistoryMessageList',
         ]),
         checkedMsg () {
-            return this.storeHistoryMessageList.filter(v => this.checkedMsgIds.includes(v.clientMsgID));
-        }
+            return this.storeHistoryMessageList.filter((v) =>
+                this.checkedMsgIds.includes(v.clientMsgID)
+            );
+        },
     },
     onLoad (options) {
         if (options?.back2Tab) {
@@ -73,7 +73,7 @@ export default {
         uni.$on('forward_finish', this.hideMultipleMsg);
     },
     onUnload () {
-        console.log("unload");
+        console.log('unload');
         markConversationAsRead(
             {
                 ...this.$store.getters.storeCurrentConversation,
@@ -86,8 +86,8 @@ export default {
         uni.$off('forward_finish', this.hideMultipleMsg);
     },
     methods: {
-        ...mapActions("message", ["resetMessageState", "deleteMessages"]),
-        ...mapActions("conversation", ["resetConversationState"]),
+        ...mapActions('message', ['resetMessageState', 'deleteMessages']),
+        ...mapActions('conversation', ['resetConversationState']),
         scrollToBottom (isRecv = false) {
             // this.$refs.chatingListRef.scrollToAnchor(`auchor${clientMsgID}`, isRecv);
             this.$refs.chatingListRef.scrollToBottom(false, isRecv);
@@ -113,7 +113,7 @@ export default {
             });
         },
         initSuccess () {
-            console.log("initSuccess");
+            console.log('initSuccess');
             this.initLoading = false;
         },
         async handleMultipleMessage ({ show, message, type = '' }) {
@@ -125,7 +125,9 @@ export default {
                 this.checkedMsgIds = [message.clientMsgID];
                 break;
             case MessageMenuTypes.Checked:
-                const index = this.checkedMsgIds.indexOf(message.clientMsgID);
+                const index = this.checkedMsgIds.indexOf(
+                    message.clientMsgID
+                );
                 if (index > -1) {
                     this.checkedMsgIds.splice(index, 1);
                 } else {
@@ -147,7 +149,7 @@ export default {
                     {
                         messageList: this.checkedMsg,
                         title: `${this.storeSelfInfo.nickname}与${this.storeCurrentConversation.showName}的聊天记录`,
-                        summaryList: []
+                        summaryList: [],
                     }
                 );
                 this.handleForward(res);
@@ -160,10 +162,15 @@ export default {
                 for (let i = 0; i < msgArr.length; i++) {
                     console.log(msgArr[i]);
                     const message = msgArr[i];
-                    await IMSDK.asyncApi(IMMethods.DeleteMessage, IMSDK.uuid(), {
-                        conversationID: this.storeCurrentConversation.conversationID,
-                        clientMsgID: message.clientMsgID,
-                    });
+                    await IMSDK.asyncApi(
+                        IMMethods.DeleteMessage,
+                        IMSDK.uuid(),
+                        {
+                            conversationID:
+                                this.storeCurrentConversation.conversationID,
+                            clientMsgID: message.clientMsgID,
+                        }
+                    );
                     this.deleteMessages([message]);
                 }
                 uni.$u.toast('删除成功');
@@ -175,17 +182,17 @@ export default {
         async handleForward (msg) {
             console.log(msg);
             uni.$u.route('/pages/common/msgForward/index', {
-                message: encodeURIComponent(JSON.stringify(msg))
+                message: encodeURIComponent(JSON.stringify(msg)),
             });
         },
         hideMultipleMsg () {
             this.isMultipleMsg = false;
-        }
+        },
     },
     onBackPress () {
         if (this.back2Tab) {
             uni.switchTab({
-                url: '/pages/conversation/conversationList/index'
+                url: '/pages/conversation/conversationList/index',
             });
             return true;
         }
@@ -197,28 +204,28 @@ export default {
 
 <style lang="scss" scoped>
 .chating_container {
-  @include colBox(false);
-  height: 100vh;
-  overflow: hidden;
-  background: url('/static/images/chat-bg.png') no-repeat;
-  background-size: cover;
+    @include colBox(false);
+    height: 100%;
+    overflow: hidden;
+    background: url('/static/images/chat-bg.png') no-repeat;
+    background-size: cover;
 
-  .mutiple_action_container {
-    display: flex;
-    border-top: 1px solid #eaeaea;
+    .mutiple_action_container {
+        display: flex;
+        border-top: 1px solid #eaeaea;
 
-    .action_item {
-      @include centerBox();
-      flex-direction: column;
-      flex: 1;
-      padding: 48rpx 0;
-      font-size: 24rpx;
-      color: #898989;
+        .action_item {
+            @include centerBox();
+            flex-direction: column;
+            flex: 1;
+            padding: 48rpx 0;
+            font-size: 24rpx;
+            color: #898989;
 
-      .u-icon {
-        margin-bottom: 6rpx;
-      }
+            .u-icon {
+                margin-bottom: 6rpx;
+            }
+        }
     }
-  }
 }
 </style>

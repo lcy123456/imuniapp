@@ -109,7 +109,6 @@ import { offlinePushInfo } from '@/util/imCommon';
 import {
     ChatingFooterActionTypes,
     UpdateMessageTypes,
-    GroupMemberListTypes,
     ImageType,
     VideoType,
     MessageMenuTypes
