@@ -36,6 +36,7 @@
             :group-i-d="currentGroup.groupID"
             :member-count="currentGroup.memberCount"
             :list="groupMemberList"
+            @admin="handleAdmin"
             @kick="handleKick"
         />
         <view class="mt-30">
@@ -188,6 +189,20 @@ export default {
                 this.$toast(checkLoginError(err));
             }
         },
+        async handleAdmin (v) {
+            try {
+                await IMSDK.asyncApi(IMSDK.IMMethods.SetGroupMemberRoleLevel, IMSDK.uuid(), {
+                    groupID: this.currentGroup.groupID,
+                    userID: v.userID,
+                    roleLevel: GroupMemberRole.Admin === v.roleLevel ? GroupMemberRole.Nomal : GroupMemberRole.Admin
+                });
+                this.$toast('操作成功');
+                this.getGroupMemberList();
+                this.getCurrentGroup(this.currentGroup.groupID);
+            } catch (err) {
+                this.$toast(checkLoginError(err));
+            }
+        },
         handleKick (member) {
             this.kickModal.member = member;
             this.kickModal.show = true;
@@ -244,7 +259,7 @@ export default {
 
 <style lang="scss" scoped>
 .group_settings_container {
-    height: 100vh;
+    height: 100%;
     background-color: $uni-bg-color-grey;
     padding: 0 40rpx 40rpx;
     display: flex;

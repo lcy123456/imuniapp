@@ -313,17 +313,17 @@ export default {
         },
         editorInput (e) {
             const newText = html2Text(e.detail.html);
-            if (
-                this.$store.getters.storeCurrentConversation.groupID &&
-                this.oldText.length < newText.length &&
-                newText.endsWith('@')
-            ) {
-                uni.$u.route('/pages/conversation/groupMemberList/index', {
-                    type: GroupMemberListTypes.ChooseAt,
-                    groupID:
-                        this.$store.getters.storeCurrentConversation.groupID,
-                });
-            }
+            // if (
+            //     this.$store.getters.storeCurrentConversation.groupID &&
+            //     this.oldText.length < newText.length &&
+            //     newText.endsWith('@')
+            // ) {
+            //     uni.$u.route('/pages/conversation/groupMemberList/index', {
+            //         type: GroupMemberListTypes.ChooseAt,
+            //         groupID:
+            //             this.$store.getters.storeCurrentConversation.groupID,
+            //     });
+            // }
             this.inputHtml = e.detail.html;
             this.oldText = newText;
         },

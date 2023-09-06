@@ -523,8 +523,4 @@ export default {
 @import "@/styles/global.scss";
 @import "@/styles/pages.scss";
 
-uni-page-body {
-  height: 100%;
-  overflow: hidden;
-}
 </style>

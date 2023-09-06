@@ -9,7 +9,7 @@
                     src="/static/images/contact_add_search_user.png"
                     class="w-44 h-44"
                 />
-                <text class="ml-20 primary ">
+                <text class="ml-20 primary">
                     邀请新成员
                 </text>
             </view>
@@ -17,78 +17,69 @@
                 {{ `${memberCount}位成员` }}
             </text>
         </view>
-        <u-swipe-action class="member_list">
-            <template v-for="member in list">
-                <u-swipe-action-item
-                    v-if="getSwipOptions(member)"
-                    :key="member.userID" 
-                    :options="getSwipOptions(member)"
-                    @click="swipeClick(member)"
-                >
-                    <UserItem
-                        :item="member"
-                        @itemClick="userClick"
-                    />
-                </u-swipe-action-item>
+        <u-swipe-action
+            ref="swipeActionRef"
+            class="member_list"
+        >
+            <!-- v-if="getSwipOptions(v)" -->
+            <u-swipe-action-item
+                v-for="v in list"
+                :key="v.userID"
+                :options="getSwipOptions(v)"
+                :disabled="getDisabled(v)"
+                @click="swipeClick($event, v)"
+            >
                 <UserItem
-                    v-else
-                    :key="member.userID"
-                    :item="member"
+                    :item="v"
+                    light-self
                     @itemClick="userClick"
                 />
-            </template>
+            </u-swipe-action-item>
         </u-swipe-action>
     </view>
 </template>
 
 <script>
-import { ContactChooseTypes } from "@/constant";
-import UserItem from "@/components/UserItem/index.vue";
+import { mapGetters } from 'vuex';
+import { ContactChooseTypes } from '@/constant';
+import UserItem from '@/components/UserItem/index.vue';
 import { GroupMemberRole } from 'openim-uniapp-polyfill';
 
 export default {
-    name: "",
+    name: '',
     components: {
-        UserItem
+        UserItem,
     },
     props: {
         list: {
             type: Array,
-            default: () => []
+            default: () => [],
         },
         isOwner: {
             type: Boolean,
-            default: false
+            default: false,
         },
         isAdmin: {
             type: Boolean,
-            default: false
+            default: false,
         },
         memberCount: {
             type: Number,
-            default: 0
+            default: 0,
         },
         groupID: {
             type: String,
-            default: ''
+            default: '',
         },
     },
     data () {
-        return {
-            swipeOptions: [
-                {
-                    text: '删除',
-                    style: {
-                        backgroundColor: '#ec4b37',
-                    },
-                },
-            ],
-        };
+        return {};
     },
     computed: {
+        ...mapGetters(['storeCurrentUserID']),
         isNormal () {
             return !this.isOwner && !this.isAdmin;
-        }
+        },
     },
     methods: {
         // toMemberList () {
@@ -106,21 +97,60 @@ export default {
                 url: `/pages/common/contactChoose/index?type=${ContactChooseTypes.Invite}&groupID=${this.groupID}`,
             });
         },
-        getSwipOptions (member) {
-            if (this.isOwner && [GroupMemberRole.Owner].includes(member.roleLevel)) {
-                return false;
-            } else if (this.isAdmin && [GroupMemberRole.Owner, GroupMemberRole.Admin].includes(member.roleLevel)) {
-                return false;
+        getDisabled (v) {
+            if (v.roleLevel === GroupMemberRole.Owner) {
+                return true;
+            } else if (GroupMemberRole.Admin === v.roleLevel && this.isAdmin) {
+                return true;
             } else if (this.isNormal) {
-                return false;
+                return true;
             }
-            return this.swipeOptions;
+            return false;
         },
-        swipeClick (member) {
-            this.$emit('kick', member);
+        getSwipOptions (v) {
+            const swipeOptions = [
+                {
+                    text: '设置管理员',
+                    style: {
+                        backgroundColor: '#37abec',
+                    },
+                },
+                {
+                    text: '删除',
+                    style: {
+                        backgroundColor: '#ec4b37',
+                    },
+                },
+            ];
+            if (this.isOwner) {
+                swipeOptions[0].text = `${
+                    GroupMemberRole.Admin === v.roleLevel ? '取消' : '设置'
+                }管理员`;
+            } else if (this.isAdmin) {
+                swipeOptions.shift();
+            }
+            return swipeOptions;
+        },
+        swipeClick ({ index }, v) {
+            let temp = index;
+            if (!this.isOwner) temp += 1;
+            switch (temp) {
+            case 0:
+                this.$emit('admin', v);
+                break;
+            case 1:
+                this.$emit('kick', v);
+                break;
+            }
+            
+            this.$refs.swipeActionRef.closeAll();
         },
         userClick (member) {
-            uni.$u.route("/pages/common/userCard/index", {
+            let url = '/pages/common/userCard/index';
+            if (this.storeCurrentUserID === member.userID) {
+                url = '/pages/profile/selfInfo/index';
+            }
+            uni.$u.route(url, {
                 sourceID: member.userID,
             });
         },
@@ -130,23 +160,23 @@ export default {
 
 <style lang="scss" scoped>
 .member_row {
-  @include colBox(false);
-  background-color: $uni-bg-color;
-  border-radius: 30rpx;
-  flex: 1;
-  overflow: hidden;
+    @include colBox(false);
+    background-color: $uni-bg-color;
+    border-radius: 30rpx;
+    // flex: 1;
+    overflow: hidden;
 
-  .member_title {
-    @include btwBox();
-    padding: 30rpx 20rpx;
+    .member_title {
+        @include btwBox();
+        padding: 30rpx 20rpx;
 
-    .member_desc {
-      @include vCenterBox();
+        .member_desc {
+            @include vCenterBox();
+        }
     }
-  }
-  .member_list {
-    flex: 1;
-    overflow-y: auto;
-  }
+    .member_list {
+        flex: 1;
+        overflow-y: auto;
+    }
 }
 </style>

@@ -23,7 +23,7 @@
             size="78rpx"
         />
         <view class="user_item_details">
-            <text class="user_name">
+            <text :class="['user_name', (lightSelf && storeCurrentUserID === item.userID) && 'self_name']">
                 {{ item.remark||item.nickname||item.groupName|| item.showName }}
             </text>
             <view>
@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { SessionType } from 'openim-uniapp-polyfill';
 
@@ -71,6 +72,10 @@ export default {
         item: {
             type: Object,
             default: () => ({})
+        },
+        lightSelf: {
+            type: Boolean,
+            default: false
         }
     },
     data () {
@@ -79,6 +84,7 @@ export default {
         };
     },
     computed: {
+        ...mapGetters(['storeCurrentUserID']),
         isGroupConversation () {
             return this.item.conversationType === SessionType.WorkingGroup;
         }
@@ -126,13 +132,16 @@ export default {
 			width: 100%;
             height: 100%;
 			margin-left: 20rpx;
-            border-bottom: 2rpx solid $uni-color-grey;
+            border-bottom: 2rpx solid $uni-color-thinGrey;
 			@include btwBox();
 
 			.user_name {
 				@include nomalEllipsis();
 				max-width: 60%;
 				color: $uni-text-color;
+                &.self_name {
+                    color: $uni-color-primary;
+                }
 			}
 
 			.user_role {
