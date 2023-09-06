@@ -29,7 +29,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { MessageMenuTypes } from '@/constant';
-import IMSDK, { MessageType } from 'openim-uniapp-polyfill';
+import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
 
 import { DecryptoAES } from '@/util/crypto';
 
@@ -128,9 +128,7 @@ export default {
         async menuClick ({ type }) {
             switch (type) {
             case MessageMenuTypes.Forward:
-                uni.$u.route('/pages/common/msgForward/index', {
-                    message: encodeURIComponent(JSON.stringify(this.message))
-                });
+                this.handleForward();
                 break;
             case MessageMenuTypes.Reply:
                 await this.handleQuote();
@@ -149,6 +147,16 @@ export default {
                 break;
             }
             this.$emit('close');
+        },
+        async handleForward () {
+            const message = await IMSDK.asyncApi(IMMethods.CreateForwardMessage, IMSDK.uuid(), this.message);
+            if (message.quoteElem) {
+                message.quoteElem.quoteMessage = undefined;
+            }
+            console.log('CreateForwardMessage', message);
+            uni.$u.route('/pages/common/msgForward/index', {
+                message: encodeURIComponent(JSON.stringify(message))
+            });
         },
         handleQuote () {
             uni.$emit('quote_message', this.message);

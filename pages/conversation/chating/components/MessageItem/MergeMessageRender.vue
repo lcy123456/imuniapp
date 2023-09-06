@@ -27,7 +27,6 @@
 
 <script>
 import ChatQuote from '@/components/ChatQuote';
-import { MessageType } from 'openim-uniapp-polyfill';
 
 export default {
     components: {
@@ -56,14 +55,8 @@ export default {
 
     methods: {
         clickMergeItem () {
-            let temp = JSON.parse(JSON.stringify(this.message));
-            temp.mergeElem.multiMessage.forEach(v => {
-                if (v.contentType === MessageType.QuoteMessage) {
-                    v.quoteElem.quoteMessage = undefined;
-                }
-            });
             uni.$u.route('/pages/conversation/previewMerge/index', {
-                message: encodeURIComponent(JSON.stringify(temp))
+                message: encodeURIComponent(JSON.stringify(this.message))
             });
         }
     },

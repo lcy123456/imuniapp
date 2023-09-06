@@ -166,16 +166,11 @@ export default {
                 const isCurConversation = this.storeCurrentConversation.userID === sendObject.userID;
                 try {
                     this.$loading('转发中');
-                    let message;
-                    if (this.isMergeRender) {
-                        message = this.message;
-                    } else {
-                        message = await IMSDK.asyncApi(IMMethods.CreateForwardMessage, IMSDK.uuid(), this.message);
-                    }
+                    const message = this.message;
+                    
                     if (isCurConversation) {
                         this.pushNewMessage(message);
                     }
-                
                     const res = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                         recvID: sendObject.userID,
                         groupID: sendObject.groupID,

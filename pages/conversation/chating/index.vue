@@ -33,7 +33,7 @@ import ChatingList from './components/ChatingList.vue';
 import { markConversationAsRead } from '@/util/imCommon';
 import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
-import IMSDK, { IMMethods } from 'openim-uniapp-polyfill';
+import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
 
 export default {
     components: {
@@ -175,9 +175,15 @@ export default {
             }
         },
         async handleForward (msg) {
-            console.log(msg);
+            let temp = JSON.parse(JSON.stringify(msg));
+            temp.mergeElem.multiMessage.forEach(v => {
+                if (v.contentType === MessageType.QuoteMessage) {
+                    v.quoteElem.quoteMessage = undefined;
+                }
+            });
+            console.log(temp);
             uni.$u.route('/pages/common/msgForward/index', {
-                message: encodeURIComponent(JSON.stringify(msg)),
+                message: encodeURIComponent(JSON.stringify(temp)),
             });
         },
         hideMultipleMsg () {
