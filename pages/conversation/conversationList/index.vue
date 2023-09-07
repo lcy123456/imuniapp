@@ -22,6 +22,8 @@
             :show-loading-more-no-more-view="false"
             :refresher-enabled="!storeIsSyncing"
             @query="queryList"
+            @refresherTouchmove="refresherTouchmove"
+            @refresherTouchend="refresherTouchend"
         >
             <u-swipe-action
                 ref="swipeWrapperRef"
@@ -31,6 +33,7 @@
                     v-for="item in showConversationList"
                     :key="item.conversationID"
                     :source="item"
+                    :is-disabled="isDisabledSwipe"
                     @closeAllSwipe="closeAllSwipe"
                 />
             </u-swipe-action>
@@ -59,6 +62,7 @@ export default {
         return {
             keyword: '',
             refreshing: false,
+            isDisabledSwipe: false
         };
     },
     computed: {
@@ -80,6 +84,14 @@ export default {
         }
     },
     methods: {
+        refresherTouchmove () {
+            this.isDisabledSwipe = true;
+        },
+        refresherTouchend () {
+            setTimeout(() => {
+                this.isDisabledSwipe = false;
+            }, 500);
+        },
         async queryList (pageNo) {
             const data = await this.$store.dispatch(
                 'conversation/getConversationList',

@@ -1,11 +1,11 @@
 <template>
     <u-swipe-action-item
-        :index="source.conversationID"
-        :name="source.conversationID"
         :options="getSwipeActions || []"
+        :disabled="isDisabled"
+        :threshold="50"
         @click="clickConversationMenu"
-        @touchmove.stop
     >
+        <!-- @touchmove.stop -->
         <view
             class="conversation_item"
             :class="{ 'bg-hover': source.isPinned }"
@@ -78,6 +78,10 @@ export default {
         source: {
             type: Object,
             default: () => {},
+        },
+        isDisabled: {
+            type: Boolean,
+            default: false,
         },
     },
     data () {
