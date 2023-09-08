@@ -80,3 +80,10 @@ export const CustomMarkType = {
 
 export const ImageType = ['jpg', 'jpeg', 'png', 'gif'];
 export const VideoType = ['mp4', 'avi', 'ogg', 'fiv'];
+
+export const RecordTypeMap = {
+    Contact: 'Contact',
+    Group: 'Group',
+    Record: 'Record',
+    Message: 'Message'
+};

@@ -32,6 +32,7 @@ export default {
             "storeRecvGroupApplications",
             "storeHistoryMessageList",
             "storeIsSyncing",
+            "storeIsProd",
         ]),
         contactBadgeRely () {
             return {
@@ -106,7 +107,9 @@ export default {
                         key: "BusinessToken",
                     });
                     // Igexin.unbindAlias(this.storeCurrentUserID)
-                    uni.$u.route("/pages/login/index");
+                    uni.reLaunch({
+                        url: "/pages/login/index"
+                    });
                 });
             };
             IMSDK.subscribe(IMSDK.IMEvents.OnConnectFailed, ({ errCode }) => {

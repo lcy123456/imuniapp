@@ -231,6 +231,12 @@
 		},
 		{
 			"path": "pages/common/msgForward/index"
+		},
+		{
+			"path": "pages/common/searchRecord/index"
+		},
+		{
+			"path": "pages/common/searchRecord/recordDetail/index"
 		}
 	],
 	"condition": { 

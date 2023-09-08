@@ -160,7 +160,9 @@ export default {
                 .catch((err) => console.log(err))
                 .finally(() => {
                     this.showComfirm = false;
-                    uni.$u.route('/pages/login/index');
+                    uni.reLaunch({
+                        url: '/pages/login/index'
+                    });
                 });
         },
         closeModal () {

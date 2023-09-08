@@ -64,19 +64,16 @@ image {
 .border-color {
 	border: 2rpx solid $uni-border-color;
 };
-.border-grey {
-	border: 2rpx solid $uni-color-grey;
-};
 .border-inverse {
 	border: 2rpx solid $uni-border-color-inverse;
 };
 
 /* 导航栏高度，含状态栏 */
 .navbar-height-all {
-	height: calc(#{$uni-navbar-height-all} + var(--status-bar-height));
+	height: calc(#{$uni-navbar-height} + var(--status-bar-height));
 }
 .navbar-height {
-	height: $uni-navbar-height-all;
+	height: $uni-navbar-height;
 }
 
 /* 状态栏高度 */
@@ -254,6 +251,9 @@ image {
 		height: 100% !important;
 		.uni-searchbar__box-icon-search {
 			padding: 0;
+		}
+		.uni-searchbar__box-search-input {
+			margin-left: 10rpx
 		}
 	}
 	.uni-searchbar__cancel {

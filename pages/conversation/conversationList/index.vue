@@ -4,7 +4,10 @@
         @click="closeAllSwipe"
     >
         <chat-header ref="chatHeaderRef" />
-        <view class="px-20 pb-20 pt-10 bg-grey">
+        <view
+            class="px-20 pb-20 pt-10 bg-grey"
+            @click="handleToSearch"
+        >
             <uni-search-bar
                 v-model="keyword"
                 bg-color="#fff"
@@ -84,6 +87,9 @@ export default {
         }
     },
     methods: {
+        handleToSearch () {
+            uni.$u.route('/pages/common/searchRecord/index');
+        },
         refresherTouchmove () {
             this.isDisabledSwipe = true;
         },

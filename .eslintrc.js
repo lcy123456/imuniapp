@@ -43,10 +43,10 @@ module.exports = {
         'key-spacing': [2, { 'beforeColon': false, 'afterColon': true }],
         'brace-style': [1, '1tbs'],
         'vue/no-parsing-error': [2, { 'x-invalid-end-tag': false }],
-        'vue/no-v-text-v-html-on-component': 'off',
+        'vue/no-v-text-v-html-on-component': 0,
         "vue/no-v-html": 'off',
         'no-async-promise-executor': 0,
-        "no-case-declarations": 0
+        "no-case-declarations": 0,
     },
 
     root: true,

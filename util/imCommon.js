@@ -516,7 +516,7 @@ export const markConversationAsRead = (conversation, fromChating = false) => {
     }
 };
 
-export const prepareConversationState = (conversation, back2Tab = false) => {
+export const prepareConversationState = (conversation, back2Tab = false, clientMsgID) => {
     markConversationAsRead(conversation);
 
     if (conversation.conversationType === SessionType.WorkingGroup) {
@@ -529,7 +529,7 @@ export const prepareConversationState = (conversation, back2Tab = false) => {
     store.dispatch("message/resetMessageState");
     store.commit("conversation/SET_CURRENT_CONVERSATION", conversation);
 
-    let url = `/pages/conversation/chating/index?back2Tab=${back2Tab}`;
+    let url = `/pages/conversation/chating/index?back2Tab=${back2Tab}&clientMsgID=${clientMsgID}`;
     if (conversation.conversationType === SessionType.Notification) {
         url = "/pages/conversation/notifyMessageList/index";
     }

@@ -240,3 +240,9 @@ export const checkLoginError = (error) => {
         return '操作失败';
     }
 };
+
+export const lightTextStr = (str, key) => {
+    return str.replace(new RegExp(key, 'gi'), (text) => {
+        return `<text class="primary">${text}</text>`;
+    }, 'g');
+};
