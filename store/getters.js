@@ -1,6 +1,7 @@
 export default {
     storeConversationList: (state) => state.conversation.conversationList,
     storeCurrentConversation: (state) => state.conversation.currentConversation,
+    storeCurrentConversationID: (state) => state.conversation.currentConversation.conversationID,
     storeUnReadCount: (state) => state.conversation.unReadCount,
     storeCurrentGroup: (state) => state.conversation.currentGroup,
     storeCurrentMemberInGroup: (state) => state.conversation.currentMemberInGroup,
@@ -13,8 +14,20 @@ export default {
     storeSentGroupApplications: (state) => state.contact.sentGroupApplications,
     storeUnHandleFriendApplicationNum: (state) => state.contact.unHandleFriendApplicationNum,
     storeUnHandleGroupApplicationNum: (state) => state.contact.unHandleGroupApplicationNum,
-    storeHistoryMessageList: (state) => state.message.historyMessageList,
-    storeHasMoreMessage: (state) => state.message.hasMoreMessage,
+    storeHistoryMessageList: (state) => {
+        const { message, conversation } = state;
+        const { historyMessageMap } = message;
+        const { currentConversation } = conversation;
+        const list = historyMessageMap[currentConversation.conversationID]?.messageList || [];
+        return list;
+    },
+    storeHasMoreMessage: (state) => {
+        const { message, conversation } = state;
+        const { historyMessageMap } = message;
+        const { currentConversation } = conversation;
+        const hasMore = historyMessageMap[currentConversation.conversationID]?.hasMore ?? true;
+        return hasMore;
+    },
     storeSelfInfo: (state) => state.user.selfInfo,
     storeCurrentUserID: (state) => state.user.selfInfo.userID,
     storeAppConfig: (state) => state.user.appConfig,

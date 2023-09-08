@@ -5,7 +5,6 @@
         :scroll-top="scrollTop"
         scroll-y
         :scroll-into-view="scrollIntoView"
-        upper-threshold="250"
         @touchstart="handleTouchstart"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
@@ -83,7 +82,6 @@ export default {
             isRecvToBottom: true,
             hasNewMessage: false,
             messageLoadState: {
-                lastMinSeq: 0,
                 loading: false,
             },
             isShowMenuFlag: false,
@@ -116,7 +114,7 @@ export default {
             }
         },
     },
-    created () {
+    mounted () {
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
         this.loadMessageList();
     },
@@ -133,16 +131,19 @@ export default {
                 userID: '',
                 groupID: '',
                 count: 20,
-                startClientMsgID: this.storeHistoryMessageList[0]?.clientMsgID ?? '',
-                lastMinSeq: this.messageLoadState.lastMinSeq,
             };
             try {
-                const { lastMinSeq } = await this.getHistoryMesageList(options);
-                this.messageLoadState.lastMinSeq = lastMinSeq;
                 if (isLoadMore) {
+                    await this.getHistoryMesageList(options);
                     lastMsgID && this.scrollToAnchor(`auchor${lastMsgID}`);
                 } else {
-                    this.scrollToBottom({ isInit: true });
+                    if (this.storeHistoryMessageList.length < 10) {
+                        await this.getHistoryMesageList({
+                            ...options,
+                            isInit: true
+                        });
+                    }
+                    this.scrollToBottom({ initPage: true });
                 }
                 this.messageLoadState.loading = false;
             } catch (e) {
@@ -174,11 +175,11 @@ export default {
                 this.scrollIntoView = auchor;
             });
         },
-        async scrollToBottom ({isInit = false, isRecv = false} = {}) {
+        async scrollToBottom ({initPage = false, isRecv = false} = {}) {
             await this.$nextTick();
             setTimeout(() => {
-
-                if (isInit) {
+                console.log('scrollToBottom');
+                if (initPage) {
                     this.withAnimation = false;
                     setTimeout(() => (this.withAnimation = true), 500);
                 } else if (isRecv && !this.isRecvToBottom) {
@@ -191,7 +192,7 @@ export default {
                     .select('#scroll_wrap')
                     .boundingClientRect((res) => {
                         this.scrollTop = res.height + Math.random();
-                        isInit && this.$emit('initSuccess');
+                        initPage && this.$emit('initSuccess');
                     })
                     .exec();
             }, 100);
