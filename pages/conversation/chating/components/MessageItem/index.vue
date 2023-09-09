@@ -3,7 +3,7 @@
         v-if="!isNoticeMessage"
         :id="`auchor${source.clientMsgID}`"
         class="message_item"
-        :class="{ message_item_self: isSender }"
+        :class="{ message_item_self: isSender, active: positionMsgID === source.clientMsgID }"
         @click="handleMultiple"
     >
         <view
@@ -105,6 +105,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        positionMsgID: {
+            type: String,
+            default: ''
+        }
     },
     data () {
         return {
@@ -288,6 +292,10 @@ export default {
 .message_item {
     display: flex;
     padding: 16rpx 0;
+    
+    &.active {
+        animation: bgBlink 2s;
+    }
 
     .check_wrap {
         flex: 0 0 46rpx;
@@ -367,6 +375,26 @@ export default {
                 margin-right: 12rpx;
             }
         }
+    }
+}
+@keyframes  bgBlink{
+    from {
+        background-color: rgba($uni-bg-color-grey, 1);
+    }
+    20% {
+        background-color: rgba($uni-bg-color-grey, 0.8);
+    }
+    40% {
+        background-color: rgba($uni-bg-color-grey, 0.6);
+    }
+    60% {
+        background-color: rgba($uni-bg-color-grey, 0.4);
+    }
+    80% {
+        background-color: rgba($uni-bg-color-grey, 0.2);
+    }
+    to {
+        background-color: rgba($uni-bg-color-grey, 0);
     }
 }
 

@@ -12,6 +12,7 @@
             :menu-outside-flag="menuOutsideFlag"
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
+            :position-msg-i-d="positionMsgID"
             @touchstart="chatListClick"
             @initSuccess="initSuccess"
         />
@@ -48,6 +49,7 @@ export default {
             menuOutsideFlag: 0,
             initLoading: true,
             back2Tab: false,
+            positionMsgID: '',
             isMultipleMsg: false,
             checkedMsgIds: [],
         };
@@ -65,9 +67,9 @@ export default {
         },
     },
     onLoad (options) {
-        if (options?.back2Tab) {
-            this.back2Tab = JSON.parse(options.back2Tab);
-        }
+        const { back2Tab, clientMsgID } = options;
+        this.back2Tab = !!JSON.parse(back2Tab);
+        this.positionMsgID = clientMsgID;
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
     },

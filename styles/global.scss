@@ -79,6 +79,7 @@ image {
 /* 状态栏高度 */
 .status-bar-height {
 	height: var(--status-bar-height);
+	flex-shrink: 0;
 }
 
 .ff-bold {

@@ -55,7 +55,7 @@
 import RecordItem from '../components/RecordItem.vue';
 import IMSDK, { IMMethods } from 'openim-uniapp-polyfill';
 import { RecordTypeMap } from '@/constant';
-import { prepareConversationState } from '@/util/imCommon';
+import { recordToDesignatedConversation } from '@/util/imCommon';
 
 export default {
     components: {
@@ -108,7 +108,7 @@ export default {
             uni.$u.debounce(this.getSearchRecord, 300);
         },
         handleItemClick (v) {
-            prepareConversationState(this.conversation, false, v?.clientMsgID);
+            recordToDesignatedConversation(this.conversation.conversationID, false, v?.clientMsgID);
         }
     },
 };

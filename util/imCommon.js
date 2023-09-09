@@ -516,7 +516,7 @@ export const markConversationAsRead = (conversation, fromChating = false) => {
     }
 };
 
-export const prepareConversationState = (conversation, back2Tab = false, clientMsgID) => {
+export const prepareConversationState = (conversation, back2Tab = false, clientMsgID = '') => {
     markConversationAsRead(conversation);
 
     if (conversation.conversationType === SessionType.WorkingGroup) {
@@ -554,6 +554,26 @@ export const navigateToDesignatedConversation = (
                 }
             );
             prepareConversationState(data, back2Tab);
+            resolve();
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+export const recordToDesignatedConversation = (
+    conversationID,
+    back2Tab = false,
+    clientMsgID = ''
+) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data } = await IMSDK.asyncApi(
+                IMSDK.IMMethods.GetMultipleConversation,
+                IMSDK.uuid(),
+                [conversationID]
+            );
+            prepareConversationState(data[0], back2Tab, clientMsgID);
             resolve();
         } catch (e) {
             reject(e);

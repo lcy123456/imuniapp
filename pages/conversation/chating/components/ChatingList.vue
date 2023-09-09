@@ -26,6 +26,7 @@
                     :is-show-menu-flag="isShowMenuFlag"
                     :is-multiple-msg="isMultipleMsg"
                     :is-checked="checkedMsgIds.includes(item.clientMsgID)"
+                    :position-msg-i-d="positionMsgID"
                     @menuRect="menuRect"
                 />
                 <!-- @messageItemRender="messageItemRender" -->
@@ -72,6 +73,10 @@ export default {
         checkedMsgIds: {
             type: Array,
             default: () => []
+        },
+        positionMsgID: {
+            type: String,
+            default: ''
         }
     },
     data () {
@@ -117,6 +122,9 @@ export default {
     mounted () {
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
         this.loadMessageList();
+        if (this.positionMsgID) {
+            this.scrollToAnchor(`auchor${this.positionMsgID}`);
+        }
     },
     beforeDestroy () {
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
@@ -171,9 +179,12 @@ export default {
             }
         },
         scrollToAnchor (auchor) {
-            this.$nextTick(function () {
-                this.scrollIntoView = auchor;
-            });
+            console.log('滚动id', auchor);
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    this.scrollIntoView = auchor;
+                });
+            }, 500);
         },
         async scrollToBottom ({initPage = false, isRecv = false} = {}) {
             await this.$nextTick();
