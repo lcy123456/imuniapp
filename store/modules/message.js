@@ -1,6 +1,7 @@
 import IMSDK from 'openim-uniapp-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateMessageTypes } from '@/constant';
+import { messageGetConversationID } from '@/util/imCommon';
 
 const state = {
     historyMessageMap: {}
@@ -71,7 +72,10 @@ const actions = {
     },
     pushNewMessage ({ commit, state, rootState }, message) {
         console.log('pushNewMessage', message);
-        const conversationID = rootState.conversation.currentConversation.conversationID;
+        let conversationID = rootState.conversation.currentConversation.conversationID;
+        if (!conversationID) {
+            conversationID = messageGetConversationID(message);
+        }
         commit('SET_HISTORY_MESSAGE_MAP', {
             conversationID,
             key: 'messageList',
@@ -86,7 +90,11 @@ const actions = {
         type = UpdateMessageTypes.Overall,
         keyWords = [],
     }) {
-        const conversationID = rootState.conversation.currentConversation.conversationID;
+        console.log('updateOneMessage', message);
+        let conversationID = rootState.conversation.currentConversation.conversationID;
+        if (!conversationID) {
+            conversationID = messageGetConversationID(message);
+        }
         const tmpList = state.historyMessageMap[conversationID].messageList;
 
         const idx = tmpList.findIndex(v => v.clientMsgID === message.clientMsgID);
@@ -107,7 +115,10 @@ const actions = {
         // commit('SET_HISTORY_MESSAGE_LIST', tmpList);
     },
     deleteMessages ({ commit, state, rootState }, messages) {
-        const conversationID = rootState.conversation.currentConversation.conversationID;
+        let conversationID = rootState.conversation.currentConversation.conversationID;
+        if (!conversationID) {
+            conversationID = messageGetConversationID(messages[0]);
+        }
         const tmpList = state.historyMessageMap[conversationID].messageList;
         messages.forEach((v) => {
             const idx = tmpList.findIndex(j => j.clientMsgID === v.clientMsgID);

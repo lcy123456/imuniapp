@@ -191,14 +191,12 @@ export default {
                 });
             };
             const newRecvMessageRevokedHandler = ({ data: revokedMessage }) => {
-                if (!this.storeCurrentConversation.conversationID) {
-                    return;
-                }
+                // if (!this.storeCurrentConversation.conversationID) {
+                //     return;
+                // }
 
                 this.updateOneMessage({
-                    message: {
-                        clientMsgID: revokedMessage.clientMsgID,
-                    },
+                    message: revokedMessage,
                     type: UpdateMessageTypes.KeyWords,
                     keyWords: [
                         {
@@ -479,16 +477,11 @@ export default {
         },
 
         handleNewMessage (newServerMsg) {
-            if (this.inCurrentConversation(newServerMsg)) {
-                if (
-                    newServerMsg.contentType !== MessageType.TypingMessage &&
-          newServerMsg.contentType !== MessageType.RevokeMessage
-                ) {
-                    newServerMsg.isAppend = true;
-                    this.pushNewMessage(newServerMsg);
-                    setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
-                    uni.$u.debounce(this.markConversationAsRead, 2000);
-                }
+            // if (this.inCurrentConversation(newServerMsg)) {}
+            if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
+                this.pushNewMessage(newServerMsg);
+                setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
+                uni.$u.debounce(this.markConversationAsRead, 2000);
             }
         },
         inCurrentConversation (newServerMsg) {

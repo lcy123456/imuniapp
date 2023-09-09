@@ -16,15 +16,16 @@
                 />
             </view>
         </CustomNavBar>
-        <view class="px-20 pb-20 pt-10">
-            <u-search
+        <view
+            class="px-20 pb-20 pt-10"
+            @click="handleToSearch"
+        >
+            <uni-search-bar
                 v-model="keyword"
-                :show-action="false"
-                shape="square"
-                input-align="center"
                 bg-color="#fff"
-                height="70rpx"
+                class="h-70"
                 placeholder="搜索"
+                readonly
             />
         </view>
         <ContactMenus />
@@ -69,6 +70,9 @@ export default {
         this.getFrequentContacts();
     },
     methods: {
+        handleToSearch () {
+            uni.$u.route('/pages/common/searchRecord/index');
+        },
         contactAddClick () {
             uni.navigateTo({
                 url: "/pages/contact/contactAdd/index"

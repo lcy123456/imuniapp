@@ -3,7 +3,7 @@
         v-if="!isNoticeMessage"
         :id="`auchor${source.clientMsgID}`"
         class="message_item"
-        :class="{ message_item_self: isSender, active: positionMsgID === source.clientMsgID }"
+        :class="{ message_item_self: isSender, positionActive: positionMsgID === source.clientMsgID }"
         @click="handleMultiple"
     >
         <view
@@ -291,10 +291,10 @@ export default {
 <style scoped lang="scss">
 .message_item {
     display: flex;
-    padding: 16rpx 0;
+    padding: 16rpx 30rpx;
     
-    &.active {
-        animation: bgBlink 2s;
+    &.positionActive {
+        animation: bgBlink 2s 0.3s;
     }
 
     .check_wrap {
@@ -379,22 +379,22 @@ export default {
 }
 @keyframes  bgBlink{
     from {
-        background-color: rgba($uni-bg-color-grey, 1);
+        background-color: rgba($uni-color-primary, 1);
     }
     20% {
-        background-color: rgba($uni-bg-color-grey, 0.8);
+        background-color: rgba($uni-color-primary, 0.8);
     }
     40% {
-        background-color: rgba($uni-bg-color-grey, 0.6);
+        background-color: rgba($uni-color-primary, 0.6);
     }
     60% {
-        background-color: rgba($uni-bg-color-grey, 0.4);
+        background-color: rgba($uni-color-primary, 0.4);
     }
     80% {
-        background-color: rgba($uni-bg-color-grey, 0.2);
+        background-color: rgba($uni-color-primary, 0.2);
     }
     to {
-        background-color: rgba($uni-bg-color-grey, 0);
+        background-color: rgba($uni-color-primary, 0);
     }
 }
 

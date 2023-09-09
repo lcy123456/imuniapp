@@ -5,6 +5,7 @@
         :scroll-top="scrollTop"
         scroll-y
         :scroll-into-view="scrollIntoView"
+        :upper-threshold="250"
         @touchstart="handleTouchstart"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
@@ -90,6 +91,7 @@ export default {
                 loading: false,
             },
             isShowMenuFlag: false,
+            positionMsgIDFlag: true,
             menuState: {
                 visible: false,
                 paterRect: {},
@@ -122,9 +124,6 @@ export default {
     mounted () {
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
         this.loadMessageList();
-        if (this.positionMsgID) {
-            this.scrollToAnchor(`auchor${this.positionMsgID}`);
-        }
     },
     beforeDestroy () {
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
@@ -138,20 +137,23 @@ export default {
                 conversationID: this.storeCurrentConversation.conversationID,
                 userID: '',
                 groupID: '',
-                count: 20,
+                count: 50,
             };
             try {
                 if (isLoadMore) {
                     await this.getHistoryMesageList(options);
-                    lastMsgID && this.scrollToAnchor(`auchor${lastMsgID}`);
-                } else {
-                    if (this.storeHistoryMessageList.length < 10) {
-                        await this.getHistoryMesageList({
-                            ...options,
-                            isInit: true
-                        });
+                    if (this.positionMsgID && this.positionMsgIDFlag) {
+                        this.handlePositionMsgID();
+                    } else {
+                        lastMsgID && this.scrollToAnchor(`auchor${lastMsgID}`, false);
                     }
+                } else {
+                    await this.getHistoryMesageList({
+                        ...options,
+                        isInit: true
+                    });
                     this.scrollToBottom({ initPage: true });
+                    this.positionMsgID && this.handlePositionMsgID();
                 }
                 this.messageLoadState.loading = false;
             } catch (e) {
@@ -178,21 +180,19 @@ export default {
                 this.loadMessageList(true);
             }
         },
-        scrollToAnchor (auchor) {
+        scrollToAnchor (auchor, isAnimation = true) {
             console.log('滚动id', auchor);
-            setTimeout(() => {
-                this.$nextTick(() => {
-                    this.scrollIntoView = auchor;
-                });
-            }, 500);
+            !isAnimation && this.closeScrollAnimation();
+            this.$nextTick(() => {
+                this.scrollIntoView = auchor;
+            });
         },
         async scrollToBottom ({initPage = false, isRecv = false} = {}) {
             await this.$nextTick();
             setTimeout(() => {
-                console.log('scrollToBottom');
+                // console.log('scrollToBottom');
                 if (initPage) {
-                    this.withAnimation = false;
-                    setTimeout(() => (this.withAnimation = true), 500);
+                    this.closeScrollAnimation();
                 } else if (isRecv && !this.isRecvToBottom) {
                     this.hasNewMessage = true;
                     return;
@@ -207,6 +207,21 @@ export default {
                     })
                     .exec();
             }, 100);
+        },
+        closeScrollAnimation () {
+            this.withAnimation = false;
+            setTimeout(() => (this.withAnimation = true), 500);
+        },
+        handlePositionMsgID () {
+            setTimeout(() => {
+                const ids = this.storeHistoryMessageList.map(v => v.clientMsgID);
+                if (ids.includes(this.positionMsgID)) {
+                    this.scrollToAnchor(`auchor${this.positionMsgID}`);
+                    this.positionMsgIDFlag = false;
+                } else {
+                    this.loadMessageList(true);
+                }
+            }, 300);
         },
         menuRect (res) {
             // console.log('menuRect', res);
@@ -229,7 +244,7 @@ export default {
     #scroll_wrap {
         min-height: 100%;
         overflow: hidden;
-        padding: 0 30rpx;
+        // padding: 0 30rpx;
     }
 
     .fade-leave,

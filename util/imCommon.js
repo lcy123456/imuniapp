@@ -649,3 +649,21 @@ export const uploadFile = async (path, contentType = 'image') => {
     );
     return url;
 };
+
+export const messageGetConversationID = (message) => {
+    const { sessionType, sendID, recvID, groupID } = message;
+    const min = Math.min(sendID, recvID);
+    const max = Math.max(sendID, recvID);
+    switch (sessionType) {
+    case SessionType.Single:
+        if (sendID && recvID) {
+            return `si_${min}_${max}`;
+        }
+        return new Error('单聊缺少sendID或recvID，无法组成conversationID');
+    case SessionType.WorkingGroup:
+        if (groupID) {
+            return `sg_${groupID}`;
+        }
+        return new Error('工作群缺少groupID，无法组成conversationID');
+    }
+};
