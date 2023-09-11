@@ -81,9 +81,15 @@ export const CustomMarkType = {
 export const ImageType = ['jpg', 'jpeg', 'png', 'gif'];
 export const VideoType = ['mp4', 'avi', 'ogg', 'fiv'];
 
+export const RecordFormMap = {
+    All: 'All',             // 全局查询
+    Contact: 'Contact',     // 好友查询
+    Group: 'Group',         // 群查询
+};
+
 export const RecordTypeMap = {
-    Contact: 'Contact',
-    Group: 'Group',
-    Record: 'Record',
-    Message: 'Message'
+    Contact: 'Contact',     // 联系人
+    Group: 'Group',         // 群组
+    Record: 'Record',       // 聊天记录
+    Message: 'Message'      // 记录消息
 };

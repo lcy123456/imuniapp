@@ -63,7 +63,7 @@ import { mapGetters } from 'vuex';
 import IMSDK, { IMMethods, SessionType } from 'openim-uniapp-polyfill';
 import RecordItem from './components/RecordItem.vue';
 import { navigateToDesignatedConversation } from '@/util/imCommon';
-import { RecordTypeMap } from '@/constant';
+import { RecordFormMap, RecordTypeMap } from '@/constant';
 
 export default {
     components: {
@@ -185,6 +185,7 @@ export default {
                         })
                     ),
                     keyword: this.keyword,
+                    form: RecordFormMap.All
                 });
             }
         },

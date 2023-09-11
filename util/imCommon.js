@@ -650,7 +650,7 @@ export const uploadFile = async (path, contentType = 'image') => {
     return url;
 };
 
-export const messageGetConversationID = (message) => {
+export const idsGetConversationID = (message) => {
     const { sessionType, sendID, recvID, groupID } = message;
     const min = Math.min(sendID, recvID);
     const max = Math.max(sendID, recvID);

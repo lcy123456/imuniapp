@@ -1,0 +1,66 @@
+<template>
+    <swiper
+        class="swiper_container"
+        :current="current"
+        :style="{height: windowHeight + 'px'}"
+    >
+        <swiper-item
+            v-for="v in list"
+            :key="v.url"
+            :style="{height: windowHeight + 'px'}"
+        >
+            <image
+                v-if="v.type === 'image'"
+                :src="v.url"
+                :style="{height: windowHeight + 'px'}"
+                mode="aspectFit"
+            />
+            <video
+                v-else-if="v.type === 'video'"
+                :src="v.url"
+                :style="{height: windowHeight + 'px'}"
+                :poster="v.poster"
+            />
+        </swiper-item>
+    </swiper>
+</template>
+
+<script>
+//  list = [
+//      {
+//         url: 'url',
+//         poster: 'url',
+//         type: 'video'
+//      },
+//      {
+//         url: 'url',
+//         type: 'image'
+//      },
+//  ];
+export default {
+
+    data () {
+        return {
+            list: [],
+            current: 0,
+            windowHeight: uni.getSystemInfoSync().windowHeight
+        };
+    },
+
+    onLoad (options) {
+        const { list, current } = options;
+        this.list = JSON.parse(decodeURIComponent(list));
+        this.current = current;
+    },
+
+    methods: {
+        
+    },
+};
+</script>
+
+<style lang="scss" scoped>
+.swiper_container {
+    background-color: $uni-bg-color-inverse;
+}
+</style>

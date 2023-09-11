@@ -1,7 +1,7 @@
 import IMSDK from 'openim-uniapp-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateMessageTypes } from '@/constant';
-import { messageGetConversationID } from '@/util/imCommon';
+import { idsGetConversationID } from '@/util/imCommon';
 
 const state = {
     historyMessageMap: {}
@@ -74,7 +74,7 @@ const actions = {
         console.log('pushNewMessage', message);
         let conversationID = rootState.conversation.currentConversation.conversationID;
         if (!conversationID) {
-            conversationID = messageGetConversationID(message);
+            conversationID = idsGetConversationID(message);
         }
         commit('SET_HISTORY_MESSAGE_MAP', {
             conversationID,
@@ -93,7 +93,7 @@ const actions = {
         console.log('updateOneMessage', message);
         let conversationID = rootState.conversation.currentConversation.conversationID;
         if (!conversationID) {
-            conversationID = messageGetConversationID(message);
+            conversationID = idsGetConversationID(message);
         }
         const tmpList = state.historyMessageMap[conversationID].messageList;
 
@@ -117,7 +117,7 @@ const actions = {
     deleteMessages ({ commit, state, rootState }, messages) {
         let conversationID = rootState.conversation.currentConversation.conversationID;
         if (!conversationID) {
-            conversationID = messageGetConversationID(messages[0]);
+            conversationID = idsGetConversationID(messages[0]);
         }
         const tmpList = state.historyMessageMap[conversationID].messageList;
         messages.forEach((v) => {

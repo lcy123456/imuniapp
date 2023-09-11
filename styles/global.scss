@@ -197,6 +197,9 @@ image {
 .flex {
 	display: flex;
 }
+.flex-wrap {
+	flex-wrap: wrap;
+}
 .flex-column {
 	flex-direction: column;
 }
@@ -241,6 +244,12 @@ image {
 }
 .over-hide {
 	overflow: hidden;
+}
+.over-auto {
+	overflow: auto;
+}
+.nomalEllipsis {
+	@include nomalEllipsis();
 }
 
 

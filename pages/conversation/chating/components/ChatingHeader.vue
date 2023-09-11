@@ -105,7 +105,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentConversation', 'storeCurrentGroup', 'storeCurrentMemberInGroup']),
+        ...mapGetters([
+            'storeCurrentConversation', 
+            'storeCurrentConversationID', 
+            'storeCurrentGroup', 
+            'storeCurrentMemberInGroup'
+        ]),
         userID () {
             return this.storeCurrentConversation.userID;
         },
@@ -133,7 +138,7 @@ export default {
             }
         },
         showInfo () {
-            uni.$u.route(`/pages/common/userCard/index?sourceID=${this.userID}`);
+            uni.$u.route(`/pages/common/userCard/index?sourceID=${this.userID}&from=chating`);
         },
         goSetting () {
             uni.$u.route('/pages/conversation/groupSettings/index');

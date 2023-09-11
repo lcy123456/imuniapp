@@ -43,6 +43,12 @@
             </view>
             <SettingItem
                 class="info-row"
+                title="查找聊天记录"
+                show-arrow
+                @click="handleRecord"
+            />
+            <SettingItem
+                class="info-row"
                 title="加入黑名单"
                 show-switch
                 :loading="blackLoading"
@@ -101,8 +107,9 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { CommonIsAllow, CustomMarkType } from '@/constant';
+import { CommonIsAllow, CustomMarkType, RecordFormMap } from '@/constant';
 import {
+    getSourceUserInfo,
     getDesignatedUserOnlineState,
     navigateToDesignatedConversation,
 } from '@/util/imCommon';
@@ -110,7 +117,6 @@ import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import SettingItem from '@/components/SettingItem/index.vue';
-import { businessSearchUserInfo } from '@/api/login';
 import { checkLoginError } from '@/util/common';
 
 export default {
@@ -123,6 +129,7 @@ export default {
         return {
             sourceID: '',
             sourceUserInfo: {},
+            from: '',
             onlineStr: '离线',
             isOnline: false,
             infoMenus: [
@@ -177,17 +184,16 @@ export default {
         },
     },
     onLoad (options) {
-        const { sourceID, sourceInfo } = options;
+        const { sourceID, sourceInfo, from } = options;
         if (sourceID) {
             this.sourceID = sourceID;
-            this.getSourceUserInfo();
+            this.handleGetUserInfo();
         } else {
             const info = JSON.parse(sourceInfo);
             this.sourceID = info.userID;
-            this.sourceUserInfo = {
-                ...info,
-            };
+            this.sourceUserInfo = info;
         }
+        this.from = from;
         this.getOnlineState();
         this.setIMListener();
     },
@@ -195,33 +201,9 @@ export default {
         this.disposeIMListener();
     },
     methods: {
-        // TODO：已抽取到imcommon.js中，getSourceUserInfo
-        async getSourceUserInfo () {
-            try {
-                let info = null;
-                const { total, users } = await businessSearchUserInfo(
-                    this.sourceID
-                );
-                if (total > 0) {
-                    const { data } = await IMSDK.asyncApi(
-                        IMSDK.IMMethods.GetUsersInfo,
-                        IMSDK.uuid(),
-                        [this.sourceID]
-                    );
-                    const imData =
-                        data[0]?.friendInfo ?? data[0]?.publicInfo ?? {};
-                    info = {
-                        ...imData,
-                        ...users[0],
-                    };
-                }
-                this.sourceUserInfo = {
-                    ...info,
-                };
-                console.log('xxx', this.sourceUserInfo);
-            } catch (e) {
-                uni.$u.toast('获取用户信息失败');
-            }
+        async handleGetUserInfo () {
+            const res = await getSourceUserInfo(this.sourceID);
+            this.sourceUserInfo = res;
         },
         async getOnlineState () {
             getDesignatedUserOnlineState(this.sourceID)
@@ -240,10 +222,14 @@ export default {
             });
         },
         toDesignatedConversation () {
-            navigateToDesignatedConversation(
-                this.sourceID,
-                SessionType.Single
-            ).catch(() => uni.$u.toast('获取会话信息失败'));
+            if (this.from === 'chating') {
+                uni.navigateBack();
+            } else {
+                navigateToDesignatedConversation(
+                    this.sourceID,
+                    SessionType.Single
+                ).catch(() => uni.$u.toast('获取会话信息失败'));
+            }
         },
         copyID () {
             uni.setClipboardData({
@@ -275,6 +261,24 @@ export default {
                 break;
             }
             uni.navigateTo({ url });
+        },
+        async handleRecord () {
+            try {
+                const { data } = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetOneConversation,
+                    IMSDK.uuid(),
+                    {
+                        sessionType: SessionType.Single,
+                        sourceID: this.sourceID,
+                    }
+                );
+                uni.$u.route('/pages/common/searchRecord/recordDetail/index', {
+                    conversation: encodeURIComponent(JSON.stringify(data)),
+                    from: RecordFormMap.Contact,
+                });
+            } catch {
+                uni.$u.toast('获取会话信息失败');
+            }
         },
         async blackChange (isBlack) {
             this.blackLoading = true;

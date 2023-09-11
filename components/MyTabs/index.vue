@@ -65,7 +65,7 @@ export default {
 
 <style lang="scss" scoped>
 .ul {
-    padding: 5rpx 0;
+    padding: 5rpx;
     .item {
         height: 100%;
         display: flex;

@@ -1,6 +1,6 @@
 <template>
     <view
-        class="file_message_container bg_container flex align-center"
+        class="file_message_container bg_container"
         @click="clickFileItem"
     >
         <image
@@ -8,7 +8,7 @@
             src="@/static/images/chating_message_file.png"
         />
         <view class="right flex flex-column">
-            <text class="">
+            <text class="nomalEllipsis">
                 {{ fileElem.fileName }}
             </text>
             <text class="primary file_size mt-10">
@@ -75,8 +75,11 @@ export default {
 .file_message_container {
     width: 100%;
     padding: 24rpx;
+    display: flex;
+    align-items: center;
     .right {
         width: 100vw;
+        overflow: hidden;
     }
 }
 </style>

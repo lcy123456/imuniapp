@@ -237,6 +237,14 @@
 		},
 		{
 			"path": "pages/common/searchRecord/recordDetail/index"
+		},
+		{
+			"path": "pages/common/previewMedia/index",
+			"style": {
+				"navigationStyle": "default",
+				"navigationBarBackgroundColor": "#000000",
+				"navigationBarTextStyle": "white"
+			}
 		}
 	],
 	"condition": { 
