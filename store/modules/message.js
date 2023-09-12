@@ -16,7 +16,7 @@ const mutations = {
     },
     SET_HISTORY_MESSAGE_MAP (state, obj) {
         const { conversationID, key, value } = obj;
-        const temp = JSON.parse(JSON.stringify(state.historyMessageMap[conversationID] || {}));
+        const temp = state.historyMessageMap[conversationID] || {};
         temp[key] = value;
         state.historyMessageMap = {
             ...state.historyMessageList,
@@ -50,7 +50,7 @@ const actions = {
             commit('SET_HISTORY_MESSAGE_MAP', {
                 conversationID: conversationID,
                 key: 'messageList',
-                value: messageList.concat(isInit ? [] : oldMessageList)
+                value: [...messageList.concat(isInit ? [] : oldMessageList)]
             });
             commit('SET_HISTORY_MESSAGE_MAP', {
                 conversationID: conversationID,
@@ -110,7 +110,7 @@ const actions = {
         commit('SET_HISTORY_MESSAGE_MAP', {
             conversationID,
             key: 'messageList',
-            value: tmpList
+            value: [...tmpList]
         });
         // commit('SET_HISTORY_MESSAGE_LIST', tmpList);
     },
@@ -129,7 +129,7 @@ const actions = {
         commit('SET_HISTORY_MESSAGE_MAP', {
             conversationID,
             key: 'messageList',
-            value: tmpList
+            value: [...tmpList]
         });
         // commit('SET_HISTORY_MESSAGE_LIST', tmpList);
     },
