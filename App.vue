@@ -15,12 +15,18 @@ export default {
         this.$store.dispatch("user/getAppConfig");
         this.setGlobalIMlistener();
         this.tryLogin();
+        this.handleAudioManager();
     },
     onShow: function () {
         IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
     },
     onHide: function () {
         IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), true);
+    },
+    data () {
+        return {
+            innerAudioContext: null
+        };
     },
     computed: {
         ...mapGetters([
@@ -477,12 +483,13 @@ export default {
         },
 
         handleNewMessage (newServerMsg) {
+            this.innerAudioContext.play();
             // if (this.inCurrentConversation(newServerMsg)) {}
             if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
                 this.pushNewMessage(newServerMsg);
                 setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
-                uni.$u.debounce(this.markConversationAsRead, 2000);
             }
+            this.inCurrentConversation(newServerMsg) && uni.$u.debounce(this.markConversationAsRead, 2000);
         },
         inCurrentConversation (newServerMsg) {
             switch (newServerMsg.sessionType) {
@@ -507,6 +514,10 @@ export default {
                 this.storeCurrentConversation.conversationID
             );
         },
+        handleAudioManager () {
+            this.innerAudioContext = uni.createInnerAudioContext();
+            this.innerAudioContext.src = '/static/audio/message_tip.mp3';
+        }
     },
 };
 </script>

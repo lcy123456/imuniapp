@@ -80,7 +80,7 @@ const actions = {
             conversationID,
             key: 'messageList',
             value: [
-                ...state.historyMessageMap[conversationID].messageList,
+                ...state.historyMessageMap[conversationID]?.messageList || [],
                 message,
             ]
         });
@@ -95,7 +95,7 @@ const actions = {
         if (!conversationID) {
             conversationID = idsGetConversationID(message);
         }
-        const tmpList = state.historyMessageMap[conversationID].messageList;
+        const tmpList = state.historyMessageMap[conversationID]?.messageList || [];
 
         const idx = tmpList.findIndex(v => v.clientMsgID === message.clientMsgID);
         if (idx === -1) return;
