@@ -113,7 +113,6 @@ export default {
     data () {
         return {
             conversationID: '',
-            keyBoardFlag: false
         };
     },
     computed: {
@@ -141,12 +140,6 @@ export default {
                 this.$store.getters.storeCurrentUserID
             );
         },
-    },
-    created () {
-        uni.$on('keyboardChange', this.handleMenuPosition);
-    },
-    beforeDestroy () {
-        uni.$off('keyboardChange', this.handleMenuPosition);
     },
     mounted () {
         // this.$emit('messageItemRender', this.source.clientMsgID);
@@ -251,18 +244,7 @@ export default {
         },
         async handleLongPress () {
             if (!this.isShowMenuFlag) return;
-            this.keyBoardFlag = true;
-            setTimeout(() => {
-                this.keyBoardFlag = false;
-            }, 300);
             this.getMsgRect();
-        },
-        handleMenuPosition () {
-            if (this.keyBoardFlag) {
-                setTimeout(() => {
-                    this.getMsgRect();
-                }, 300);
-            }
         },
         getMsgRect () {
             uni.createSelectorQuery()
