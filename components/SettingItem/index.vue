@@ -96,6 +96,8 @@ export default {
     padding: 0 40rpx;
     color: $uni-text-color;
     position: relative;
+    background-color: $uni-bg-color;
+    border-radius: 30rpx;
 
     .setting_right {
         @include vCenterBox();

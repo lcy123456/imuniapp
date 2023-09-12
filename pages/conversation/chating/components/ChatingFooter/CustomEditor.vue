@@ -9,7 +9,7 @@
             id="editor2"
             :placeholder="placeholder"
             @ready="editorReady"
-            @focus="editorFocus"
+            @click="editorFocus"
             @blur="editorBlur"
             @input="editorInput"
         />

@@ -11,7 +11,7 @@
                 @cancel="handleCancel"
             >
                 <view
-                    v-if="form === RecordFormMap.All"
+                    v-if="from === RecordFormMap.All"
                     slot="searchIcon"
                     class="flex align-center"
                 >
@@ -26,7 +26,7 @@
             </uni-search-bar>
         </view>
         <view
-            v-if="form === RecordFormMap.All"
+            v-if="from === RecordFormMap.All"
             class="bg-color mb-20 px-30"
         >
             <RecordItem
@@ -68,15 +68,26 @@
             </view>
             <template v-else-if="tabActive.value === FileRenderTypes">
                 <FileRender
-                    v-for="(v, i) in messageList"
+                    v-for="v in messageList"
                     :key="v.clientMsgID"
                     :message="v"
-                    @click="handleMediaClick(i)"
                 />
             </template>
+            <GroupMemberSwipe
+                v-else-if="tabActive.value === UserRenderTypes"
+                :is-owner="
+                    selfGroupInfo.roleLevel === GroupMemberRole.Owner
+                "
+                :is-admin="
+                    selfGroupInfo.roleLevel === GroupMemberRole.Admin
+                "
+                :list="showMemberList"
+                :group-i-d="groupID"
+                @change="handleMemberChange"
+            />
         </view>
         <MyTabs
-            v-if="form !== RecordFormMap.All"
+            v-if="from !== RecordFormMap.All"
             class="myTabs"
             :list="tabList"
             @change="handleTabChange"
@@ -85,26 +96,37 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import RecordItem from '../components/RecordItem.vue';
-import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
-import { 
-    RecordFormMap, 
-    RecordTypeMap, 
-    TextRenderTypes, 
+import IMSDK, {
+    IMMethods,
+    MessageType,
+    GroupMemberFilter,
+    GroupMemberRole,
+} from 'openim-uniapp-polyfill';
+import {
+    RecordFormMap,
+    RecordTypeMap,
+    TextRenderTypes,
     MediaRenderTypes,
-    FileRenderTypes
+    FileRenderTypes,
 } from '@/constant';
 import { recordToDesignatedConversation } from '@/util/imCommon';
 import MyTabs from '@/components/MyTabs';
 import MediaRender from '../components/MediaRender.vue';
 import FileRender from '../components/FileRender.vue';
+import GroupMemberSwipe from '@/pages/conversation/groupSettings/components/GroupMemberSwipe.vue';
+import { checkLoginError } from '@/util/common';
+
+const UserRenderTypes = [3];
 
 export default {
     components: {
         RecordItem,
         MyTabs,
         MediaRender,
-        FileRender
+        FileRender,
+        GroupMemberSwipe,
     },
     data () {
         return {
@@ -113,26 +135,39 @@ export default {
             TextRenderTypes: Object.freeze(TextRenderTypes),
             MediaRenderTypes: Object.freeze(MediaRenderTypes),
             FileRenderTypes: Object.freeze(FileRenderTypes),
+            UserRenderTypes: Object.freeze(UserRenderTypes),
+            GroupMemberRole: Object.freeze(GroupMemberRole),
             boxWidth: 0,
+            messageList: [],
+            tabActive: {},
             keyword: '',
             conversation: {},
-            form: '',
-            messageList: [],
-            tabActive: {}
+            from: '',
+            groupID: '',
+            selfGroupInfo: {},
+            groupMemberList: [],
         };
     },
     computed: {
+        ...mapGetters(['storeCurrentUserID']),
         tabList () {
             const arr = [
                 { label: '聊天记录', value: this.TextRenderTypes },
                 { label: '媒体', value: this.MediaRenderTypes },
                 { label: '文件', value: this.FileRenderTypes },
+                ...(this.from === RecordFormMap.Group
+                    ? [{ label: '用户', value: UserRenderTypes }]
+                    : []),
             ];
-            if (this.form === RecordFormMap.Group) {
-                arr.push({ label: '用户', value: 3 });
-            }
             return arr;
         },
+        showMemberList () {
+            const res =  this.groupMemberList.filter(v => {
+                return v.nickname.includes(this.keyword || '');
+            });
+            console.log('xxx', res, this.keyword || '');
+            return res;
+        }
     },
     watch: {
         keyword () {
@@ -142,13 +177,14 @@ export default {
 
     onLoad (options) {
         console.log(options);
-        const { conversation, keyword, form } = options;
+        const { conversation, keyword, from, groupID } = options;
         this.conversation = JSON.parse(decodeURIComponent(conversation));
         this.keyword = keyword || '';
-        this.form = form;
-        this.tabActive = this.tabList[0];
+        this.from = from;
+        this.groupID = groupID;
 
-        this.boxWidth = (uni.getWindowInfo().windowWidth - 30);
+        this.tabActive = this.tabList[0];
+        this.boxWidth = uni.getWindowInfo().windowWidth - 30;
     },
 
     methods: {
@@ -156,9 +192,17 @@ export default {
             uni.navigateBack();
         },
         async getSearchRecord () {
+            if (this.tabActive.value === UserRenderTypes) return;
+            if (this.tabActive.value === TextRenderTypes && !this.keyword) {
+                this.messageList = [];
+                return;
+            }
             const params = {
                 conversationID: this.conversation.conversationID,
-                keywordList: this.tabActive.value === TextRenderTypes ? [this.keyword] : [],
+                keywordList:
+                    this.tabActive.value === MediaRenderTypes
+                        ? []
+                        : [this.keyword],
                 messageTypeList: this.tabActive.value,
                 searchTimePosition: 0,
                 searchTimePeriod: 0,
@@ -177,33 +221,74 @@ export default {
             uni.$u.debounce(this.getSearchRecord, 300);
         },
         handleItemClick (v) {
-            recordToDesignatedConversation(this.conversation.conversationID, false, v?.clientMsgID);
+            recordToDesignatedConversation(
+                this.conversation.conversationID,
+                false,
+                v?.clientMsgID
+            );
         },
         handleMediaClick (index) {
-            const list = this.messageList.map(v => {
-                const { contentType, pictureElem, videoElem} = v;
+            const list = this.messageList.map((v) => {
+                const { contentType, pictureElem, videoElem } = v;
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
                     url: pictureElem?.sourcePicture.url,
-                    type: 'image'
+                    type: 'image',
                 };
                 if (isVideo) {
                     map = {
                         url: videoElem.videoUrl,
                         poster: videoElem.snapshotUrl,
-                        type: 'video'
+                        type: 'video',
                     };
                 }
                 return map;
             });
             uni.$u.route('/pages/common/previewMedia/index', {
                 list: encodeURIComponent(JSON.stringify(list)),
-                current: index
+                current: index,
             });
         },
+        handleMemberChange () {
+            let pages = getCurrentPages();
+            let prevPage = pages[pages.length - 2];
+            prevPage.$vm.handleMemberChange();
+            this.getGroupMemberList();
+        },
         handleTabChange (v) {
+            this.messageList = [];
             this.tabActive = v;
-            this.getSearchRecord();
+            if (v.value === UserRenderTypes) {
+                this.getSelfGroupInfo();
+                this.getGroupMemberList();
+            } else {
+                this.getSearchRecord();
+            }
+        },
+        async getSelfGroupInfo () {
+            const { data } = await IMSDK.asyncApi(
+                IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,
+                IMSDK.uuid(),
+                {
+                    groupID: this.groupID,
+                    userIDList: [this.storeCurrentUserID],
+                }
+            );
+            this.selfGroupInfo = data[0];
+        },
+        async getGroupMemberList () {
+            try {
+                const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetGroupMemberList, IMSDK.uuid(), {
+                    groupID: this.groupID,
+                    filter: GroupMemberFilter.All,
+                    offset: 0,
+                    count: 999,
+                });
+                this.groupMemberList = [...data];
+            } catch (err) {
+                console.log(err);
+                this.$toast(checkLoginError(err));
+            }
         },
         touchstart () {
             uni.hideKeyboard();

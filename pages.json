@@ -1,9 +1,7 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/login/index",
-			"style": {
-			}
+			"path": "pages/login/index"
 		},
 		{
 			"path": "pages/login/registerOrForget/index"
@@ -23,19 +21,13 @@
 		{
 			"path": "pages/conversation/conversationList/index",
 			"style": {
-				"disableScroll": true,
 				"app-plus": {
 					"bounce": "none"
 				}
 			}
 		},
 		{
-			"path": "pages/contact/index/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"disableScroll": true,
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/contact/index/index"
 		},
 		{
 			"path": "pages/conversation/chating/index",
@@ -46,188 +38,86 @@
 			}
 		},
 		{
-			"path": "pages/conversation/groupSettings/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/conversation/groupSettings/index"
 		},
 		{
-			"path": "pages/conversation/groupMemberList/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/userCard/index"
 		},
 		{
-			"path": "pages/common/userCard/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
-		},
-		{
-			"path": "pages/common/searchUserOrGroup/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/searchUserOrGroup/index"
 
 		},
 		{
-			"path": "pages/common/groupCard/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/groupCard/index"
 		},
 		{
-			"path": "pages/common/markOrIDPage/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/groupMemberList/index"
 		},
 		{
-			"path": "pages/common/detailsFileds/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/markOrIDPage/index"
 		},
 		{
-			"path": "pages/common/contactChoose/index",
-			"style": {
-			}
+			"path": "pages/common/detailsFileds/index"
 		},
 		{
-			"path": "pages/common/createGroup/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/contactChoose/index"
 		},
 		{
-			"path": "pages/contact/contactAdd/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/createGroup/index"
 		},
 		{
-			"path": "pages/contact/switchJoinGroup/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/contact/contactAdd/index"
 		},
 		{
-			"path": "pages/contact/friendList/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/contact/switchJoinGroup/index"
 		},
 		{
-			"path": "pages/contact/groupList/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/contact/friendList/index"
 		},
 		{
-			"path": "pages/contact/applicationList/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/contact/groupList/index"
 		},
 		{
-			"path": "pages/contact/applicationListDetails/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/contact/applicationList/index"
 		},
 		{
-			"path": "pages/contact/applicationDetails/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/contact/applicationListDetails/index"
 		},
 		{
-			"path": "pages/profile/selfInfo/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/contact/applicationDetails/index"
 		},
 		{
-			"path": "pages/profile/accountSetting/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/profile/selfInfo/index"
 		},
 		{
-			"path": "pages/profile/blockList/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/profile/accountSetting/index"
 		},
 		{
-			"path": "pages/common/sendAddRequest/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/profile/blockList/index"
 		},
 		{
-			"path": "pages/conversation/notifyMessageList/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/sendAddRequest/index"
 		},
 		{
-			"path": "pages/common/webviewWrapper/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/conversation/notifyMessageList/index"
 		},
 		{
-			"path": "pages/conversation/previewVideo/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/webviewWrapper/index"
+		},
+		{
+			"path": "pages/conversation/previewVideo/index"
 		},
 		{
 			"path": "pages/conversation/previewMerge/index"
 		},
 		{
-			"path": "pages/login/chooseDefaultAvatar/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/login/chooseDefaultAvatar/index"
 		},
 		{
-			"path": "pages/profile/about/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/profile/about/index"
 		},
 		{
-			"path": "pages/common/userOrGroupQrCode/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
+			"path": "pages/common/userOrGroupQrCode/index"
 		},
 		{
 			"path": "pages/common/msgForward/index"

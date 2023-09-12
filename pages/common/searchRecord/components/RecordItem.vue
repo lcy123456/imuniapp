@@ -30,11 +30,11 @@
             >
                 <text
                     v-if="isMessage"
-                    v-html="lightTextStr(source.textElem.content)"
+                    v-html="lightTextStr(getContent(source))"
                 />
                 <text
                     v-else-if="source.messageCount === 1"
-                    v-html="lightTextStr(source.messageList[0].textElem.content)"
+                    v-html="lightTextStr(getContent(source.messageList[0]))"
                 />
                 <text v-else-if="source.messageCount > 1">
                     {{ source.messageCount }}条相关聊天记录
@@ -50,6 +50,9 @@ import { SessionType } from 'openim-uniapp-polyfill';
 import { lightTextStr } from '@/util/common';
 import { RecordTypeMap } from '@/constant';
 import dayjs from 'dayjs';
+import { parseAt, parseEmoji } from "@/util/imCommon";
+import { MessageType } from "openim-uniapp-polyfill";
+import { DecryptoAES } from '@/util/crypto';
 
 export default {
 
@@ -104,7 +107,23 @@ export default {
     methods: {
         lightTextStr (text) {
             return lightTextStr(text, this.keyword);
-        }
+        },
+        getContent (source) {
+            let text = '';
+            const { contentType, quoteElem, atTextElem, textElem, senderNickname } = source;
+            // TODO：解密文本
+            if (contentType === MessageType.QuoteMessage) {
+                text = parseEmoji(DecryptoAES(quoteElem?.text));
+            } else if (contentType === MessageType.AtTextMessage) {
+                text = parseEmoji(parseAt(atTextElem));
+            } else {
+                text = parseEmoji(DecryptoAES(textElem?.content));
+            }
+            if (this.showNickname) {
+                text = senderNickname + '：' + text;
+            }
+            return text;
+        },
     },
 };
 </script>

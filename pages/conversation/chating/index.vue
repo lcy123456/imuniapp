@@ -97,6 +97,7 @@ export default {
         },
         chatListClick () {
             this.footerOutsideFlag += 1;
+            uni.hideKeyboard();
         },
         getEl (el) {
             return new Promise((resolve) => {

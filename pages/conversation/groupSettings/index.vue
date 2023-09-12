@@ -30,15 +30,49 @@
                 />
             </view>
         </view>
-        <GroupMemberRow
-            :is-owner="isOwner"
-            :is-admin="isAdmin"
-            :group-i-d="currentGroup.groupID"
-            :member-count="currentGroup.memberCount"
-            :list="groupMemberList"
-            @admin="handleAdmin"
-            @kick="handleKick"
-        />
+        <view class="mb-30 flex">
+            <SettingItem
+                class="flex-grow"
+                title="查找用户/聊天记录"
+                show-arrow
+                @click="handleRecord"
+            />
+            <!-- <view class="w-210 ml-30 bg-color br-30 flex flex-column align-center justify-center">
+                <image
+                    class="w-42 h-10 my-20"
+                    src="/static/images/common_more_active.png"
+                />
+                <text class="fz-26">
+                    更多
+                </text>
+            </view> -->
+        </view>
+        <view class="member_row_box">
+            <view class="member_title">
+                <view
+                    class="member_desc"
+                    @click="inviteMember"
+                >
+                    <image
+                        src="/static/images/contact_add_search_user.png"
+                        class="w-44 h-44"
+                    />
+                    <text class="ml-20 primary">
+                        邀请新成员
+                    </text>
+                </view>
+                <text class="text-grey">
+                    {{ `${currentGroup.memberCount}位成员` }}
+                </text>
+            </view>
+            <GroupMemberSwipe
+                :is-owner="isOwner"
+                :is-admin="isAdmin"
+                :list="groupMemberList"
+                :group-i-d="currentGroup.groupID"
+                @change="handleMemberChange"
+            />
+        </view>
         <view class="mt-30">
             <u-button
                 type="error"
@@ -56,15 +90,6 @@
                 @confirm="confirm"
                 @cancel="() => (confirmType = null)"
             />
-            <u-modal
-                title="删除成员"
-                :content="`确定删除成员${kickModal.member.nickname}吗？`"
-                async-close
-                :show="kickModal.show"
-                show-cancel-button
-                @confirm="kickConfirm"
-                @cancel="() => (kickModal.show = false)"
-            />
         </view>
     </view>
 </template>
@@ -74,11 +99,12 @@ import { mapGetters, mapActions } from 'vuex';
 import IMSDK, { GroupMemberRole, GroupMemberFilter, IMMethods } from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
-import GroupMemberRow from './components/GroupMemberRow.vue';
+import GroupMemberSwipe from './components/GroupMemberSwipe.vue';
+import SettingItem from '@/components/SettingItem/index.vue';
 import { checkLoginError } from '@/util/common';
 import { chooseImage } from '@/util/unisdk';
 import { uploadFile } from '@/util/imCommon';
-import { CustomMarkType } from '@/constant';
+import { CustomMarkType, RecordFormMap, ContactChooseTypes } from '@/constant';
 
 const ConfirmTypes = {
     Dismiss: 'Dismiss',
@@ -89,17 +115,13 @@ export default {
     components: {
         CustomNavBar,
         MyAvatar,
-        GroupMemberRow,
+        SettingItem,
+        GroupMemberSwipe,
     },
     props: {},
     data () {
         return {
             groupMemberList: [],
-            kickModal: {
-                member: {},
-                content: '',
-                show: false
-            },
             confirmType: null,
         };
     },
@@ -162,6 +184,13 @@ export default {
                 },
             });
         },
+        async handleRecord () {
+            uni.$u.route('/pages/common/searchRecord/recordDetail/index', {
+                conversation: encodeURIComponent(JSON.stringify(this.conversation)),
+                from: RecordFormMap.Group,
+                groupID: this.currentGroup.groupID
+            });
+        },
         getGroupMemberList () {
             IMSDK.asyncApi(IMSDK.IMMethods.GetGroupMemberList, IMSDK.uuid(), {
                 groupID: this.currentGroup.groupID,
@@ -173,6 +202,12 @@ export default {
             }).catch((err) => {
                 console.log(err);
                 this.$toast(checkLoginError(err));
+            });
+        },
+        inviteMember () {
+            uni.$u.route('/pages/common/contactChoose/index', {
+                type: ContactChooseTypes.Invite,
+                groupID: this.currentGroup.groupID
             });
         },
         async getCheckUsers (data) {
@@ -189,39 +224,9 @@ export default {
                 this.$toast(checkLoginError(err));
             }
         },
-        async handleAdmin (v) {
-            try {
-                await IMSDK.asyncApi(IMSDK.IMMethods.SetGroupMemberRoleLevel, IMSDK.uuid(), {
-                    groupID: this.currentGroup.groupID,
-                    userID: v.userID,
-                    roleLevel: GroupMemberRole.Admin === v.roleLevel ? GroupMemberRole.Nomal : GroupMemberRole.Admin
-                });
-                this.$toast('操作成功');
-                this.getGroupMemberList();
-                this.getCurrentGroup(this.currentGroup.groupID);
-            } catch (err) {
-                this.$toast(checkLoginError(err));
-            }
-        },
-        handleKick (member) {
-            this.kickModal.member = member;
-            this.kickModal.show = true;
-        },
-        async kickConfirm () {
-            const {member} = this.kickModal;
-            try {
-                await IMSDK.asyncApi(IMSDK.IMMethods.KickGroupMember, IMSDK.uuid(), {
-                    groupID: this.currentGroup.groupID,
-                    reason: "",
-                    userIDList: [member.userID],
-                });
-                this.$toast('操作成功');
-                this.getGroupMemberList();
-                this.getCurrentGroup(this.currentGroup.groupID);
-            } catch (err) {
-                this.$toast(checkLoginError(err));
-            }
-            this.kickModal.show = false;
+        handleMemberChange () {
+            this.getGroupMemberList();
+            this.getCurrentGroup(this.currentGroup.groupID);
         },
         confirm () {
             let funcName = '';
@@ -267,11 +272,10 @@ export default {
     overflow: hidden;
 
     .base_info {
-        margin-top: 20rpx;
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 50rpx;
+        margin: 20rpx 0 50rpx;
         position: relative;
 
         .u-avatar {
@@ -289,6 +293,23 @@ export default {
             @include vCenterBox();
             font-size: 36rpx;
             color: $uni-text-color-grey;
+        }
+    }
+
+    
+    .member_row_box {
+        @include colBox(false);
+        background-color: $uni-bg-color;
+        border-radius: 30rpx;
+        overflow: hidden;
+
+        .member_title {
+            @include btwBox();
+            padding: 30rpx 20rpx;
+
+            .member_desc {
+                @include vCenterBox();
+            }
         }
     }
 

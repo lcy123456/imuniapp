@@ -362,9 +362,6 @@ export default {
     }
 
     .info-row {
-        height: 130rpx;
-        background-color: $uni-bg-color;
-        border-radius: 30rpx;
         margin-bottom: 30rpx;
     }
 

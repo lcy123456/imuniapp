@@ -2,8 +2,8 @@
     <view
         class="file_render_container"
         @click="handleClick"
+        @longpress="handleLongPress"
     >
-        <!-- @longpress="handleLongPress" -->
         <image
             class="w-66 h-76 flex-shrink mr-30"
             src="/static/images/search_record_file.png"
@@ -24,7 +24,6 @@
                 <text>{{ dayjs(message.sendTime).format('YYYY-MM-DD HH:mm') }}</text>
             </view>
             <u-line-progress
-                v-show="percentage"
                 :show-text="false"
                 :percentage="percentage"
                 height="5"
@@ -47,8 +46,6 @@ export default {
 
     data () {
         return {
-            isPreview: false,
-            path: '',
             percentage: 0
         };
     },
@@ -68,31 +65,25 @@ export default {
         bytesToSize,
         async handleClick () {
             this.$loading('加载中');
-            !this.path && await this.handleDownloadFile();
-            this.openDoc();
+            const path = await this.handleDownloadFile();
+            this.openDoc(path);
         },
         handleDownloadFile () {
             return new Promise((resolve, reject) => {
-                const downloadTask = uni.downloadFile({
+                uni.downloadFile({
                     url: this.fileElem.sourceUrl,
                     success: (res) => {
-                        const path = this.path = res.tempFilePath;
-                        console.log('下载成功', path);
-                        resolve(path);
+                        resolve(res.tempFilePath);
                     },
                     fail: (err) => {
                         reject(err);
                     }
                 });
-                downloadTask.onProgressUpdate(res => {
-                    console.log('下载进度', res.progress);
-                    this.percentage = res.progress;
-                });
             });
         },
-        openDoc () {
+        openDoc (path) {
             uni.openDocument({
-                filePath: this.path,
+                filePath: path,
                 success: () => {
                     this.$hideLoading();
                 },
@@ -103,6 +94,7 @@ export default {
             });
         },
         handleLongPress () {
+            console.log('handleLongPress');
             uni.showActionSheet({
                 itemList: ['保存到本地'],
                 success: ({ tapIndex }) => {
@@ -116,16 +108,28 @@ export default {
             });
         },
         async handleSave () {
-            !this.path && await this.handleDownloadFile();
-            uni.saveFile({
-                tempFilePath: this.path,
-                success: ({savedFilePath}) => {
-                    console.log('savedFilePath', savedFilePath);
-                    this.path = savedFilePath;
-                    this.$toast('保存成功');
+            const downloadTask = plus.downloader.createDownload(this.fileElem.sourceUrl, {
+                filename: 'file:///storage/emulated/0/Download/MuskIM/' + this.fileElem.fileName,
+            }, (d, status) => {
+                if (status == 200) {
+                    let fileSaveUrl = plus.io.convertLocalFileSystemURL(d.filename);
+                    this.$toast(`文件已保存到${fileSaveUrl}`, 3000);
+                } else {
+                    console.log("下载失败");
+                    plus.downloader.clear();
                 }
             });
-        }
+            downloadTask.start();//执行下载
+            downloadTask.addEventListener("statechanged", this.onStateChanged, false);
+        },
+        onStateChanged (download) {
+            const { downloadedSize, totalSize, state } = download;
+            switch (state) {
+            case 3:
+                this.percentage = parseInt(100 * downloadedSize / totalSize);
+                break;
+            }
+        },
     },
 };
 </script>
