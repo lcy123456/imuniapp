@@ -56,7 +56,7 @@
                 @switch="blackChange"
             />
             <view 
-                class="info-row flex justify-center align-center error"
+                class="h-130 bg-color br-30 flex justify-center align-center error"
                 @click="()=>showConfirm=true"
             >
                 解除好友关系
