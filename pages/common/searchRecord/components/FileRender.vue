@@ -126,10 +126,9 @@ export default {
             const downloadTask = plus.downloader.createDownload(this.fileElem.sourceUrl, options, (d, status) => {
                 if (status == 200) {
                     let fileSaveUrl = plus.io.convertLocalFileSystemURL(d.filename);
-                    console.log(fileSaveUrl);
                     this.$toast(`文件已保存到${fileSaveUrl}`, 3000);
                 } else {
-                    console.log("下载失败");
+                    this.$toast(`文件下载失败`, 3000);
                     plus.downloader.clear();
                 }
             });
