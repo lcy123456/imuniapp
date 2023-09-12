@@ -65,12 +65,15 @@ export default {
         bytesToSize,
         async handleClick () {
             this.$loading('加载中');
-            const path = await this.handleDownloadFile();
+            let path = this.path;
+            if (!path) {
+                this.path = path = await this.handleDownloadFile();
+            }
             this.openDoc(path);
         },
         handleDownloadFile () {
             return new Promise((resolve, reject) => {
-                uni.downloadFile({
+                const downloadTask = uni.downloadFile({
                     url: this.fileElem.sourceUrl,
                     success: (res) => {
                         resolve(res.tempFilePath);
@@ -79,6 +82,11 @@ export default {
                         reject(err);
                     }
                 });
+                if (plus.os.name === 'iOS') {
+                    downloadTask.onProgressUpdate((res) => {
+                        this.percentage = res.progress;
+                    });
+                }
             });
         },
         openDoc (path) {
@@ -95,9 +103,10 @@ export default {
         },
         handleLongPress () {
             console.log('handleLongPress');
+            if (plus.os.name === 'iOS') return;
             uni.showActionSheet({
                 itemList: ['保存到本地'],
-                success: ({ tapIndex }) => {
+                success: async ({ tapIndex }) => {
                     if (tapIndex === 0) {
                         this.handleSave();
                     }
@@ -108,18 +117,23 @@ export default {
             });
         },
         async handleSave () {
-            const downloadTask = plus.downloader.createDownload(this.fileElem.sourceUrl, {
-                filename: 'file:///storage/emulated/0/Download/MuskIM/' + this.fileElem.fileName,
-            }, (d, status) => {
+            let options = {};
+            if (plus.os.name === 'Android') {
+                options = {
+                    filename: 'file:///storage/emulated/0/Download/MuskIM/' + this.fileElem.fileName,
+                };
+            }
+            const downloadTask = plus.downloader.createDownload(this.fileElem.sourceUrl, options, (d, status) => {
                 if (status == 200) {
                     let fileSaveUrl = plus.io.convertLocalFileSystemURL(d.filename);
+                    console.log(fileSaveUrl);
                     this.$toast(`文件已保存到${fileSaveUrl}`, 3000);
                 } else {
                     console.log("下载失败");
                     plus.downloader.clear();
                 }
             });
-            downloadTask.start();//执行下载
+            downloadTask.start();
             downloadTask.addEventListener("statechanged", this.onStateChanged, false);
         },
         onStateChanged (download) {

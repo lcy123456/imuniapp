@@ -2,23 +2,23 @@
     <swiper
         class="swiper_container"
         :current="current"
-        :style="{height: windowHeight + 'px'}"
+        :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
     >
         <swiper-item
             v-for="v in list"
             :key="v.url"
-            :style="{height: windowHeight + 'px'}"
+            :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
         >
             <image
                 v-if="v.type === 'image'"
                 :src="v.url"
-                :style="{height: windowHeight + 'px'}"
+                :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
                 mode="aspectFit"
             />
             <video
                 v-else-if="v.type === 'video'"
                 :src="v.url"
-                :style="{height: windowHeight + 'px'}"
+                :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
                 :poster="v.poster"
             />
         </swiper-item>
@@ -43,7 +43,7 @@ export default {
         return {
             list: [],
             current: 0,
-            windowHeight: uni.getSystemInfoSync().windowHeight
+            systemInfo: uni.getSystemInfoSync()
         };
     },
 
