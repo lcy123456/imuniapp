@@ -137,7 +137,7 @@ export default {
                 conversationID: this.storeCurrentConversation.conversationID,
                 userID: '',
                 groupID: '',
-                count: 50,
+                count: 20,
             };
             try {
                 if (isLoadMore) {

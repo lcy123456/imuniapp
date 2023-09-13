@@ -38,7 +38,6 @@ export default {
             "storeRecvGroupApplications",
             "storeHistoryMessageList",
             "storeIsSyncing",
-            "storeIsProd",
         ]),
         contactBadgeRely () {
             return {

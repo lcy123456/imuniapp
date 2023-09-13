@@ -247,6 +247,7 @@ export default {
         async sendMessage (message) {
             console.log('消息创建成功', message);
             this.pushNewMessage(message);
+            uni.$emit(PageEvents.ScrollToBottom);
             if (needClearTypes.includes(message.contentType)) {
                 this.customEditorCtx.clear();
             }
@@ -262,7 +263,6 @@ export default {
                     message: data,
                     isSuccess: true,
                 });
-                uni.$emit(PageEvents.ScrollToBottom);
             } catch ({ data, errCode }) {
                 this.updateOneMessage({
                     message: data,
