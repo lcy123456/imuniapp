@@ -483,11 +483,13 @@ export default {
             this.innerAudioContext.src = '/static/audio/message_tip.mp3';
         },
         handleUniPush () {
-            plus.push.getClientInfoAsync((info) => {
-                // cid = info["clientid"];
-                // console.log('clientid', cid);
-                this.$store.commit('user/SET_CLIENT_ID', info["clientid"]);
-            });
+            setTimeout(() => {
+                plus.push.getClientInfoAsync((info) => {
+                    // cid = info["clientid"];
+                    console.log('clientid', info.clientid);
+                    this.$store.commit('user/SET_CLIENT_ID', info["clientid"]);
+                });
+            }, 3000);
         }
     },
 };
