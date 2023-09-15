@@ -124,17 +124,10 @@ export default {
 }
 
 .swipe_wrapper {
-    @include colBox(false);
-    flex: 1;
-    width: 100%;
-    overflow-y: auto;
-}
-
-.conversation_list {
-    flex: 1;
-    width: 100%;
-    // position: relative;
-    // z-index: -1;
+    // @include colBox(false);
+    // flex: 1;
+    // width: 100%;
+    // overflow-y: auto;
 }
 
 .loading_wrap {
@@ -142,10 +135,5 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-}
-
-/deep/.u-swipe-action-item__right__button__wrapper__text {
-    -webkit-line-clamp: 2 !important;
-    max-width: 32px;
 }
 </style>

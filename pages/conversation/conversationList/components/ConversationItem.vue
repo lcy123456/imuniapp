@@ -9,7 +9,7 @@
         <view
             class="conversation_item"
             :class="{ 'bg-hover': source.isPinned }"
-            @tap.prevent="clickConversationItem"
+            @click="clickConversationItem"
         >
             <view class="left_info">
                 <MyAvatar
@@ -268,6 +268,7 @@ export default {
     @include btwBox();
     padding: 20rpx;
     position: relative;
+    overflow: hidden;
 
     .left_info {
         @include btwBox();
@@ -337,24 +338,26 @@ export default {
         }
     }
 }
-/deep/.u-swipe-action-item__right__button {
-    width: 142rpx;
-    .u-swipe-action-item__right__button__wrapper {
-        width: 100%;
-        padding: 0 20rpx !important;
-        flex-direction: column !important;
-        justify-content: space-evenly;
-        .u-icon {
-            width: 50rpx;
-            height: 50rpx;
-            .u-icon__img {
-                width: 100% !important;
-                height: 100% !important;
+/deep/.u-swipe-action-item__right {
+    z-index: 0;
+    .u-swipe-action-item__right__button {
+        width: 142rpx;
+        .u-swipe-action-item__right__button__wrapper {
+            width: 100%;
+            padding: 0 20rpx !important;
+            flex-direction: column !important;
+            justify-content: space-evenly;
+            .u-icon {
+                width: 50rpx;
+                height: 50rpx;
+                .u-icon__img {
+                    width: 100% !important;
+                    height: 100% !important;
+                }
             }
-        }
-        .u-swipe-action-item__right__button__wrapper__text {
-            font-size: 26rpx !important;
-            max-width: initial;
+            .u-swipe-action-item__right__button__wrapper__text {
+                font-size: 26rpx !important;
+            }
         }
     }
 }
