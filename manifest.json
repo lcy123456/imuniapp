@@ -1,6 +1,6 @@
 {
     "name" : "MuskIM",
-    "appid" : "__UNI__0DBF818",
+    "appid" : "__UNI__D2FA053",
     "description" : "",
     "versionName" : "2.0.3",
     "versionCode" : 203,
@@ -23,7 +23,8 @@
             "Geolocation" : {},
             "Maps" : {},
             "Barcode" : {},
-            "Orientation" : {}
+            "Orientation" : {},
+            "Push" : {}
         },
         "distribute" : {
             "android" : {
@@ -84,7 +85,10 @@
                 },
                 "share" : {},
                 "statics" : {},
-                "speech" : {}
+                "speech" : {},
+                "push" : {
+                    "unipush" : {}
+                }
             },
             "splashscreen" : {
                 "androidStyle" : "default",

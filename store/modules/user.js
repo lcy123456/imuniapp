@@ -21,14 +21,23 @@ const defaultConfig = {
 };
 
 const state = {
+    clientID: '',
+    authData: {},
     selfInfo: {},
     appConfig: {},
-    authData: {},
     isSyncing: false,
     isProd: process.env.NODE_ENV === 'production'
 };
 
 const mutations = {
+    SET_CLIENT_ID (state, data) {
+        state.clientID = data;
+    },
+    SET_AUTH_DATA (state, data) {
+        state.authData = {
+            ...data
+        };
+    },
     SET_SELF_INFO (state, info) {
         state.selfInfo = {
             ...info
@@ -37,11 +46,6 @@ const mutations = {
     SET_APP_CONFIG (state, config) {
         state.appConfig = {
             ...config
-        };
-    },
-    SET_AUTH_DATA (state, data) {
-        state.authData = {
-            ...data
         };
     },
     SET_IS_SYNCING (state, data) {

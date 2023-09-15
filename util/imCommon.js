@@ -7,6 +7,7 @@ import {
 import { getOnlineStateFromSvr } from "@/api/imApi";
 import { businessSearchUserInfo } from '@/api/login';
 import IMSDK, {
+    IMMethods,
     GroupAtType,
     MessageType,
     SessionType,
@@ -459,6 +460,31 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
     default:
         return "";
     }
+};
+
+export const IMLogin = async () => {
+    const { storeUserID, storeIMToken } = store.getters;
+    if (!storeUserID || !storeIMToken) {
+        store.commit('user/SET_AUTH_DATA', {});
+        throw new Error('token不存在');
+    }
+    await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
+        userID: storeUserID,
+        token: storeIMToken,
+    });
+    store.dispatch("user/getSelfInfo");
+    store.dispatch("conversation/getConversationList");
+    store.dispatch("conversation/getUnReadCount");
+    store.dispatch("contact/getFriendList");
+    store.dispatch("contact/getGrouplist");
+    store.dispatch("contact/getBlacklist");
+    store.dispatch("contact/getRecvFriendApplications");
+    store.dispatch("contact/getSentFriendApplications");
+    store.dispatch("contact/getRecvGroupApplications");
+    store.dispatch("contact/getSentGroupApplications");
+    uni.switchTab({
+        url: "/pages/conversation/conversationList/index",
+    });
 };
 
 export const getDesignatedUserOnlineState = (userID) => {

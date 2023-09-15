@@ -125,12 +125,11 @@
 
 <script>
 import { mapMutations, mapGetters } from 'vuex';
-import { v4 as uuidv4 } from 'uuid';
 import md5 from 'md5';
 import { businessLogin } from '@/api/login';
 import AreaPicker from '@/components/AreaPicker';
 import { checkLoginError } from '@/util/common';
-import IMSDK from 'openim-uniapp-polyfill';
+import { IMLogin } from '@/util/imCommon';
 import { SmsUserFor } from '@/constant';
 
 let timer;
@@ -173,7 +172,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeIsProd']),
+        ...mapGetters(['storeClientID', 'storeIsProd']),
         canLogin () {
             return (
                 this.checked[0] &&
@@ -214,55 +213,27 @@ export default {
         },
         async startLogin () {
             this.$refs.loginForm.validate().then(async () => {
-                this.loading = true;
-                this.saveLoginInfo();
-                let data = {};
                 try {
-                    data = await businessLogin({
+                    this.loading = true;
+                    this.saveLoginInfo();
+                    const data = await businessLogin({
                         phoneNumber: this.loginInfo.phoneNumber,
                         areaCode: `+${this.loginInfo.areaCode}`,
                         password: md5(this.loginInfo.password),
                         platform: uni.$u.os() === 'ios' ? 1 : 2,
                         verifyCode: this.loginInfo.verificationCode,
+                        cid: this.storeClientID
                     });
+                    console.log('login', data);
+                    this.$store.commit('user/SET_AUTH_DATA', data);
+                    await IMLogin();
                 } catch (err) {
                     console.error(err);
                     uni.$u.toast(checkLoginError(err));
                     this.loading = false;
                     return;
                 }
-                console.log('login', data);
-                const { imToken, userID } = data;
-                await IMSDK.asyncApi(IMSDK.IMMethods.Login, uuidv4(), {
-                    userID,
-                    token: imToken,
-                });
-
-                this.saveLoginProfile(data);
-                this.$store.commit('user/SET_AUTH_DATA', data);
-                this.$store.dispatch('user/getSelfInfo');
-                this.$store.dispatch('conversation/getConversationList');
-                this.$store.dispatch('conversation/getUnReadCount');
-                this.$store.dispatch('contact/getFriendList');
-                this.$store.dispatch('contact/getGrouplist');
-                this.$store.dispatch('contact/getBlacklist');
-                this.$store.dispatch('contact/getRecvFriendApplications');
-                this.$store.dispatch('contact/getSentFriendApplications');
-                this.$store.dispatch('contact/getRecvGroupApplications');
-                this.$store.dispatch('contact/getSentGroupApplications');
-                uni.switchTab({
-                    url: '/pages/conversation/conversationList/index',
-                });
-                this.loginInfo.password = '';
-                this.loading = false;
             });
-        },
-        saveLoginProfile (data) {
-            const { imToken, chatToken, userID, cryptoPadding } = data;
-            uni.setStorageSync('IMUserID', userID);
-            uni.setStorageSync('IMToken', imToken);
-            uni.setStorageSync('BusinessToken', chatToken);
-            uni.setStorageSync('CryptoPadding', cryptoPadding);
         },
         saveLoginInfo () {
             uni.setStorageSync('lastPhoneNumber', this.loginInfo.phoneNumber);

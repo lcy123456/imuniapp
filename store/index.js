@@ -15,9 +15,10 @@ const vuexPersisted = createPersistedState({
     },
     reducer (state) {
         const { user } = state;
-        const { isProd } = user;
+        const { authData, isProd } = user;
         return {
             user: {
+                authData,
                 isProd
             },
         };

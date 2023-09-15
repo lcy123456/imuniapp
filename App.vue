@@ -7,7 +7,7 @@ import IMSDK, {
 } from "openim-uniapp-polyfill";
 import config from "./common/config";
 import { getDbDir, toastWithCallback } from "@/util/common.js";
-import { conversationSort } from "@/util/imCommon";
+import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes } from "@/constant";
 
 export default {
@@ -16,8 +16,10 @@ export default {
         this.setGlobalIMlistener();
         this.tryLogin();
         this.handleAudioManager();
+        this.handleUniPush();
     },
     onShow: function () {
+        plus.runtime.setBadgeNumber(0);
         IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
     },
     onHide: function () {
@@ -30,6 +32,8 @@ export default {
     },
     computed: {
         ...mapGetters([
+            "storeIMUserID",
+            "storeIMToken",
             "storeConversationList",
             "storeCurrentConversation",
             "storeCurrentUserID",
@@ -105,12 +109,7 @@ export default {
             // init
             const kickHander = (message) => {
                 toastWithCallback(message, () => {
-                    uni.removeStorage({
-                        key: "IMToken",
-                    });
-                    uni.removeStorage({
-                        key: "BusinessToken",
-                    });
+                    this.$store.commit('user/SET_AUTH_DATA', {});
                     // Igexin.unbindAlias(this.storeCurrentUserID)
                     uni.reLaunch({
                         url: "/pages/login/index"
@@ -424,61 +423,27 @@ export default {
             );
         },
 
-        tryLogin () {
-            getDbDir()
-                .then(async (path) => {
-                    const flag = await IMSDK.asyncApi(IMMethods.InitSDK, IMSDK.uuid(), {
-                        platformID: uni.$u.os() === "ios" ? 1 : 2, // 平台，参照IMPlatform类,
-                        apiAddr: config.getApiUrl(), // SDK的API接口地址。如：http://xxx:10002
-                        wsAddr: config.getWsUrl(), // SDK的websocket地址。如： ws://xxx:10001
-                        dataDir: path, // 数据存储路径
-                        logLevel: 6,
-                        logFilePath: path,
-                        isLogStandardOutput: true,
-                    });
-                    if (!flag) {
-                        plus.navigator.closeSplashscreen();
-                        uni.$u.toast("初始化IMSDK失败！");
-                        return;
-                    }
-
-                    const IMToken = uni.getStorageSync("IMToken");
-                    const IMUserID = uni.getStorageSync("IMUserID");
-                    if (IMToken && IMUserID) {
-                        IMSDK.asyncApi(IMSDK.IMMethods.Login, IMSDK.uuid(), {
-                            userID: IMUserID,
-                            token: IMToken,
-                        })
-                            .then(() => {
-                                this.$store.dispatch("user/getSelfInfo");
-                                this.$store.dispatch("conversation/getConversationList");
-                                this.$store.dispatch("conversation/getUnReadCount");
-                                this.$store.dispatch("contact/getFriendList");
-                                this.$store.dispatch("contact/getGrouplist");
-                                this.$store.dispatch("contact/getBlacklist");
-                                this.$store.dispatch("contact/getRecvFriendApplications");
-                                this.$store.dispatch("contact/getSentFriendApplications");
-                                this.$store.dispatch("contact/getRecvGroupApplications");
-                                this.$store.dispatch("contact/getSentGroupApplications");
-                                uni.switchTab({
-                                    url: "/pages/conversation/conversationList/index?isRedirect=true",
-                                });
-                            })
-                            .catch((err) => {
-                                console.log(err);
-                                uni.removeStorageSync('IMToken');
-                                uni.removeStorageSync('BusinessToken');
-                                plus.navigator.closeSplashscreen();
-                            });
-                    } else {
-                        plus.navigator.closeSplashscreen();
-                    }
-                })
-                .catch((err) => {
-                    console.log("get dir failed");
-                    console.log(err);
-                    plus.navigator.closeSplashscreen();
+        async tryLogin () {
+            try {
+                const path = await getDbDir();
+                const flag = await IMSDK.asyncApi(IMMethods.InitSDK, IMSDK.uuid(), {
+                    platformID: uni.$u.os() === "ios" ? 1 : 2, // 平台，参照IMPlatform类,
+                    apiAddr: config.getApiUrl(), // SDK的API接口地址。如：http://xxx:10002
+                    wsAddr: config.getWsUrl(), // SDK的websocket地址。如： ws://xxx:10001
+                    dataDir: path, // 数据存储路径
+                    logLevel: 6,
+                    logFilePath: path,
+                    isLogStandardOutput: true,
                 });
+                if (!flag) {
+                    uni.$u.toast("初始化IMSDK失败！");
+                    return new Error('初始化IMSDK失败！');
+                }
+                await IMLogin();
+            } catch (err) {
+                console.log(err);
+                plus.navigator.closeSplashscreen();
+            }
         },
 
         handleNewMessage (newServerMsg) {
@@ -516,6 +481,13 @@ export default {
         handleAudioManager () {
             this.innerAudioContext = uni.createInnerAudioContext();
             this.innerAudioContext.src = '/static/audio/message_tip.mp3';
+        },
+        handleUniPush () {
+            plus.push.getClientInfoAsync((info) => {
+                // cid = info["clientid"];
+                // console.log('clientid', cid);
+                this.$store.commit('user/SET_CLIENT_ID', info["clientid"]);
+            });
         }
     },
 };

@@ -1,11 +1,9 @@
+import store from '@/store';
 import CryptoJS from 'crypto-js';
 import { CryptoKey } from '@/constant';
 
-let cryptoPadding = '';
 export const getParams = () => {
-    if (!cryptoPadding) {
-        cryptoPadding = uni.getStorageSync("CryptoPadding");
-    }
+    const cryptoPadding = store.getters.storeCryptoPadding;
     // 前后端约定的加密规则
     const sKey = CryptoJS.enc.Utf8.parse(CryptoKey);
     const iv = CryptoJS.enc.Utf8.parse(cryptoPadding);

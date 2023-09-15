@@ -147,23 +147,13 @@ export default {
                 break;
             }
         },
-        logoutConfirm () {
-            IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid())
-                .then(() => {
-                    uni.removeStorage({
-                        key: 'IMToken',
-                    });
-                    uni.removeStorage({
-                        key: 'BusinessToken',
-                    });
-                })
-                .catch((err) => console.log(err))
-                .finally(() => {
-                    this.showComfirm = false;
-                    uni.reLaunch({
-                        url: '/pages/login/index'
-                    });
-                });
+        async logoutConfirm () {
+            await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+            this.$store.commit('user/SET_AUTH_DATA', {});
+            this.showComfirm = false;
+            uni.reLaunch({
+                url: '/pages/login/index'
+            });
         },
         closeModal () {
             this.showComfirm = false;

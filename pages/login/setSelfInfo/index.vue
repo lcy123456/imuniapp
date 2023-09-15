@@ -69,12 +69,13 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import CustomNavBar from '@/components/CustomNavBar';
 import md5 from 'md5';
-import IMSDK from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { businessRegister } from '@/api/login';
 import { checkLoginError } from '@/util/common';
+import { IMLogin } from '@/util/imCommon';
 
 export default {
     components: {
@@ -95,6 +96,7 @@ export default {
         };
     },
     computed: {
+        ...mapGetters(['storeClientID']),
         isVerifyOk () {
             return this.userInfo.faceURL && this.userInfo.nickname;
         }
@@ -122,74 +124,33 @@ export default {
             this.userInfo.faceURL = value;
         },
         async doNext () {
-            this.loading = true;
-            const options = {
-                verifyCode: this.codeValue,
-                platform: uni.$u.os() === 'ios' ? 1 : 2,
-                autoLogin: true,
-                user: {
-                    ...this.userInfo,
-                    areaCode: `+${this.userInfo.areaCode}`,
-                    password: md5(this.passWord),
-                },
-            };
             try {
-                const data = await businessRegister(options);
-                const { imToken, userID } = data;
-                await IMSDK.asyncApi(IMSDK.IMMethods.Login, IMSDK.uuid(), {
-                    userID,
-                    token: imToken,
-                });
-                this.saveLoginProfile(data);
+                this.loading = true;
+                const options = {
+                    verifyCode: this.codeValue,
+                    platform: uni.$u.os() === 'ios' ? 1 : 2,
+                    autoLogin: true,
+                    user: {
+                        ...this.userInfo,
+                        areaCode: `+${this.userInfo.areaCode}`,
+                        password: md5(this.passWord),
+                    },
+                    cid: this.storeClientID
+                };
                 this.saveLoginInfo();
+                const data = await businessRegister(options);
                 this.$store.commit('user/SET_AUTH_DATA', data);
-                this.$store.dispatch('user/getSelfInfo');
-                this.$store.dispatch('conversation/getConversationList');
-                this.$store.dispatch('contact/getFriendList');
-                this.$store.dispatch('contact/getGrouplist');
-                this.$store.dispatch('contact/getBlacklist');
-                this.$store.dispatch('contact/getRecvFriendApplications');
-                this.$store.dispatch('contact/getSentFriendApplications');
-                this.$store.dispatch('contact/getRecvGroupApplications');
-                this.$store.dispatch('contact/getSentGroupApplications');
-                uni.switchTab({
-                    url: '/pages/conversation/conversationList/index',
-                });
+                await IMLogin();
             } catch (err) {
+                this.loading = false;
                 console.log(err);
                 uni.$u.toast(checkLoginError(err));
                 // uni.$u.toast('注册失败')
             }
-            this.loading = false;
         },
         saveLoginInfo () {
-            uni.setStorage({
-                key: 'lastPhoneNumber',
-                data: this.userInfo.phoneNumber,
-            });
-            uni.setStorage({
-                key: 'lastAreaCode',
-                data: this.userInfo.areaCode,
-            });
-        },
-        saveLoginProfile (data) {
-            const { imToken, chatToken, userID, cryptoPadding } = data;
-            uni.setStorage({
-                key: 'IMUserID',
-                data: userID,
-            });
-            uni.setStorage({
-                key: 'IMToken',
-                data: imToken,
-            });
-            uni.setStorage({
-                key: 'BusinessToken',
-                data: chatToken,
-            });
-            uni.setStorage({
-                key: 'CryptoPadding',
-                data: cryptoPadding,
-            });
+            uni.setStorageSync('lastPhoneNumber', this.loginInfo.phoneNumber);
+            uni.setStorageSync('lastAreaCode', this.loginInfo.areaCode);
         },
     },
 };

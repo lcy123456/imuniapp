@@ -28,10 +28,15 @@ export default {
         const hasMore = historyMessageMap[currentConversation.conversationID]?.hasMore ?? true;
         return hasMore;
     },
+    storeClientID: (state) => state.user.clientID,
+    storeAuthData: (state) => state.user.authData,
+    storeUserID: (state) => state.user.authData.userID,
+    storeIMToken: (state) => state.user.authData.imToken,
+    storeBusinessToken: (state) => state.user.authData.chatToken,
+    storeCryptoPadding: (state) => state.user.authData.cryptoPadding,
     storeSelfInfo: (state) => state.user.selfInfo,
     storeCurrentUserID: (state) => state.user.selfInfo.userID,
     storeAppConfig: (state) => state.user.appConfig,
     storeIsSyncing: (state) => state.user.isSyncing,
-    storeAuthData: (state) => state.user.authData,
     storeIsProd: (state) => state.user.isProd,
 };

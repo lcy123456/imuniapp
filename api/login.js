@@ -1,3 +1,5 @@
+import store from "@/store";
+
 // 登录
 export const businessLogin = (params) => uni.$u?.http.post('/account/login', JSON.stringify(params));
 export const businessSendSms = (params) => uni.$u?.http.post('/account/code/send', JSON.stringify(params));
@@ -15,14 +17,14 @@ export const businessInfoUpdate = (params) => uni.$u?.http.post('/user/update', 
     ...params,
 }), {
     header: {
-        token: uni.getStorageSync('BusinessToken')
+        token: store.getters.storeBusinessToken
     }
 });
 export const businessGetUserInfo = (userID) => uni.$u?.http.post('/user/find/full', JSON.stringify({
     userIDs: [userID],
 }), {
     header: {
-        token: uni.getStorageSync('BusinessToken')
+        token: store.getters.storeBusinessToken
     }
 });
 
@@ -34,7 +36,7 @@ export const businessSearchUserInfo = (keyword) => uni.$u?.http.post('/user/sear
     }
 }), {
     header: {
-        token: uni.getStorageSync('BusinessToken')
+        token: store.getters.storeBusinessToken
     }
 });
 
