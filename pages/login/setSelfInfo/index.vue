@@ -149,8 +149,8 @@ export default {
             }
         },
         saveLoginInfo () {
-            uni.setStorageSync('lastPhoneNumber', this.loginInfo.phoneNumber);
-            uni.setStorageSync('lastAreaCode', this.loginInfo.areaCode);
+            uni.setStorageSync('lastPhoneNumber', this.userInfo.phoneNumber);
+            uni.setStorageSync('lastAreaCode', this.userInfo.areaCode);
         },
     },
 };

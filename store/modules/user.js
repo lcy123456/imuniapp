@@ -16,7 +16,7 @@ export const businessAllowType = {
 };
 
 const defaultConfig = {
-    allowSendMsgNotFriend: businessAllowType.Allow,
+    allowSendMsgNotFriend: businessAllowType.NotAllow,
     needInvitationCodeRegister: false,
 };
 
