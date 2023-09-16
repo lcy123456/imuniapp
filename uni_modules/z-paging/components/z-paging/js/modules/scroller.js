@@ -5,6 +5,7 @@ import Enum from '.././z-paging-enum'
 // #ifdef APP-NVUE
 const weexDom = weex.requireModule('dom');
 // #endif
+
 export default {
 	props: {
 		//使用页面滚动，默认为否，当设置为是时则使用页面的滚动而非此组件内部的scroll-view的滚动，使用页面滚动时z-paging无需设置确定的高度且对于长列表展示性能更高，但配置会略微繁琐
@@ -73,7 +74,7 @@ export default {
 				this.loaded && this.autoHeight && this._setAutoHeight(!newVal);
 				// #ifdef H5
 				if (newVal) {
-					this.$nextTick(()=>{
+					this.$nextTick(() => {
 						const mainScrollRef = this.$refs['zp-scroll-view'].$refs.main;
 						if (mainScrollRef) {
 							mainScrollRef.style = {};
@@ -118,7 +119,7 @@ export default {
 		scrollToTop(animate, checkReverse = true) {
 			// #ifdef APP-NVUE
 			if (checkReverse && this.useChatRecordMode) {
-				if(!this.nIsFirstPageAndNoMore){
+				if (!this.nIsFirstPageAndNoMore) {
 					this.scrollToBottom(animate, false);
 					return;
 				}
@@ -128,9 +129,9 @@ export default {
 				this._scrollToTop(animate, false);
 				// #ifdef APP-NVUE
 				if (this.nvueFastScroll && animate) {
-					setTimeout(() => {
+					u.delay(() => {
 						this._scrollToTop(false, false);
-					}, 150);
+					});
 				}
 				// #endif
 			})
@@ -139,7 +140,7 @@ export default {
 		scrollToBottom(animate, checkReverse = true) {
 			// #ifdef APP-NVUE
 			if (checkReverse && this.useChatRecordMode) {
-				if(!this.nIsFirstPageAndNoMore){
+				if (!this.nIsFirstPageAndNoMore) {
 					this.scrollToTop(animate, false);
 					return;
 				}
@@ -149,9 +150,9 @@ export default {
 				this._scrollToBottom(animate);
 				// #ifdef APP-NVUE
 				if (this.nvueFastScroll && animate) {
-					setTimeout(() => {
+					u.delay(() => {
 						this._scrollToBottom(false);
-					}, 150);
+					});
 				}
 				// #endif
 			})
@@ -196,9 +197,8 @@ export default {
 		},
 		//更新slot="left"和slot="right"宽度，当slot="left"或slot="right"宽度动态改变时调用
 		updateLeftAndRightWidth() {
-			this.$nextTick(() => {
-				this._updateLeftAndRightWidth();
-			})
+			if (!this.finalIsOldWebView) return;
+			this.$nextTick(() => this._updateLeftAndRightWidth(this.scrollViewContainerStyle, 'zp-page'));
 		},
 		//更新z-paging内置scroll-view的scrollTop
 		updateScrollViewScrollTop(scrollTop, animate = true) {
@@ -217,8 +217,7 @@ export default {
 			this.$nextTick(() => {
 				this.oldScrollTop = 0;
 			})
-			if (!this.useChatRecordMode) return;
-			if (this.loadingStatus === Enum.More.NoMore) return;
+			if (!this.useChatRecordMode || this.loadingStatus === Enum.More.NoMore) return;
 			this._onLoadingMore('click');
 		},
 		//当滚动到底部时
@@ -440,7 +439,7 @@ export default {
 				// #ifdef MP-BAIDU || APP-NVUE
 				delayTime = 50;
 				// #endif
-				setTimeout(() => {
+				u.delay(() => {
 					this._getNodeClientRect(node).then((res) => {
 						if (res) {
 							let pageScrollNodeHeight = res[0].height;
@@ -459,22 +458,5 @@ export default {
 				}, delayTime)
 			})
 		},
-		//获取slot="left"和slot="right"宽度并且更新布局
-		_updateLeftAndRightWidth(){
-			if (!this.finalIsOldWebView) return;
-			this.$nextTick(() => {
-				let delayTime = 0;
-				// #ifdef MP-BAIDU
-				delayTime = 10;
-				// #endif
-				setTimeout(() => {
-					['left','right'].map(position => {
-						this._getNodeClientRect(`.zp-page-${position}`).then((res) => {
-							this.$set(this.scrollViewContainerStyle, position, res ? res[0].width + 'px' : '0px');
-						});
-					})
-				}, delayTime)
-			})
-		}
 	}
 }

@@ -126,6 +126,11 @@ export default {
 			type: String,
 			default: u.gc('refresherCompleteImg', null)
 		},
+		//自定义下拉刷新刷新中状态下是否展示旋转动画
+		refresherRefreshingAnimated: {
+			type: Boolean,
+			default: u.gc('refresherRefreshingAnimated', true)
+		},
 		//是否开启自定义下拉刷新刷新结束回弹效果，默认为是
 		refresherEndBounceEnabled: {
 			type: Boolean,
@@ -186,6 +191,11 @@ export default {
 			type: Boolean,
 			default: u.gc('refresherVibrate', false)
 		},
+		//下拉刷新时是否禁止下拉刷新view跟随用户触摸竖直移动，默认为否。注意此属性只是禁止下拉刷新view移动，其他下拉刷新逻辑依然会正常触发
+		refresherNoTransform: {
+			type: Boolean,
+			default: u.gc('refresherNoTransform', false)
+		},
 	},
 	data() {
 		return {
@@ -220,6 +230,7 @@ export default {
 			oldCurrentMoveDis: 0,
 			oldRefresherTouchmoveY: 0,
 			oldTouchDirection: '',
+			oldEmitedTouchDirection: '',
 			oldPullingDistance: -1
 		}
 	},
@@ -237,6 +248,9 @@ export default {
 			this.refresherVibrate && newVal === Enum.Refresher.ReleaseToRefresh && this._doVibrateShort();
 			this.$emit('refresherStatusChange', newVal);
 			this.$emit('update:refresherStatus', newVal);
+		},
+		refresherEnabled(newVal) {
+			!newVal && this.endRefresh();
 		}
 	},
 	computed: {
@@ -278,7 +292,7 @@ export default {
 			return rate;
 		},
 		finalRefresherTransform() {
-			if (this.refresherTransform === 'translateY(0px)') return 'none';
+			if (this.refresherNoTransform || this.refresherTransform === 'translateY(0px)') return 'none';
 			return this.refresherTransform;
 		},
 		finalShowRefresherWhenReload() {
@@ -292,11 +306,11 @@ export default {
 			const showRefresher = this.finalRefresherEnabled && this.useCustomRefresher;
 			// #ifndef APP-NVUE
 			if (this.customRefresherHeight === -1 && showRefresher) {
-				setTimeout(() => {
+				u.delay(() => {
 					this.$nextTick(()=>{
 						this._updateCustomRefresherHeight();
 					})
-				}, c.delayTime)
+				})
 			}
 			// #endif
 			return showRefresher;
@@ -320,6 +334,7 @@ export default {
 			this.totalData = this.realTotalData;
 			this._refresherEnd();
 			this._endSystemLoadingAndRefresh();
+			this._handleScrollViewDisableBounce({ bounce: true });
 		},
 		handleRefresherStatusChanged(func) {
 			this.refresherStatusChangedFunc = func;
@@ -331,9 +346,7 @@ export default {
 			this.$emit('Refresh');
 			// #ifdef APP-NVUE
 			if (this.loading) {
-				setTimeout(()=>{
-					this._nRefresherEnd();
-				},500)
+				u.delay(this._nRefresherEnd, 500)
 				return;
 			}
 			// #endif
@@ -359,8 +372,7 @@ export default {
 		_refresherTouchstart(e) {
 			this._handleListTouchstart();
 			if (this._touchDisabled()) return;
-			const touch = u.getTouch(e);
-			this._handleRefresherTouchstart(touch);
+			this._handleRefresherTouchstart(u.getTouch(e));
 		},
 		// #endif
 		//进一步处理拖拽开始结果
@@ -388,7 +400,10 @@ export default {
 				touch = u.getTouch(e);
 				refresherTouchmoveY = touch.touchY;
 				const direction  = refresherTouchmoveY > this.oldRefresherTouchmoveY ? 'top' : 'bottom';
-				direction === this.oldTouchDirection && this._handleTouchDirectionChange({direction});
+				if (direction === this.oldTouchDirection && direction !== this.oldEmitedTouchDirection) {
+					this._handleTouchDirectionChange({ direction });
+					this.oldEmitedTouchDirection = direction;
+				}
 				this.oldTouchDirection = direction;
 				this.oldRefresherTouchmoveY = refresherTouchmoveY;
 			}
@@ -467,7 +482,7 @@ export default {
 				this.refresherTransform = `translateY(${refresherThreshold}px)`;
 				this.refresherTransition = 'transform .1s linear';
 				// #endif
-				setTimeout(() => {
+				u.delay(() => {
 					this._emitTouchmove({ pullingDistance: refresherThreshold, dy: this.moveDis - refresherThreshold });
 				}, 0.1);
 				this.moveDis = refresherThreshold;
@@ -475,7 +490,7 @@ export default {
 				this._doRefresherLoad();
 			} else {
 				this._refresherEnd();
-				this.isTouchmovingTimeout = setTimeout(() => {
+				this.isTouchmovingTimeout = u.delay(() => {
 					this.isTouchmoving = false;
 				}, this.refresherDefaultDuration);
 			}
@@ -528,7 +543,7 @@ export default {
 					if (stackCount > 1) return;
 				}
 				this._cleanRefresherEndTimeout();
-				this.refresherEndTimeout = setTimeout(() => {
+				this.refresherEndTimeout = u.delay(() => {
 					this.refresherStatus = refresherStatus;
 				}, this.refresherStatus !== Enum.Refresher.Default && refresherStatus === Enum.Refresher.Default ? this.refresherCompleteDuration : 0);
 				
@@ -538,7 +553,7 @@ export default {
 				}
 				// #endif
 				this._cleanRefresherCompleteTimeout();
-				this.refresherCompleteTimeout = setTimeout(() => {
+				this.refresherCompleteTimeout = u.delay(() => {
 					let animateDuration = 1;
 					const animateType = this.refresherEndBounceEnabled && fromAddData ? 'cubic-bezier(0.19,1.64,0.42,0.72)' : 'linear';
 					if (fromAddData) {
@@ -562,7 +577,7 @@ export default {
 							clearTimeout(this.refresherCompleteSubTimeout);
 							this.refresherCompleteSubTimeout = null;
 						}
-						this.refresherCompleteSubTimeout = setTimeout(() => {
+						this.refresherCompleteSubTimeout = u.delay(() => {
 							this.$nextTick(() => {
 								this.refresherStatus = Enum.Refresher.Default;
 								this.isRefresherInComplete = false;
@@ -574,7 +589,7 @@ export default {
 				}, refresherCompleteDelay);
 			}
 			if (setLoading) {
-				setTimeout(() => {
+				u.delay(() => {
 					this.loading = false;
 				}, shouldEndLoadingDelay ? c.delayTime : 0);
 				isUserPullDown && this._onRestore();

@@ -268,7 +268,7 @@ export default {
     @include btwBox();
     padding: 20rpx;
     position: relative;
-    overflow: hidden;
+    transform: translateZ(1px);
 
     .left_info {
         @include btwBox();
@@ -338,26 +338,23 @@ export default {
         }
     }
 }
-/deep/.u-swipe-action-item__right {
-    z-index: 0;
-    .u-swipe-action-item__right__button {
-        width: 142rpx;
-        .u-swipe-action-item__right__button__wrapper {
-            width: 100%;
-            padding: 0 20rpx !important;
-            flex-direction: column !important;
-            justify-content: space-evenly;
-            .u-icon {
-                width: 50rpx;
-                height: 50rpx;
-                .u-icon__img {
-                    width: 100% !important;
-                    height: 100% !important;
-                }
+/deep/.u-swipe-action-item__right__button {
+    width: 142rpx;
+    .u-swipe-action-item__right__button__wrapper {
+        width: 100%;
+        padding: 0 20rpx !important;
+        flex-direction: column !important;
+        justify-content: space-evenly;
+        .u-icon {
+            width: 50rpx;
+            height: 50rpx;
+            .u-icon__img {
+                width: 100% !important;
+                height: 100% !important;
             }
-            .u-swipe-action-item__right__button__wrapper__text {
-                font-size: 26rpx !important;
-            }
+        }
+        .u-swipe-action-item__right__button__wrapper__text {
+            font-size: 26rpx !important;
         }
     }
 }
