@@ -494,10 +494,9 @@ export default {
         },
         _handlePush (message) {
             let payload = message.payload || {};
-            console.log('push1', message);
-            console.log('push2', payload);
+            console.log('push', JSON.stringify(payload));
             if (!payload.conversationID) return;
-            this.$store.commit('conversation/SET_PUSH_CONVERSATION_ID', payload.conversationID);
+            uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
         }
     },
 };

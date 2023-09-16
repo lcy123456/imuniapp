@@ -1,6 +1,5 @@
 export default {
     storeConversationList: (state) => state.conversation.conversationList,
-    storePushConversationID: (state) => state.conversation.pushConversationID,
     storeCurrentConversation: (state) => state.conversation.currentConversation,
     storeCurrentConversationID: (state) => state.conversation.currentConversation.conversationID,
     storeUnReadCount: (state) => state.conversation.unReadCount,

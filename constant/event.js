@@ -9,5 +9,6 @@ export const PageEvents = {
     RtcCall: 'RtcCall',
     CheckForUpdate: 'CheckForUpdate',
     CheckForUpdateResp: 'CheckForUpdateResp',
-    NativeCallEnd: 'NativeCallEnd'
+    NativeCallEnd: 'NativeCallEnd',
+    ClickPushMessage: 'ClickPushMessage',
 };

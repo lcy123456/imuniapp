@@ -55,6 +55,8 @@
 import { mapGetters } from 'vuex';
 import ChatHeader from './components/ChatHeader.vue';
 import ConversationItem from './components/ConversationItem.vue';
+import { prepareConversationState } from '@/util/imCommon';
+import { PageEvents } from "@/constant";
 
 export default {
     components: {
@@ -86,6 +88,12 @@ export default {
             });
         }
     },
+    onLoad () {
+        uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
+    },
+    onUnload () {
+        uni.$off(PageEvents.ClickPushMessage, this.handlePushConversation);
+    },
     methods: {
         handleToSearch () {
             uni.$u.route('/pages/common/searchRecord/index');
@@ -108,6 +116,17 @@ export default {
         closeAllSwipe () {
             this.$refs.swipeWrapperRef.closeAll();
         },
+        handlePushConversation (conversationID) {
+            console.log(PageEvents.ClickPushMessage, conversationID);
+            const source = this.storeConversationList.find(v => v.conversationID === conversationID);
+            if (!source) return;
+            uni.switchTab({
+                url: "/pages/conversation/conversationList/index",
+            });
+            setTimeout(() => {
+                prepareConversationState(source);
+            }, 300);
+        }
     },
 };
 </script>

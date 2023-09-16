@@ -6,8 +6,7 @@ const state = {
     currentConversation: {},
     unReadCount: 0,
     currentGroup: {},
-    currentMemberInGroup: {},
-    pushConversationID: ''
+    currentMemberInGroup: {}
 };
 
 const mutations = {
@@ -41,9 +40,6 @@ const mutations = {
         state.currentMemberInGroup = {
             ...member,
         };
-    },
-    SET_PUSH_CONVERSATION_ID (state, data) {
-        state.pushConversationID = data;
     },
 };
 
