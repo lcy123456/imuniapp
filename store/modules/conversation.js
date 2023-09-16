@@ -7,6 +7,7 @@ const state = {
     unReadCount: 0,
     currentGroup: {},
     currentMemberInGroup: {},
+    pushConversationID: ''
 };
 
 const mutations = {
@@ -41,6 +42,9 @@ const mutations = {
             ...member,
         };
     },
+    SET_PUSH_CONVERSATION_ID (state, data) {
+        state.pushConversationID = data;
+    },
 };
 
 const actions = {
@@ -51,7 +55,7 @@ const actions = {
                 uuidv4(),
                 {
                     offset: isFirstPage ? 0 : state.conversationList.length,
-                    count: 10,
+                    count: 999,
                 }
             );
             commit('SET_CONVERSATION_LIST', [

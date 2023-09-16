@@ -485,11 +485,19 @@ export default {
         handleUniPush () {
             setTimeout(() => {
                 plus.push.getClientInfoAsync((info) => {
-                    // cid = info["clientid"];
-                    console.log('clientid', info.clientid);
-                    this.$store.commit('user/SET_CLIENT_ID', info["clientid"]);
+                    const cid = info["clientid"];
+                    console.log('clientid', cid);
+                    this.$store.commit('user/SET_CLIENT_ID', cid);
                 });
             }, 3000);
+            plus.push.addEventListener('click', this._handlePush);  
+        },
+        _handlePush (message) {
+            let payload = message.payload || {};
+            console.log('push1', message);
+            console.log('push2', payload);
+            if (!payload.conversationID) return;
+            this.$store.commit('conversation/SET_PUSH_CONVERSATION_ID', payload.conversationID);
         }
     },
 };
