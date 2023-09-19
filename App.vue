@@ -448,12 +448,13 @@ export default {
 
         handleNewMessage (newServerMsg) {
             this.innerAudioContext.play();
-            // if (this.inCurrentConversation(newServerMsg)) {}
-            if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
-                this.pushNewMessage(newServerMsg);
-                setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
+            if (this.inCurrentConversation(newServerMsg)) {
+                if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
+                    this.pushNewMessage(newServerMsg);
+                    uni.$u.debounce(this.markConversationAsRead, 2000);
+                    setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
+                }
             }
-            this.inCurrentConversation(newServerMsg) && uni.$u.debounce(this.markConversationAsRead, 2000);
         },
         inCurrentConversation (newServerMsg) {
             switch (newServerMsg.sessionType) {

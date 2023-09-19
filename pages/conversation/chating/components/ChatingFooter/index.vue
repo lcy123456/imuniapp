@@ -24,7 +24,7 @@
             </view>
             <template v-else>
                 <view
-                    v-if="quoteMessage"
+                    v-if="quoteMessageShow"
                     class="quote_box"
                 >
                     <view class="icon_box">
@@ -42,7 +42,7 @@
                     <image
                         src="/static/images/chating_footer_quote_close.png"
                         class="w-30 h-30 ml-40"
-                        @click="quoteMessage = null"
+                        @click="quoteMessageShow = false"
                     />
                 </view>
                 <view class="send_box">
@@ -118,6 +118,7 @@ import IMSDK, {
     IMMethods,
     MessageStatus,
     MessageType,
+    SessionType
 } from 'openim-uniapp-polyfill';
 import CustomEditor from './CustomEditor.vue';
 import ChatingActionBar from './ChatingActionBar.vue';
@@ -190,6 +191,7 @@ export default {
             actionSheetMenu: [],
             showActionSheet: false,
             snapFlag: null,
+            quoteMessageShow: false,
             quoteMessage: null
         };
     },
@@ -221,7 +223,7 @@ export default {
             let message = '';
             const { text } = formatInputHtml(this.inputHtml);
             // TODO：加密文本
-            if (this.quoteMessage) {
+            if (this.quoteMessageShow) {
                 message = await IMSDK.asyncApi(
                     IMMethods.CreateQuoteMessage,
                     IMSDK.uuid(),
@@ -230,7 +232,7 @@ export default {
                         message: this.quoteMessage
                     }
                 );
-                this.quoteMessage = null;
+                this.quoteMessageShow = false;
             } else {
                 message = await IMSDK.asyncApi(
                     IMMethods.CreateTextMessage,
@@ -246,19 +248,28 @@ export default {
         },
         async sendMessage (message) {
             console.log('消息创建成功', message);
-            this.pushNewMessage(message);
+            const { userID, groupID } = this.storeCurrentConversation;
+            this.pushNewMessage({
+                ...message,
+                recvID: userID,
+                groupID,
+                sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
+            });
             uni.$emit(PageEvents.ScrollToBottom);
             if (needClearTypes.includes(message.contentType)) {
                 this.customEditorCtx.clear();
             }
             try {
                 const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                    recvID: this.storeCurrentConversation.userID,
-                    groupID: this.storeCurrentConversation.groupID,
+                    recvID: userID,
+                    groupID,
                     message,
                     offlinePushInfo,
                 });
                 console.log('消息发送成功', data);
+                if (data.quoteElem) {
+                    data.quoteElem.quoteMessage = this.quoteMessage;
+                }
                 this.updateOneMessage({
                     message: data,
                     isSuccess: true,
@@ -546,6 +557,7 @@ export default {
             console.log('引用', val);
             this.$refs.customEditor.editorCtx.insertText({text: ''});
             this.quoteMessage = val;
+            this.quoteMessageShow = true;
         }
     },
 };

@@ -8,12 +8,12 @@ const state = {
 };
 
 const mutations = {
-    SET_HISTORY_MESSAGE_LIST (state, list) {
-        state.historyMessageList = [...list];
-    },
-    SET_HAS_MORE_MESSAGE (state, hasMore) {
-        state.hasMoreMessage = hasMore;
-    },
+    // SET_HISTORY_MESSAGE_LIST (state, list) {
+    //     state.historyMessageList = [...list];
+    // },
+    // SET_HAS_MORE_MESSAGE (state, hasMore) {
+    //     state.hasMoreMessage = hasMore;
+    // },
     SET_HISTORY_MESSAGE_MAP (state, obj) {
         const { conversationID, key, value } = obj;
         const temp = state.historyMessageMap[conversationID] || {};
@@ -71,11 +71,12 @@ const actions = {
         }
     },
     pushNewMessage ({ commit, state, rootState }, message) {
-        console.log('pushNewMessage', message);
         let conversationID = rootState.conversation.currentConversation.conversationID;
         if (!conversationID) {
             conversationID = idsGetConversationID(message);
         }
+        // const conversationID = idsGetConversationID(message);
+        console.log('pushNewMessage', message, conversationID);
         commit('SET_HISTORY_MESSAGE_MAP', {
             conversationID,
             key: 'messageList',
@@ -95,6 +96,7 @@ const actions = {
         if (!conversationID) {
             conversationID = idsGetConversationID(message);
         }
+        // const conversationID = idsGetConversationID(message);
         const tmpList = state.historyMessageMap[conversationID]?.messageList || [];
 
         const idx = tmpList.findIndex(v => v.clientMsgID === message.clientMsgID);
@@ -119,6 +121,7 @@ const actions = {
         if (!conversationID) {
             conversationID = idsGetConversationID(messages[0]);
         }
+        // const conversationID = idsGetConversationID(messages[0]);
         const tmpList = state.historyMessageMap[conversationID].messageList;
         messages.forEach((v) => {
             const idx = tmpList.findIndex(j => j.clientMsgID === v.clientMsgID);
