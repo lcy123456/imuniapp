@@ -2,8 +2,8 @@
     "name" : "MuskIM",
     "appid" : "__UNI__D2FA053",
     "description" : "",
-    "versionName" : "2.0.5",
-    "versionCode" : 205,
+    "versionName" : "2.0.7",
+    "versionCode" : 207,
     "transformPx" : false,
     "app-plus" : {
         "bounce" : "none",
@@ -53,7 +53,7 @@
                 ],
                 "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ],
                 "minSdkVersion" : 21,
-                "targetSdkVersion" : 31
+                "targetSdkVersion" : 33
             },
             "ios" : {
                 "dSYMs" : false,

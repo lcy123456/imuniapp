@@ -1,6 +1,4 @@
-import {
-    v4 as uuidv4
-} from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import IMSDK from 'openim-uniapp-polyfill';
 
 const state = {
@@ -12,7 +10,7 @@ const state = {
     recvGroupApplications: [],
     sentGroupApplications: [],
     unHandleFriendApplicationNum: 0,
-    unHandleGroupApplicationNum: 0
+    unHandleGroupApplicationNum: 0,
 };
 
 const mutations = {
@@ -42,173 +40,136 @@ const mutations = {
     },
     SET_UNHANDLE_GROUP_APPLICATION_NUM (state, num) {
         state.unHandleGroupApplicationNum = num;
-    }
+    },
 };
 
 const actions = {
-    getFriendList ({
-        commit
-    }) {
-        IMSDK
-            .asyncApi(IMSDK.IMMethods.GetFriendList, uuidv4())
-            .then(({
-                data
-            }) => {
-                const friendInfoList = data.map(item => item.friendInfo);
+    getFriendList ({ commit }) {
+        IMSDK.asyncApi(IMSDK.IMMethods.GetFriendList, uuidv4()).then(
+            ({ data }) => {
+                const friendInfoList = data.map((item) => item.friendInfo);
                 commit('SET_FRIEND_LIST', friendInfoList);
-            });
+            }
+        );
     },
-    getGrouplist ({
-        commit
-    }) {
-        IMSDK
-            .asyncApi(IMSDK.IMMethods.GetJoinedGroupList, uuidv4())
-            .then(({
-                data
-            }) => {
+    getGrouplist ({ commit }) {
+        IMSDK.asyncApi(IMSDK.IMMethods.GetJoinedGroupList, uuidv4()).then(
+            ({ data }) => {
                 commit('SET_GROUP_LIST', data);
-            });
+            }
+        );
     },
-    getBlacklist ({
-        commit
-    }) {
-        IMSDK
-            .asyncApi(IMSDK.IMMethods.GetBlackList, uuidv4())
-            .then(({
-                data
-            }) => {
+    getBlacklist ({ commit }) {
+        IMSDK.asyncApi(IMSDK.IMMethods.GetBlackList, uuidv4()).then(
+            ({ data }) => {
                 commit('SET_BLACK_LIST', data);
-            });
+            }
+        );
     },
-    getRecvFriendApplications ({
-        commit
-    }) {
-        IMSDK
-            .asyncApi(IMSDK.IMMethods.GetFriendApplicationListAsRecipient, uuidv4())
-            .then(({
-                data
-            }) => {
-                commit('SET_RECV_FRIEND_APPLICATIONS', data);
-            });
+    getRecvFriendApplications ({ commit }) {
+        IMSDK.asyncApi(
+            IMSDK.IMMethods.GetFriendApplicationListAsRecipient,
+            uuidv4()
+        ).then(({ data }) => {
+            commit('SET_RECV_FRIEND_APPLICATIONS', data);
+        });
     },
-    getSentFriendApplications ({
-        commit
-    }) {
-        IMSDK
-            .asyncApi(IMSDK.IMMethods.GetFriendApplicationListAsApplicant, uuidv4())
-            .then(({
-                data
-            }) => {
-                commit('SET_SENT_FRIEND_APPLICATIONS', data);
-            });
+    getSentFriendApplications ({ commit }) {
+        IMSDK.asyncApi(
+            IMSDK.IMMethods.GetFriendApplicationListAsApplicant,
+            uuidv4()
+        ).then(({ data }) => {
+            commit('SET_SENT_FRIEND_APPLICATIONS', data);
+        });
     },
-    getRecvGroupApplications ({
-        commit
-    }) {
-        IMSDK
-            .asyncApi(IMSDK.IMMethods.GetGroupApplicationListAsRecipient, uuidv4())
-            .then(({
-                data
-            }) => {
-                commit('SET_RECV_GROUP_APPLICATIONS', data);
-            });
+    getRecvGroupApplications ({ commit }) {
+        IMSDK.asyncApi(
+            IMSDK.IMMethods.GetGroupApplicationListAsRecipient,
+            uuidv4()
+        ).then(({ data }) => {
+            commit('SET_RECV_GROUP_APPLICATIONS', data);
+        });
     },
-    getSentGroupApplications ({
-        commit
-    }) {
-        IMSDK
-            .asyncApi(IMSDK.IMMethods.GetGroupApplicationListAsApplicant, uuidv4())
-            .then(({
-                data
-            }) => {
-                commit('SET_SENT_GROUP_APPLICATIONS', data);
-            });
+    getSentGroupApplications ({ commit }) {
+        IMSDK.asyncApi(
+            IMSDK.IMMethods.GetGroupApplicationListAsApplicant,
+            uuidv4()
+        ).then(({ data }) => {
+            commit('SET_SENT_GROUP_APPLICATIONS', data);
+        });
     },
-    pushNewFriend ({
-        commit,
-        state
-    }, friendInfo) {
+    pushNewFriend ({ commit, state }, friendInfo) {
         const tmpList = [...state.friendList];
-        const idx = tmpList.findIndex(item => item.userID === friendInfo.userID);
+        const idx = tmpList.findIndex(
+            (item) => item.userID === friendInfo.userID
+        );
         if (idx === -1) {
             commit('SET_FRIEND_LIST', [...tmpList, friendInfo]);
         }
     },
-    updateFriendInfo ({
-        commit,
-        state
-    }, {
-        friendInfo,
-        isRemove = false
-    }) {
+    updateFriendInfo ({ commit, state }, { friendInfo, isRemove = false }) {
         const tmpList = [...state.friendList];
-        const idx = tmpList.findIndex(item => item.userID === friendInfo.userID);
+        const idx = tmpList.findIndex(
+            (item) => item.userID === friendInfo.userID
+        );
 
         if (idx !== -1) {
             if (isRemove) {
                 tmpList.splice(idx, 1);
             } else {
                 tmpList[idx] = {
-                    ...friendInfo
+                    ...friendInfo,
                 };
             }
             commit('SET_FRIEND_LIST', tmpList);
         }
     },
-    pushNewBlack ({
-        commit,
-        state
-    }, blackInfo) {
+    pushNewBlack ({ commit, state }, blackInfo) {
         const tmpList = [...state.blackList];
-        const idx = tmpList.findIndex(item => item.userID === blackInfo.userID);
+        const idx = tmpList.findIndex(
+            (item) => item.userID === blackInfo.userID
+        );
         if (idx === -1) {
             commit('SET_BLACK_LIST', [...tmpList, blackInfo]);
         }
     },
-    updateBlackInfo ({
-        commit,
-        state
-    }, {
-        blackInfo,
-        isRemove = false
-    }) {
+    updateBlackInfo ({ commit, state }, { blackInfo, isRemove = false }) {
         const tmpList = [...state.blackList];
-        const idx = tmpList.findIndex(item => item.userID === blackInfo.userID);
+        const idx = tmpList.findIndex(
+            (item) => item.userID === blackInfo.userID
+        );
 
         if (idx !== -1) {
             if (isRemove) {
                 tmpList.splice(idx, 1);
             } else {
                 tmpList[idx] = {
-                    ...blackInfo
+                    ...blackInfo,
                 };
             }
             commit('SET_BLACK_LIST', tmpList);
         }
     },
-    pushNewGroup ({
-        commit,
-        state
-    }, groupInfo) {
+    pushNewGroup ({ commit, state }, groupInfo) {
         const tmpList = [...state.groupList];
-        const idx = tmpList.findIndex(item => item.groupID === groupInfo.groupID);
+        const idx = tmpList.findIndex(
+            (item) => item.groupID === groupInfo.groupID
+        );
         if (idx === -1) {
             commit('SET_GROUP_LIST', [...tmpList, groupInfo]);
         }
     },
-    updateGroupInfo ({
-        commit,
-        state,
-        rootState
-    }, {
-        groupInfo,
-        isRemove = false
-    }) {
+    updateGroupInfo (
+        { commit, state, rootState },
+        { groupInfo, isRemove = false }
+    ) {
         const tmpList = [...state.groupList];
-        const idx = tmpList.findIndex(item => item.groupID === groupInfo.groupID);
+        const idx = tmpList.findIndex(
+            (item) => item.groupID === groupInfo.groupID
+        );
 
         if (rootState.conversation.currentGroup.groupID === groupInfo.groupID) {
-            commit('conversation/SET_CURRENT_GROUP', groupInfo, { root: true});
+            commit('conversation/SET_CURRENT_GROUP', groupInfo, { root: true });
         }
 
         if (idx !== -1) {
@@ -216,148 +177,133 @@ const actions = {
                 tmpList.splice(idx, 1);
             } else {
                 tmpList[idx] = {
-                    ...groupInfo
+                    ...groupInfo,
                 };
             }
             commit('SET_GROUP_LIST', tmpList);
         }
     },
-    pushNewRecvFriendApplition ({
-        commit,
-        state
-    }, application) {
+    pushNewRecvFriendApplition ({ commit, state }, application) {
         const tmpList = [...state.recvFriendApplications];
-        const idx = tmpList.findIndex(item => item.fromUserID === application.fromUserID);
+        const idx = tmpList.findIndex(
+            (item) => item.fromUserID === application.fromUserID
+        );
         if (idx !== -1) {
             tmpList.splice(idx, 1);
         }
         commit('SET_RECV_FRIEND_APPLICATIONS', [...tmpList, application]);
     },
-    updateRecvFriendApplition ({
-        commit,
-        state,
-        rootState
-    }, {
-        application,
-        isRemove = false
-    }) {
+    updateRecvFriendApplition (
+        { commit, state, rootState },
+        { application, isRemove = false }
+    ) {
         const tmpList = [...state.recvFriendApplications];
-        const idx = tmpList.findIndex(item => item.fromUserID === application.fromUserID);
-
+        const idx = tmpList.findIndex(
+            (item) => item.fromUserID === application.fromUserID
+        );
 
         if (idx !== -1) {
             if (isRemove) {
                 tmpList.splice(idx, 1);
             } else {
                 tmpList[idx] = {
-                    ...application
+                    ...application,
                 };
             }
             commit('SET_RECV_FRIEND_APPLICATIONS', tmpList);
         }
     },
-    pushNewSentFriendApplition ({
-        commit,
-        state
-    }, application) {
+    pushNewSentFriendApplition ({ commit, state }, application) {
         const tmpList = [...state.sentFriendApplications];
-        const idx = tmpList.findIndex(item => item.toUserID === application.toUserID);
+        const idx = tmpList.findIndex(
+            (item) => item.toUserID === application.toUserID
+        );
         if (idx !== -1) {
             tmpList.splice(idx, 1);
         }
         commit('SET_SENT_FRIEND_APPLICATIONS', [...tmpList, application]);
     },
-    updateSentFriendApplition ({
-        commit,
-        state,
-        rootState
-    }, {
-        application,
-        isRemove = false
-    }) {
+    updateSentFriendApplition (
+        { commit, state, rootState },
+        { application, isRemove = false }
+    ) {
         const tmpList = [...state.sentFriendApplications];
-        const idx = tmpList.findIndex(item => item.toUserID === application.toUserID);
+        const idx = tmpList.findIndex(
+            (item) => item.toUserID === application.toUserID
+        );
 
         if (idx !== -1) {
             if (isRemove) {
                 tmpList.splice(idx, 1);
             } else {
                 tmpList[idx] = {
-                    ...application
+                    ...application,
                 };
             }
             commit('SET_SENT_FRIEND_APPLICATIONS', tmpList);
         }
     },
-    pushNewRecvGroupApplition ({
-        commit,
-        state
-    }, application) {
+    pushNewRecvGroupApplition ({ commit, state }, application) {
         const tmpList = [...state.recvGroupApplications];
-        const idx = tmpList.findIndex(item => item.userID === application.userID);
+        const idx = tmpList.findIndex(
+            (item) => item.userID === application.userID
+        );
         if (idx !== -1) {
             tmpList.splice(idx, 1);
         }
         commit('SET_RECV_GROUP_APPLICATIONS', [...tmpList, application]);
     },
-    updateRecvGroupApplition ({
-        commit,
-        state,
-        rootState
-    }, {
-        application,
-        isRemove = false
-    }) {
+    updateRecvGroupApplition (
+        { commit, state, rootState },
+        { application, isRemove = false }
+    ) {
         const tmpList = [...state.recvGroupApplications];
-        const idx = tmpList.findIndex(item => item.userID === application.userID);
-
+        const idx = tmpList.findIndex(
+            (item) => item.userID === application.userID
+        );
 
         if (idx !== -1) {
             if (isRemove) {
                 tmpList.splice(idx, 1);
             } else {
                 tmpList[idx] = {
-                    ...application
+                    ...application,
                 };
             }
             commit('SET_RECV_GROUP_APPLICATIONS', tmpList);
         }
     },
-    pushNewSentGroupApplition ({
-        commit,
-        state
-    }, application) {
+    pushNewSentGroupApplition ({ commit, state }, application) {
         const tmpList = [...state.sentGroupApplications];
-        const idx = tmpList.findIndex(item => item.groupID === application.groupID);
+        const idx = tmpList.findIndex(
+            (item) => item.groupID === application.groupID
+        );
         if (idx !== -1) {
             tmpList.splice(idx, 1);
         }
         commit('SET_SENT_GROUP_APPLICATIONS', [...tmpList, application]);
     },
-    updateSentGroupApplition ({
-        commit,
-        state,
-        rootState
-    }, {
-        application,
-        isRemove = false
-    }) {
+    updateSentGroupApplition (
+        { commit, state, rootState },
+        { application, isRemove = false }
+    ) {
         const tmpList = [...state.sentGroupApplications];
-        const idx = tmpList.findIndex(item => item.groupID === application.groupID);
+        const idx = tmpList.findIndex(
+            (item) => item.groupID === application.groupID
+        );
 
         if (idx !== -1) {
             if (isRemove) {
                 tmpList.splice(idx, 1);
             } else {
                 tmpList[idx] = {
-                    ...application
+                    ...application,
                 };
             }
             commit('SET_SENT_GROUP_APPLICATIONS', tmpList);
         }
     },
 };
-
 
 export default {
     namespaced: true,
