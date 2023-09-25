@@ -155,10 +155,12 @@ export default {
                     this.scrollToBottom({ initPage: true });
                     this.positionMsgID && this.handlePositionMsgID();
                 }
-                this.messageLoadState.loading = false;
             } catch (e) {
                 console.log(e);
             }
+            setTimeout(() => {
+                this.messageLoadState.loading = false;
+            }, 1000);
         },
         handleTouchstart () {
             this.isShowMenuFlag = true;
@@ -219,6 +221,7 @@ export default {
                     this.scrollToAnchor(`auchor${this.positionMsgID}`);
                     this.positionMsgIDFlag = false;
                 } else {
+                    this.messageLoadState.loading = false;
                     this.loadMessageList(true);
                 }
             }, 300);

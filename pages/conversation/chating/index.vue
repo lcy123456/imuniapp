@@ -111,7 +111,7 @@ export default {
             });
         },
         initSuccess () {
-            console.log('initSuccess');
+            // console.log('initSuccess');
             this.initLoading = false;
         },
         async handleMultipleMessage ({ show, message, type = '' }) {
