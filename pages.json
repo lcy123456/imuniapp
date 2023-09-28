@@ -33,7 +33,8 @@
 			"path": "pages/conversation/chating/index",
 			"style": {
 				"app-plus": {
-					"softinputMode": "adjustResize"
+					"softinputMode": "adjustResize",
+					"bounce": "none"
 				}
 			}
 		},

@@ -1,4 +1,4 @@
-
+/* #ifndef APP-NVUE */
 body, uni-page-body {
     height: 100%;
 }
@@ -26,3 +26,4 @@ p {
     font-family: MiSans-Regular;
     src: url('~@/static/font/MiSans-Regular.ttf') format('truetype');
 }
+/* #endif */

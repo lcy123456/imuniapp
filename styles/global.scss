@@ -1,3 +1,4 @@
+/* #ifndef APP-NVUE */
 image {
 	image-rendering:-moz-crisp-edges;
 	image-rendering:-o-crisp-edges;
@@ -5,6 +6,7 @@ image {
 	image-rendering: crisp-edges;
 	-ms-interpolation-mode:nearest-neighbor;
 }
+/* #endif */
 
 /* 行为相关颜色 */
 .primary {
@@ -69,18 +71,19 @@ image {
 };
 
 /* 导航栏高度，含状态栏 */
+/* #ifndef APP-NVUE */
 .navbar-height-all {
 	height: calc(#{$uni-navbar-height} + var(--status-bar-height));
 }
 .navbar-height {
 	height: $uni-navbar-height;
 }
-
 /* 状态栏高度 */
 .status-bar-height {
 	height: var(--status-bar-height);
 	flex-shrink: 0;
 }
+/* #endif */
 
 .ff-bold {
 	font-family: MiSans-Demibold;
@@ -218,9 +221,11 @@ image {
 .justify-between {
 	justify-content: space-between;
 }
+/* #ifndef APP-NVUE */
 .justify-evenly {
 	justify-content: space-evenly;
 }
+/* #endif */
 .align-center {
 	align-items: center;
 }
@@ -230,12 +235,14 @@ image {
 .align-start {
 	align-items: flex-start;
 }
+/* #ifndef APP-NVUE */
 .flex-grow {
 	flex-grow: 1;
 }
 .flex-shrink {
 	flex-shrink: 0;
 }
+/* #endif */
 .text-center {
 	text-align: center;
 }
@@ -245,9 +252,11 @@ image {
 .over-hide {
 	overflow: hidden;
 }
+/* #ifndef APP-NVUE */
 .over-auto {
 	overflow: auto;
 }
+/* #endif */
 .nomalEllipsis {
 	@include nomalEllipsis();
 }

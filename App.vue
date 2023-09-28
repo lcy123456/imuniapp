@@ -505,11 +505,9 @@ export default {
 
 <style lang="scss">
 /*每个页面公共css */
-/* #ifndef APP-NVUE */
 @import "@/uni_modules/uview-ui/index.scss";
 @import "@/styles/base.scss";
 @import "@/styles/login.scss";
 @import "@/styles/global.scss";
 @import "@/styles/pages.scss";
-/* #endif */
 </style>
