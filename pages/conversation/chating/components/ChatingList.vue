@@ -244,20 +244,5 @@ export default {
         overflow: hidden;
         // padding: 0 30rpx;
     }
-
-    .fade-leave,
-    .fade-enter-to {
-        opacity: 1;
-    }
-
-    .fade-leave-active,
-    .fade-enter-active {
-        transition: all 0.5s;
-    }
-
-    .fade-leave-to,
-    .fade-enter {
-        opacity: 0;
-    }
 }
 </style>
