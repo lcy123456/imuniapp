@@ -18,5 +18,7 @@
 .emoji_display {
     width: 24px;
     height: 18px;
+    /* #ifndef APP-NVUE */
     vertical-align: sub;
+    /* #endif */
 }
