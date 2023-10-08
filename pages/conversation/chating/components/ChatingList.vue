@@ -1,51 +1,61 @@
 <template>
     <scroll-view
         id="scroll_view"
+        :class="{isrotate: isReverse}"
         :scroll-with-animation="withAnimation"
         :scroll-top="scrollTop"
-        scroll-y
         :scroll-into-view="scrollIntoView"
+        scroll-y
         :upper-threshold="250"
         @touchstart="handleTouchstart"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
-        @scrolltolower="isRecvToBottom = true"
+        @scrolltolower="scrolltolower"
     >
-        <view id="scroll_wrap">
-            <u-loadmore
-                nomore-text=""
-                :status="loadMoreStatus"
-            />
+        <view>
             <view
-                v-for="item in storeHistoryMessageList"
-                :key="item.clientMsgID"
+                id="scroll_wrap"
             >
-                <MessageItemRender
-                    :menu-outside-flag="menuOutsideFlag"
-                    :source="item"
-                    :is-sender="item.sendID === storeCurrentUserID"
-                    :is-show-menu-flag="isShowMenuFlag"
-                    :is-multiple-msg="isMultipleMsg"
-                    :is-checked="checkedMsgIds.includes(item.clientMsgID)"
-                    :position-msg-i-d="positionMsgID"
-                    @menuRect="menuRect"
+                <view
+                    id="auchormessage_bottom_item"
+                    style="visibility: hidden; height: 12px"
                 />
-                <!-- @messageItemRender="messageItemRender" -->
+                <view
+                    v-for="item in messageList"
+                    :key="`auchor${item.clientMsgID}`"
+                    :class="{isrotate: isReverse}"
+                >
+                    <MessageItemRender
+                        :menu-outside-flag="menuOutsideFlag"
+                        :source="item"
+                        :is-sender="item.sendID === storeCurrentUserID"
+                        :is-show-menu-flag="isShowMenuFlag"
+                        :is-multiple-msg="isMultipleMsg"
+                        :is-checked="checkedMsgIds.includes(item.clientMsgID)"
+                        :position-msg-i-d="positionMsgID"
+                        @menuRect="menuRect"
+                    />
+                    <!-- @messageItemRender="messageItemRender" -->
+                </view>
+                <u-loadmore
+                    :class="{isrotate: isReverse}"
+                    nomore-text=""
+                    :status="loadMoreStatus"
+                />
             </view>
             <view
-                id="auchormessage_bottom_item"
-                style="visibility: hidden; height: 12px"
-            />
-        </view>
-        <view style="height: 0">
-            <transition name="fade">
-                <MessageMenu
-                    v-if="menuState.visible"
-                    :message="menuState.message"
-                    :pater-rect="menuState.paterRect"
-                    @close="menuState.visible = false"
-                />
-            </transition>
+                :class="{isrotate: isReverse}"
+                style="height: 0"
+            >
+                <transition name="fade">
+                    <MessageMenu
+                        v-if="menuState.visible"
+                        :message="menuState.message"
+                        :pater-rect="menuState.paterRect"
+                        @close="menuState.visible = false"
+                    />
+                </transition>
+            </view>
         </view>
     </scroll-view>
 </template>
@@ -82,6 +92,8 @@ export default {
     },
     data () {
         return {
+            isReverse: true,
+            ua: uni.getSystemInfoSync().platform,
             scrollIntoView: '',
             scrollTop: 0,
             withAnimation: true,
@@ -113,6 +125,9 @@ export default {
             }
             return this.messageLoadState.loading ? 'loading' : 'loadmore';
         },
+        messageList () {
+            return this.isReverse ? (JSON.parse(JSON.stringify(this.storeHistoryMessageList))).reverse() : this.storeHistoryMessageList;
+        }
     },
     watch: {
         menuOutsideFlag () {
@@ -167,8 +182,8 @@ export default {
             this.$emit('touchstart');
         },
         onScroll (event) {
-            const { scrollTop, scrollHeight } = event.target;
-            this.isRecvToBottom = scrollHeight - scrollTop - uni.getWindowInfo().windowHeight < 80;
+            const { scrollHeight } = event.target;
+            this.isRecvToBottom = scrollHeight - uni.getWindowInfo().windowHeight < 80;
             this.isShowMenuFlag = false;
             if (this.menuState.visible) {
                 this.menuState.visible = false;
@@ -178,15 +193,28 @@ export default {
             uni.$u.throttle(() => this.onScroll(event), 200);
         },
         scrolltoupper () {
-            if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
-                this.loadMessageList(true);
+            if (!this.isReverse) {
+                if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
+                    this.loadMessageList(true);
+                }
+            } else {
+                this.isRecvToBottom = true;
+            }
+        },
+        scrolltolower () {
+            if (this.isReverse) {
+                if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
+                    this.loadMessageList(true);
+                }
+            } else {
+                this.isRecvToBottom = true;
             }
         },
         scrollToAnchor (auchor, isAnimation = true) {
             console.log('滚动id', auchor);
             !isAnimation && this.closeScrollAnimation();
             this.$nextTick(() => {
-                this.scrollIntoView = auchor;
+                this.scrollIntoView = this.isReverse ? '' : auchor;
             });
         },
         async scrollToBottom ({initPage = false, isRecv = false} = {}) {
@@ -199,12 +227,11 @@ export default {
                     this.hasNewMessage = true;
                     return;
                 }
-                
                 uni.createSelectorQuery()
                     .in(this)
                     .select('#scroll_wrap')
                     .boundingClientRect((res) => {
-                        this.scrollTop = res.height + Math.random();
+                        this.scrollTop = this.isReverse ? '' : res.height + Math.random();
                         initPage && this.$emit('initSuccess');
                     })
                     .exec();
@@ -240,6 +267,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.isrotate {
+    transform-style: preserve-3d;
+    transform:rotateX(180deg);
+    -ms-transform:rotateX(180deg);
+    -moz-transform:rotateX(180deg);
+    -webkit-transform:rotateX(180deg);
+    -o-transform:rotateX(180deg);
+}
 #scroll_view {
     flex: 1;
     overflow: hidden;
