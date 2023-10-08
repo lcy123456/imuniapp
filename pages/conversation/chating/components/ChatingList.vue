@@ -26,7 +26,6 @@
                     :class="{isrotate: isReverse}"
                 >
                     <MessageItemRender
-                        :menu-outside-flag="menuOutsideFlag"
                         :source="item"
                         :is-sender="item.sendID === storeCurrentUserID"
                         :is-show-menu-flag="isShowMenuFlag"
@@ -43,19 +42,6 @@
                     :status="loadMoreStatus"
                 />
             </view>
-            <view
-                :class="{isrotate: isReverse}"
-                style="height: 0"
-            >
-                <transition name="fade">
-                    <MessageMenu
-                        v-if="menuState.visible"
-                        :message="menuState.message"
-                        :pater-rect="menuState.paterRect"
-                        @close="menuState.visible = false"
-                    />
-                </transition>
-            </view>
         </view>
     </scroll-view>
 </template>
@@ -63,20 +49,14 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import MessageItemRender from './MessageItem/index.vue';
-import MessageMenu from './MessageMenu.vue';
 import { PageEvents } from "@/constant";
 
 export default {
     name: 'ChatingList',
     components: {
         MessageItemRender,
-        MessageMenu,
     },
     props: {
-        menuOutsideFlag: {
-            required: true,
-            type: Number,
-        },
         isMultipleMsg: {
             type: Boolean,
             default: false,
@@ -104,11 +84,6 @@ export default {
             },
             isShowMenuFlag: false,
             positionMsgIDFlag: true,
-            menuState: {
-                visible: false,
-                paterRect: {},
-                message: {}
-            },
             checkedMessage: []
         };
     },
@@ -128,13 +103,6 @@ export default {
         messageList () {
             return this.isReverse ? (JSON.parse(JSON.stringify(this.storeHistoryMessageList))).reverse() : this.storeHistoryMessageList;
         }
-    },
-    watch: {
-        menuOutsideFlag () {
-            if (this.menuState.visible) {
-                this.menuState.visible = false;
-            }
-        },
     },
     mounted () {
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
@@ -185,9 +153,7 @@ export default {
             const { scrollHeight } = event.target;
             this.isRecvToBottom = scrollHeight - uni.getWindowInfo().windowHeight < 80;
             this.isShowMenuFlag = false;
-            if (this.menuState.visible) {
-                this.menuState.visible = false;
-            }
+            this.$emit('scroll');
         },
         throttleScroll (event) {
             uni.$u.throttle(() => this.onScroll(event), 200);
@@ -254,13 +220,7 @@ export default {
             }, 300);
         },
         menuRect (res) {
-            // console.log('menuRect', res);
-            this.menuState.paterRect = {
-                ...res,
-                message: undefined
-            };
-            this.menuState.message = res.message;
-            this.menuState.visible = true;
+            this.$emit('menuRect', res);
         }
     },
 };

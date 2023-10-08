@@ -1,7 +1,7 @@
 <template>
     <view
         class="chating_container"
-        @touchstart="pageClick"
+        @touchstart="handleHideMenu"
     >
         <chating-header
             :is-multiple-msg="isMultipleMsg"
@@ -13,8 +13,10 @@
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
             :position-msg-i-d="positionMsgID"
+            @scroll="handleHideMenu"
             @touchstart="chatListClick"
             @initSuccess="initSuccess"
+            @menuRect="menuRect"
         />
         <chating-footer
             ref="chatingFooterRef"
@@ -23,6 +25,16 @@
             :checked-msg-ids="checkedMsgIds"
         />
         <u-loading-page :loading="initLoading" />
+        <view style="height: 0">
+            <transition name="fade">
+                <MessageMenu
+                    v-if="menuState.visible"
+                    :message="menuState.message"
+                    :pater-rect="menuState.paterRect"
+                    @close="menuState.visible = false"
+                />
+            </transition>
+        </view>
     </view>
 </template>
 
@@ -31,6 +43,7 @@ import { mapActions, mapGetters } from 'vuex';
 import ChatingHeader from './components/ChatingHeader.vue';
 import ChatingFooter from './components/ChatingFooter/index.vue';
 import ChatingList from './components/ChatingList.vue';
+import MessageMenu from './components/MessageMenu.vue';
 import { markConversationAsRead } from '@/util/imCommon';
 import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
@@ -41,6 +54,7 @@ export default {
         ChatingHeader,
         ChatingFooter,
         ChatingList,
+        MessageMenu,
     },
     data () {
         return {
@@ -52,6 +66,11 @@ export default {
             positionMsgID: '',
             isMultipleMsg: false,
             checkedMsgIds: [],
+            menuState: {
+                visible: false,
+                paterRect: {},
+                message: {}
+            },
         };
     },
     computed: {
@@ -89,10 +108,10 @@ export default {
     methods: {
         ...mapActions('message', ['resetMessageState', 'deleteMessages']),
         ...mapActions('conversation', ['resetConversationState']),
-        async pageClick () {
+        async handleHideMenu () {
             const res = await getEl.call(this, '.message_menu_container');
             if (res) {
-                this.menuOutsideFlag += 1;
+                this.menuState.visible = false;
             }
         },
         chatListClick () {
@@ -113,6 +132,15 @@ export default {
         initSuccess () {
             // console.log('initSuccess');
             this.initLoading = false;
+        },
+        menuRect (res) {
+            // console.log('menuRect', res);
+            this.menuState.paterRect = {
+                ...res,
+                message: undefined
+            };
+            this.menuState.message = res.message;
+            this.menuState.visible = true;
         },
         async handleMultipleMessage ({ show, message, type = '' }) {
             // console.log('开启多选', show, message);
