@@ -24,7 +24,7 @@
             :footer-outside-flag="footerOutsideFlag"
             :checked-msg-ids="checkedMsgIds"
         />
-        <u-loading-page :loading="initLoading" />
+        <!-- <u-loading-page :loading="initLoading" /> -->
         <view style="height: 0">
             <transition name="fade">
                 <MessageMenu
