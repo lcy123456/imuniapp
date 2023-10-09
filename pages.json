@@ -1,5 +1,14 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+        {
+            "path": "pages/conversation/chating/index",
+            "style": {
+                "app-plus": {
+                    "softinputMode": "adjustResize",
+                    "bounce": "none"
+                }
+            }
+        },
 		{
 			"path": "pages/login/index"
 		},
@@ -28,15 +37,6 @@
 		},
 		{
 			"path": "pages/contact/index/index"
-		},
-		{
-			"path": "pages/conversation/chating/index",
-			"style": {
-				"app-plus": {
-					"softinputMode": "adjustResize",
-					"bounce": "none"
-				}
-			}
 		},
 		{
 			"path": "pages/conversation/groupSettings/index"

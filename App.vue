@@ -131,6 +131,7 @@ export default {
             IMSDK.subscribe(IMSDK.IMEvents.OnUserTokenExpired, () => {
                 kickHander("您的登录已过期，请重新登陆！");
             });
+            
 
             // sync
             const syncStartHandler = () => {
