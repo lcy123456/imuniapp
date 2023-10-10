@@ -9,7 +9,7 @@
         <view class="chat_footer">
             <view
                 v-if="isMultipleMsg"
-                class="h-110 flex justify-between align-center px-36"
+                class="flex justify-between h-110 align-center px-36"
             >
                 <image
                     :src="`/static/images/chating_message_del_${checkedMsgIds.length === 0 ? 'grey' : 'active'}.png`"
@@ -41,7 +41,7 @@
                     </view>
                     <image
                         src="/static/images/chating_footer_quote_close.png"
-                        class="w-30 h-30 ml-40"
+                        class="ml-40 w-30 h-30"
                         @click="quoteMessageShow = false"
                     />
                 </view>
@@ -71,7 +71,7 @@
                     <image
                         v-show="hasContent"
                         src="/static/images/chating_footer_send.png"
-                        class="w-80 h-80 ml-20"
+                        class="ml-20 w-80 h-80"
                         @touchend.prevent="sendTextMessage"
                     />
                     <!-- <view class="flex align-center">
@@ -97,6 +97,10 @@
             :show="showActionSheet"
             @select="selectClick"
             @close="showActionSheet = false"
+        />
+        <Notification
+            v-model="isShowNotification"
+            text="消息已发出，但对方拒收了！"
         />
     </view>
 </template>
@@ -183,6 +187,7 @@ export default {
         return {
             MessageMenuTypes: Object.freeze(MessageMenuTypes),
             customEditorCtx: null,
+            isShowNotification: false,
             inputHtml: '',
             oldText: '',
             actionBarVisible: false,
@@ -275,6 +280,11 @@ export default {
                     isSuccess: true,
                 });
             } catch ({ data, errCode }) {
+                console.log('发送失败', data, errCode);
+                if (errCode === 1302) {
+                    console.log('被拉黑了');
+                    this.isShowNotification = true;
+                }
                 this.updateOneMessage({
                     message: data,
                     type: UpdateMessageTypes.KeyWords,

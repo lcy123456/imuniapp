@@ -38,7 +38,10 @@
 import {
     secFormat
 } from "@/util/imCommon";
-import { MessageType } from "openim-uniapp-polyfill";
+import {
+    MediaRenderTypes
+} from '@/constant';
+import IMSDK, { IMMethods, MessageType } from "openim-uniapp-polyfill";
 export default {
     name: "",
     props: {
@@ -53,6 +56,7 @@ export default {
     },
     data () {
         return {
+            imgList: [],
             loadingWidth: '200px',
             imageHeight: 240,
             imgUrl: ''
@@ -91,22 +95,66 @@ export default {
         if (imageHeight < this.imageHeight) {
             this.imageHeight = imageHeight;
         }
+        this.getSearchRecord();
     },
     methods: {
+        async getSearchRecord () {
+            let conversationID = this.$store.getters.storeCurrentConversation.conversationID;
+            const params = {
+                conversationID: conversationID,
+                keywordList: [],
+                messageTypeList: MediaRenderTypes,
+                searchTimePosition: 0,
+                searchTimePeriod: 0,
+                pageIndex: 1,
+                count: 999,
+            };
+            const { data } = await IMSDK.asyncApi(
+                IMMethods.SearchLocalMessages,
+                IMSDK.uuid(),
+                params
+            );
+            let imgList = data.searchResultItems?.[0]?.messageList || [];
+            console.log('xxx', data);
+            this.imgList = imgList.map((v) => {
+                const { contentType, pictureElem, videoElem } = v;
+                const isVideo = contentType === MessageType.VideoMessage;
+                let map = {
+                    url: pictureElem?.sourcePicture.url,
+                    poster: pictureElem?.sourcePicture.url,
+                    type: 'image',
+                };
+                if (isVideo) {
+                    map = {
+                        url: videoElem.videoUrl,
+                        poster: videoElem.snapshotUrl,
+                        type: 'video',
+                    };
+                }
+                return map;
+            });
+            this.imgList.reverse();
+        },
         clickMediaItem () {
-            if (this.isVideo) {
-                uni.navigateTo({
-                    url: `/pages/conversation/previewVideo/index?previewVideoUrl=${this.message.videoElem.videoUrl}`
-                });
-            } else {
-                uni.previewImage({
-                    current: 0,
-                    urls: [this.imgUrl],
-                    fail (err) {
-                        console.log(err);
-                    }
-                });
-            }
+            // if (this.isVideo) {
+            //     uni.navigateTo({
+            //         url: `/pages/conversation/previewVideo/index?previewVideoUrl=${this.message.videoElem.videoUrl}`
+            //     });
+            // } else {
+            //     uni.previewImage({
+            //         current: 0,
+            //         urls: [this.imgUrl],
+            //         fail (err) {
+            //             console.log(err);
+            //         }
+            //     });
+            // }
+            console.log(this.imgUrl, this.imgList, '----');
+            const index = this.imgList.findIndex(item => item.poster === this.imgUrl) > -1 ? this.imgList.findIndex(item => item.poster === this.imgUrl) : 0;
+            uni.$u.route('/pages/common/previewMedia/index', {
+                list: encodeURIComponent(JSON.stringify(this.imgList)),
+                current: index,
+            });
         },
         onLoaded () {
             this.loadingWidth = 'auto';

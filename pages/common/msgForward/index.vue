@@ -6,7 +6,7 @@
         >
             <template slot="more">
                 <text
-                    class="primary mr-32 fz-32"
+                    class="mr-32 primary fz-32"
                     @click="chooseContact"
                 >
                     选择联系人
@@ -23,14 +23,14 @@
         <MyTabs
             :list="tabList"
             type="square"
-            class="fz-28 mx-32"
+            class="mx-32 fz-28"
             :height="86"
         />
-        <view class="conversation_box bg-color px-32">
+        <view class="px-32 conversation_box bg-color">
             <view
                 v-for="item in showConversationList" 
                 :key="item.conversationID"
-                class="li h-108 flex align-center"
+                class="flex li h-108 align-center"
                 @click="chooseConversation(item)"
             >
                 <MyAvatar
@@ -39,7 +39,7 @@
                     :desc="item.showName"
                     size="78rpx"
                 />
-                <view class="name_box flex-grow ml-20 ">
+                <view class="flex-grow ml-20 name_box ">
                     {{ item.showName }}
                 </view>
             </view>
@@ -53,7 +53,7 @@
                 @cancel="showModal = false"
             >
                 <view class="flex-grow over-hide">
-                    <view class="ff-bold fz-36 mb-20">
+                    <view class="mb-20 ff-bold fz-36">
                         发送给:
                     </view>
                     <view class="flex align-center">
@@ -68,7 +68,7 @@
                         />
                         <view
                             v-if="sendObjectArr.length === 1"
-                            class="name_box flex-grow"
+                            class="flex-grow name_box"
                         >
                             {{ sendObjectArr[0].showName }}
                         </view>
@@ -85,6 +85,10 @@
                 </view>
             </u-modal>
         </view>
+        <Notification
+            v-model="isShowNotification"
+            text="消息已发出，但对方拒收了！"
+        />
     </view>
 </template>
 
@@ -119,6 +123,7 @@ export default {
     data () {
         return {
             SessionType: Object.freeze(SessionType),
+            isShowNotification: false,
             keyword: '',
             tabList: [
                 { label: '全部对话', value: 0 },
@@ -185,7 +190,12 @@ export default {
                         });
                     }
                 } catch ({data, errCode}) {
+                    console.log('发送失败', data, errCode);
                     if (isCurConversation) {
+                        if (errCode === 1302) {
+                            console.log('被拉黑了');
+                            this.isShowNotification = true;
+                        }
                         this.updateOneMessage({
                             message: data,
                             type: UpdateMessageTypes.KeyWords,
