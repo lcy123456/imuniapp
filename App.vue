@@ -444,6 +444,7 @@ export default {
             } catch (err) {
                 console.log(err);
                 plus.navigator.closeSplashscreen();
+                // uni.$u.route('/pages/login/index');
             }
         },
 

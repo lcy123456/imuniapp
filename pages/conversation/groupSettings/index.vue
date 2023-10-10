@@ -16,7 +16,7 @@
                     {{ currentGroup.groupName }}
                 </text>
                 <image
-                    class="w-24 h-28 ml-20"
+                    class="w-24 ml-20 h-28"
                     src="/static/images/group_setting_edit.png"
                     @click="editGroupName"
                 />
@@ -30,22 +30,39 @@
                 />
             </view>
         </view>
-        <view class="mb-30 flex">
+        <view class="flex mb-30">
             <SettingItem
                 class="flex-grow"
                 title="查找用户/聊天记录"
                 show-arrow
                 @click="handleRecord"
             />
-            <!-- <view class="w-210 ml-30 bg-color br-30 flex flex-column align-center justify-center">
+            <view
+                class="flex justify-center more-box w-210 ml-30 bg-color br-30 flex-column align-center"
+                @click="showMore"
+            >
                 <image
-                    class="w-42 h-10 my-20"
+                    class="h-10 my-20 w-42"
                     src="/static/images/common_more_active.png"
                 />
                 <text class="fz-26">
                     更多
                 </text>
-            </view> -->
+                <more-feat
+                    ref="moreFeat"
+                    :options="[{
+                        icon: '/static/images/group_out.png',
+                        text: isOwner ? '解散群聊' : '退出群聊',
+                        sessionType: 3,
+                        style: {
+                            color: '#EC4B37'
+                        },
+                        id: 1
+                    }]"
+                    :source-i-d="sourceID"
+                    @callBack="callBack"
+                />
+            </view>
         </view>
         <view class="member_row_box">
             <view class="member_title">
@@ -73,7 +90,7 @@
                 @change="handleMemberChange"
             />
         </view>
-        <view class="mt-30">
+        <!-- <view class="mt-30">
             <u-button
                 type="error"
                 plain
@@ -90,7 +107,7 @@
                 @confirm="confirm"
                 @cancel="() => (confirmType = null)"
             />
-        </view>
+        </view> -->
     </view>
 </template>
 
@@ -101,6 +118,7 @@ import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import GroupMemberSwipe from './components/GroupMemberSwipe.vue';
 import SettingItem from '@/components/SettingItem/index.vue';
+import MoreFeat from '@/pages/common/moreFeat/index.vue';
 import { checkLoginError } from '@/util/common';
 import { chooseImage } from '@/util/unisdk';
 import { uploadFile } from '@/util/imCommon';
@@ -117,12 +135,14 @@ export default {
         MyAvatar,
         SettingItem,
         GroupMemberSwipe,
+        MoreFeat
     },
     props: {},
     data () {
         return {
             groupMemberList: [],
             confirmType: null,
+            sourceID: ''
         };
     },
     computed: {
@@ -169,6 +189,17 @@ export default {
                 console.log(err);
                 this.$toast(checkLoginError(err));
             }
+        },
+        callBack (item) {
+            if (item.id === 1) {
+                this.confirmType = this.isOwner ? 'Dismiss' : 'Quit';
+                this.confirm();
+            }
+        },
+        showMore () {
+            console.log(this.$refs.moreFeat);
+            let moreIndex = this.$refs.moreFeat.moreIndex === 1 ? 0 : 1;
+            this.$refs.moreFeat.setMoreIndex(moreIndex);
         },
         editGroupName () {
             uni.$u.route('/pages/common/markOrIDPage/index', {
@@ -231,6 +262,7 @@ export default {
         confirm () {
             let funcName = '';
             let sourceID = this.currentGroup.groupID;
+            this.sourceID = sourceID;
             if (this.confirmType === ConfirmTypes.Quit) {
                 funcName = IMSDK.IMMethods.QuitGroup;
             }
@@ -270,7 +302,9 @@ export default {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-
+    .more-box {
+        position: relative;
+    }
     .base_info {
         display: flex;
         flex-direction: column;

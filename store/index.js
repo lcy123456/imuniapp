@@ -14,17 +14,24 @@ const vuexPersisted = createPersistedState({
         removeItem: (key) => uni.removeStorageSync(key)
     },
     reducer (state) {
-        const { user, conversation } = state;
-        const { authData, isProd, selfInfo } = user;
+        const { user, conversation, contact } = state;
+        const { authData, isProd, selfInfo, userList } = user;
         const { conversationList } = conversation;
+        const { friendList, blackList, groupList} = contact;
         return {
             user: {
                 authData,
                 isProd,
-                selfInfo
+                selfInfo,
+                userList
             },
             conversation: {
                 conversationList
+            },
+            contact: {
+                friendList,
+                blackList,
+                groupList
             }
         };
     }

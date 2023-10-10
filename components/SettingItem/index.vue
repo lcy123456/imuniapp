@@ -4,36 +4,38 @@
         :class="{ setting_item_border: border }"
         @click="onClick"
     >
-        <text>{{ title }}</text>
-        <view class="setting_right">
-            <slot name="right" />
-            <text
-                v-if="content"
-                class="fz-28 text-grey"
-            >
-                {{ content }}
-            </text>
-            <u-switch
-                v-if="showSwitch"
-                :loading="loading"
-                :async-change="true"
-                size="20"
-                :value="switchValue"
-                inactive-color="#999"
-                @change="switchChange"
+        <slot name="content">
+            <text>{{ title }}</text>
+            <view class="setting_right">
+                <slot name="right" />
+                <text
+                    v-if="content"
+                    class="fz-28 text-grey"
+                >
+                    {{ content }}
+                </text>
+                <u-switch
+                    v-if="showSwitch"
+                    :loading="loading"
+                    :async-change="true"
+                    size="20"
+                    :value="switchValue"
+                    inactive-color="#999"
+                    @change="switchChange"
+                />
+                <u-icon
+                    v-if="showArrow"
+                    name="arrow-right"
+                    size="18"
+                    color="#999"
+                    class="ml-12"
+                />
+            </view>
+            <u-loading-icon
+                v-show="loading"
+                class="loading_icon"
             />
-            <u-icon
-                v-if="showArrow"
-                name="arrow-right"
-                size="18"
-                color="#999"
-                class="ml-12"
-            />
-        </view>
-        <u-loading-icon
-            v-show="loading"
-            class="loading_icon"
-        />
+        </slot>
     </view>
 </template>
 

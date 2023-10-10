@@ -1,4 +1,5 @@
 import store from "@/store";
+import { businessLogin } from '@/api/login';
 import {
     CustomType,
     AddFriendQrCodePrefix,
@@ -463,28 +464,66 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
 };
 
 export const IMLogin = async () => {
+    console.log('-----', store.state.user.authData);
     const { storeUserID, storeIMToken } = store.getters;
     if (!storeUserID || !storeIMToken) {
         store.commit('user/SET_AUTH_DATA', {});
+        uni.$u.route('/pages/login/index');
         throw new Error('token不存在');
     }
-    await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
-        userID: storeUserID,
-        token: storeIMToken,
-    });
-    store.dispatch("user/getSelfInfo");
-    store.dispatch("conversation/getConversationList");
-    store.dispatch("conversation/getUnReadCount");
-    store.dispatch("contact/getFriendList");
-    store.dispatch("contact/getGrouplist");
-    store.dispatch("contact/getBlacklist");
-    store.dispatch("contact/getRecvFriendApplications");
-    store.dispatch("contact/getSentFriendApplications");
-    store.dispatch("contact/getRecvGroupApplications");
-    store.dispatch("contact/getSentGroupApplications");
-    uni.switchTab({
-        url: "/pages/conversation/conversationList/index",
-    });
+    try {
+        await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
+            userID: storeUserID,
+            token: storeIMToken,
+        });
+        store.dispatch("user/getSelfInfo");
+        store.dispatch("conversation/getConversationList");
+        store.dispatch("conversation/getUnReadCount");
+        store.dispatch("contact/getFriendList");
+        store.dispatch("contact/getGrouplist");
+        store.dispatch("contact/getBlacklist");
+        store.dispatch("contact/getRecvFriendApplications");
+        store.dispatch("contact/getSentFriendApplications");
+        store.dispatch("contact/getRecvGroupApplications");
+        store.dispatch("contact/getSentGroupApplications");
+        uni.switchTab({
+            url: "/pages/conversation/conversationList/index",
+        });
+    } catch (err) {
+        console.log(err);
+        IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+        uni.$u.toast('openim登录异常，请重启');
+        throw new Error('openim登录异常');
+        // setTimeout(async () => {
+        //     try {
+        //         await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+        //     } catch (err) {
+        //         console.log(err);
+        //     }
+        // }, 1000);
+    }
+};
+
+export const login = async (requestMap) => {
+    console.log(requestMap, 'requestMaprequestMap');
+    try {
+        const data = await businessLogin(requestMap);
+        console.log('login------', data);
+        store.commit('user/SET_AUTH_DATA', data);
+        store.commit('user/SET_USER_LIST', {
+            ...data,
+            ...requestMap
+        });
+        return await IMLogin();
+    } catch (err) {
+        console.log(err, err.errMsg);
+        if (err.errCode === 1101) {
+            uni.$u.toast('用户不存在');
+        } else if (err.errCode === 10001) {
+            uni.$u.toast('密码错误');
+        }
+        return null;
+    }
 };
 
 export const getDesignatedUserOnlineState = (userID) => {

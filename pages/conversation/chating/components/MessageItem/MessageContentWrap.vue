@@ -3,20 +3,34 @@
         <TextMessageRender
             v-if="showTextRender"
             :message="message"
+            :is-success-message="isSuccessMessage"
+            :is-sender="isSender"
         />
         <MediaMessageRender
             v-else-if="showMediaRender"
             :message="message"
+            :is-success-message="isSuccessMessage"
+            :is-sender="isSender"
         />
         <FileMessageRender
             v-else-if="showFileRender"
             :message="message"
+            :is-success-message="isSuccessMessage"
+            :is-sender="isSender"
         />
         <MergeMessageRender
             v-else-if="showMergeRender"
             :message="message"
+            :is-success-message="isSuccessMessage"
+            :is-sender="isSender"
         />
         <ErrorMessageRender v-else />
+        <MessageReadState
+            v-if="!showTextRender"
+            class="read-state"
+            :is-sender="isSender"
+            :message="message"
+        />
         <ChatQuote
             v-if="getQuoteElem && getQuoteElem.quoteMessage"
             :message="getQuoteElem.quoteMessage"
@@ -32,6 +46,7 @@ import MediaMessageRender from './MediaMessageRender.vue';
 import FileMessageRender from './FileMessageRender.vue';
 import MergeMessageRender from './MergeMessageRender.vue';
 import ErrorMessageRender from './ErrorMessageRender.vue';
+import MessageReadState from './MessageReadState.vue';
 import ChatQuote from '@/components/ChatQuote';
 import { 
     TextRenderTypes,
@@ -43,6 +58,7 @@ import {
 
 export default {
     components: {
+        MessageReadState,
         TextMessageRender,
         MediaMessageRender,
         FileMessageRender,
@@ -55,6 +71,14 @@ export default {
         message: {
             type: Object,
             default: () => ({})
+        },
+        isSender: {
+            type: Boolean,
+            default: false
+        },
+        isSuccessMessage: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -103,7 +127,12 @@ export default {
     max-width: 100%;
     border-radius: 16rpx;
     overflow: hidden;
-
+    position: relative;
+    .read-state {
+        position: absolute;
+        right: 20rpx;
+        bottom: 10rpx;
+    }
     .bg_container {
         padding: 20rpx;
         border-radius: 16rpx;

@@ -29,15 +29,31 @@
                 <view
                     v-for="item in infoMenus"
                     :key="item.idx"
-                    class="w-210 h-130 bg-color br-30 flex flex-column justify-evenly align-center"
+                    class="flex feat-item w-210 h-130 bg-color br-30 flex-column justify-evenly align-center"
                     @click="infoMenusClick(item)"
                 >
-                    <image
-                        class="w-54 h-54"
-                        :src="item.icon"
-                    />
+                    <view
+                        class="w-50 h-54"
+                    >
+                        <image
+                            :class="['w-' + (item.w || 50), 'h-' + (item.h || 54)]"
+                            :src="item.icon"
+                        />
+                    </view>
                     <view class="fz-26">
                         {{ item.title }}
+                    </view>
+                    <view v-if="item.idx === 2">
+                        <more-feat
+                            ref="moreFeat"
+                            :options="[{
+                                icon: '/static/images/user_card_group.png',
+                                text: '建立群组',
+                                id: 1
+                            }]"
+                            :source-i-d="sourceID"
+                            @callBack="callBack"
+                        />
                     </view>
                 </view>
             </view>
@@ -56,7 +72,7 @@
                 @switch="blackChange"
             />
             <view 
-                class="h-130 bg-color br-30 flex justify-center align-center error"
+                class="flex justify-center h-130 bg-color br-30 align-center error"
                 @click="()=>showConfirm=true"
             >
                 解除好友关系
@@ -113,10 +129,11 @@ import {
     getDesignatedUserOnlineState,
     navigateToDesignatedConversation,
 } from '@/util/imCommon';
-import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
+import IMSDK, { SessionType, IMMethods } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import SettingItem from '@/components/SettingItem/index.vue';
+import MoreFeat from '@/pages/common/moreFeat/index.vue';
 import { checkLoginError } from '@/util/common';
 
 export default {
@@ -124,9 +141,11 @@ export default {
         CustomNavBar,
         MyAvatar,
         SettingItem,
+        MoreFeat
     },
     data () {
         return {
+            moreIndex: 0,
             sourceID: '',
             sourceUserInfo: {},
             from: '',
@@ -145,8 +164,35 @@ export default {
                 },
                 {
                     idx: 2,
-                    title: '创建群聊',
-                    icon: require('static/images/user_card_group.png'),
+                    title: '更多',
+                    icon: require('static/images/common_more_active.png'),
+                    w: 42,
+                    h: 10
+                },
+            ],
+            timeMenus: [
+                {
+                    title: '一天',
+                    time: 60 * 60 * 24
+                },
+                {
+                    title: '一周',
+                    time: 60 * 60 * 24 * 7
+                },
+                {
+                    title: '一个月',
+                    time: 60 * 60 * 24 * 30
+                },
+                {
+                    title: '其他',
+                    time: 'other'
+                },
+                {
+                    title: '停用',
+                    time: 60 * 60 * 24 * 30 * 12 * 100,
+                    style: {
+                        color: '#EC4B37'
+                    }
                 },
             ],
             blackLoading: false,
@@ -201,6 +247,11 @@ export default {
         this.disposeIMListener();
     },
     methods: {
+        callBack (item) {
+            if (item.id === 1) {
+                this.createGroup();
+            }
+        },
         async handleGetUserInfo () {
             const res = await getSourceUserInfo(this.sourceID);
             this.sourceUserInfo = res;
@@ -245,21 +296,54 @@ export default {
             switch (idx) {
             case 0:
                 url = `/pages/common/markOrIDPage/index?type=${CustomMarkType.Remark}&sourceInfo=${sourceInfo}`;
+                uni.navigateTo({ url });
                 break;
             case 1:
                 url = `/pages/common/detailsFileds/index?sourceInfo=${sourceInfo}`;
+                uni.navigateTo({ url });
                 break;
             case 2:
-                const checkedMemberList = JSON.stringify([
-                    {
-                        userID: this.sourceID,
-                        faceURL: this.sourceUserInfo.faceURL,
-                        nickname: this.sourceUserInfo.nickname,
-                    },
-                ]);
-                url = `/pages/common/createGroup/index?checkedMemberList=${checkedMemberList}`;
+                this.moreIndex = this.$refs.moreFeat[0].moreIndex === 1 ? 0 : 1;
+                this.$refs.moreFeat[0].setMoreIndex(this.moreIndex);
                 break;
             }
+        },
+        async setBurnDuration ({ time }) {
+            switch (time) {
+            case 'other':
+                break;
+            default:
+                try {
+                    const sessionData = await IMSDK.asyncApi('getConversationIDBySessionType', IMSDK.uuid(), {
+                        sourceID: this.sourceID,
+                        sessionType: 1
+                    });
+                    console.log('sessionDatasessionDatasessionDatasessionData', sessionData, time);
+                    const data = await IMSDK.asyncApi(IMMethods.SetConversationBurnDuration, IMSDK.uuid(), {
+                        conversationID: sessionData,
+                        burnDuration: 20 || time
+                    });
+                    console.log('datadatadatadatadatadatadatadatadatadatadatadatadata', data);
+                    if (data) {
+                        uni.$u.toast('设置成功');
+                        this.$refs.moreFeat[0].setMoreIndex(0);
+                    }
+                } catch (err) {
+                    uni.$u.toast('设置失败，请稍后重试');
+                    console.log(err);
+                }
+                break;
+            }
+        },
+        createGroup () {
+            const checkedMemberList = JSON.stringify([
+                {
+                    userID: this.sourceID,
+                    faceURL: this.sourceUserInfo.faceURL,
+                    nickname: this.sourceUserInfo.nickname,
+                },
+            ]);
+            const url = `/pages/common/createGroup/index?checkedMemberList=${checkedMemberList}`;
             uni.navigateTo({ url });
         },
         async handleRecord () {
@@ -333,7 +417,9 @@ export default {
     height: 100vh;
     background-color: $uni-bg-color-grey;
     padding: 0 30rpx;
-
+    .feat-item {
+        position: relative;
+    }
     .base_info {
         margin-top: 20rpx;
         display: flex;

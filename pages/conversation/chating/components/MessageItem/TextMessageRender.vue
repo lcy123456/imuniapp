@@ -6,6 +6,10 @@
             :lazy-load="false"
             :content="getContent"
         />
+        <MessageReadState
+            :message="message"
+            :is-sender="isSender"
+        />
     </view>
 </template>
 
@@ -13,10 +17,12 @@
 import { parseAt, parseEmoji } from "@/util/imCommon";
 import { MessageType } from "openim-uniapp-polyfill";
 import { DecryptoAES } from '@/util/crypto';
+import MessageReadState from './MessageReadState.vue';
 
 export default {
     name: "TextMessageRender",
     components: {
+        MessageReadState
     },
     props: {
         message: {
@@ -24,6 +30,14 @@ export default {
             default: () => ({})
         },
         showNickname: {
+            type: Boolean,
+            default: false
+        },
+        isSender: {
+            type: Boolean,
+            default: false
+        },
+        isSuccessMessage: {
             type: Boolean,
             default: false
         }
@@ -58,5 +72,7 @@ export default {
 <style lang="scss" scoped>
 .text_message_container {
     word-break: break-all;
+    display: flex;
+    align-items: end;
 }
 </style>

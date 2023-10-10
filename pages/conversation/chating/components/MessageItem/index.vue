@@ -37,15 +37,19 @@
                 </view>
                 <MessageContentWrap
                     :message="source"
+                    :is-success-message="isSuccessMessage"
+                    :is-sender="isSender"
+                    :show-sending="showSending"
+                    :is-failed-message="isFailedMessage"
                     @longpress.prevent.native="handleLongPress"
                 />
-                <MessageReadState
+                <!-- <MessageReadState
                     v-if="isSender && isSuccessMessage"
                     :message="source"
-                />
+                /> -->
             </view>
             <view class="message_send_state">
-                <u-loading-icon v-if="showSending" />
+                <!-- <u-loading-icon v-if="showSending" /> -->
                 <image
                     v-if="isFailedMessage"
                     src="@/static/images/chating_message_failed.png"

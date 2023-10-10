@@ -21,10 +21,16 @@
                     style="visibility: hidden; height: 12px"
                 />
                 <view
-                    v-for="item in messageList"
+                    v-for="(item, index) in messageList"
                     :key="`auchor${item.clientMsgID}`"
                     :class="{isrotate: isReverse}"
                 >
+                    <BetweenTime
+                        :msg-before="item"
+                        :msg-after="messageList[index + 1]"
+                        :is-reverse="isReverse"
+                        :type="(!isReverse && index === 0) || (isReverse && index === messageList.length - 1) ? 'first' : ''"
+                    />
                     <MessageItemRender
                         :source="item"
                         :is-sender="item.sendID === storeCurrentUserID"
@@ -49,12 +55,14 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import MessageItemRender from './MessageItem/index.vue';
+import BetweenTime from './BetweenTime.vue';
 import { PageEvents } from "@/constant";
 
 export default {
     name: 'ChatingList',
     components: {
         MessageItemRender,
+        BetweenTime
     },
     props: {
         isMultipleMsg: {

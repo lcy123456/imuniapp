@@ -73,10 +73,10 @@ const actions = {
             });
             return data;
         } catch (e) {
-            commit('SET_HISTORY_MESSAGE_MAP', {
-                ...state.historyMessageMap, 
-                [conversationID]: {},
-            });
+            // commit('SET_HISTORY_MESSAGE_MAP', {
+            //     ...state.historyMessageMap, 
+            //     [conversationID]: {},
+            // });
         }
     },
     pushNewMessage ({ commit, state, rootState }, message) {

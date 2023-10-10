@@ -35,6 +35,7 @@ export default {
     storeBusinessToken: (state) => state.user.authData.chatToken,
     storeCryptoPadding: (state) => state.user.authData.cryptoPadding,
     storeSelfInfo: (state) => state.user.selfInfo,
+    storeUserList: (state) => state.user.userList,
     storeCurrentUserID: (state) => state.user.selfInfo.userID,
     storeAppConfig: (state) => state.user.appConfig,
     storeIsSyncing: (state) => state.user.isSyncing,
