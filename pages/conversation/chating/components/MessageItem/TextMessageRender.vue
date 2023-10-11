@@ -74,5 +74,7 @@ export default {
     word-break: break-all;
     display: flex;
     align-items: end;
+    // user-select: text;
+    // -webkit-user-select: text;
 }
 </style>

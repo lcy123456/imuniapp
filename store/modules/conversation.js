@@ -6,12 +6,16 @@ const state = {
     currentConversation: {},
     unReadCount: 0,
     currentGroup: {},
-    currentMemberInGroup: {}
+    currentMemberInGroup: {},
+    conversationMediaList: []
 };
 
 const mutations = {
     SET_CONVERSATION_LIST (state, list) {
         state.conversationList = [...list];
+    },
+    SET_CONVERSATION_MEDIA_LIST (state, list) {
+        state.conversationMediaList = [...list];
     },
     SET_CURRENT_CONVERSATION (state, conversation) {
         state.currentConversation = {

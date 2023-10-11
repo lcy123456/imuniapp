@@ -98,8 +98,8 @@ const actions = {
                 ...businessData
             });
         } catch (e) {
-            console.log(e);
-            uni.$u.toast('获取个人信息失败');
+            console.log(e, '获取个人信息失败');
+            uni.$u.toast('连接失败，请检查网络');
         }
     },
     async updateBusinessInfo ({

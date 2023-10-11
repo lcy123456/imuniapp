@@ -53,13 +53,13 @@
                     :options="[{
                         icon: '/static/images/group_out.png',
                         text: isOwner ? '解散群聊' : '退出群聊',
-                        sessionType: 3,
                         style: {
                             color: '#EC4B37'
                         },
                         id: 1
                     }]"
-                    :source-i-d="sourceID"
+                    :source-i-d="currentGroup.groupID"
+                    :session-type="3"
                     @callBack="callBack"
                 />
             </view>

@@ -308,33 +308,6 @@ export default {
                 break;
             }
         },
-        async setBurnDuration ({ time }) {
-            switch (time) {
-            case 'other':
-                break;
-            default:
-                try {
-                    const sessionData = await IMSDK.asyncApi('getConversationIDBySessionType', IMSDK.uuid(), {
-                        sourceID: this.sourceID,
-                        sessionType: 1
-                    });
-                    console.log('sessionDatasessionDatasessionDatasessionData', sessionData, time);
-                    const data = await IMSDK.asyncApi(IMMethods.SetConversationBurnDuration, IMSDK.uuid(), {
-                        conversationID: sessionData,
-                        burnDuration: 20 || time
-                    });
-                    console.log('datadatadatadatadatadatadatadatadatadatadatadatadata', data);
-                    if (data) {
-                        uni.$u.toast('设置成功');
-                        this.$refs.moreFeat[0].setMoreIndex(0);
-                    }
-                } catch (err) {
-                    uni.$u.toast('设置失败，请稍后重试');
-                    console.log(err);
-                }
-                break;
-            }
-        },
         createGroup () {
             const checkedMemberList = JSON.stringify([
                 {

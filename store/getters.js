@@ -1,5 +1,6 @@
 export default {
     storeConversationList: (state) => state.conversation.conversationList,
+    storeConversationMediaList: (state) => state.conversation.conversationMediaList,
     storeCurrentConversation: (state) => state.conversation.currentConversation,
     storeCurrentConversationID: (state) => state.conversation.currentConversation.conversationID,
     storeUnReadCount: (state) => state.conversation.unReadCount,

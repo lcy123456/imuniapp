@@ -106,7 +106,7 @@ export default {
                 },
                 {
                     title: '停用',
-                    time: 60 * 60 * 24 * 30 * 12 * 100,
+                    time: 'stop',
                     style: {
                         color: '#EC4B37'
                     }
@@ -134,13 +134,17 @@ export default {
                 break;
             default:
                 try {
-                    const sessionData = await IMSDK.asyncApi('getConversationIDBySessionType', IMSDK.uuid(), {
+                    const conversationID = await IMSDK.asyncApi('getConversationIDBySessionType', IMSDK.uuid(), {
                         sourceID: this.sourceID,
                         sessionType: this.sessionType
                     });
-                    console.log('sessionDatasessionDatasessionDatasessionData', sessionData, time);
+                    console.log('conversationIDconversationIDconversationIDconversationID', conversationID, time, this.sessionType, this.sourceID);
+                    await IMSDK.asyncApi(IMMethods.SetConversationPrivateChat, IMSDK.uuid(), {
+                        conversationID,
+                        isPrivate: time !== 'stop'
+                    });
                     const data = await IMSDK.asyncApi(IMMethods.SetConversationBurnDuration, IMSDK.uuid(), {
-                        conversationID: sessionData,
+                        conversationID,
                         burnDuration: time
                     });
                     console.log('datadatadatadatadatadatadatadatadatadatadatadatadata', data);

@@ -49,6 +49,9 @@ import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
 
+import { 
+    MediaRenderTypes,
+} from '@/constant';
 export default {
     components: {
         ChatingHeader,
@@ -71,6 +74,7 @@ export default {
                 paterRect: {},
                 message: {}
             },
+            imgList: []
         };
     },
     computed: {
@@ -91,6 +95,7 @@ export default {
         this.positionMsgID = clientMsgID;
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
+        this.getSearchRecord();
     },
     onUnload () {
         console.log('unload');
@@ -113,6 +118,44 @@ export default {
             if (res) {
                 this.menuState.visible = false;
             }
+        },
+        async getSearchRecord () {
+            let conversationID = this.storeCurrentConversation.conversationID;
+            const params = {
+                conversationID: conversationID,
+                keywordList: [],
+                messageTypeList: MediaRenderTypes,
+                searchTimePosition: 0,
+                searchTimePeriod: 0,
+                pageIndex: 1,
+                count: 999,
+            };
+            const { data } = await IMSDK.asyncApi(
+                IMMethods.SearchLocalMessages,
+                IMSDK.uuid(),
+                params
+            );
+            let imgList = data.searchResultItems?.[0]?.messageList || [];
+            console.log('xxx', data);
+            this.imgList = imgList.map((v) => {
+                const { contentType, pictureElem, videoElem } = v;
+                const isVideo = contentType === MessageType.VideoMessage;
+                let map = {
+                    url: pictureElem?.sourcePicture.url,
+                    poster: pictureElem?.sourcePicture.url,
+                    type: 'image',
+                };
+                if (isVideo) {
+                    map = {
+                        url: videoElem.videoUrl,
+                        poster: videoElem.snapshotUrl,
+                        type: 'video',
+                    };
+                }
+                return map;
+            });
+            this.imgList.reverse();
+            this.$store.commit('conversation/SET_CONVERSATION_MEDIA_LIST', this.imgList);
         },
         chatListClick () {
             this.footerOutsideFlag += 1;

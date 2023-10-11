@@ -302,7 +302,7 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
         return customNoti.text;
     case MessageType.BurnMessageChange:
         const burnDetails = JSON.parse(pmsg.notificationElem.detail);
-        return `阅后即焚已${burnDetails.isPrivate ? "开启" : "关闭"}`;
+        return `${burnDetails.sendID === store.getters.storeCurrentUserID ? '你' : '对方'}设置阅后即焚已${burnDetails.isPrivate ? "开启" : "关闭"}`;
     default:
         return "";
     }
@@ -454,7 +454,7 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
         }`;
     case MessageType.BurnMessageChange:
         const burnDetails = JSON.parse(msg.notificationElem.detail);
-        return `阅后即焚已${burnDetails.isPrivate ? "开启" : "关闭"}`;
+        return `${burnDetails.sendID === store.getters.storeCurrentUserID ? '你' : '对方'}设置阅后即焚已${burnDetails.isPrivate ? "开启" : "关闭"}`;
     case MessageType.OANotification:
         const customNoti = JSON.parse(msg.notificationElem.detail);
         return customNoti.text;
