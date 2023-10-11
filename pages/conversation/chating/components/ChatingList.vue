@@ -181,7 +181,6 @@ export default {
         },
         scrolltoupper () {
             if (!this.isReverse) {
-                this.reverse = false;
                 if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
                     this.loadMessageList(true);
                 }
@@ -208,13 +207,18 @@ export default {
         },
         async scrollToBottom ({initPage = false} = {}) {
             initPage && this.$emit('initSuccess');
-            uni.createSelectorQuery()
-                .in(this)
-                .select('#scroll_wrap')
-                .boundingClientRect((res) => {
-                    this.scrollTop = this.isReverse ? 0 : res.height + Math.random();
-                })
-                .exec();
+            if (this.isReverse) {
+                this.scrollTop = 0;
+            }
+            setTimeout(() => {
+                uni.createSelectorQuery()
+                    .in(this)
+                    .select('#scroll_wrap')
+                    .boundingClientRect((res) => {
+                        this.scrollTop = this.isReverse ? 0 : res.height + Math.random();
+                    })
+                    .exec();
+            }, 200);
             // await this.$nextTick();
             // setTimeout(() => {
             //     // console.log('scrollToBottom');
