@@ -17,8 +17,15 @@
                 id="scroll_wrap"
             >
                 <view
+                    v-if="isReverse"
                     id="auchormessage_bottom_item"
                     style="visibility: hidden; height: 12px"
+                />
+                <u-loadmore
+                    v-else
+                    :class="{isrotate: isReverse}"
+                    nomore-text=""
+                    :status="loadMoreStatus"
                 />
                 <view
                     v-for="(item, index) in messageList"
@@ -26,8 +33,8 @@
                     :class="{isrotate: isReverse}"
                 >
                     <BetweenTime
-                        :msg-before="item"
-                        :msg-after="messageList[index + 1]"
+                        :msg-before="isReverse ? item : messageList[index - 1]"
+                        :msg-after="isReverse ? messageList[index + 1]: item"
                         :is-reverse="isReverse"
                         :type="(!isReverse && index === 0) || (isReverse && index === messageList.length - 1) ? 'first' : ''"
                     />
@@ -42,7 +49,13 @@
                     />
                     <!-- @messageItemRender="messageItemRender" -->
                 </view>
+                <view
+                    v-if="!isReverse"
+                    id="auchormessage_bottom_item"
+                    style="visibility: hidden; height: 12px"
+                />
                 <u-loadmore
+                    v-else
                     :class="{isrotate: isReverse}"
                     nomore-text=""
                     :status="loadMoreStatus"
@@ -168,6 +181,7 @@ export default {
         },
         scrolltoupper () {
             if (!this.isReverse) {
+                this.reverse = false;
                 if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
                     this.loadMessageList(true);
                 }
@@ -188,12 +202,19 @@ export default {
             console.log('滚动id', auchor);
             !isAnimation && this.closeScrollAnimation();
             this.$nextTick(() => {
-                this.scrollIntoView = this.isReverse ? '' : auchor;
+                this.scrollIntoView = '';
+                // this.scrollIntoView = this.isReverse ? '' : auchor;
             });
         },
         async scrollToBottom ({initPage = false} = {}) {
-            this.scrollTop = 0;
             initPage && this.$emit('initSuccess');
+            uni.createSelectorQuery()
+                .in(this)
+                .select('#scroll_wrap')
+                .boundingClientRect((res) => {
+                    this.scrollTop = this.isReverse ? 0 : res.height + Math.random();
+                })
+                .exec();
             // await this.$nextTick();
             // setTimeout(() => {
             //     // console.log('scrollToBottom');

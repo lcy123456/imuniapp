@@ -38,13 +38,13 @@ export default {
     methods: {
         getMessageBetweenTime (msgBefore, msgAfter) {
             if (this.type === 'first') {
-                return new Date(msgBefore.createTime).Format('yyy/MM/dd');
+                return this.isReverse ? new Date(msgBefore.sendTime).Format('yyy/MM/dd') : new Date(msgAfter.sendTime).Format('yyy/MM/dd');
             }
-            if (!msgAfter) return '';
-            let dayBefore = new Date(msgBefore.createTime).Format('dd');
-            let dayAfter = new Date(msgAfter.createTime).Format('dd');
+            if (!msgAfter || !msgBefore) return '';
+            let dayBefore = new Date(msgBefore.sendTime).Format('dd');
+            let dayAfter = new Date(msgAfter.sendTime).Format('dd');
             if (dayBefore !== dayAfter) {
-                return this.isReverse ? new Date(msgBefore.createTime).Format('yyy/MM/dd') : new Date(msgAfter.createTime).Format('yyy/MM/dd');
+                return this.isReverse ? new Date(msgBefore.sendTime).Format('yyy/MM/dd') : new Date(msgAfter.sendTime).Format('yyy/MM/dd');
             }
             return '';
         }

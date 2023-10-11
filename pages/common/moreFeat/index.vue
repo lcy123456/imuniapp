@@ -60,6 +60,13 @@
                 <text>在此之后发送的消息将在一段时间后被自动删除。</text>
             </view>
         </view>
+        <u-picker
+            :show="show"
+            :key-name="'label'"
+            :columns="columns"
+            @confirm="confirm"
+            @cancel="show = false;"
+        />
     </view>
 </template>
 
@@ -86,7 +93,58 @@ export default {
     },
     data () {
         return {
+            show: false,
             moreIndex: 0,
+            columns: [[
+                {
+                    id: 60 * 60 * 24 * 30,
+                    label: '一个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 2,
+                    label: '二个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 3,
+                    label: '三个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 4,
+                    label: '四个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 5,
+                    label: '五个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 6,
+                    label: '六个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 7,
+                    label: '七个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 8,
+                    label: '八个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 9,
+                    label: '九个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 10,
+                    label: '十个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 11,
+                    label: '十一个月'
+                },
+                {
+                    id: 60 * 60 * 24 * 30 * 12,
+                    label: '十二个月'
+                }
+            ]],
             timeMenus: [
                 {
                     title: '一天',
@@ -128,37 +186,47 @@ export default {
         getMoreIndex () {
             return this.moreIndex;
         },
+        confirm (e) {
+            console.log(e);
+            this.setConversationBurnDuration(e.value[0].id);
+        },
         async setBurnDuration ({ time }) {
             switch (time) {
             case 'other':
+                this.show = true;
+                this.setMoreIndex(0);
                 break;
             default:
-                try {
-                    const conversationID = await IMSDK.asyncApi('getConversationIDBySessionType', IMSDK.uuid(), {
-                        sourceID: this.sourceID,
-                        sessionType: this.sessionType
-                    });
-                    console.log('conversationIDconversationIDconversationIDconversationID', conversationID, time, this.sessionType, this.sourceID);
-                    await IMSDK.asyncApi(IMMethods.SetConversationPrivateChat, IMSDK.uuid(), {
-                        conversationID,
-                        isPrivate: time !== 'stop'
-                    });
-                    const data = await IMSDK.asyncApi(IMMethods.SetConversationBurnDuration, IMSDK.uuid(), {
-                        conversationID,
-                        burnDuration: time
-                    });
-                    console.log('datadatadatadatadatadatadatadatadatadatadatadatadata', data);
-                    if (data) {
-                        uni.$u.toast('设置成功');
-                        this.moreIndex = 0;
-                    }
-                } catch (err) {
-                    uni.$u.toast('设置失败，请稍后重试');
-                    console.log(err);
-                }
+                this.setConversationBurnDuration(time);
                 break;
             }
         },
+        async setConversationBurnDuration (time) {
+            try {
+                const conversationID = await IMSDK.asyncApi('getConversationIDBySessionType', IMSDK.uuid(), {
+                    sourceID: this.sourceID,
+                    sessionType: this.sessionType
+                });
+                console.log('conversationIDconversationIDconversationIDconversationID', conversationID, time, this.sessionType, this.sourceID);
+                await IMSDK.asyncApi(IMMethods.SetConversationPrivateChat, IMSDK.uuid(), {
+                    conversationID,
+                    isPrivate: time !== 'stop'
+                });
+                const data = await IMSDK.asyncApi(IMMethods.SetConversationBurnDuration, IMSDK.uuid(), {
+                    conversationID,
+                    burnDuration: time
+                });
+                console.log('datadatadatadatadatadatadatadatadatadatadatadatadata', data);
+                if (data) {
+                    this.show = false;
+                    uni.$u.toast('设置成功');
+                    this.moreIndex = 0;
+                }
+            } catch (err) {
+                uni.$u.toast('设置失败，请稍后重试');
+                console.log(err);
+            }
+        }
     },
 };
 </script>
