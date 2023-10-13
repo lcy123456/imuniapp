@@ -8,6 +8,7 @@
             :checked-msg-ids="checkedMsgIds"
         />
         <chating-list
+            :key="update"
             ref="chatingListRef"
             :menu-outside-flag="menuOutsideFlag"
             :is-multiple-msg="isMultipleMsg"
@@ -61,6 +62,7 @@ export default {
     },
     data () {
         return {
+            update: '',
             listHeight: 0,
             footerOutsideFlag: 0,
             menuOutsideFlag: 0,
@@ -91,6 +93,7 @@ export default {
     },
     onLoad (options) {
         const { back2Tab, clientMsgID } = options;
+        console.log('onload...................................................................');
         this.back2Tab = !!JSON.parse(back2Tab);
         this.positionMsgID = clientMsgID;
         uni.$on('multiple_message', this.handleMultipleMessage);
@@ -118,6 +121,11 @@ export default {
             if (res) {
                 this.menuState.visible = false;
             }
+        },
+        getPositionMsgID (positionMsgID) {
+            console.log('-------1111111111111111111111111111', positionMsgID);
+            this.update = +new Date();
+            this.positionMsgID = positionMsgID;
         },
         async getSearchRecord () {
             let conversationID = this.storeCurrentConversation.conversationID;

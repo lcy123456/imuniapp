@@ -2,11 +2,11 @@
     <scroll-view
         id="scroll_view"
         :class="{isrotate: isReverse}"
-        :scroll-with-animation="withAnimation"
+        :scroll-with-animation="true"
         :scroll-top="scrollTop"
         :scroll-into-view="scrollIntoView"
         scroll-y
-        :upper-threshold="250"
+        :upper-threshold="0"
         @touchstart="handleTouchstart"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
@@ -93,7 +93,8 @@ export default {
     },
     data () {
         return {
-            isReverse: true,
+            isReverse: false,
+            isInReverse: false,
             ua: uni.getSystemInfoSync().platform,
             scrollIntoView: '',
             scrollTop: 0,
@@ -113,6 +114,7 @@ export default {
             'storeCurrentConversation',
             'storeHistoryMessageList',
             'storeHasMoreMessage',
+            'storeHasMoreAfterMessage',
             'storeCurrentUserID',
         ]),
         loadMoreStatus () {
@@ -127,37 +129,50 @@ export default {
     },
     mounted () {
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
-        this.loadMessageList();
+        this.loadMessageList({});
     },
     beforeDestroy () {
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
     },
     methods: {
-        ...mapActions('message', ['getHistoryMesageList']),
-        async loadMessageList (isLoadMore = false) {
+        ...mapActions('message', ['getHistoryMesageList', 'getHistoryMesageListReverse']),
+        async loadMessageList ({isLoadMore = false, isReverse = false}) {
+            console.log(isLoadMore, 'isLoadMoreisLoadMoreisLoadMore', isReverse);
             this.messageLoadState.loading = true;
-            const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
+            // const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
             const options = {
                 conversationID: this.storeCurrentConversation.conversationID,
                 userID: '',
                 groupID: '',
-                count: 20,
+                count: 20
             };
             try {
                 if (isLoadMore) {
-                    await this.getHistoryMesageList(options);
-                    if (this.positionMsgID && this.positionMsgIDFlag) {
-                        this.handlePositionMsgID();
-                    } else {
-                        lastMsgID && this.scrollToAnchor(`auchor${lastMsgID}`, false);
-                    }
+                    await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse'](options);
+                    // if (this.positionMsgID && this.positionMsgIDFlag) {
+                    //     this.handlePositionMsgID();
+                    // } else {
+                    //     lastMsgID && this.scrollToAnchor(`auchor${lastMsgID}`, false);
+                    // }
                 } else {
-                    await this.getHistoryMesageList({
+                    await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                         ...options,
-                        isInit: true
+                        positionMsgID: this.positionMsgID,
+                        isInit: true,
+                        count: this.positionMsgID ? 10 : 20
                     });
-                    this.scrollToBottom({ initPage: true });
-                    this.positionMsgID && this.handlePositionMsgID();
+                    if (this.positionMsgID) {
+                        let positionMsgID = this.storeHistoryMessageList[this.storeHistoryMessageList.length - 1].clientMsgID;
+                        await this[isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
+                            ...options,
+                            positionMsgID: positionMsgID,
+                            count: 10
+                        });
+                        this.scrollToAnchor(`auchor${positionMsgID}`, false);
+                    } else {
+                        this.scrollToBottom({ initPage: true });
+                    }
+                    // this.positionMsgID && this.handlePositionMsgID();
                 }
             } catch (e) {
                 console.log(e);
@@ -182,78 +197,113 @@ export default {
         scrolltoupper () {
             if (!this.isReverse) {
                 if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
-                    this.loadMessageList(true);
+                    this.isReverse = true;
+                    this.scrollToTop();
+                    this.isInReverse = true;
+                    setTimeout(() => {
+                        this.loadMessageList({ isLoadMore: true });
+                        this.isInReverse = false;
+                    }, 500);
                 }
             } else {
-                this.isRecvToBottom = true;
+                // this.isRecvToBottom = true;
+                if (!this.messageLoadState.loading && this.storeHasMoreAfterMessage) {
+                    this.isReverse = false;
+                    this.scrollToBottom();
+                    this.isInReverse = true;
+                    setTimeout(() => {
+                        this.loadMessageList({ isLoadMore: true, isReverse: true });
+                        this.isInReverse = false;
+                    }, 500);
+                }
             }
         },
         scrolltolower () {
+            if (this.isInReverse) return;
             if (this.isReverse) {
                 if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
-                    this.loadMessageList(true);
+                    this.loadMessageList({ isLoadMore: true });
                 }
             } else {
-                this.isRecvToBottom = true;
+                // this.isRecvToBottom = true;
+                if (!this.messageLoadState.loading && this.storeHasMoreAfterMessage) {
+                    this.loadMessageList({ isLoadMore: true, isReverse: true });
+                }
             }
         },
         scrollToAnchor (auchor, isAnimation = true) {
             console.log('滚动id', auchor);
             !isAnimation && this.closeScrollAnimation();
             this.$nextTick(() => {
-                this.scrollIntoView = '';
-                // this.scrollIntoView = this.isReverse ? '' : auchor;
+                this.scrollIntoView = auchor;
             });
+        },
+        async scrollToTop ({initPage = false} = {}) {
+            initPage && this.$emit('initSuccess');
+            // if (!this.isReverse) {
+            //     this.scrollTop = 0;
+            //     return;
+            // }
+            // await this.$nextTick();
+            // setTimeout(() => {
+            //     // uni.createSelectorQuery()
+            //     //     .in(this)
+            //     //     .select('#scroll_wrap')
+            //     //     .boundingClientRect((res) => {
+            //     //         this.scrollTop = this.isReverse ? res.height + Math.random() : 0;
+            //     //     })
+            //     //     .exec();
+            //     this.scrollTop = this.isReverse ? 9999999999 : 0;
+            // }, 0);
+            if (initPage) {
+                setTimeout(() => {
+                    this.scrollTop = this.isReverse ? 9999999999 : 0;
+                }, 200);
+            } else {
+                this.scrollTop = this.isReverse ? 9999999999 : 0;
+            }
         },
         async scrollToBottom ({initPage = false} = {}) {
             initPage && this.$emit('initSuccess');
-            if (this.isReverse) {
-                this.scrollTop = 0;
-            }
-            setTimeout(() => {
-                uni.createSelectorQuery()
-                    .in(this)
-                    .select('#scroll_wrap')
-                    .boundingClientRect((res) => {
-                        this.scrollTop = this.isReverse ? 0 : res.height + Math.random();
-                    })
-                    .exec();
-            }, 200);
+            // if (this.isReverse) {
+            //     this.scrollTop = 0;
+            //     return;
+            // }
             // await this.$nextTick();
             // setTimeout(() => {
-            //     // console.log('scrollToBottom');
-            //     if (initPage) {
-            //         this.closeScrollAnimation();
-            //     } else if (isRecv && !this.isRecvToBottom) {
-            //         this.hasNewMessage = true;
-            //         return;
-            //     }
-            //     uni.createSelectorQuery()
-            //         .in(this)
-            //         .select('#scroll_wrap')
-            //         .boundingClientRect((res) => {
-            //             this.scrollTop = this.isReverse ? '' : res.height + Math.random();
-            //             initPage && this.$emit('initSuccess');
-            //         })
-            //         .exec();
-            // }, 100);
+            //     // uni.createSelectorQuery()
+            //     //     .in(this)
+            //     //     .select('#scroll_wrap')
+            //     //     .boundingClientRect((res) => {
+            //     //         this.scrollTop = this.isReverse ? 0 : res.height + Math.random();
+            //     //     })
+            //     //     .exec();
+            //     this.scrollTop = this.isReverse ? 0 : 999999999999;
+            // }, 0);
+            if (initPage) {
+                setTimeout(() => {
+                    this.scrollTop = this.isReverse ? 0 : 999999999999;
+                }, 200);
+            } else {
+                this.scrollTop = this.isReverse ? 0 : 999999999999;
+            }
         },
         closeScrollAnimation () {
             this.withAnimation = false;
             setTimeout(() => (this.withAnimation = true), 500);
         },
-        handlePositionMsgID () {
-            setTimeout(() => {
-                const ids = this.storeHistoryMessageList.map(v => v.clientMsgID);
-                if (ids.includes(this.positionMsgID)) {
-                    this.scrollToAnchor(`auchor${this.positionMsgID}`);
-                    this.positionMsgIDFlag = false;
-                } else {
-                    this.messageLoadState.loading = false;
-                    this.loadMessageList(true);
-                }
-            }, 300);
-        },
+        // handlePositionMsgID () {
+        //     setTimeout(() => {
+        //         const ids = this.storeHistoryMessageList.map(v => v.clientMsgID);
+        //         if (ids.includes(this.positionMsgID)) {
+        //             this.scrollToAnchor(`auchor${this.positionMsgID}`);
+        //             this.positionMsgIDFlag = false;
+        //         } else {
+        //             this.messageLoadState.loading = false;
+        //             this.loadMessageList({ isLoadMore: true, positionMsgID: this.positionMsgID });
+        //         }
+        //     }, 300);
+        // },
         menuRect (res) {
             this.$emit('menuRect', res);
         }

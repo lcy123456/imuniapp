@@ -1,7 +1,7 @@
 <template>
     <view class="record_detail_container page_container">
         <view class="status-bar-height" />
-        <view class="px-20 pb-20 pt-10">
+        <view class="px-20 pt-10 pb-20">
             <uni-search-bar
                 v-model="keyword"
                 bg-color="#fff"
@@ -27,7 +27,7 @@
         </view>
         <view
             v-if="from === RecordFormMap.All"
-            class="bg-color mb-20 px-30"
+            class="mb-20 bg-color px-30"
         >
             <RecordItem
                 :source="conversation"
@@ -38,7 +38,7 @@
             />
         </view>
         <view
-            class="bg-color flex-grow flex flex-column px-30 pb-20 over-auto"
+            class="flex flex-grow pb-20 bg-color flex-column px-30 over-auto"
             @touchstart="touchstart"
         >
             <view class="title_box">
@@ -149,7 +149,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentUserID']),
+        ...mapGetters(['storeCurrentUserID', 'storeCurrentConversationID']),
         tabList () {
             const arr = [
                 { label: '聊天记录', value: this.TextRenderTypes },
@@ -221,11 +221,20 @@ export default {
             uni.$u.debounce(this.getSearchRecord, 300);
         },
         handleItemClick (v) {
-            recordToDesignatedConversation(
-                this.conversation.conversationID,
-                false,
-                v?.clientMsgID
-            );
+            if (this.storeCurrentConversationID) {
+                let pages = getCurrentPages();
+                let prevPage = pages[pages.length - 3];
+                prevPage.$vm.getPositionMsgID(v?.clientMsgID);
+                uni.navigateBack({
+                    delta: 2
+                });
+            } else {
+                recordToDesignatedConversation(
+                    this.conversation.conversationID,
+                    false,
+                    v?.clientMsgID
+                );
+            }
         },
         handleMediaClick (index) {
             const list = this.messageList.map((v) => {

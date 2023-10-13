@@ -1,7 +1,7 @@
 <template>
     <view class="search_record_container page_container">
         <view class="status-bar-height" />
-        <view class="px-20 pb-20 pt-10">
+        <view class="px-20 pt-10 pb-20">
             <uni-search-bar
                 v-model="keyword"
                 bg-color="#fff"
@@ -14,7 +14,7 @@
         <view
             v-if="!keyword || showList.length === 0"
             key="empty"
-            class="flex-grow flex justify-center pt-186 bg-color"
+            class="flex justify-center flex-grow pt-186 bg-color"
         >
             <image
                 src="/static/images/search_record_empty.png"
@@ -30,7 +30,7 @@
             <view
                 v-for="v in showList"
                 :key="v.type"
-                class="record_box mb-20 px-30"
+                class="mb-20 record_box px-30"
             >
                 <view
                     v-show="!moreType"

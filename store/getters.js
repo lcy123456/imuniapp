@@ -29,6 +29,13 @@ export default {
         const hasMore = historyMessageMap[currentConversation.conversationID]?.hasMore ?? true;
         return hasMore;
     },
+    storeHasMoreAfterMessage: (state) => {
+        const { message, conversation } = state;
+        const { historyMessageMap } = message;
+        const { currentConversation } = conversation;
+        const hasMore = historyMessageMap[currentConversation.conversationID]?.hasAfterMore ?? true;
+        return hasMore;
+    },
     storeClientID: (state) => state.user.clientID,
     storeAuthData: (state) => state.user.authData,
     storeUserID: (state) => state.user.authData.userID,

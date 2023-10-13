@@ -28,13 +28,13 @@ const mutations = {
 
 const actions = {
     async getHistoryMesageList ({ commit, state }, params) {
-        const { conversationID, count, isInit } = params;
+        const { conversationID, count, isInit, positionMsgID } = params;
         try {
             const {
                 messageList: oldMessageList = [],
                 lastMinSeq: oldLastMinSeq = 0
             } = state.historyMessageMap[conversationID] || {};
-            const startClientMsgID = oldMessageList[0]?.clientMsgID || '';
+            const startClientMsgID = positionMsgID || oldMessageList[0]?.clientMsgID || '';
 
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetAdvancedHistoryMessageList,
@@ -42,11 +42,11 @@ const actions = {
                 {
                     ...params,
                     isInit: undefined,
-                    startClientMsgID: isInit ? '' : startClientMsgID,
+                    startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
                     lastMinSeq: isInit ? 0 : oldLastMinSeq
                 }
             );
-            console.log(data);
+            console.log('getHistoryMesageList----', data, positionMsgID, startClientMsgID);
             const { messageList = [], isEnd, lastMinSeq } = data;
             // commit('SET_HISTORY_MESSAGE_MAP', {
             //     conversationID: conversationID,
@@ -77,6 +77,41 @@ const actions = {
             //     ...state.historyMessageMap, 
             //     [conversationID]: {},
             // });
+        }
+    },
+
+    async getHistoryMesageListReverse ({ commit, state }, params) {
+        const { conversationID, count, isInit, positionMsgID } = params;
+        try {
+            const {
+                messageList: oldMessageList = [],
+                lastMinSeq: oldLastMinSeq = 0
+            } = state.historyMessageMap[conversationID] || {};
+            const startClientMsgID = positionMsgID || oldMessageList[oldMessageList.length - 1]?.clientMsgID || '';
+
+            const { data } = await IMSDK.asyncApi(
+                IMSDK.IMMethods.GetAdvancedHistoryMessageListReverse,
+                uuidv4(),
+                {
+                    ...params,
+                    isInit: undefined,
+                    startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
+                    lastMinSeq: isInit ? 0 : oldLastMinSeq
+                }
+            );
+            console.log('getHistoryMesageListReverse----', data);
+            const { messageList = [], isEnd, lastMinSeq } = data;
+            commit('SET_HISTORY_MESSAGE_MAP', {
+                ...state.historyMessageMap, 
+                [conversationID]: {
+                    messageList: [...oldMessageList.concat(messageList)],
+                    hasAfterMore: !isEnd && messageList.length === count,
+                    lastMinSeq: lastMinSeq
+                },
+            });
+            return data;
+        } catch (e) {
+            // 
         }
     },
     pushNewMessage ({ commit, state, rootState }, message) {
