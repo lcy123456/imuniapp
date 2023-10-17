@@ -1,5 +1,9 @@
 <template>
     <view :class="['notification-box', value ? 'show' : 'hide']">
+        <image
+            v-if="icon"
+            :src="icon"
+        />
         <text>{{ text }}</text>
     </view>
 </template>
@@ -13,6 +17,10 @@ export default {
     },
     props: {
         text: {
+            type: String,
+            default: ''
+        },
+        icon: {
             type: String,
             default: ''
         },
@@ -52,6 +60,12 @@ export default {
     border-radius: 20rpx;
     transition: all 0.5s ease;
     color: #fff;
+    display: flex;
+    uni-image {
+        margin-right: 10rpx;
+        width: 38rpx;
+        height: 38rpx;
+    }
     &.show {
         bottom: 200rpx!important;
     }

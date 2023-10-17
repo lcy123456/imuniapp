@@ -20,6 +20,8 @@ export const MessageMenuTypes = {
     Revoke: 'Revoke',
     Multiple: 'Multiple',
     Init: 'init',
+    Pin: 'pin',
+    PinCancel: 'pinCancel',
     Checked: 'checked'
 };
 

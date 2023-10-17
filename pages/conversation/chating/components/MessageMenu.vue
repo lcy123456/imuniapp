@@ -9,7 +9,7 @@
     >
         <view
             v-for="item in menuList"
-            :key="item.idx"
+            :key="item.title"
             class="message_menu_item"
             :style="{height: menuItemHight + 'px'}"
             @click="menuClick(item)"
@@ -29,10 +29,15 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { MessageMenuTypes } from '@/constant';
+import { pin, pinCancel } from '@/api/pinToTop';
 import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
 
 import { DecryptoAES } from '@/util/crypto';
-
+import { 
+    TextRenderTypes,
+    MediaRenderTypes,
+    FileRenderTypes
+} from '@/constant';
 const canCopyTypes = [
     MessageType.TextMessage,
     MessageType.AtTextMessage,
@@ -79,42 +84,48 @@ export default {
         menuList () {
             return [
                 {
-                    idx: 0,
                     type: MessageMenuTypes.Forward,
                     title: '转发',
                     icon: '/static/images/chating_message_forward.png',
                     visible: true,
                 },
                 {
-                    idx: 1,
+                    type: MessageMenuTypes.Pin,
+                    title: '置顶',
+                    icon: '/static/images/pin.png',
+                    visible: !this.message.pinMap,
+                },
+                {
+                    type: MessageMenuTypes.PinCancel,
+                    title: '取消置顶',
+                    icon: '/static/images/cancel-pin.png',
+                    visible: this.message.pinMap,
+                },
+                {
                     type: MessageMenuTypes.Reply,
                     title: '回复',
                     icon: '/static/images/chating_message_reply.png',
                     visible: true,
                 },
                 {
-                    idx: 2,
                     type: MessageMenuTypes.Copy,
                     title: '复制',
                     icon: '/static/images/chating_message_copy.png',
                     visible: canCopyTypes.includes(this.message.contentType),
                 },
                 {
-                    idx: 3,
                     type: MessageMenuTypes.Revoke,
                     title: '撤回',
                     icon: '/static/images/chating_message_revoke.png',
                     visible: this.isSender,
                 },
                 {
-                    idx: 4,
                     type: MessageMenuTypes.Multiple,
                     title: '多选',
                     icon: '/static/images/chating_message_multiple.png',
                     visible: true,
                 },
                 {
-                    idx: 5,
                     type: MessageMenuTypes.Del,
                     title: '删除',
                     icon: '/static/images/chating_message_del.png',
@@ -122,11 +133,26 @@ export default {
                 },
             ].filter((v) => v.visible);
         },
+        showTextRender () {
+            return TextRenderTypes.includes(this.message.contentType);
+        },
+        showMediaRender () {
+            return MediaRenderTypes.includes(this.message.contentType);
+        },
+        showFileRender () {
+            return FileRenderTypes.includes(this.message.contentType);
+        },
     },
     methods: {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
         async menuClick ({ type }) {
             switch (type) {
+            case MessageMenuTypes.Pin:
+                await this.pin();
+                break;
+            case MessageMenuTypes.PinCancel:
+                await this.PinCancel();
+                break;
             case MessageMenuTypes.Forward:
                 this.handleForward();
                 break;
@@ -147,6 +173,50 @@ export default {
                 break;
             }
             this.$emit('close');
+        },
+        async pin () {
+            console.log(this.message);
+            try {
+                const { pictureElem, videoElem, textElem, fileElem, contentType} = this.message;
+                let content = '';
+                if (this.showTextRender) {
+                    content = textElem.content;
+                } else if (this.showMediaRender) {
+                    content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePath;
+                } else if (this.showFileRender) {
+                    content = fileElem?.fileName;
+                }
+                await pin({
+                    ...this.message,
+                    content: content,
+                    conversationID: this.$store.getters.storeCurrentConversation.conversationID
+                });
+                this.$emit('updatePin', {
+                    type: 'success',
+                    icon: `/static/images/pin.png`,
+                    text: '消息内容已置顶'
+                });
+            } catch (err) {
+                //
+                console.log('置顶失败', err);
+                uni.$u.toast('置顶失败');
+            }
+        },
+        async PinCancel () {
+            console.log(this.message);
+            try {
+                await pinCancel({
+                    id: this.message?.pinMap?.id
+                });
+                this.$emit('updatePin', {
+                    type: 'fail',
+                    icon: `/static/images/cancel-pin.png`,
+                    text: '已取消置顶'
+                });
+            } catch (err) {
+                console.log('取消置顶失败', err);
+                uni.$u.toast('取消置顶失败');
+            }
         },
         async handleForward () {
             const message = await IMSDK.asyncApi(IMMethods.CreateForwardMessage, IMSDK.uuid(), this.message);

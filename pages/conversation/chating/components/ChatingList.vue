@@ -113,6 +113,7 @@ export default {
         ...mapGetters([
             'storeCurrentConversation',
             'storeHistoryMessageList',
+            'storeHistoryMessageListReverse',
             'storeHasMoreMessage',
             'storeHasMoreAfterMessage',
             'storeCurrentUserID',
@@ -124,7 +125,7 @@ export default {
             return this.messageLoadState.loading ? 'loading' : 'loadmore';
         },
         messageList () {
-            return this.isReverse ? (JSON.parse(JSON.stringify(this.storeHistoryMessageList))).reverse() : this.storeHistoryMessageList;
+            return this.isReverse ? this.storeHistoryMessageListReverse : this.storeHistoryMessageList;
         }
     },
     mounted () {
@@ -186,10 +187,15 @@ export default {
             this.$emit('touchstart');
         },
         onScroll (event) {
-            const { scrollHeight } = event.target;
+            const { scrollHeight, scrollTop } = event.target;
+            const height = (scrollHeight + 200) - scrollTop - uni.getWindowInfo().windowHeight;
+            const isScrollWay = (!this.isReverse && (height > 700))
+                || (this.isReverse && (scrollTop > 700));
             this.isRecvToBottom = scrollHeight - uni.getWindowInfo().windowHeight < 80;
             this.isShowMenuFlag = false;
-            this.$emit('scroll');
+            console.log(scrollHeight, scrollTop, uni.getWindowInfo().windowHeight);
+            console.log(event.target);
+            this.$emit('scroll', isScrollWay);
         },
         throttleScroll (event) {
             uni.$u.throttle(() => this.onScroll(event), 200);
@@ -235,7 +241,9 @@ export default {
             console.log('滚动id', auchor);
             !isAnimation && this.closeScrollAnimation();
             this.$nextTick(() => {
-                this.scrollIntoView = auchor;
+                setTimeout(() => {
+                    this.scrollIntoView = auchor;
+                }, 100);
             });
         },
         async scrollToTop ({initPage = false} = {}) {

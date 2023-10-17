@@ -16,8 +16,8 @@
             "autoclose" : false,
             "delay" : 0
         },
-        "compatible": {
-            "ignoreVersion": true
+        "compatible" : {
+            "ignoreVersion" : true
         },
         "modules" : {
             "VideoPlayer" : {},

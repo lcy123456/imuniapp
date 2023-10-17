@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import user from "./modules/user";
+import base from "./modules/base";
 import contact from "./modules/contact";
 import conversation from "./modules/conversation";
 import message from "./modules/message";
@@ -42,6 +43,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
     modules: {
         user,
+        base,
         contact,
         conversation,
         message,

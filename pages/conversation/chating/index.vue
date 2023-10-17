@@ -7,8 +7,13 @@
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
         />
+        <PinToTop
+            ref="pin"
+            :list="storePinList"
+            @setPositionMsgID="getPositionMsgID"
+        />
         <chating-list
-            :key="update"
+            :key="updateChatKey"
             ref="chatingListRef"
             :menu-outside-flag="menuOutsideFlag"
             :is-multiple-msg="isMultipleMsg"
@@ -25,6 +30,15 @@
             :footer-outside-flag="footerOutsideFlag"
             :checked-msg-ids="checkedMsgIds"
         />
+        <view
+            v-show="isScrollWay"
+            class="set-end"
+            @click="getPositionMsgID('')"
+        >
+            <image
+                src="/static/images/set-end.png"
+            />
+        </view>
         <!-- <u-loading-page :loading="initLoading" /> -->
         <view style="height: 0">
             <transition name="fade">
@@ -32,10 +46,16 @@
                     v-if="menuState.visible"
                     :message="menuState.message"
                     :pater-rect="menuState.paterRect"
+                    @updatePin="updatePin"
                     @close="menuState.visible = false"
                 />
             </transition>
         </view>
+        <Notification
+            v-model="isShowNotification"
+            :text="notificationText"
+            :icon="notificationIcon"
+        />
     </view>
 </template>
 
@@ -49,6 +69,7 @@ import { markConversationAsRead } from '@/util/imCommon';
 import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
+import PinToTop from './components/pinToTop.vue';
 
 import { 
     MediaRenderTypes,
@@ -59,10 +80,15 @@ export default {
         ChatingFooter,
         ChatingList,
         MessageMenu,
+        PinToTop
     },
     data () {
         return {
-            update: '',
+            isShowNotification: false,
+            notificationText: '',
+            notificationIcon: '',
+            updateChatKey: '',
+            updatePinKey: '',
             listHeight: 0,
             footerOutsideFlag: 0,
             menuOutsideFlag: 0,
@@ -70,6 +96,7 @@ export default {
             back2Tab: false,
             positionMsgID: '',
             isMultipleMsg: false,
+            isScrollWay: false,
             checkedMsgIds: [],
             menuState: {
                 visible: false,
@@ -84,6 +111,7 @@ export default {
             'storeCurrentConversation',
             'storeSelfInfo',
             'storeHistoryMessageList',
+            'storePinList'
         ]),
         checkedMsg () {
             return this.storeHistoryMessageList.filter((v) =>
@@ -93,12 +121,12 @@ export default {
     },
     onLoad (options) {
         const { back2Tab, clientMsgID } = options;
-        console.log('onload...................................................................');
         this.back2Tab = !!JSON.parse(back2Tab);
         this.positionMsgID = clientMsgID;
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
         this.getSearchRecord();
+        this.getPinList();
     },
     onUnload () {
         console.log('unload');
@@ -116,16 +144,29 @@ export default {
     methods: {
         ...mapActions('message', ['resetMessageState', 'deleteMessages']),
         ...mapActions('conversation', ['resetConversationState']),
-        async handleHideMenu () {
+        ...mapActions('base', ['pinList']),
+        async handleHideMenu (isScrollWay) {
+            this.isScrollWay = typeof isScrollWay === 'boolean' ? isScrollWay : false;
             const res = await getEl.call(this, '.message_menu_container');
             if (res) {
                 this.menuState.visible = false;
             }
         },
+        async getPinList () {
+            let conversationID = this.storeCurrentConversation.conversationID;
+            this.pinList(conversationID);
+            
+        },
         getPositionMsgID (positionMsgID) {
-            console.log('-------1111111111111111111111111111', positionMsgID);
-            this.update = +new Date();
             this.positionMsgID = positionMsgID;
+            this.updateChatKey = +new Date();
+        },
+        updatePin (map) {
+            console.log('updatePinupdatePinupdatePinupdatePinupdatePinupdatePin');
+            this.notificationText = map.text;
+            this.notificationIcon = map.icon;
+            this.isShowNotification = true;
+            this.getPinList();
         },
         async getSearchRecord () {
             let conversationID = this.storeCurrentConversation.conversationID;
@@ -292,7 +333,15 @@ export default {
     overflow: hidden;
     background: url('/static/images/chat-bg.png') no-repeat;
     background-size: cover;
-
+    .set-end {
+        position: fixed;
+        bottom: 130px;
+        right: 20px;
+        uni-image {
+            width: 80rpx;
+            height: 80rpx;
+        }
+    }
     .mutiple_action_container {
         display: flex;
         border-top: 1px solid #eaeaea;

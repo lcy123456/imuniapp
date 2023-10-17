@@ -1,6 +1,11 @@
 <template>
     <view class="read-state-css">
-        <text :class="['read_state', isSender ? 'isSender' : 'notisSender']">
+        <image
+            v-if="message.pinMap"
+            class="pined"
+            src="/static/images/pin2.png"
+        />
+        <text :class="['read_state', isSender ? 'isSender' : 'notisSender', message.pinMap ? 'isPin' : '']">
             {{ new Date(message.createTime).Format('hh:mm') }}
         </text>
         <image
@@ -80,6 +85,9 @@ export default {
         &.notisSender {
             color: #ccc!important;
         }
+        &.isPin {
+            margin-left: 0;
+        }
 	}
     uni-text {
         width: max-content;
@@ -96,5 +104,11 @@ export default {
         &.issending {
             height: 26rpx;
         }
+    }
+    .pined {
+        width: 27rpx;
+        height: 27rpx;
+        margin: 0 5px;
+        margin-left: 20rpx;
     }
 </style>

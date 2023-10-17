@@ -16,11 +16,34 @@ export default {
     storeUnHandleFriendApplicationNum: (state) => state.contact.unHandleFriendApplicationNum,
     storeUnHandleGroupApplicationNum: (state) => state.contact.unHandleGroupApplicationNum,
     storeHistoryMessageList: (state) => {
-        const { message, conversation } = state;
+        const { message, conversation, base } = state;
         const { historyMessageMap } = message;
         const { currentConversation } = conversation;
         const list = historyMessageMap[currentConversation.conversationID]?.messageList || [];
-        return list;
+        const pinList = base?.pinList.map(v => v.clientMsgID);
+        const l = JSON.parse(JSON.stringify(list));
+        l.map(v => {
+            let index = pinList.indexOf(v.clientMsgID);
+            if (index > -1) {
+                v.pinMap = base?.pinList[index];
+            }
+        });
+        return l;
+    },
+    storeHistoryMessageListReverse: (state) => {
+        const { message, conversation, base } = state;
+        const { historyMessageMap } = message;
+        const { currentConversation } = conversation;
+        const list = historyMessageMap[currentConversation.conversationID]?.messageList || [];
+        const pinList = base?.pinList.map(v => v.clientMsgID);
+        const l = JSON.parse(JSON.stringify(list));
+        l.map(v => {
+            let index = pinList.indexOf(v.clientMsgID);
+            if (index > -1) {
+                v.pinMap = base?.pinList[index];
+            }
+        });
+        return l.reverse();
     },
     storeHasMoreMessage: (state) => {
         const { message, conversation } = state;
@@ -48,4 +71,5 @@ export default {
     storeAppConfig: (state) => state.user.appConfig,
     storeIsSyncing: (state) => state.user.isSyncing,
     storeIsProd: (state) => state.user.isProd,
+    storePinList: (state) => state.base.pinList,
 };

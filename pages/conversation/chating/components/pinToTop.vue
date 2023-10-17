@@ -1,0 +1,208 @@
+<template>
+    <view
+        v-if="isShow && list.length"
+        class="pin-to-top-box"
+    >
+        <view class="index-box">
+            <view
+                v-for="(item, index) of list"
+                :key="item.id"
+                :class="['box', index === active ? 'active' : '']"
+                :style="{height: `calc(${100 / list.length * 0.7}rpx - 4rpx)`}"
+            />
+        </view>
+        <view class="content">
+            <text>置顶消息</text>
+            <scroll-view
+                class="scroll_view"
+                :scroll-with-animation="true"
+                :scroll-into-view="scrollIntoView"
+                scroll-y
+                :upper-threshold="0"
+            >
+                <view
+                    v-for="(item, index) of list"
+                    :id="`pin${item.id}`"
+                    :key="item.id"
+                    class="box"
+                    @click="setTop(item, index)"
+                >
+                    <text
+                        v-if="showTextRender(item)"
+                        class="text"
+                    >
+                        {{ item.content }}
+                    </text>
+                    <view
+                        v-if="showMediaRender(item)"
+                        class="img-box"
+                    >
+                        <image
+                            :src="item.content"
+                        />
+                    </view>
+                    <view
+                        v-if="showFileRender(item)"
+                        class="file-box"
+                    >
+                        <image
+                            src="/static/images/chating_action_file.png"
+                            class="content-img"
+                        />
+                        <text
+                            class="text"
+                        >
+                            {{ item.content }}
+                        </text>
+                    </view>
+                </view>
+            </scroll-view>
+        </view>
+        <image
+            class="close"
+            src="/static/images/close.png"
+            @click="isShow = false;"
+        />
+    </view>
+</template>
+
+<script>
+import { 
+    TextRenderTypes,
+    MediaRenderTypes,
+    FileRenderTypes
+} from '@/constant';
+export default {
+    name: 'PinToTop',
+    components: {
+    },
+    props: {
+        isReverse: {
+            type: Boolean,
+            default: true
+        },
+        list: {
+            type: Array,
+            default: () => ([])
+        },
+        conversationID: {
+            type: String,
+            default: ''
+        }
+    },
+    data () {
+        return {
+            active: 0,
+            isShow: true,
+            scrollIntoView: ''
+        };
+    },
+    computed: {
+    },
+    mounted () {
+        setTimeout(() => {
+            this.init();
+        }, 10);
+    },
+    methods: {
+        init () {
+            if (!this.list.length) return;
+            this.active = this.list.length - 1;
+            this.scrollIntoView = 'pin' + this.list[this.list.length - 1].id;
+        },
+        setTop (item, index) {
+            this.active = index !== 0 ? index - 1 : this.list.length - 1;
+            this.scrollIntoView = 'pin' + (this.list[index - 1] ? this.list[index - 1].id : this.list[this.list.length - 1].id);
+            console.log(this.scrollIntoView, 'this.scrollIntoViewthis.scrollIntoView', index);
+            console.log(this.list);
+            this.$emit('setPositionMsgID', item.clientMsgID);
+        },
+        showTextRender (item) {
+            return TextRenderTypes.includes(item.contentType);
+        },
+        showMediaRender (item) {
+            return MediaRenderTypes.includes(item.contentType);
+        },
+        showFileRender (item) {
+            return FileRenderTypes.includes(item.contentType);
+        }
+    },
+};
+</script>
+
+<style lang="scss" scoped>
+.pin-to-top-box {
+    width: 100%;
+    margin: 0 auto;
+    padding: 10rpx 20rpx;
+    color: #3981F8;
+    background: #F4FBFF;
+    font-size: 26rpx;
+    border-radius: 23rpx;
+    display: flex;
+    align-items: center;
+    .index-box {
+        .box {
+            width: 4rpx;
+            background: rgba(0, 141, 255, 0.3);
+            margin-top: 4px;
+            &:nth-child(1) {
+                margin-top: 0;
+            }
+            &.active {
+                background: rgba(0, 141, 255, 1);
+            }
+        }
+    }
+    & > .content {
+        margin-left: 20rpx;
+        flex: 1;
+        margin-right: 40rpx;
+        & > uni-text {
+            font-size: 28rpx;
+            margin-bottom: 10rpx;
+        }
+    }
+    .close {
+        margin-left: 10rpx;
+        width: 30rpx;
+        height: 30rpx;
+    }
+    .scroll_view {
+        width: 100%;
+        height: 60rpx;
+        .box {
+            height: 60rpx;
+            margin: 10rpx 0;
+            & > .text {
+                display: flex;
+                align-items: center;
+                font-size: 32rpx;
+                height: 60rpx;
+                width: 100%;
+                color: #222222;
+                margin: 10rpx 0;
+            }
+            .img-box {
+                display: flex;
+                align-items: center;
+                height: 60rpx;
+                uni-image {
+                    width: 40rpx;
+                    height: 40rpx;
+                }
+            }
+            .file-box {
+                display: flex;
+                align-items: center;
+                height: 60rpx;
+                uni-image {
+                    width: 40rpx;
+                    height: 40rpx;
+                    margin-right: 20rpx;
+                }
+            }
+        }
+    }
+}
+</style>
