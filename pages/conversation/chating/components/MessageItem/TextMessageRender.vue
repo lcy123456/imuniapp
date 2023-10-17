@@ -57,6 +57,9 @@ export default {
             } else {
                 text = parseEmoji(DecryptoAES(textElem?.content));
             }
+            if (contentType === MessageType.TextMessage) {
+                text = text.replace(/\n/g, '<br>');
+            }
             if (this.showNickname) {
                 text = senderNickname + '：' + text;
             }

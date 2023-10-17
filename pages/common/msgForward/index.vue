@@ -135,7 +135,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeConversationList', 'storeCurrentConversation']),
+        ...mapGetters(['storeConversationList', 'storeCurrentConversation', 'storeHasMoreAfterMessage']),
         showConversationList () {
             return this.storeConversationList.filter(v => {
                 return v.showName.includes(this.keyword);
@@ -174,6 +174,12 @@ export default {
                     const message = this.message;
                     
                     if (isCurConversation) {
+                        if (this.storeHasMoreAfterMessage) {
+                            console.log('发送信息。。。。需要重新new');
+                            let pages = getCurrentPages();
+                            let prevPage = pages[pages.length - 2];
+                            await prevPage.$vm.getPositionMsgID('');
+                        }
                         this.pushNewMessage(message);
                     }
                     const res = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {

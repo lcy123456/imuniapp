@@ -42,6 +42,7 @@ import { MessageType } from "openim-uniapp-polyfill";
 import { mapGetters } from "vuex";
 export default {
     name: "",
+    inject: ['getSearchRecord'],
     props: {
         message: {
             type: Object,
@@ -98,20 +99,8 @@ export default {
         }
     },
     methods: {
-        clickMediaItem () {
-            // if (this.isVideo) {
-            //     uni.navigateTo({
-            //         url: `/pages/conversation/previewVideo/index?previewVideoUrl=${this.message.videoElem.videoUrl}`
-            //     });
-            // } else {
-            //     uni.previewImage({
-            //         current: 0,
-            //         urls: [this.imgUrl],
-            //         fail (err) {
-            //             console.log(err);
-            //         }
-            //     });
-            // }
+        async clickMediaItem () {
+            await this.getSearchRecord();
             const index = this.storeConversationMediaList.findIndex(item => item.poster === this.imgUrl) > -1 ? this.storeConversationMediaList.findIndex(item => item.poster === this.imgUrl) : 0;
             uni.$u.route('/pages/common/previewMedia/index', {
                 list: encodeURIComponent(JSON.stringify(this.storeConversationMediaList)),

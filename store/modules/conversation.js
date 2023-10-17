@@ -5,13 +5,20 @@ const state = {
     conversationList: [],
     currentConversation: {},
     unReadCount: 0,
+    conversationUnread: 0,
     currentGroup: {},
     currentMemberInGroup: {},
     conversationMediaList: []
 };
 
 const mutations = {
+    SET_CONVERSATION_UNREAD (state, number) {
+        state.conversationUnread = number;
+    },
     SET_CONVERSATION_LIST (state, list) {
+        state.conversationList = [...list];
+    },
+    SET_CONVERSATION (state, list) {
         state.conversationList = [...list];
     },
     SET_CONVERSATION_MEDIA_LIST (state, list) {

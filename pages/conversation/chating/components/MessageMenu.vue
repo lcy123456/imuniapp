@@ -182,7 +182,7 @@ export default {
                 if (this.showTextRender) {
                     content = textElem.content;
                 } else if (this.showMediaRender) {
-                    content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePath;
+                    content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePicture.url;
                 } else if (this.showFileRender) {
                     content = fileElem?.fileName;
                 }

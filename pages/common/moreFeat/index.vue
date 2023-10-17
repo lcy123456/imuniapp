@@ -214,7 +214,8 @@ export default {
                 });
                 const data = await IMSDK.asyncApi(IMMethods.SetConversationBurnDuration, IMSDK.uuid(), {
                     conversationID,
-                    burnDuration: time
+                    burnDuration: time,
+                    ex: this.$store.user.selfInfo.nickname
                 });
                 console.log('datadatadatadatadatadatadatadatadatadatadatadatadata', data);
                 if (data) {

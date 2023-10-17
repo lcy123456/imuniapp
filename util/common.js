@@ -12,9 +12,9 @@ export const html2Text = (html) => {
         .trim();
 };
 
-export const formatInputHtml = (html) => {
+export const formatInputHtml = (html, type) => {
     let atUserList = [];
-    let text = html2Text(html);
+    let text = type ? html : html2Text(html);
     const imgReg = new RegExp('(i?)(<img)([^>]+>)', 'gmi');
     const customDataReg = /data-custom=".+"/;
     text = text.replace(imgReg, (img) => {

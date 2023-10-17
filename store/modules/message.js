@@ -63,11 +63,14 @@ const actions = {
             //     key: 'lastMinSeq',
             //     value: lastMinSeq,
             // });
+            const hasAfterMore = state.historyMessageMap[conversationID]?.hasAfterMore;
             commit('SET_HISTORY_MESSAGE_MAP', {
                 ...state.historyMessageMap, 
                 [conversationID]: {
                     messageList: [...messageList.concat(isInit ? [] : oldMessageList)],
                     hasMore: !isEnd && messageList.length === count,
+                    hasAfterMore: (isInit && !positionMsgID) ?
+                        false : (typeof hasAfterMore === 'undefined' ? true : hasAfterMore),
                     lastMinSeq: lastMinSeq
                 },
             });
@@ -105,6 +108,7 @@ const actions = {
                 ...state.historyMessageMap, 
                 [conversationID]: {
                     messageList: [...oldMessageList.concat(messageList)],
+                    hasMore: state.historyMessageMap[conversationID]?.hasMore,
                     hasAfterMore: !isEnd && messageList.length === count,
                     lastMinSeq: lastMinSeq
                 },

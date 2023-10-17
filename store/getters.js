@@ -6,6 +6,7 @@ export default {
     storeUnReadCount: (state) => state.conversation.unReadCount,
     storeCurrentGroup: (state) => state.conversation.currentGroup,
     storeCurrentMemberInGroup: (state) => state.conversation.currentMemberInGroup,
+    conversationUnread: (state) => state.conversation.conversationUnread,
     storeFriendList: (state) => state.contact.friendList,
     storeBlackList: (state) => state.contact.blackList,
     storeGroupList: (state) => state.contact.groupList,
@@ -56,8 +57,8 @@ export default {
         const { message, conversation } = state;
         const { historyMessageMap } = message;
         const { currentConversation } = conversation;
-        const hasMore = historyMessageMap[currentConversation.conversationID]?.hasAfterMore ?? true;
-        return hasMore;
+        const hasAfterMore = historyMessageMap[currentConversation.conversationID]?.hasAfterMore ?? true;
+        return hasAfterMore;
     },
     storeClientID: (state) => state.user.clientID,
     storeAuthData: (state) => state.user.authData,

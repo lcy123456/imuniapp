@@ -34,7 +34,7 @@
                             {{ messagePrefix }}
                         </text>
                         <text class="lastest_msg_content">
-                            {{ latestMessage }}
+                            {{ html2Text(latestMessage) }}
                         </text>
                     </view>
                 </view>
@@ -64,6 +64,7 @@ import IMSDK, {
     SessionType,
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
+import { html2Text } from '@/util/common';
 import {
     parseMessageByType,
     formatConversionTime,
@@ -183,6 +184,7 @@ export default {
         },
     },
     methods: {
+        html2Text,
         clickConversationItem () {
             console.log(this.source);
             prepareConversationState(this.source);

@@ -29,12 +29,19 @@
             :is-multiple-msg="isMultipleMsg"
             :footer-outside-flag="footerOutsideFlag"
             :checked-msg-ids="checkedMsgIds"
+            @sendInit="getPositionMsgID('')"
         />
         <view
-            v-show="isScrollWay"
+            v-show="isScrollWay || storeHasMoreAfterMessage"
             class="set-end"
             @click="getPositionMsgID('')"
         >
+            <view
+                v-if="conversationUnread"
+                class="unread"
+            >
+                {{ conversationUnread < 100 ? conversationUnread : '99' }}
+            </view>
             <image
                 src="/static/images/set-end.png"
             />
@@ -82,6 +89,11 @@ export default {
         MessageMenu,
         PinToTop
     },
+    provide () {
+        return {
+            getSearchRecord: this.getSearchRecord
+        };
+    },
     data () {
         return {
             isShowNotification: false,
@@ -111,7 +123,9 @@ export default {
             'storeCurrentConversation',
             'storeSelfInfo',
             'storeHistoryMessageList',
-            'storePinList'
+            'storePinList',
+            'storeHasMoreAfterMessage',
+            'conversationUnread'
         ]),
         checkedMsg () {
             return this.storeHistoryMessageList.filter((v) =>
@@ -125,6 +139,7 @@ export default {
         this.positionMsgID = clientMsgID;
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
+        this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
         this.getSearchRecord();
         this.getPinList();
     },
@@ -147,6 +162,9 @@ export default {
         ...mapActions('base', ['pinList']),
         async handleHideMenu (isScrollWay) {
             this.isScrollWay = typeof isScrollWay === 'boolean' ? isScrollWay : false;
+            if (!this.isScrollWay && !this.storeHasMoreAfterMessage) {
+                this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
+            }
             const res = await getEl.call(this, '.message_menu_container');
             if (res) {
                 this.menuState.visible = false;
@@ -162,7 +180,6 @@ export default {
             this.updateChatKey = +new Date();
         },
         updatePin (map) {
-            console.log('updatePinupdatePinupdatePinupdatePinupdatePinupdatePin');
             this.notificationText = map.text;
             this.notificationIcon = map.icon;
             this.isShowNotification = true;
@@ -185,7 +202,7 @@ export default {
                 params
             );
             let imgList = data.searchResultItems?.[0]?.messageList || [];
-            console.log('xxx', data);
+            console.log(imgList, 'imgListimgListimgList');
             this.imgList = imgList.map((v) => {
                 const { contentType, pictureElem, videoElem } = v;
                 const isVideo = contentType === MessageType.VideoMessage;
@@ -338,8 +355,23 @@ export default {
         bottom: 130px;
         right: 20px;
         uni-image {
-            width: 80rpx;
-            height: 80rpx;
+            width: 100rpx;
+            height: 100rpx;
+        }
+        .unread {
+            width: 60rpx;
+            height: 60rpx;
+            line-height: 60rpx;
+            text-align: center;
+            background: rgba(0, 141, 255, 1);
+            color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -40rpx;
+            z-index: 9;
+            font-size: 12px;
         }
     }
     .mutiple_action_container {

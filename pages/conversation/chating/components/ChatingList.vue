@@ -138,7 +138,6 @@ export default {
     methods: {
         ...mapActions('message', ['getHistoryMesageList', 'getHistoryMesageListReverse']),
         async loadMessageList ({isLoadMore = false, isReverse = false}) {
-            console.log(isLoadMore, 'isLoadMoreisLoadMoreisLoadMore', isReverse);
             this.messageLoadState.loading = true;
             // const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
             const options = {
@@ -193,8 +192,6 @@ export default {
                 || (this.isReverse && (scrollTop > 700));
             this.isRecvToBottom = scrollHeight - uni.getWindowInfo().windowHeight < 80;
             this.isShowMenuFlag = false;
-            console.log(scrollHeight, scrollTop, uni.getWindowInfo().windowHeight);
-            console.log(event.target);
             this.$emit('scroll', isScrollWay);
         },
         throttleScroll (event) {
@@ -248,53 +245,27 @@ export default {
         },
         async scrollToTop ({initPage = false} = {}) {
             initPage && this.$emit('initSuccess');
-            // if (!this.isReverse) {
-            //     this.scrollTop = 0;
-            //     return;
-            // }
-            // await this.$nextTick();
-            // setTimeout(() => {
-            //     // uni.createSelectorQuery()
-            //     //     .in(this)
-            //     //     .select('#scroll_wrap')
-            //     //     .boundingClientRect((res) => {
-            //     //         this.scrollTop = this.isReverse ? res.height + Math.random() : 0;
-            //     //     })
-            //     //     .exec();
-            //     this.scrollTop = this.isReverse ? 9999999999 : 0;
-            // }, 0);
-            if (initPage) {
-                setTimeout(() => {
-                    this.scrollTop = this.isReverse ? 9999999999 : 0;
-                }, 200);
-            } else {
-                this.scrollTop = this.isReverse ? 9999999999 : 0;
-            }
+            setTimeout(() => {
+                uni.createSelectorQuery()
+                    .in(this)
+                    .select('#scroll_wrap')
+                    .boundingClientRect((res) => {
+                        this.scrollTop = this.isReverse ? res.height + Math.random() : 0;
+                    })
+                    .exec();
+            }, 200);
         },
         async scrollToBottom ({initPage = false} = {}) {
             initPage && this.$emit('initSuccess');
-            // if (this.isReverse) {
-            //     this.scrollTop = 0;
-            //     return;
-            // }
-            // await this.$nextTick();
-            // setTimeout(() => {
-            //     // uni.createSelectorQuery()
-            //     //     .in(this)
-            //     //     .select('#scroll_wrap')
-            //     //     .boundingClientRect((res) => {
-            //     //         this.scrollTop = this.isReverse ? 0 : res.height + Math.random();
-            //     //     })
-            //     //     .exec();
-            //     this.scrollTop = this.isReverse ? 0 : 999999999999;
-            // }, 0);
-            if (initPage) {
-                setTimeout(() => {
-                    this.scrollTop = this.isReverse ? 0 : 999999999999;
-                }, 200);
-            } else {
-                this.scrollTop = this.isReverse ? 0 : 999999999999;
-            }
+            setTimeout(() => {
+                uni.createSelectorQuery()
+                    .in(this)
+                    .select('#scroll_wrap')
+                    .boundingClientRect((res) => {
+                        this.scrollTop = this.isReverse ? 0 : res.height + Math.random();
+                    })
+                    .exec();
+            }, 200);
         },
         closeScrollAnimation () {
             this.withAnimation = false;

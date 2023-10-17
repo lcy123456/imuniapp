@@ -204,7 +204,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentConversation']),
+        ...mapGetters(['storeCurrentConversation', 'storeHasMoreAfterMessage']),
         hasContent () {
             return html2Text(this.inputHtml) !== '';
         },
@@ -229,7 +229,7 @@ export default {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         async createTextMessage () {
             let message = '';
-            const { text } = formatInputHtml(this.inputHtml);
+            const { text } = formatInputHtml(this.inputHtml, 1);
             // TODO：加密文本
             if (this.quoteMessageShow) {
                 message = await IMSDK.asyncApi(
@@ -256,6 +256,10 @@ export default {
         },
         async sendMessage (message) {
             console.log('消息创建成功', message);
+            if (this.storeHasMoreAfterMessage) {
+                console.log('发送信息。。。。需要重新new');
+                await this.$emit('sendInit');
+            }
             const { userID, groupID } = this.storeCurrentConversation;
             this.pushNewMessage({
                 ...message,

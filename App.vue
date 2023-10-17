@@ -42,6 +42,8 @@ export default {
             "storeRecvGroupApplications",
             "storeHistoryMessageList",
             "storeIsSyncing",
+            "storeHasMoreAfterMessage",
+            "conversationUnread"
         ]),
         contactBadgeRely () {
             return {
@@ -452,6 +454,12 @@ export default {
             this.innerAudioContext.play();
             if (this.inCurrentConversation(newServerMsg)) {
                 if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
+                    if (this.storeHasMoreAfterMessage) {
+                        console.log('当前数据不在底端，不做数据推送');
+                        let conversationUnread = this.conversationUnread + 1;
+                        this.$store.commit('conversation/SET_CONVERSATION_UNREAD', conversationUnread);
+                        return;
+                    }
                     this.pushNewMessage(newServerMsg);
                     uni.$u.debounce(this.markConversationAsRead, 2000);
                     setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
