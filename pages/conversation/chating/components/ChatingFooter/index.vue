@@ -1,108 +1,110 @@
 <!-- eslint-disable vue/attribute-hyphenation -->
 <template>
-    <view
-        :snapFlag="snapFlag"
-        :change:snapFlag="snap.getSnapFlagUpdate"
-        :style="{ 'pointer-events': 'auto' }"
-        class="bg-color"
-    >
-        <view class="chat_footer">
-            <view
-                v-if="isMultipleMsg"
-                class="flex justify-between h-110 align-center px-36"
-            >
-                <image
-                    :src="`/static/images/chating_message_del_${checkedMsgIds.length === 0 ? 'grey' : 'active'}.png`"
-                    class="w-44 h-44"
-                    @click="handleMultiple(MessageMenuTypes.DelAll)"
-                />
-                <image
-                    :src="`/static/images/chating_message_forward_${checkedMsgIds.length === 0 ? 'grey' : 'active'}.png`"
-                    class="w-44 h-44"
-                    @click="handleMultiple(MessageMenuTypes.ForwardAll)"
-                />
-            </view>
-            <template v-else>
+    <Page>
+        <view
+            :snapFlag="snapFlag"
+            :change:snapFlag="snap.getSnapFlagUpdate"
+            :style="{ 'pointer-events': 'auto' }"
+            class="bg-color"
+        >
+            <view class="chat_footer">
                 <view
-                    v-if="quoteMessageShow"
-                    class="quote_box"
+                    v-if="isMultipleMsg"
+                    class="flex justify-between h-110 align-center px-36"
                 >
-                    <view class="icon_box">
-                        <image
-                            src="/static/images/chating_footer_quote_reply.png"
-                            class="w-38 h-38"
-                        />
-                    </view>
-                    <view class="message_box">
-                        <view class="primary title">
-                            回复 {{ quoteMessage.senderNickname }}
-                        </view>
-                        <ChatQuote :message="quoteMessage" />
-                    </view>
                     <image
-                        src="/static/images/chating_footer_quote_close.png"
-                        class="ml-40 w-30 h-30"
-                        @click="quoteMessageShow = false"
+                        :src="`/static/images/chating_message_del_${checkedMsgIds.length === 0 ? 'grey' : 'active'}.png`"
+                        class="w-44 h-44"
+                        @click="handleMultiple(MessageMenuTypes.DelAll)"
+                    />
+                    <image
+                        :src="`/static/images/chating_message_forward_${checkedMsgIds.length === 0 ? 'grey' : 'active'}.png`"
+                        class="w-44 h-44"
+                        @click="handleMultiple(MessageMenuTypes.ForwardAll)"
                     />
                 </view>
-                <view class="send_box">
-                    <view class="flex align-center">
+                <template v-else>
+                    <view
+                        v-if="quoteMessageShow"
+                        class="quote_box"
+                    >
+                        <view class="icon_box">
+                            <image
+                                src="/static/images/chating_footer_quote_reply.png"
+                                class="w-38 h-38"
+                            />
+                        </view>
+                        <view class="message_box">
+                            <view class="primary title">
+                                回复 {{ quoteMessage.senderNickname }}
+                            </view>
+                            <ChatQuote :message="quoteMessage" />
+                        </view>
                         <image
-                            class="w-48 h-48 mr-20"
-                            src="/static/images/chating_footer_emoji.png"
-                            @click="updateEmojiBar"
-                        />
-                        <image
-                            class="w-48 h-48"
-                            src="/static/images/chating_footer_add.png"
-                            @click.prevent="updateActionBar"
+                            src="/static/images/chating_footer_quote_close.png"
+                            class="ml-40 w-30 h-30"
+                            @click="quoteMessageShow = false"
                         />
                     </view>
-                    <view class="input_content">
-                        <CustomEditor
-                            ref="customEditor"
-                            class="custom_editor"
-                            @ready="editorReady"
-                            @focus="editorFocus"
-                            @blur="editorBlur"
-                            @input="editorInput"
+                    <view class="send_box">
+                        <view class="flex align-center">
+                            <image
+                                class="w-48 h-48 mr-20"
+                                src="/static/images/chating_footer_emoji.png"
+                                @click="updateEmojiBar"
+                            />
+                            <image
+                                class="w-48 h-48"
+                                src="/static/images/chating_footer_add.png"
+                                @click.prevent="updateActionBar"
+                            />
+                        </view>
+                        <view class="input_content">
+                            <CustomEditor
+                                ref="customEditor"
+                                class="custom_editor"
+                                @ready="editorReady"
+                                @focus="editorFocus"
+                                @blur="editorBlur"
+                                @input="editorInput"
+                            />
+                        </view>
+                        <image
+                            v-show="hasContent"
+                            src="/static/images/chating_footer_send.png"
+                            class="ml-20 w-80 h-80"
+                            @touchend.prevent="sendTextMessage"
                         />
-                    </view>
-                    <image
-                        v-show="hasContent"
-                        src="/static/images/chating_footer_send.png"
-                        class="ml-20 w-80 h-80"
-                        @touchend.prevent="sendTextMessage"
-                    />
                     <!-- <view class="flex align-center">
                     </view> -->
-                </view>
-            </template>
+                    </view>
+                </template>
+            </view>
+            <ChatingActionBar
+                v-show="actionBarVisible"
+                @prepareMediaMessage="prepareMediaMessage"
+                @prepareFileMessage="prepareFileMessage"
+            />
+            <ChatingEmojiBar
+                v-show="emojiBarVisible"
+                @emojiClick="emojiClick"
+            />
+            <u-action-sheet
+                :safe-area-inset-bottom="true"
+                round="12"
+                :actions="actionSheetMenu"
+                :close-on-click-overlay="true"
+                :close-on-click-action="true"
+                :show="showActionSheet"
+                @select="selectClick"
+                @close="showActionSheet = false"
+            />
+            <Notification
+                v-model="isShowNotification"
+                text="消息已发出，但对方拒收了！"
+            />
         </view>
-        <ChatingActionBar
-            v-show="actionBarVisible"
-            @prepareMediaMessage="prepareMediaMessage"
-            @prepareFileMessage="prepareFileMessage"
-        />
-        <ChatingEmojiBar
-            v-show="emojiBarVisible"
-            @emojiClick="emojiClick"
-        />
-        <u-action-sheet
-            :safe-area-inset-bottom="true"
-            round="12"
-            :actions="actionSheetMenu"
-            :close-on-click-overlay="true"
-            :close-on-click-action="true"
-            :show="showActionSheet"
-            @select="selectClick"
-            @close="showActionSheet = false"
-        />
-        <Notification
-            v-model="isShowNotification"
-            text="消息已发出，但对方拒收了！"
-        />
-    </view>
+    </Page>
 </template>
 
 <script>
@@ -167,7 +169,8 @@ export default {
         CustomEditor,
         ChatingActionBar,
         ChatingEmojiBar,
-        ChatQuote
+        ChatQuote,
+      
     },
     props: {
         footerOutsideFlag: {

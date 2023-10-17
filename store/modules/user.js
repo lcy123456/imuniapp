@@ -27,7 +27,8 @@ const state = {
     appConfig: {},
     userList: [],
     isSyncing: false,
-    isProd: process.env.NODE_ENV === 'production'
+    isProd: process.env.NODE_ENV === 'production',
+    incomingCallShow: false, // 呼入电话等待被接听/拒绝
 };
 
 const mutations = {
@@ -72,6 +73,9 @@ const mutations = {
                 };
             }
         });
+    },
+    SET_INCOMING_CALL_SHOW (state, value) {
+        state.incomingCallShow = value;
     },
 };
 

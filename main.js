@@ -9,6 +9,11 @@ import store from './store';
 import uView from '@/uni_modules/uview-ui';
 Vue.use(uView);
 
+// 全局组件
+import Page from '@/components/Page';
+Vue.component('Page', Page);
+
+
 
 Vue.prototype.$store = store;
 Vue.use(MyPlugin);

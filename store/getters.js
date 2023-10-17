@@ -71,5 +71,6 @@ export default {
     storeAppConfig: (state) => state.user.appConfig,
     storeIsSyncing: (state) => state.user.isSyncing,
     storeIsProd: (state) => state.user.isProd,
+    storeIncomingCallShow: (state) => state.user.incomingCallShow,
     storePinList: (state) => state.base.pinList,
 };

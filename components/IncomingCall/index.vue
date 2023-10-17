@@ -1,0 +1,190 @@
+<template>
+    <view
+        v-if="storeIncomingCallShow"
+        :class="['incoming_call_container', 
+                 shouldFadeIn && 'incoming_call_in',
+                 shouldFadeOut && 'incoming_call_out']"
+    >
+        <view class="flex align-center ml-40">
+            <MyAvatar
+                :src="faceURL"
+                :desc="nickname"
+                size="80rpx"
+            />
+            <view class="flex flex-column ml-16">
+                <text class="fz-28 text-inverse ff-bold">
+                    {{ nickname }}
+                </text>
+                <text class="fz-28 text-grey">
+                    邀请你视频通话
+                </text>
+            </view>
+        </view>
+        <view class="call_icon_panel">
+            <u-button
+                class="danger_btn"
+                @click="dangerClick"
+            >
+                <image
+                    :src="incomingCallIcon"
+                    class="call_icon"
+                />
+            </u-button>
+            <u-button
+                class="success_btn"
+                @click="successClick"
+            >
+                <image
+                    :src="incomingCallIcon"
+                    class="call_icon"
+                />
+            </u-button>
+        </view>
+    </view>
+</template>
+
+<script>
+import { mapGetters } from 'vuex';
+import store from "@/store";
+import MyAvatar from '@/components/MyAvatar/index.vue';
+import incomingCallIcon from '@/static/images/incoming_call_icon.png';
+let innerAudioContext = null;
+export default {
+    name: "IncomingCall",
+    components: {
+        MyAvatar,
+    },
+    props: {
+        faceURL: String,
+        nickname: {
+            type: String,
+            default: '未知'
+        }
+    },
+    data () {
+        return {
+            shouldFadeIn: false,
+            shouldFadeOut: false,
+            incomingCallIcon: Object.freeze(incomingCallIcon)
+        };
+    },
+    computed: {
+        ...mapGetters(['storeIncomingCallShow']),
+    },
+    created () {
+        // storeIncomingCallShow: true 呼入电话等待接听。 不执行淡入动画
+        this.shouldFadeIn = !this.storeIncomingCallShow;
+    },
+    mounted () {
+        setTimeout(()=> {
+            this.startMusic();
+        }, 1000);
+    },
+    methods: {
+        // 唤起铃声
+        startMusic () {
+            if (!this.storeIncomingCallShow) return;
+            // 避免重复唤起铃声
+            if (innerAudioContext != null) return;
+
+            innerAudioContext = uni.createInnerAudioContext();
+            innerAudioContext.autoplay = true;
+            innerAudioContext.loop = true;
+            innerAudioContext.src = '/static/audio/incoming_call_music.mp3';
+        },
+        // 销毁铃声
+        stopMusic () {
+            innerAudioContext.stop();
+            innerAudioContext.destroy();
+        },
+        visibleHandle () {
+            this.shouldFadeOut = true;
+            
+            // 动画0.4s 等待css动画结束
+            setTimeout(()=> {
+                store.commit('user/SET_INCOMING_CALL_SHOW', false);
+            }, 400);
+            
+            this.stopMusic();
+        },
+        dangerClick () {
+            this.visibleHandle();
+            this.$emit('onDanger');
+        },
+        successClick () {
+            this.visibleHandle();
+            this.$emit('onSuccess');
+        }
+    }
+};
+</script>
+
+<style lang="scss" scoped>
+	.incoming_call_container {
+    position: fixed;
+    top: 5vh;
+    left: 0;
+    right: 0;
+    width: 94%;
+    padding: 70rpx 0;
+    margin: 0 auto;
+		border-radius: 20rpx;
+		background-image: linear-gradient(to right, #484C58, #3F3939);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 999;
+	}
+  .incoming_call_in {
+    animation: fadeIn 0.4s .1s ease both;
+  }
+  .incoming_call_out {
+    animation: fadeOut 0.4s .1s ease both;
+  }
+  .call_icon_panel {
+    display: flex;
+    align-items: center;
+    /deep/ .u-button {
+      border-radius: 100%;
+      width: 80rpx;
+      height: 80rpx;
+      border: none;
+    }
+    .danger_btn{
+      background-color: #F45955;
+      margin-right: 40rpx;
+      .call_icon {
+        transform: rotate(135deg);
+      }
+    }
+    .success_btn {
+      background-color: #58BE6B;
+      margin-right: 50rpx;
+    }
+    .call_icon {
+      width: 24rpx;
+      height: 24rpx;
+    }
+  }
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-100rpx)
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0)
+    }
+  }
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+      transform: translateY(0)
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-100rpx)
+
+    }
+  }
+</style>
