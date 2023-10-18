@@ -28,8 +28,6 @@ const state = {
     userList: [],
     isSyncing: false,
     isProd: process.env.NODE_ENV === 'production',
-    incomingCallShow: false, // 呼入电话等待被接听/拒绝
-    isIncomingCallIng: false, // 通话中
 };
 
 const mutations = {
@@ -74,12 +72,6 @@ const mutations = {
                 };
             }
         });
-    },
-    SET_INCOMING_CALL_SHOW (state, value) {
-        state.incomingCallShow = value;
-    },
-    SET_IS_INCOMING_CALL_ING (state, value) {
-        state.isIncomingCallIng = value;
     },
 };
 

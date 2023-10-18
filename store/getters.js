@@ -80,7 +80,10 @@ export default {
     storeAppConfig: (state) => state.user.appConfig,
     storeIsSyncing: (state) => state.user.isSyncing,
     storeIsProd: (state) => state.user.isProd,
-    storeIncomingCallShow: (state) => state.user.incomingCallShow,
-    storeIsIncomingCallIng: (state) => state.user.isIncomingCallIng,
     storePinList: (state) => state.base.pinList,
+    storeIncomingCallLoading: (state) => state.incomingCall.incomingCallLoading,
+    storeIsIncomingCallTop: (state) => state.incomingCall.isIncomingCallTop,
+    storeIsIncomingCallMain: (state) => state.incomingCall.isIncomingCallMain,
+    storeIsIncomingCallSmall: (state) => state.incomingCall.isIncomingCallSmall,
+    storeIsIncomingCallIng: (state) => state.incomingCall.isIncomingCallIng,
 };

@@ -1,11 +1,14 @@
 <template>
     <view
-        v-if="storeIncomingCallShow"
+        v-if="shouldShow"
         :class="['top_dialog_container', 
                  shouldFadeIn && 'top_dialog_in',
                  shouldFadeOut && 'top_dialog_out']"
     >
-        <view class="flex align-center ml-40">
+        <view
+            class="flex align-center ml-40"
+            @click="openMain"
+        >
             <MyAvatar
                 :src="faceURL"
                 :desc="nickname"
@@ -72,11 +75,13 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeIncomingCallShow']),
+        ...mapGetters(['storeIsIncomingCallTop']),
+        shouldShow () {
+            return this.storeIsIncomingCallTop;
+        }
     },
     created () {
-    // storeIncomingCallShow: true 呼入电话等待接听。 不执行淡入动画
-        this.shouldFadeIn = !this.storeIncomingCallShow;
+        this.shouldFadeIn = !this.storeIsIncomingCallTop;
     },
     mounted () {
         // setTimeout(()=> {
@@ -86,7 +91,7 @@ export default {
     methods: {
         // 唤起铃声
         startMusic () {
-            if (!this.storeIncomingCallShow) return;
+            if (!this.storeIsIncomingCallTop) return;
             // 避免重复唤起铃声
             if (innerAudioContext != null) return;
 
@@ -106,20 +111,27 @@ export default {
 
             // 动画0.4s 等待css动画结束
             setTimeout(()=> {
-                store.commit('user/SET_INCOMING_CALL_SHOW', false);
+                store.commit('incomingCall/SET_INCOMING_CALL_TOP', false);
             }, 400);
 
             this.stopMusic();
         },
+        openMain () {
+            this.visibleHandle();
+            store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
+        },
         dangerClick () {
             this.visibleHandle();
+            store.commit('incomingCall/SET_INCOMING_CALL_LOADING', false);
             this.$emit('onDanger');
         },
         successClick () {
             this.visibleHandle();
-            store.commit('user/SET_IS_INCOMING_CALL_ING', true);
+            store.commit('incomingCall/SET_IS_INCOMING_CALL_ING', true);
+            store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', true);
+            store.commit('incomingCall/SET_INCOMING_CALL_LOADING', false);
             this.$emit('onSuccess');
-        }
+        },
     }
 };
 </script>

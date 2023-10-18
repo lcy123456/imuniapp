@@ -1,11 +1,12 @@
 <template>
     <view
-        v-if="storeIsIncomingCallIng"
-        class="small_popup_container small_popup_transition"
+        v-if="shouldShow"
+        class="small_popup_container"
         :style="style"
         @touchstart="onTouchstart($event)"
         @touchmove="onTouchmove($event)"
         @touchend="onTouchend($event)"
+        @click="openMain"
     >
         <image :src="incomingCallSmallSIcon" />
         <text class="fz-26 text_time">
@@ -18,8 +19,8 @@
 import incomingCallSmallSIcon from '@/static/images/incoming_call_small_s_icon.png';
 import incomingCallSmallNIcon from '@/static/images/incoming_call_small_n_icon.png';
 import { mapGetters } from 'vuex';
+import store from "@/store";
 import dayjs from 'dayjs';
-// 时间插件
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
 export default {
@@ -28,12 +29,12 @@ export default {
         return {
             incomingCallSmallSIcon,
             incomingCallSmallNIcon,
-            timeStart: 0,
-            timeText: '00:00',
             containerRect: {
                 width: 0,
                 height: 0
             },
+            timeStart: 0,
+            timeText: '00:00',
             windowWidth: 0,
             windowHeight: 0,
             style: {}
@@ -41,13 +42,19 @@ export default {
     },
     watch: {
         storeIsIncomingCallIng (val) {
-            if (val) {
-                this.intervalHandle();
-            }
-        }
+            if (val) this.intervalHandle();
+        },
+        storeIncomingCallLoading (val) {
+            this.timeText = val ? '等待接听' : '00:00';
+        },
     },
     computed: {
-        ...mapGetters(['storeIsIncomingCallIng']),
+        ...mapGetters(['storeIncomingCallLoading', 'storeIsIncomingCallIng', 'storeIsIncomingCallSmall']),
+
+        // (等待接听 || 通话中) && 悬浮缩小
+        shouldShow () {
+            return (this.storeIncomingCallLoading || this.storeIsIncomingCallIng) && this.storeIsIncomingCallSmall;
+        }
     },
     methods: {
         // 计时器
@@ -56,6 +63,7 @@ export default {
             const _this = this;
             const interFunc = function () {
                 if (timer && !_this.storeIsIncomingCallIng) {
+                    timer = null;
                     clearTimeout(timer);
                     console.log('&&&&&&清空通话中计时器&&&&&&');
                     return;
@@ -63,9 +71,10 @@ export default {
                 func.call(null);
                 timer = setTimeout(interFunc, delay); // 递归调用
             };
-            return function () {
-                timer = setTimeout(interFunc, delay); // 递归调用
-            }();
+            interFunc();
+        // return function () {
+        //     timer = setTimeout(interFunc, delay); // 递归调用
+        // }();
         },
         intervalHandle () {
             this.timeStart = dayjs();
@@ -112,8 +121,9 @@ export default {
             if (moveY >= windowHeight - this.containerRect.height)
                 moveY = windowHeight - this.containerRect.height - padding;
 
-            this.style.left = `${moveX}px`;
-            this.style.top = `${moveY}px`;
+            this.style = {
+                transform: `translate(${moveX}px, ${moveY}px)`
+            };
         },
         throttleTouchmove (event) {
             uni.$u.throttle(() => {
@@ -122,6 +132,10 @@ export default {
         },
         // 手指抬起时
         onTouchend () {
+        },
+        openMain () {
+            store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
+            store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', false);
         }
     }
 };
@@ -130,8 +144,12 @@ export default {
 <style lang="scss" scoped>
 .small_popup_container {
   position: fixed;
-  bottom: 3vh;
-  left: 14rpx;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translate(14rpx, 15vh);
+  transition: all 0.1s;
   width: 140rpx;
   height: 140rpx;
   border-radius: 20rpx;
@@ -149,8 +167,5 @@ export default {
   .text_time {
     color: #58BE6B;
   }
-}
-.small_popup_transition {
-  transition: all 0.2s;
 }
 </style>

@@ -5,6 +5,7 @@ import base from "./modules/base";
 import contact from "./modules/contact";
 import conversation from "./modules/conversation";
 import message from "./modules/message";
+import incomingCall from "./modules/incomingCall";
 import getters from "./getters";
 import createPersistedState from "vuex-persistedstate";
 
@@ -47,6 +48,7 @@ const store = new Vuex.Store({
         contact,
         conversation,
         message,
+        incomingCall,
     },
     getters,
     plugins: [vuexPersisted]
