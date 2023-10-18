@@ -3,6 +3,7 @@
         class="swiper_container"
         :current="current"
         :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
+        @change="change"
     >
         <swiper-item
             v-for="v in list"
@@ -17,9 +18,10 @@
             />
             <video
                 v-else-if="v.type === 'video'"
+                :id="v.url"
                 :src="v.url"
                 :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
-                :poster="v.poster"
+                :poster="v.poster && v.poster[0]"
             />
         </swiper-item>
     </swiper>
@@ -43,6 +45,7 @@ export default {
         return {
             list: [],
             current: 0,
+            item: null,
             systemInfo: uni.getSystemInfoSync()
         };
     },
@@ -51,10 +54,20 @@ export default {
         const { list, current } = options;
         this.list = JSON.parse(decodeURIComponent(list));
         this.current = current;
+        this.item = this.list[current];
     },
 
     methods: {
-        
+        change (e) {
+            console.log(e);
+            let current = e.detail.current;
+            if (this.item.type === 'video') {
+                console.log(this.item);
+                let video = uni.createVideoContext(this.item.url, this);
+                video && video.pause();
+            }
+            this.item = this.list[current];
+        }
     },
 };
 </script>

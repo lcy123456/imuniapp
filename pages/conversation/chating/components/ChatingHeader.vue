@@ -28,7 +28,7 @@
                 </view>
                 <view
                     v-if="isSingle"
-                    class="fz-24 text-grey flex align-center justify-center"
+                    class="flex justify-center fz-24 text-grey align-center"
                 >
                     <view :class="['w-12', 'h-12', 'br-12', isOnline ? 'bg-primary' : 'bg-inverse']" />
                     <text class="ml-10">
@@ -77,7 +77,7 @@
 <script>
 import CustomNavBar from '@/components/CustomNavBar';
 import { mapGetters } from "vuex";
-import { SessionType } from 'openim-uniapp-polyfill';
+import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { getDesignatedUserOnlineState } from "@/util/imCommon";
 import { MessageMenuTypes } from '@/constant';
@@ -127,15 +127,30 @@ export default {
             return `${this.storeCurrentGroup?.memberCount ?? 0}位成员`;
         },
     },
+    created () {
+        this.setIMListener();
+    },
     methods: {
         async getOnlineState () {
             try {
                 const res = await getDesignatedUserOnlineState(this.userID);
+                console.log(res, '获取状态');
                 this.isOnline = res !== "离线";
                 this.onlineStr = res;
-            } catch {
+            } catch (err) {
+                console.log('获取状态失败失败失败失败失败失败失败', err);
                 this.isOnline = false;
             }
+        },
+        setIMListener () {
+            console.log('注册注册注册注册注册注册注册注册');
+            IMSDK.subscribe(
+                IMSDK.IMEvents.OnUserStatusChanged,
+                this.userStatusChangedHandler
+            );
+        },
+        userStatusChangedHandler (data) {
+            console.log(data, '-----');
         },
         showInfo () {
             uni.$u.route(`/pages/common/userCard/index?sourceID=${this.userID}&from=chating`);

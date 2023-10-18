@@ -498,13 +498,6 @@ export const IMLogin = async () => {
         IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
         uni.$u.toast('openim登录异常，请重启');
         throw new Error('openim登录异常');
-        // setTimeout(async () => {
-        //     try {
-        //         await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
-        //     } catch (err) {
-        //         console.log(err);
-        //     }
-        // }, 1000);
     }
 };
 

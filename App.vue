@@ -237,7 +237,6 @@ export default {
                     ],
                 });
             };
-
             IMSDK.subscribe(IMSDK.IMEvents.OnRecvNewMessages, newMessagesHandler);
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnRecvC2CReadReceipt,
