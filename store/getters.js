@@ -16,6 +16,14 @@ export default {
     storeSentGroupApplications: (state) => state.contact.sentGroupApplications,
     storeUnHandleFriendApplicationNum: (state) => state.contact.unHandleFriendApplicationNum,
     storeUnHandleGroupApplicationNum: (state) => state.contact.unHandleGroupApplicationNum,
+    storeIsScrollWay: (state) => state.conversation.isScrollWay,
+    storeIsShowSetEnd: (state) => {
+        const { message, conversation } = state;
+        const { historyMessageMap } = message;
+        const { isScrollWay, currentConversation } = conversation;
+        const hasAfterMore = historyMessageMap[currentConversation.conversationID]?.hasAfterMore ?? true;
+        return hasAfterMore || isScrollWay;
+    },
     storeHistoryMessageList: (state) => {
         const { message, conversation, base } = state;
         const { historyMessageMap } = message;

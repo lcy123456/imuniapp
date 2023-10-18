@@ -43,6 +43,7 @@ export default {
             "storeHistoryMessageList",
             "storeIsSyncing",
             "storeHasMoreAfterMessage",
+            "storeIsShowSetEnd",
             "conversationUnread"
         ]),
         contactBadgeRely () {
@@ -197,6 +198,23 @@ export default {
                     });
                 });
             };
+            const groupReadReceiptHandler = ({ data: receiptList }) => {
+                console.log('receiptList------', receiptList);
+                receiptList.forEach((item) => {
+                    item.msgIDList.forEach((msgID) => {
+                        this.updateOneMessage({
+                            message: {
+                                clientMsgID: msgID,
+                            },
+                            type: UpdateMessageTypes.KeyWords,
+                            keyWords: [{
+                                key: "isRead",
+                                value: true,
+                            }],
+                        });
+                    });
+                });
+            };
             const newRecvMessageRevokedHandler = ({ data: revokedMessage }) => {
                 // if (!this.storeCurrentConversation.conversationID) {
                 //     return;
@@ -224,6 +242,10 @@ export default {
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnRecvC2CReadReceipt,
                 c2cReadReceiptHandler
+            );
+            IMSDK.subscribe(
+                IMSDK.IMEvents.OnRecvGroupReadReceipt,
+                groupReadReceiptHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnNewRecvMessageRevoked,
@@ -460,8 +482,14 @@ export default {
                         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', conversationUnread);
                         return;
                     }
+                    if (this.storeIsShowSetEnd) {
+                        // 置底图标显示不滚动到底
+                        let conversationUnread = this.conversationUnread + 1;
+                        this.$store.commit('conversation/SET_CONVERSATION_UNREAD', conversationUnread);
+                    }
                     this.pushNewMessage(newServerMsg);
                     uni.$u.debounce(this.markConversationAsRead, 2000);
+                    if (this.storeIsShowSetEnd) return;
                     setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
                 }
             }

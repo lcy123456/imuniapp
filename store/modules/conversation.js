@@ -6,6 +6,7 @@ const state = {
     currentConversation: {},
     unReadCount: 0,
     conversationUnread: 0,
+    isScrollWay: false,
     currentGroup: {},
     currentMemberInGroup: {},
     conversationMediaList: []
@@ -14,6 +15,9 @@ const state = {
 const mutations = {
     SET_CONVERSATION_UNREAD (state, number) {
         state.conversationUnread = number;
+    },
+    SET_IS_SCROLL_WAY (state, boo) {
+        state.isScrollWay = boo;
     },
     SET_CONVERSATION_LIST (state, list) {
         state.conversationList = [...list];

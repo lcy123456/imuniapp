@@ -32,7 +32,7 @@
             @sendInit="getPositionMsgID('')"
         />
         <view
-            v-show="isScrollWay || storeHasMoreAfterMessage"
+            v-show="storeIsShowSetEnd"
             class="set-end"
             @click="getPositionMsgID('')"
         >
@@ -108,7 +108,6 @@ export default {
             back2Tab: false,
             positionMsgID: '',
             isMultipleMsg: false,
-            isScrollWay: false,
             checkedMsgIds: [],
             menuState: {
                 visible: false,
@@ -123,6 +122,8 @@ export default {
             'storeCurrentConversation',
             'storeSelfInfo',
             'storeHistoryMessageList',
+            'storeIsScrollWay',
+            'storeIsShowSetEnd',
             'storePinList',
             'storeHasMoreAfterMessage',
             'conversationUnread'
@@ -160,9 +161,8 @@ export default {
         ...mapActions('message', ['resetMessageState', 'deleteMessages']),
         ...mapActions('conversation', ['resetConversationState']),
         ...mapActions('base', ['pinList']),
-        async handleHideMenu (isScrollWay) {
-            this.isScrollWay = typeof isScrollWay === 'boolean' ? isScrollWay : false;
-            if (!this.isScrollWay && !this.storeHasMoreAfterMessage) {
+        async handleHideMenu () {
+            if (!this.storeIsShowSetEnd) {
                 this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
             }
             const res = await getEl.call(this, '.message_menu_container');

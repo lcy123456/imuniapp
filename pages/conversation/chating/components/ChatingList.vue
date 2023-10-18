@@ -116,6 +116,7 @@ export default {
             'storeHistoryMessageListReverse',
             'storeHasMoreMessage',
             'storeHasMoreAfterMessage',
+            'storeIsShowSetEnd',
             'storeCurrentUserID',
         ]),
         loadMoreStatus () {
@@ -190,9 +191,10 @@ export default {
             const height = (scrollHeight + 200) - scrollTop - uni.getWindowInfo().windowHeight;
             const isScrollWay = (!this.isReverse && (height > 700))
                 || (this.isReverse && (scrollTop > 700));
+            this.$store.commit('conversation/SET_IS_SCROLL_WAY', isScrollWay);
             this.isRecvToBottom = scrollHeight - uni.getWindowInfo().windowHeight < 80;
             this.isShowMenuFlag = false;
-            this.$emit('scroll', isScrollWay);
+            this.$emit('scroll');
         },
         throttleScroll (event) {
             uni.$u.throttle(() => this.onScroll(event), 200);
