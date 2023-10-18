@@ -183,25 +183,27 @@ export default {
                 this.scrollIntoView = this.isReverse ? '' : auchor;
             });
         },
-        async scrollToBottom ({initPage = false, isRecv = false} = {}) {
-            await this.$nextTick();
-            setTimeout(() => {
-                // console.log('scrollToBottom');
-                if (initPage) {
-                    this.closeScrollAnimation();
-                } else if (isRecv && !this.isRecvToBottom) {
-                    this.hasNewMessage = true;
-                    return;
-                }
-                uni.createSelectorQuery()
-                    .in(this)
-                    .select('#scroll_wrap')
-                    .boundingClientRect((res) => {
-                        this.scrollTop = this.isReverse ? '' : res.height + Math.random();
-                        initPage && this.$emit('initSuccess');
-                    })
-                    .exec();
-            }, 100);
+        async scrollToBottom ({initPage = false} = {}) {
+            this.scrollTop = 0;
+            initPage && this.$emit('initSuccess');
+            // await this.$nextTick();
+            // setTimeout(() => {
+            //     // console.log('scrollToBottom');
+            //     if (initPage) {
+            //         this.closeScrollAnimation();
+            //     } else if (isRecv && !this.isRecvToBottom) {
+            //         this.hasNewMessage = true;
+            //         return;
+            //     }
+            //     uni.createSelectorQuery()
+            //         .in(this)
+            //         .select('#scroll_wrap')
+            //         .boundingClientRect((res) => {
+            //             this.scrollTop = this.isReverse ? '' : res.height + Math.random();
+            //             initPage && this.$emit('initSuccess');
+            //         })
+            //         .exec();
+            // }, 100);
         },
         closeScrollAnimation () {
             this.withAnimation = false;
