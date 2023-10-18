@@ -1,0 +1,156 @@
+<template>
+    <view
+        v-if="storeIsIncomingCallIng"
+        class="small_popup_container small_popup_transition"
+        :style="style"
+        @touchstart="onTouchstart($event)"
+        @touchmove="onTouchmove($event)"
+        @touchend="onTouchend($event)"
+    >
+        <image :src="incomingCallSmallSIcon" />
+        <text class="fz-26 text_time">
+            {{ timeText }}
+        </text>
+    </view>
+</template>
+
+<script>
+import incomingCallSmallSIcon from '@/static/images/incoming_call_small_s_icon.png';
+import incomingCallSmallNIcon from '@/static/images/incoming_call_small_n_icon.png';
+import { mapGetters } from 'vuex';
+import dayjs from 'dayjs';
+// 时间插件
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
+export default {
+    name: "SmallPopup",
+    data () {
+        return {
+            incomingCallSmallSIcon,
+            incomingCallSmallNIcon,
+            timeStart: 0,
+            timeText: '00:00',
+            containerRect: {
+                width: 0,
+                height: 0
+            },
+            windowWidth: 0,
+            windowHeight: 0,
+            style: {}
+        };
+    },
+    watch: {
+        storeIsIncomingCallIng (val) {
+            if (val) {
+                this.intervalHandle();
+            }
+        }
+    },
+    computed: {
+        ...mapGetters(['storeIsIncomingCallIng']),
+    },
+    methods: {
+        // 计时器
+        interval (func, delay) {
+            let timer = null;
+            const _this = this;
+            const interFunc = function () {
+                if (timer && !_this.storeIsIncomingCallIng) {
+                    clearTimeout(timer);
+                    console.log('&&&&&&清空通话中计时器&&&&&&');
+                    return;
+                }
+                func.call(null);
+                timer = setTimeout(interFunc, delay); // 递归调用
+            };
+            return function () {
+                timer = setTimeout(interFunc, delay); // 递归调用
+            }();
+        },
+        intervalHandle () {
+            this.timeStart = dayjs();
+            const oneHour = 3600;
+            this.interval(()=> {
+                const secondsDiff = dayjs().diff(this.timeStart, 'second');
+                const format = secondsDiff > oneHour ? 'HH:mm:ss' : 'mm:ss';
+                this.timeText = dayjs.duration(secondsDiff, 'seconds').format(format);
+            }, 1000);
+        },
+        // 初始化页面宽高度、dom元素宽高度
+        initContainerHeight () {
+            const { windowHeight, windowWidth } = uni.getSystemInfoSync();
+            this.windowWidth = windowWidth;
+            this.windowHeight = windowHeight;
+
+            const query = uni.createSelectorQuery().in(this);
+            query.select('.small_popup_container').boundingClientRect(data => {
+                this.containerRect = data;
+            }).exec();
+        },
+        // 手指落下时触发
+        onTouchstart () {
+            if (!this.windowWidth) this.initContainerHeight();
+        },
+        // 手指移动时触发
+        onTouchmove (event) {
+            const [touches] = event.touches;
+            const {pageX, pageY} = touches;
+            let moveX = pageX;
+            let moveY = pageY;
+            const { windowHeight, windowWidth } = this;
+            const padding = 10;
+
+            // 控制范围：在元素 被拖拽的过程中 判断 元素的定位值 是否到达边界 如果到了 就不能在走了
+            //左边界
+            if (moveX <= 0) moveX = 0 + padding;
+            // 上边界
+            if (moveY <= 0) moveY = 0 + padding;
+            // 右边界  页面宽度 - 拖动元素宽度
+            if (moveX >= windowWidth - this.containerRect.width) 
+                moveX = windowWidth - this.containerRect.width - padding;
+            // 下边界  页面高度 - 拖动元素高度
+            if (moveY >= windowHeight - this.containerRect.height)
+                moveY = windowHeight - this.containerRect.height - padding;
+
+            this.style.left = `${moveX}px`;
+            this.style.top = `${moveY}px`;
+        },
+        throttleTouchmove (event) {
+            uni.$u.throttle(() => {
+                this.onTouchmove(event);
+            }, 30);
+        },
+        // 手指抬起时
+        onTouchend () {
+        }
+    }
+};
+</script>
+
+<style lang="scss" scoped>
+.small_popup_container {
+  position: fixed;
+  bottom: 3vh;
+  left: 14rpx;
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 0 4rpx rgba(0, 0, 0, 0.25);
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  z-index: 999;
+  image {
+    width: 40rpx;
+    height: 40rpx;
+    margin: 28rpx 0;
+  }
+  .text_time {
+    color: #58BE6B;
+  }
+}
+.small_popup_transition {
+  transition: all 0.2s;
+}
+</style>

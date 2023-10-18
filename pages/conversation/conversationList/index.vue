@@ -94,9 +94,9 @@ export default {
     onLoad () {
       
         /* sta测试代码 tieniu */
-        // setTimeout(()=>{
-        //     store.commit('user/SET_INCOMING_CALL_SHOW', true);
-        // }, 2000);
+        setTimeout(()=>{
+            store.commit('user/SET_INCOMING_CALL_SHOW', true);
+        }, 2000);
         /* end测试代码 tieniu */
         
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);

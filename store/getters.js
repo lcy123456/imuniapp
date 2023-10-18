@@ -73,5 +73,6 @@ export default {
     storeIsSyncing: (state) => state.user.isSyncing,
     storeIsProd: (state) => state.user.isProd,
     storeIncomingCallShow: (state) => state.user.incomingCallShow,
+    storeIsIncomingCallIng: (state) => state.user.isIncomingCallIng,
     storePinList: (state) => state.base.pinList,
 };
