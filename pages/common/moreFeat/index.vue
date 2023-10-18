@@ -41,7 +41,9 @@
                     :class="['w-38', 'h-35']"
                     :src="'/static/images/back_time.png'"
                 />
-                <text class="ml-20">返回</text>
+                <text class="ml-20">
+                    返回
+                </text>
             </view>
             <view class="item-box">
                 <view
@@ -71,6 +73,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import IMSDK, { IMMethods } from 'openim-uniapp-polyfill';
 
 export default {
@@ -175,6 +178,9 @@ export default {
         };
     },
     computed: {
+        ...mapGetters([
+            "storeSelfInfo"
+        ]),
     },
     methods: {
         callBack (item) {
@@ -215,7 +221,7 @@ export default {
                 const data = await IMSDK.asyncApi(IMMethods.SetConversationBurnDuration, IMSDK.uuid(), {
                     conversationID,
                     burnDuration: time,
-                    ex: this.$store.user.selfInfo.nickname
+                    ex: this.storeSelfInfo.nickname
                 });
                 console.log('datadatadatadatadatadatadatadatadatadatadatadatadata', data);
                 if (data) {
