@@ -334,7 +334,7 @@ export default {
             // #ifdef APP-IOS
             setTimeout(() => {
                 uni.$emit(PageEvents.ScrollToBottom);
-            }, 500);
+            }, 200);
             // #endif
             // #ifndef APP-IOS
             uni.$emit(PageEvents.ScrollToBottom);
