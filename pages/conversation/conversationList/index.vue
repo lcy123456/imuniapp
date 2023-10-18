@@ -94,10 +94,10 @@ export default {
     onLoad () {
       
         /* sta测试代码 tieniu */
-        setTimeout(()=>{
-            store.commit('incomingCall/SET_INCOMING_CALL_LOADING', true);
-            store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
-        }, 2000);
+        // setTimeout(()=>{
+        //     store.commit('incomingCall/SET_INCOMING_CALL_LOADING', true);
+        //     store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
+        // }, 2000);
         /* end测试代码 tieniu */
         
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
