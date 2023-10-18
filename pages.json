@@ -1,14 +1,5 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-        {
-            "path": "pages/login/scanLogin/index"
-        },
-        {
-            "path": "pages/profile/index/index"
-        },
-        {
-            "path": "pages/profile/accountSetting/index"
-        },
+	"pages": [
         {
             "path": "pages/conversation/chating/index",
             "style": {
@@ -17,6 +8,15 @@
                     "bounce": "none"
                 }
             }
+        },
+        {
+            "path": "pages/profile/index/index"
+        },
+        {
+            "path": "pages/profile/accountSetting/index"
+        },
+        {
+            "path": "pages/login/scanLogin/index"
         },
 		{
 			"path": "pages/login/index"
