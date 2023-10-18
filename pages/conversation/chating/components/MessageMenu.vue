@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { parseAt, parseEmoji } from "@/util/imCommon";
 import { mapGetters, mapActions } from 'vuex';
 import { MessageMenuTypes } from '@/constant';
 import { pin, pinCancel } from '@/api/pinToTop';
@@ -174,13 +175,32 @@ export default {
             }
             this.$emit('close');
         },
+        getContent () {
+            let text = '';
+            const { contentType, quoteElem, atTextElem, textElem, senderNickname } = this.message;
+            // TODO：解密文本
+            if (contentType === MessageType.QuoteMessage) {
+                text = parseEmoji(DecryptoAES(quoteElem?.text));
+            } else if (contentType === MessageType.AtTextMessage) {
+                text = parseEmoji(parseAt(atTextElem));
+            } else {
+                text = parseEmoji(DecryptoAES(textElem?.content));
+            }
+            if (contentType === MessageType.TextMessage) {
+                text = text.replace(/\n/g, '<br>');
+            }
+            if (this.showNickname) {
+                text = senderNickname + '：' + text;
+            }
+            return text;
+        },
         async pin () {
             console.log(this.message);
             try {
-                const { pictureElem, videoElem, textElem, fileElem, contentType} = this.message;
+                const { pictureElem, videoElem, fileElem, contentType } = this.message;
                 let content = '';
                 if (this.showTextRender) {
-                    content = textElem.content;
+                    content = this.getContent();
                 } else if (this.showMediaRender) {
                     content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePicture.url;
                 } else if (this.showFileRender) {

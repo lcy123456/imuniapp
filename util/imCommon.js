@@ -472,6 +472,10 @@ export const IMLogin = async () => {
         throw new Error('token不存在');
     }
     try {
+        const status = await IMSDK.asyncApi(IMSDK.IMMethods.GetLoginStatus, IMSDK.uuid());
+        if ([2, 3].includes(status)) {
+            await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+        }
         await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
             userID: storeUserID,
             token: storeIMToken,
@@ -517,10 +521,12 @@ export const login = async (requestMap) => {
         return await IMLogin();
     } catch (err) {
         console.log(err, err.errMsg);
-        if (err.errCode === 1101) {
+        if (err.errCode === 10002) {
             uni.$u.toast('用户不存在');
         } else if (err.errCode === 10001) {
             uni.$u.toast('密码错误');
+        } else {
+            uni.$u.toast('网络异常，请稍后重试');
         }
         return null;
     }

@@ -31,7 +31,7 @@
                         v-if="showTextRender(item)"
                         class="text"
                     >
-                        {{ item.content }}
+                        {{ html2Text(item.content) }}
                     </text>
                     <view
                         v-if="showMediaRender(item)"
@@ -67,6 +67,7 @@
 </template>
 
 <script>
+import { html2Text } from '@/util/common';
 import { 
     TextRenderTypes,
     MediaRenderTypes,
@@ -105,6 +106,7 @@ export default {
         }, 10);
     },
     methods: {
+        html2Text,
         init () {
             if (!this.list.length) return;
             this.active = this.list.length - 1;

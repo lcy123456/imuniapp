@@ -184,7 +184,7 @@ export default {
                 }
 
                 receiptList.forEach((item) => {
-                    item.msgIDList.forEach((msgID) => {
+                    item.msgIDList && item.msgIDList.forEach((msgID) => {
                         this.updateOneMessage({
                             message: {
                                 clientMsgID: msgID,
@@ -201,7 +201,7 @@ export default {
             const groupReadReceiptHandler = ({ data: receiptList }) => {
                 console.log('receiptList------', receiptList);
                 receiptList.forEach((item) => {
-                    item.msgIDList.forEach((msgID) => {
+                    item.msgIDList && item.msgIDList.forEach((msgID) => {
                         this.updateOneMessage({
                             message: {
                                 clientMsgID: msgID,

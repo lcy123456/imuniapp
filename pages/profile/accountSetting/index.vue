@@ -37,7 +37,7 @@
                         >
                             <image
                                 v-if="item.faceURL"
-                                :src="item.faceURL"
+                                :src="getAvatarUrl(item.faceURL)"
                             />
                             <view
                                 v-else
@@ -66,6 +66,8 @@
 </template>
 
 <script>
+import defaultAvatars from '@/common/defaultAvatars.js';
+import MyAvatar from "@/components/MyAvatar/index.vue";
 import IMSDK, { MessageReceiveOptType } from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import SettingItem from '@/components/SettingItem/index.vue';
@@ -75,7 +77,8 @@ import { login } from '@/util/imCommon';
 export default {
     components: {
         CustomNavBar,
-        SettingItem
+        SettingItem,
+        MyAvatar
     },
     data () {
         return {
@@ -108,21 +111,24 @@ export default {
         }
     },
     methods: {
+        getAvatarUrl (src) {
+            return defaultAvatars[src] ?? src;
+        },
         clickConversationMenu (item) {
             console.log(item);
             this.$store.commit('user/SET_DEL_USER_LIST', item);
         },
         async goLogin (type) {
-            !type ? (this.addUserLoading = true) : (uni.showLoading({title: ''}));
+            // !type ? (this.addUserLoading = true) : (uni.showLoading({title: ''}));
             try {
-                let data = await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
-                !type ? (this.addUserLoading = false) : (uni.hideLoading());
-                console.log('----IMSDK.IMMethods.Logout', data);
-                this.$store.commit('user/SET_AUTH_DATA', {});
+                // let data = await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+                // !type ? (this.addUserLoading = false) : (uni.hideLoading());
+                // console.log('----IMSDK.IMMethods.Logout', data);
+                // this.$store.commit('user/SET_AUTH_DATA', {});
                 !type && (uni.$u.route('/pages/login/index'));
             } catch (err) {
                 console.log(err);
-                // !type ? (this.addUserLoading = false) : (this.$hideLoading());
+                // !type ? (this.addUserLoading = false) : (uni.hideLoading());
                 uni.$u.toast('网络异常，请重试');
             }
         },
