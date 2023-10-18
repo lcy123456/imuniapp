@@ -646,7 +646,7 @@ export const recordToDesignatedConversation = (
     });
 };
 
-export const scanQrCodeResult = (result) => {
+export const scanQrCodeResult = async (result) => {
     if (result?.includes(AddFriendQrCodePrefix)) {
         const userID = result.replace(AddFriendQrCodePrefix, "");
         uni.navigateTo({
@@ -658,7 +658,21 @@ export const scanQrCodeResult = (result) => {
             url: `/pages/common/groupCard/index?sourceID=${groupID}&isScan=true`,
         });
     } else {
-        uni.$u.toast("未识别到有效内容");
+        try {
+            const resultMap = JSON.parse(result);
+            const { value, type } = resultMap;
+            if (type === 'login') {
+                uni.navigateTo({
+                    url: `/pages/login/scanLogin/index?code=${value}`
+                });
+            } else {
+                uni.$u.toast("未识别到有效内容");
+            }
+        } catch (err) {
+            console.log(err);
+            uni.$u.toast("未识别到有效内容");
+        }
+        // uni.$u.toast("未识别到有效内容");
     }
 };
 
