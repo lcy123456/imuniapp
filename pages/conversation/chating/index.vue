@@ -208,19 +208,20 @@ export default {
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
                     url: pictureElem?.sourcePicture.url,
-                    poster: pictureElem?.sourcePicture.url,
+                    poster: [pictureElem?.sourcePicture.url, pictureElem?.sourcePath],
                     type: 'image',
                 };
                 if (isVideo) {
                     map = {
                         url: videoElem.videoUrl,
-                        poster: videoElem.snapshotUrl,
+                        poster: [videoElem?.snapshotPath, videoElem?.snapshotUrl],
                         type: 'video',
                     };
                 }
                 return map;
             });
             this.imgList.reverse();
+            console.log(this.imgList, '--------------------imgListimgListimgList');
             this.$store.commit('conversation/SET_CONVERSATION_MEDIA_LIST', this.imgList);
         },
         chatListClick () {

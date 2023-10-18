@@ -101,7 +101,9 @@ export default {
     methods: {
         async clickMediaItem () {
             await this.getSearchRecord();
-            const index = this.storeConversationMediaList.findIndex(item => item.poster === this.imgUrl) > -1 ? this.storeConversationMediaList.findIndex(item => item.poster === this.imgUrl) : 0;
+            console.log(this.imgUrl, '====222222');
+            console.log(this.storeConversationMediaList, '====222222');
+            const index = this.storeConversationMediaList.findIndex(item => item.poster.includes(this.imgUrl)) > -1 ? this.storeConversationMediaList.findIndex(item => item.poster.includes(this.imgUrl)) : 0;
             uni.$u.route('/pages/common/previewMedia/index', {
                 list: encodeURIComponent(JSON.stringify(this.storeConversationMediaList)),
                 current: index,
