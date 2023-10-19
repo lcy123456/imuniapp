@@ -118,6 +118,9 @@
 			"path": "pages/login/chooseDefaultAvatar/index"
 		},
 		{
+			"path": "pages/profile/favorite/index"
+		},
+		{
 			"path": "pages/profile/about/index"
 		},
 		{

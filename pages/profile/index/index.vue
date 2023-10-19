@@ -83,13 +83,18 @@ export default {
                     title: '账号设置',
                     icon: require('static/images/profile_menu_account.png'),
                 },
+                // {
+                //     idx: 3,
+                //     title: '我的收藏',
+                //     icon: require('static/images/profile_menu_favorite.png'),
+                // },
                 {
-                    idx: 3,
+                    idx: 4,
                     title: '关于我们',
                     icon: require('static/images/profile_menu_about.png'),
                 },
                 {
-                    idx: 4,
+                    idx: 5,
                     title: '退出登录',
                     icon: require('static/images/profile_menu_logout.png'),
                 },
@@ -137,10 +142,15 @@ export default {
                 break;
             case 3:
                 uni.navigateTo({
-                    url: '/pages/profile/about/index',
+                    url: '/pages/profile/favorite/index',
                 });
                 break;
             case 4:
+                uni.navigateTo({
+                    url: '/pages/profile/about/index',
+                });
+                break;
+            case 5:
                 this.showComfirm = true;
                 break;
             default:
