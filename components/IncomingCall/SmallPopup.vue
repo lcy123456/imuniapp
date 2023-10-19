@@ -110,20 +110,27 @@ export default {
             let moveX = pageX;
             let moveY = pageY;
             const { windowHeight, windowWidth } = this;
-            const padding = 10;
+            const { width: domWidth, height: domHeight } = this.containerRect;
+            const halfDomWidth = domWidth / 2;
+            const halfDomHeight = domHeight / 2;
+            const padding = 12;
 
+            console.log(moveX, moveY);
             // 控制范围：在元素 被拖拽的过程中 判断 元素的定位值 是否到达边界 如果到了 就不能在走了
             //左边界
-            if (moveX <= 0) moveX = 0 + padding;
+            if (moveX <= halfDomWidth) moveX = halfDomWidth + padding;
             // 上边界
-            if (moveY <= 0) moveY = 0 + padding;
+            if (moveY <= halfDomWidth) moveY = halfDomHeight + padding;
             // 右边界  页面宽度 - 拖动元素宽度
             if (moveX >= windowWidth - this.containerRect.width) 
-                moveX = windowWidth - this.containerRect.width - padding;
+                moveX = windowWidth - halfDomWidth - padding;
             // 下边界  页面高度 - 拖动元素高度
             if (moveY >= windowHeight - this.containerRect.height)
-                moveY = windowHeight - this.containerRect.height - padding;
+                moveY = windowHeight - halfDomHeight - padding;
 
+            // 减一半元素宽高，定位到中心点
+            moveX = moveX - halfDomWidth;
+            moveY = moveY - halfDomHeight;
             this.style = {
                 transform: `translate(${moveX}px, ${moveY}px)`
             };
