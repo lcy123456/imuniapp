@@ -547,5 +547,7 @@ export default {
 @import "@/styles/login.scss";
 @import "@/styles/global.scss";
 @import "@/styles/pages.scss";
+/* #ifndef APP-NVUE */
 @import 'animate.css';
+/* #endif */
 </style>

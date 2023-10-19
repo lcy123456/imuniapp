@@ -94,9 +94,16 @@ export default {
     onLoad () {
       
         /* sta测试代码 tieniu */
+        // 呼入电话，等待接听/拒绝
+        setTimeout(()=>{
+            store.commit('incomingCall/SET_INCOMING_CALL_CATCH', true);
+            store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
+        }, 2000);
+
+        // 拨打电话
         // setTimeout(()=>{
-        //     store.commit('incomingCall/SET_INCOMING_CALL_LOADING', true);
-        //     store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
+        //     store.commit('incomingCall/SET_INCOMING_CALL_THROW', true);
+        //     store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
         // }, 2000);
         /* end测试代码 tieniu */
         

@@ -8,7 +8,7 @@
         :style="style"
     >
         <image
-            class="page_back"
+            class="page_back_img"
             :src="incomingCallMainBack"
         />
         <view class="z_index_999">
@@ -34,32 +34,21 @@
                 <text class="fz-42 text-inverse mt-30">
                     {{ nickname }}
                 </text>
-                <text class="fz-36 text-inverse mt-180">
-                    邀请你视频通话
-                </text>
             </view>
 
-            <view class="btn_panel">
-                <u-button
-                    class="danger_btn"
-                    @click="dangerClick"
-                >
-                    <image
-                        :src="incomingCallIcon"
-                        class="call_icon"
-                    />
-                </u-button>
-                <template v-if="!storeIsIncomingCallIng">
-                    <u-button
-                        class="success_btn"
-                        @click="successClick"
-                    >
-                        <image
-                            :src="incomingCallIcon"
-                            class="call_icon"
-                        />
-                    </u-button>
-                </template>
+            <view class="tips_text">
+                {{ tipsText }}
+            </view>
+
+            <view class="btn_nav">
+                <view class="mb-66">
+                    <HandleBtn />
+                </view>
+                <AnswerBtn
+                    :animate-fade-out.sync="animateFadeOut"
+                    @onDanger="onDanger"
+                    @onSuccess="onSuccess"
+                />
             </view>
         </view>
     </view>
@@ -68,39 +57,61 @@
 <script>
 import incomingCallMainBack from '@/static/images/incoming_call_main_back.png';
 import incomingCallMainReduce from '@/static/images/incoming_call_main_reduce.png';
-import incomingCallIcon from '@/static/images/incoming_call_icon.png';
 import MyAvatar from '@/components/MyAvatar/index.vue';
+import HandleBtn from "./HandleBtn.vue";
+import AnswerBtn from "./AnswerBtn.vue";
 import store from "@/store";
 import { mapGetters } from 'vuex';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
+
 export default {
     name: "IncomingCallMain",
     components: {
         MyAvatar,
-    },
-    props: {
-    //
-    // 需要改用为vuex传递
-    //
-        faceURL: String,
-        nickname: {
-            type: String,
-            default: '未知'
-        }
+        HandleBtn,
+        AnswerBtn,
     },
     data () {
         return {
             incomingCallMainBack,
             incomingCallMainReduce,
-            incomingCallIcon,
             timeStart: 0,
             timeText: '00:00',
             animateFadeIn: false,
             animateFadeOut: false,
             style: {},
         };
+    },
+    computed: {
+        ...mapGetters([
+            'storeIncomingCallCatch', 
+            'storeIncomingCallThrow', 
+            'storeIncomingCallCatchUser', 
+            'storeIncomingCallThrowUser', 
+            'storeIsIncomingCallIng', 
+            'storeIsIncomingCallMain'
+        ]),
+
+        shouldShow () {
+            return this.storeIsIncomingCallMain;
+        },
+        faceURL () {
+            const {faceURL: catchUser} = this.storeIncomingCallCatchUser;
+            const {faceURL: throwUser} = this.storeIncomingCallThrowUser;
+            return this.storeIncomingCallThrow ? catchUser : throwUser;
+        },
+        nickname () {
+            const {nickname: catchUser} = this.storeIncomingCallCatchUser;
+            const {nickname: throwUser} = this.storeIncomingCallThrowUser;
+            return this.storeIncomingCallThrow ? catchUser : throwUser;
+        },
+        tipsText () {
+            if (this.storeIncomingCallThrow) return '等待对方接受邀请';
+            else if (this.storeIncomingCallCatch) return '邀请你视频通话';
+            else return '';
+        }
     },
     watch: {
         shouldShow (val) {
@@ -111,16 +122,9 @@ export default {
         storeIsIncomingCallIng (val) {
             if (val) this.intervalHandle();
         },
-        storeIncomingCallLoading (val) {
+        storeIncomingCallCatch (val) {
             this.timeText = val ? '等待接听' : '00:00';
         },
-    },
-    computed: {
-        ...mapGetters(['storeIsIncomingCallIng', 'storeIsIncomingCallMain']),
-
-        shouldShow () {
-            return this.storeIsIncomingCallMain;
-        }
     },
     mounted () {
         console.log('mounted()');
@@ -165,26 +169,14 @@ export default {
                 store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', false);
                 store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', true);
                 // 清除向左上角偏移，避免下次不生效
-                this.style = {
-                    transform: 'none'
-                };
+                this.style = {};
             }, 500);
         },
-        async dangerClick () {
-            this.animateFadeOut = true;
-            
-            setTimeout(()=> {
-                // 延时等待动画执行完毕
-                store.commit('incomingCall/SET_IS_INCOMING_CALL_ING', false);
-                store.commit('incomingCall/SET_INCOMING_CALL_LOADING', false);
-                store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', false);
-                this.$emit('onDanger');
-            }, 500);
+        onDanger () {
+            this.$emit('onDanger');
         },
-        successClick () {
-            store.commit('incomingCall/SET_IS_INCOMING_CALL_ING', true);
-            store.commit('incomingCall/SET_INCOMING_CALL_LOADING', false);
-            this.$emit('onSuccess');
+        onSuccess () {
+            this.$emit('onDanger');
         },
     }
 };
@@ -202,81 +194,57 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
-  transition: all 0.8s;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.5s;
   z-index: 998;
 }
-.page_back {
+.page_back_img {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
+  z-index: 998;
 }
 .header_panel {
-  position: absolute;
-  top: 10vh;
-  left: 0;
-  width: 100%;
+  position: relative;
+  margin-top: 10vh;
+  height: 44rpx;
+  line-height: 44rpx;
   text-align: center;
+  z-index: 999;
 }
 .right_icon {
   position: absolute;
+  top: 0;
   left: 56rpx;
   width: 44rpx;
   height: 44rpx;
-  z-index: 999;
 }
 .avatar_panel {
-  position: fixed;
-  width: 100%;
-  top: calc(30vh);
-  left: 0;
-  right: 0;
-  margin: 0 auto;
+  margin-top: 15vh;
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
 }
 
-.btn_panel {
+.tips_text {
+  font-size: 36rpx;
+  color: #FFFFFF;
+  margin-top: 160rpx;
+  height: 48rpx;
+  line-height: 48rpx;
+  text-align: center;
+}
+
+.btn_nav {
   position: fixed;
-  width: 90%;
-  top: calc(80vh);
+  width: 86%;
+  bottom: 10vh;
   left: 0;
   right: 0;
   margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  /deep/ .u-button {
-    border-radius: 100%;
-    width: 140rpx;
-    height: 140rpx;
-    border: none;
-  }
-  .danger_btn{
-    background-color: #F45955;
-    .call_icon {
-      transform: rotate(135deg);
-    }
-  }
-  .success_btn {
-    background-color: #58BE6B;
-  }
-  .call_icon {
-    width: 60rpx;
-    height: 60rpx;
-  }
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(-100rpx)
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0)
-  }
 }
 </style>

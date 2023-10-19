@@ -57,16 +57,6 @@ export default {
     components: {
         MyAvatar,
     },
-    props: {
-        //
-        // 需要改用为vuex传递
-        //
-        faceURL: String,
-        nickname: {
-            type: String,
-            default: '未知'
-        }
-    },
     data () {
         return {
             incomingCallIcon,
@@ -75,10 +65,22 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeIsIncomingCallTop']),
+        ...mapGetters([
+            'storeIsIncomingCallTop',
+            'storeIncomingCallCatch',
+            'storeIncomingCallThrowUser',
+        ]),
         shouldShow () {
             return this.storeIsIncomingCallTop;
-        }
+        },
+        faceURL () {
+            const {faceURL: throwUser} = this.storeIncomingCallThrowUser;
+            return this.storeIncomingCallCatch ? throwUser : '';
+        },
+        nickname () {
+            const {nickname: throwUser} = this.storeIncomingCallThrowUser;
+            return this.storeIncomingCallCatch ? throwUser : '';
+        },
     },
     created () {
         this.shouldFadeIn = !this.storeIsIncomingCallTop;
@@ -122,14 +124,14 @@ export default {
         },
         dangerClick () {
             this.visibleHandle();
-            store.commit('incomingCall/SET_INCOMING_CALL_LOADING', false);
+            store.commit('incomingCall/SET_INCOMING_CALL_CATCH', false);
             this.$emit('onDanger');
         },
         successClick () {
             this.visibleHandle();
             store.commit('incomingCall/SET_IS_INCOMING_CALL_ING', true);
             store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', true);
-            store.commit('incomingCall/SET_INCOMING_CALL_LOADING', false);
+            store.commit('incomingCall/SET_INCOMING_CALL_CATCH', false);
             this.$emit('onSuccess');
         },
     }

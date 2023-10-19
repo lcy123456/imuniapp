@@ -44,16 +44,19 @@ export default {
         storeIsIncomingCallIng (val) {
             if (val) this.intervalHandle();
         },
-        storeIncomingCallLoading (val) {
+        storeIncomingCallCatch (val) {
+            this.timeText = val ? '等待接听' : '00:00';
+        },
+        storeIncomingCallThrow (val) {
             this.timeText = val ? '等待接听' : '00:00';
         },
     },
     computed: {
-        ...mapGetters(['storeIncomingCallLoading', 'storeIsIncomingCallIng', 'storeIsIncomingCallSmall']),
+        ...mapGetters(['storeIncomingCallCatch', 'storeIncomingCallThrow', 'storeIsIncomingCallIng', 'storeIsIncomingCallSmall']),
 
-        // (等待接听 || 通话中) && 悬浮缩小
+        // (等待接听 || 主动拨打 || 通话中) && 悬浮缩小
         shouldShow () {
-            return (this.storeIncomingCallLoading || this.storeIsIncomingCallIng) && this.storeIsIncomingCallSmall;
+            return (this.storeIncomingCallCatch || this.storeIncomingCallThrow || this.storeIsIncomingCallIng) && this.storeIsIncomingCallSmall;
         }
     },
     methods: {
