@@ -94,11 +94,11 @@ export default {
     onLoad () {
       
         /* sta测试代码 tieniu */
-        // 呼入电话，等待接听/拒绝
-        setTimeout(()=>{
-            store.commit('incomingCall/SET_INCOMING_CALL_CATCH', true);
-            store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
-        }, 2000);
+        // 等待接电话，拒绝/接听
+        // setTimeout(()=>{
+        //     store.commit('incomingCall/SET_INCOMING_CALL_CATCH', true);
+        //     store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
+        // }, 2000);
 
         // 拨打电话
         // setTimeout(()=>{
