@@ -4,7 +4,7 @@
             <view
                 v-for="item in 3"
                 :key="item"
-                class="log_panel mb-20"
+                class="unit_cell mb-20"
             >
                 <text class="fz-26 text-grey">
                     用户名好上头
@@ -111,15 +111,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .item_cell {
   border-radius: 10rpx;
   padding: 30rpx;
   background-color: #FFFFFF;
 }
 
-.log_panel {
+.unit_cell {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
 }
 
@@ -161,6 +161,8 @@ export default {
 .text_base {
   font-size: 32rpx;
   color: $uni-text-color;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .ellipsisWithLine1 {

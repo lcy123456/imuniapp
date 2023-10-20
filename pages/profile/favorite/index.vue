@@ -81,6 +81,7 @@ export default {
         },
     },
     onLoad () {
+      
     },
     methods: {
         async queryList (pageNo) {

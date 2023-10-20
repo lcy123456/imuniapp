@@ -1,6 +1,7 @@
 <template>
     <view class="text_message_container bg_container">
         <mp-html
+            :selectable="true"
             :preview-img="false"
             :show-img-menu="false"
             :lazy-load="false"
