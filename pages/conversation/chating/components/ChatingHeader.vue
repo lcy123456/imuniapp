@@ -129,16 +129,19 @@ export default {
     },
     created () {
         this.setIMListener();
+        this.getOnlineState();
+        this.timer = setInterval(() => {
+            this.getOnlineState();
+        }, 3000);
     },
     methods: {
         async getOnlineState () {
             try {
                 const res = await getDesignatedUserOnlineState(this.userID);
-                console.log(res, '获取状态');
                 this.isOnline = res !== "离线";
                 this.onlineStr = res;
             } catch (err) {
-                console.log('获取状态失败失败失败失败失败失败失败', err);
+                // console.log('获取状态失败失败失败失败失败失败失败', err);
                 this.isOnline = false;
             }
         },
@@ -169,6 +172,9 @@ export default {
                 show: false
             });
         }
+    },
+    beforeDestroy () {
+        clearInterval(this.timer);
     }
 };
 </script>

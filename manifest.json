@@ -69,7 +69,8 @@
                     "NSLocationAlwaysAndWhenInUseUsageDescription" : "请求获取位置权限",
                     "NSLocationAlwaysUsageDescription" : "请求获取位置权限",
                     "NSBluetoothAlwaysUsageDescription" : "请求获取蓝牙权限"
-                }
+                },
+                "UIBackgroundModes" : "audio"
             },
             "sdkConfigs" : {
                 "ad" : {},

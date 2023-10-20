@@ -1,8 +1,10 @@
 <template>
     <view
+        id="chating_container"
         class="chating_container"
         @touchstart="handleHideMenu"
     >
+        <!-- <video id="screenshare-video" autoplay playsinline></video> -->
         <chating-header
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
@@ -77,7 +79,6 @@ import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
 import PinToTop from './components/pinToTop.vue';
-
 import { 
     MediaRenderTypes,
 } from '@/constant';
@@ -351,6 +352,11 @@ export default {
     overflow: hidden;
     background: url('/static/images/chat-bg.png') no-repeat;
     background-size: cover;
+    #screenshare-video {
+        width: 400px;
+        height: 400px;
+        border: 1px solid red;
+    }
     .set-end {
         position: fixed;
         bottom: 130px;
