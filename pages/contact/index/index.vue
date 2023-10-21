@@ -5,11 +5,16 @@
         :change:update="updateData"
     >
         <div
-            id="video"
+            id="other-box"
         />
         <div
-            id="my-video"
+            id="my-box"
         />
+        <div>
+            <text @click="roomModule.toggleAudio">切换声音</text>
+            <text @click="roomModule.toggleVideo">开关视频</text>
+            <text @click="roomModule.toggleVideoInput">切换视频</text>
+        </div>
         <CustomNavBar
             :show-left="false" 
             is-bg-color2
@@ -118,49 +123,47 @@ import {
 export default {
     data () {
         return {
+            device: '',
             trackList: [],
+            systemInfo: uni.getSystemInfoSync(),
             room: null
         }
     },
-    // onShow () {
-    //     window.console.log(11111111111111111);
-    //     this.testOpenRoom();
-    // },
     methods: {
+        getDom (id) {
+            return document.getElementById(id);
+        },
+        setDomAttr (map) {
+            const { width = `${this.systemInfo.windowWidth}px`, height = `${this.systemInfo.windowHeight}px`, id, dom } = map;
+            dom.id = id;
+            dom.style.width = width;
+            dom.style.height = height;
+        },
         updateData () {
-            window.console.log(11111111111111111);
             this.testOpenRoom();
         },
-        // toggleAudio: async () => {
-        //     if (!this.room) return;
-        //     const enabled = this.room.localParticipant.isMicrophoneEnabled;
-        //     setButtonDisabled('toggle-audio-button', true);
-        //     if (enabled) {
-        //     appendLog('disabling audio');
-        //     } else {
-        //     appendLog('enabling audio');
-        //     }
-        //     await this.room.localParticipant.setMicrophoneEnabled(!enabled);
-        //     setButtonDisabled('toggle-audio-button', false);
-        //     updateButtonsForPublishState();
-        // },
+        async toggleAudio () {
+            if (!this.room) return;
+            const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
+            await this.room?.localParticipant?.setMicrophoneEnabled(!enabled);
+        },
 
-        // toggleVideo: async () => {
-        //     if (!this.room) return;
-        //     setButtonDisabled('toggle-video-button', true);
-        //     const enabled = this.room.localParticipant.isCameraEnabled;
-        //     if (enabled) {
-        //     appendLog('disabling video');
-        //     } else {
-        //     appendLog('enabling video');
-        //     }
-        //     await this.room.localParticipant.setCameraEnabled(!enabled);
-        //     setButtonDisabled('toggle-video-button', false);
-        //     renderParticipant(this.room.localParticipant);
+        async toggleVideo () {
+            if (!this.room) return;
+            const enabled = this.room?.localParticipant.isCameraEnabled;
+            await this.room?.localParticipant.setCameraEnabled(!enabled);
+        },
 
-        //     // update display
-        //     updateButtonsForPublishState();
-        // },
+        async toggleVideoInput () {
+            const devices = await Room.getLocalDevices('videoinput');
+            if (this.device === '') {
+                this.device = devices[1];
+            } else {
+                const otherDevices = devices.filter(item => item.deviceId !== this.device.deviceId);
+                this.device = otherDevices[0];
+            }
+            this.device && await this.room.switchActiveDevice('videoinput', this.device.deviceId);
+        },
         async testOpenRoom () {
             const wsURL = `ws://192.168.2.20:7880`;
             const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMDM2NDIsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5NzcxMTY0Miwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTEiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0._-3jkKTw-wBFJVI6BCN2bBdbEQKujeUwHVazttNCNCE`;
@@ -170,65 +173,68 @@ export default {
                 await this.room.connect(wsURL, token);
                 console.log('connected to room----', this.room.name);
                 const p = this.room.localParticipant;
+                // await p.enableCameraAndMicrophone();
+                const myBoxDom = this.getDom('my-box');
+                const otherDom = this.getDom('other-box');
+                this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
+                    this.removeElment({
+                        participant,
+                        parentDom: otherDom
+                    });
+                });
+                this.room?.participants?.forEach(participant => {
+                    participant?.tracks?.forEach(track => {
+                        this.addElement({
+                            participant,
+                            track: track.track,
+                            parentDom: otherDom
+                        });
+                    });
+                });
+                this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    this.addElement({
+                        parentDom: otherDom,
+                        track,
+                        participant
+                    });
+                })
                 await p.setCameraEnabled(true);
                 await p.setMicrophoneEnabled(true);
-                await p.enableCameraAndMicrophone();
                 const cameraTrack = p.getTrack(RemoteTrack.Source.Camera);
                 const myVideo = cameraTrack?.track?.attach();
-                const myVideoDiv = document.getElementById('my-video');
-                const videoDiv = document.getElementById('video');
-                this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-                    const { identity } = participant;
-                    const element = track.attach();
-                    const type = `${identity}-${track.kind}`;
-                    console.log(this.trackList, 'trackListtrackListtrackListtrackListtrackListtrackListtrackList----');
-                    if (this.trackList.includes(type)) {
-                        const dom = document.getElementById(type);
-                        console.log(dom, '要删除的dom');
-                        videoDiv.removeChild(dom);
-                    }
-                    element.style.width = "300px";
-                    element.style.height = "300px";
-                    element.id = type;
-                    videoDiv.appendChild(element);
-                    this.trackList.push(type);
-                    console.log(track, 'tracktracktrack');
-                    console.log('tracktracktrack', participant);
-                    console.log(publication);
-                })
-                if (!myVideoDiv.children[0]) {
-                    myVideo.style.width = "300px";
-                    myVideo.style.height = "300px";
-                    myVideo.id = 'myVideo';
-                    myVideoDiv.appendChild(myVideo);
+                if (!myBoxDom.children[0]) {
+                    this.setDomAttr({
+                        dom: myVideo,
+                        id: 'myVideo'
+                    })
+                    myBoxDom.appendChild(myVideo);
                 }
             } catch (err) {
                 console.log('fail -----connected to room----', err);
-                setTimeout(async () => {
-                    await this.room.connect(wsURL, token);
-                }, 1000);
             }
-            // console.log(uni.createVideoContext('screenshare-video'), 'tracktracktrack');
-            // window.console.log(videoElement, 'elementelement');
-            // videoelm.appendChild(element);
-            // console.log(RemoteTrack.Source, '=======');
-            // const screenSharePub = p.getTrack(RemoteTrack.Source.ScreenShare);
-            // console.log(screenSharePub, '====999===');
-            // screenSharePub.videoTrack?.attach(videoelm);
-            // this.room.on(RoomEvent.AudioPlaybackStatusChanged, () => {
-            // console.log(this.room.canPlaybackAudio, 'this.room.canPlaybackAudiothis.room.canPlaybackAudio');
-            // console.log(button, 'this.room.canPlaybackAudiothis.room.canPlaybackAudio');
-            // this.room.startAudio();
-            // if (!this.room.canPlaybackAudio) {
-            //     button.onclick = () => {
-            //         // startAudio *must* be called in an click/tap handler.
-            //         this.room.startAudio().then(() => {
-            //             // successful, UI can be removed now
-            //             button.remove();
-            //         });
-            //     }
-            // }
-            // });
+        },
+        addElement ({ parentDom, track, participant}) {
+            const { identity } = participant;
+            const element = track.attach();
+            const type = `${identity}-${track.kind}`;
+            if (this.trackList.includes(type)) {
+                const dom = this.getDom(type);
+                parentDom.removeChild(dom);
+            }
+            this.setDomAttr({
+                dom: element,
+                id: type
+            })
+            parentDom.appendChild(element);
+            this.trackList.push(type);
+        },
+        removeElment ({parentDom, participant}) {
+            const { identity } = participant;
+            const video = this.getDom(`${identity}-video`);
+            const audio = this.getDom(`${identity}-audio`);
+            this.trackList = this.trackList.filter(item => ![`${identity}-video`, `${identity}-audio`].includes(item));
+            parentDom.removeChild(video);
+            parentDom.removeChild(audio);
         },
         beforeDestroy () {
             this.room && this.room.disconnect();
