@@ -48,6 +48,12 @@ export default {
                 },
                 {
                     idx: 2,
+                    type: ChatingFooterActionTypes.Call,
+                    title: '视频通话',
+                    icon: require('static/images/chating_action_call.png'),
+                },
+                {
+                    idx: 3,
                     type: ChatingFooterActionTypes.File,
                     title: '文件',
                     icon: require('static/images/chating_action_file.png'),
@@ -62,6 +68,7 @@ export default {
             switch (action.type) {
             case ChatingFooterActionTypes.Album:
             case ChatingFooterActionTypes.Camera:
+            case ChatingFooterActionTypes.Call:
                 this.$emit('prepareMediaMessage', action.type);
                 break;
             case ChatingFooterActionTypes.File:

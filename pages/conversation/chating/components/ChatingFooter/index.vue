@@ -161,6 +161,18 @@ const cameraChoose = [
         idx: 1,
     },
 ];
+const callChoose = [
+    {
+        name: '视频通话',
+        type: ChatingFooterActionTypes.Call,
+        idx: 0,
+    },
+    {
+        name: '语音通话',
+        type: ChatingFooterActionTypes.Call,
+        idx: 1,
+    },
+];
 
 export default {
     components: {
@@ -225,6 +237,7 @@ export default {
     },
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
+        ...mapActions('incomingCall', ['onThrowCall']),
         async createTextMessage () {
             let message = '';
             const { text } = formatInputHtml(this.inputHtml, 1);
@@ -363,8 +376,10 @@ export default {
         prepareMediaMessage (type) {
             if (type === ChatingFooterActionTypes.Album) {
                 this.actionSheetMenu = [...albumChoose];
-            } else {
+            } else if (type === ChatingFooterActionTypes.Camera) {
                 this.actionSheetMenu = [...cameraChoose];
+            } else if (type === ChatingFooterActionTypes.Call) {
+                this.actionSheetMenu = [...callChoose];
             }
             this.showActionSheet = true;
         },
@@ -448,30 +463,31 @@ export default {
             this.sendMessage(message);
         },
         selectClick ({ idx }) {
+            const [{type}] = this.actionSheetMenu;
             if (idx === 0) {
-                if (
-                    this.actionSheetMenu[0].type ===
-                    ChatingFooterActionTypes.Album
-                ) {
+                if (type === ChatingFooterActionTypes.Album) {
                     this.chooseOrShotImage(['album']).then((paths) =>
                         this.batchCreateImageMesage(paths)
                     );
-                } else {
+                } else if (type === ChatingFooterActionTypes.Camera) {
                     this.chooseOrShotImage(['camera']).then((paths) =>
                         this.batchCreateImageMesage(paths)
                     );
+                } else if (type === ChatingFooterActionTypes.Call) {
+                    // 发起视频通话
+                    this.onThrowCall(true);
                 }
-            } else {
+            } else if (idx === 1) {
                 const whenGetFile = (data) => {
                     this.snapFlag = data;
                 };
-                if (
-                    this.actionSheetMenu[0].type ===
-                    ChatingFooterActionTypes.Album
-                ) {
+                if (type === ChatingFooterActionTypes.Album) {
                     this.chooseOrShotVideo(['album']).then(whenGetFile);
-                } else {
+                } else if (type === ChatingFooterActionTypes.Camera) {
                     this.chooseOrShotVideo(['camera']).then(whenGetFile);
+                } else if (type === ChatingFooterActionTypes.Call) {
+                    // 发起语音通话
+                    this.onThrowCall(false);
                 }
             }
         },

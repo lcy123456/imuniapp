@@ -35,12 +35,12 @@ export default {
     },
     onLoad () {
         console.log('phone/index/index.vue  onLoad');
-      
+
         // 等待接电话
-        store.commit('incomingCall/SET_INCOMING_CALL_CATCH', true);
-        store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
-        store.commit('incomingCall/SET_IS_VIDEO_CALL', true);
-        
+        // store.commit('incomingCall/SET_INCOMING_CALL_CATCH', true);
+        // store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
+        // store.commit('incomingCall/SET_IS_VIDEO_CALL', true);
+
         // 主动拨打电话
         // store.commit('incomingCall/SET_INCOMING_CALL_THROW', true);
         // store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
@@ -59,6 +59,7 @@ import {
     RemoteParticipant,
     RemoteTrack,
     RemoteTrackPublication,
+    RemoteAudioTrack,
     Room,
     RoomEvent,
 } from 'livekit-client';
@@ -94,13 +95,30 @@ export default {
 
           const keys = Object.keys(newValue)
           if(isActiveMic != isActiveMicOld)
-            console.log()
+            this.setLocalTrackMicrophone(isActiveMic)
           else if(isActiveSpeak != isActiveSpeakOld)
-            console.log()
+            this.setVolume()
           else if(isActiveCam != isActiveCamOld)
             console.log()
           else if(isActiveOverturn != isActiveOverturnOld)
           this.onSwitchActiveDevice(isActiveCam)
+        },
+
+        // 麦克风
+        setLocalTrackMicrophone(shouldOpen){
+            const local_participant = this.room.localParticipant;
+            console.log('setLocalTrackMicrophone()===', local_participant)
+            if(shouldOpen){
+              local_participant.setMicrophoneEnabled(true)
+            } else {
+              local_participant.setMicrophoneEnabled(false)
+            }
+        },
+
+        // 扬声器
+        setVolume(has) {
+          // console.log('setVolume()====', RemoteAudioTrack)
+          // const volumeNum = RemoteAudioTrack.getVolume()
         },
 
         // 翻转摄像头
@@ -188,5 +206,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

@@ -1,7 +1,6 @@
 const state = {
     incomingCallWSURL: '',
     incomingCallTOKEN: 'testTokenxxxxxxxx',
-
     incomingCallCatch: false, // 等待接电话，拒绝/接听
     incomingCallThrow: false, // 主动拨打电话
     incomingCallCatchUser: {
@@ -10,15 +9,16 @@ const state = {
     incomingCallThrowUser: {
         nickname: '好上头打电话'
     }, // 拨打电话用户
+    isVideoCall: false, // true视频通话, false语音通话
     isIncomingCallTop: false, // 顶部弹出
     isIncomingCallMain: false, // 全屏通话
     isIncomingCallSmall: false, // 悬浮缩小
     isIncomingCallIng: false, // 通话中,
-    isVideoCall: false, // true视频通话, false语音通话
+
 
     handleAttr: {
-        isActiveMic: false, // 麦克风
-        isActiveSpeak: false, // 扬声器
+        isActiveMic: true, // 麦克风
+        isActiveSpeak: true, // 扬声器
         isActiveCam: true, // 摄像头
         isActiveOverturn: false, // 翻转
     }
@@ -55,8 +55,8 @@ const mutations = {
     SET_IS_VIDEO_CALL (state, value) {
         state.isVideoCall = value;
     },
-    SET_IS_AUDIO_CALL (state, value) {
-        state.isAudioCall = value;
+    SET_IS_INCOMING_CALL_ING (state, value) {
+        state.isIncomingCallIng = value;
     },
     SET_ON_HANDLE_ATTR (state, {key, value}) {
         state.handleAttr[key] = value;
@@ -74,7 +74,7 @@ const actions = {
     // 拨打电话
     async onThrowCall ({
         commit
-    },) {
+    }, isVideoCall) {
         try {
             // const data = await pinList({
             //     conversationID,
@@ -88,8 +88,13 @@ const actions = {
             const token = '321';
             commit('SET_INCOMING_CALL_WSURL', wsurl);
             commit('SET_INCOMING_CALL_TOKEN', token);
+            commit('SET_IS_VIDEO_CALL', isVideoCall);
             commit('SET_INCOMING_CALL_THROW', true);
             commit('SET_IS_INCOMING_CALL_MAIN', true);
+
+            uni.switchTab({
+                url: '/pages/phone/index/index',
+            });
         } catch (e) {
             console.log(e, '拨打电话失败');
         }
@@ -100,10 +105,8 @@ const actions = {
         commit
     },) {
         try {
-            const wsurl = '123';
-            const token = '321';
-            commit('SET_INCOMING_CALL_WSURL', wsurl);
-            commit('SET_INCOMING_CALL_TOKEN', token);
+            // commit('SET_INCOMING_CALL_WSURL', wsurl);
+            // commit('SET_INCOMING_CALL_TOKEN', token);
         } catch (e) {
             console.log(e, '接听电话失败');
         }

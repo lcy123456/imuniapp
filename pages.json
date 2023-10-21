@@ -178,7 +178,8 @@
 				"pagePath": "pages/phone/index/index",
 				"iconPath": "./static/images/tabbar_profile.png",
 				"selectedIconPath": "static/images/tabbar_profile_active.png",
-				"text": "通讯"
+				"text": "通讯",
+				"visible": false
 			}
 		]
 	},
