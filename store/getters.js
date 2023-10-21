@@ -81,6 +81,8 @@ export default {
     storeIsSyncing: (state) => state.user.isSyncing,
     storeIsProd: (state) => state.user.isProd,
     storePinList: (state) => state.base.pinList,
+    storeIncomingCallWSURL: (state) => state.incomingCall.incomingCallWSURL,
+    storeIncomingCallTOKEN: (state) => state.incomingCall.incomingCallTOKEN,
     storeIncomingCallCatch: (state) => state.incomingCall.incomingCallCatch,
     storeIncomingCallThrow: (state) => state.incomingCall.incomingCallThrow,
     storeIncomingCallCatchUser: (state) => state.incomingCall.incomingCallCatchUser,
@@ -89,4 +91,6 @@ export default {
     storeIsIncomingCallMain: (state) => state.incomingCall.isIncomingCallMain,
     storeIsIncomingCallSmall: (state) => state.incomingCall.isIncomingCallSmall,
     storeIsIncomingCallIng: (state) => state.incomingCall.isIncomingCallIng,
+    storeIsVideoCall: (state) => state.incomingCall.isVideoCall,
+    storeHandleAttr: (state) => state.incomingCall.handleAttr,
 };

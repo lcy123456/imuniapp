@@ -1,47 +1,46 @@
 <template>
-    <Page>
+    <view
+        class="conversation_container"
+        @click="closeAllSwipe"
+    >
+        <chat-header ref="chatHeaderRef" />
         <view
-            class="conversation_container"
-            @click="closeAllSwipe"
+            class="px-20 pb-20 pt-10 bg-grey"
+            @click="handleToSearch"
         >
-            <chat-header ref="chatHeaderRef" />
-            <view
-                class="px-20 pb-20 pt-10 bg-grey"
-                @click="handleToSearch"
+            <uni-search-bar
+                v-model="keyword"
+                bg-color="#fff"
+                class="h-70"
+                placeholder="搜索"
+                readonly
+            />
+        </view>
+        <!-- v-if="!storeIsSyncing" -->
+        <z-paging
+            ref="paging"
+            :fixed="false"
+            :auto="false"
+            default-page-size="20"
+            :show-loading-more-no-more-view="false"
+            :refresher-enabled="!storeIsSyncing"
+            @query="queryList"
+            @refresherTouchmove="refresherTouchmove"
+            @refresherTouchend="refresherTouchend"
+        >
+            <u-swipe-action
+                ref="swipeWrapperRef"
+                class="swipe_wrapper"
             >
-                <uni-search-bar
-                    v-model="keyword"
-                    bg-color="#fff"
-                    class="h-70"
-                    placeholder="搜索"
-                    readonly
+                <ConversationItem
+                    v-for="item in showConversationList"
+                    :key="item.conversationID"
+                    :source="item"
+                    :is-disabled="isDisabledSwipe"
+                    @closeAllSwipe="closeAllSwipe"
                 />
-            </view>
-            <!-- v-if="!storeIsSyncing" -->
-            <z-paging
-                ref="paging"
-                :fixed="false"
-                :auto="false"
-                default-page-size="20"
-                :show-loading-more-no-more-view="false"
-                :refresher-enabled="!storeIsSyncing"
-                @query="queryList"
-                @refresherTouchmove="refresherTouchmove"
-                @refresherTouchend="refresherTouchend"
-            >
-                <u-swipe-action
-                    ref="swipeWrapperRef"
-                    class="swipe_wrapper"
-                >
-                    <ConversationItem
-                        v-for="item in showConversationList"
-                        :key="item.conversationID"
-                        :source="item"
-                        :is-disabled="isDisabledSwipe"
-                        @closeAllSwipe="closeAllSwipe"
-                    />
-                </u-swipe-action>
-            </z-paging>
+            </u-swipe-action>
+        </z-paging>
 
         <!-- <view
             v-else
@@ -49,8 +48,7 @@
         >
             <u-loading-icon text="同步中" />
         </view> -->
-        </view>
-    </Page>
+    </view>
 </template>
 
 <script>
@@ -74,12 +72,19 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeConversationList', 'storeIsSyncing']),
+        ...mapGetters([
+            'storeConversationList',
+            'storeIsSyncing',
+            'storeIncomingCallWSURL', 
+            'storeIncomingCallTOKEN',
+            'storeIncomingCallTOKEN',
+            'storeHandleAttr',
+        ]),
         showConversationList () {
             return this.storeConversationList.filter(v => {
                 return v.showName.includes(this.keyword);
             });
-        }
+        },
     },
     onReady () {
         this.$nextTick(() => plus.navigator.closeSplashscreen());
@@ -92,21 +97,6 @@ export default {
         }
     },
     onLoad () {
-      
-        /* sta测试代码 tieniu */
-        // 等待接电话，拒绝/接听
-        // setTimeout(()=>{
-        //     store.commit('incomingCall/SET_INCOMING_CALL_CATCH', true);
-        //     store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
-        // }, 2000);
-
-        // 拨打电话
-        // setTimeout(()=>{
-        //     store.commit('incomingCall/SET_INCOMING_CALL_THROW', true);
-        //     store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
-        // }, 2000);
-        /* end测试代码 tieniu */
-        
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
     onUnload () {

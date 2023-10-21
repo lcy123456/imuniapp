@@ -1,39 +1,66 @@
 <template>
     <!--  麦克风/扬声器/摄像头按钮组件  -->
-    <view
-        v-show="shouldShow"
-        class="handle_btn"
-    >
-        <view class="cell">
-            <image
-                :src="micImage"
-                class="handle_icon"
-                @click="handleSwitch('isActiveMic')"
-            />
-            <text class="fz-28 text-inverse mt-20">
-                {{ micText }}
-            </text>
+    <view>
+        <view
+            v-if="shouldVideoBtnFine"
+            class="handle_btn"
+        >
+            <view class="cell">
+                <image
+                    :src="micImage"
+                    class="handle_icon"
+                    @click="handleSwitch('isActiveMic')"
+                />
+                <text class="fz-28 text-inverse mt-20">
+                    {{ micText }}
+                </text>
+            </view>
+            <view class="cell">
+                <image
+                    :src="speakImage"
+                    class="handle_icon"
+                    @click="handleSwitch('isActiveSpeak')"
+                />
+                <text class="fz-28 text-inverse mt-20">
+                    {{ speakText }}
+                </text>
+            </view>
+            <view class="cell">
+                <image
+                    :src="camImage"
+                    class="handle_icon"
+                    @click="handleSwitch('isActiveCam')"
+                />
+                <text class="fz-28 text-inverse mt-20">
+                    {{ camText }}
+                </text>
+            </view>
         </view>
-        <view class="cell">
-            <image
-                :src="speakImage"
-                class="handle_icon"
-                @click="handleSwitch('isActiveSpeak')"
-            />
-            <text class="fz-28 text-inverse mt-20">
-                {{ speakText }}
-            </text>
+        <view
+            v-else-if="shouldVideoBtnGrey"
+            class="handle_btn"
+        >
+            <view class="cell">
+                <image
+                    :src="overturnImage"
+                    class="handle_icon"
+                    @click="handleSwitch('isActiveOverturn')"
+                />
+                <text class="fz-28 text-inverse mt-20">
+                    {{ overturnText }}
+                </text>
+            </view>
+            <view class="cell">
+                <image
+                    :src="camImage"
+                    class="handle_icon"
+                    @click="handleSwitch('isActiveCam')"
+                />
+                <text class="fz-28 text-inverse mt-20">
+                    {{ camText }}
+                </text>
+            </view>
         </view>
-        <!--        <view class="cell">
-            <image
-                :src="camImage"
-                class="handle_icon"
-                @click="handleSwitch('isActiveCam')"
-            />
-            <text class="fz-28 text-inverse mt-20">
-                {{ camText }}
-            </text>
-        </view>-->
     </view>
 </template>
 
@@ -44,57 +71,62 @@ import incomingCallHandleSpeak1 from '@/static/images/incoming_call_handle_speak
 import incomingCallHandleSpeak2 from '@/static/images/incoming_call_handle_speak_2.png';
 import incomingCallHandleCam1 from '@/static/images/incoming_call_handle_cam_1.png';
 import incomingCallHandleCam2 from '@/static/images/incoming_call_handle_cam_2.png';
+import incomingCallHandleOverturn1 from '@/static/images/incoming_call_handle_overturn_1.png';
+import incomingCallHandleOverturn2 from '@/static/images/incoming_call_handle_overturn_2.png';
 import store from "@/store";
 import { mapGetters } from 'vuex';
 export default {
     name: "HandleBtn",
     data () {
         return {
-            isActiveMic: true,
-            isActiveSpeak: true,
-            isActiveCam: true,
         };
     },
     computed: {
-        ...mapGetters(['storeIncomingCallThrow', 'storeIsIncomingCallIng']),
-      
+        ...mapGetters(['storeIncomingCallThrow', 'storeIncomingCallCatch', 'storeIsVideoCall', 'storeHandleAttr', 'storeIsIncomingCallIng']),
+        
         micImage () {
-            return this.isActiveMic ? incomingCallHandleMic1 : incomingCallHandleMic2;
+            const {isActiveMic} = this.storeHandleAttr;
+            return isActiveMic ? incomingCallHandleMic1 : incomingCallHandleMic2;
         },
         micText () {
-            return this.isActiveMic ? '麦克风打开' : '麦克风关闭';
+            const {isActiveMic} = this.storeHandleAttr;
+            return isActiveMic ? '麦克风打开' : '麦克风关闭';
         },
         speakImage () {
-            return this.isActiveSpeak ? incomingCallHandleSpeak1 : incomingCallHandleSpeak2;
+            const {isActiveSpeak} = this.storeHandleAttr;
+            return isActiveSpeak ? incomingCallHandleSpeak1 : incomingCallHandleSpeak2;
         },
         speakText () {
-            return this.isActiveSpeak ? '扬声器打开' : '扬声器关闭';
+            const {isActiveSpeak} = this.storeHandleAttr;
+            return isActiveSpeak ? '扬声器打开' : '扬声器关闭';
         },
         camImage () {
-            return this.isActiveCam ? incomingCallHandleCam1 : incomingCallHandleCam2;
+            const {isActiveCam} = this.storeHandleAttr;
+            return isActiveCam ? incomingCallHandleCam1 : incomingCallHandleCam2;
         },
         camText () {
-            return this.isActiveCam ? '摄像头打开' : '摄像头关闭';
+            const {isActiveCam} = this.storeHandleAttr;
+            return isActiveCam ? '摄像头打开' : '摄像头关闭';
+        },
+        overturnImage () {
+            return incomingCallHandleOverturn1;
+        },
+        overturnText () {
+            return '翻转';
         },
       
-        // 主动拨打电话 || 通话中
-        shouldShow () {
-            return this.storeIncomingCallThrow || this.storeIsIncomingCallIng;
-        }
-    },
-    watch: {
-        isActiveMic: {
-            handler (val) {
-                if (val) plus.device.setVolume(0.6); // 开启声音，0 - 1
-                else  plus.device.setVolume(0);  // 静音
-                // plus.device.getVolume() // 获取当前音量
-            },
-            immediate: true
+        // 视频通话 && 通话中
+        shouldVideoBtnFine () {
+            return this.storeIsVideoCall && this.storeIsIncomingCallIng;
         },
+        // 视频通话
+        shouldVideoBtnGrey () {
+            return this.storeIsVideoCall;
+        }
     },
     methods: {
         handleSwitch (key) {
-            this[key] = !this[key];
+            this.$store.dispatch('incomingCall/onHandleAttr', key);
         }
     }
 };

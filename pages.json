@@ -9,6 +9,9 @@
                 }
             }
         },
+		{
+			"path": "pages/phone/index/index"
+		},
         {
             "path": "pages/profile/index/index"
         },
@@ -170,6 +173,12 @@
 				"iconPath": "./static/images/tabbar_profile.png",
 				"selectedIconPath": "static/images/tabbar_profile_active.png",
 				"text": "我的"
+			},
+			{
+				"pagePath": "pages/phone/index/index",
+				"iconPath": "./static/images/tabbar_profile.png",
+				"selectedIconPath": "static/images/tabbar_profile_active.png",
+				"text": "通讯"
 			}
 		]
 	},

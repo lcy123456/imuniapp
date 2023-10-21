@@ -7,17 +7,21 @@
         ]"
         :style="style"
     >
-        <image
+        <view
+            id="incomingCallMainMeVideo"
             class="page_back_img"
-            :src="incomingCallMainBack"
         />
+        <!--        <image-->
+        <!--            class="page_back_img"-->
+        <!--            :src="incomingCallMainBack"-->
+        <!--        />-->
         <view class="z_index_999">
             <view class="header_panel">
-                <image
-                    class="right_icon"
-                    :src="incomingCallMainReduce"
-                    @click="onSmaller"
-                />
+                <!--                <image-->
+                <!--                    class="right_icon"-->
+                <!--                    :src="incomingCallMainReduce"-->
+                <!--                    @click="onSmaller"-->
+                <!--                />-->
                 <template v-if="storeIsIncomingCallIng">
                     <text class="fz-32 text-inverse">
                         {{ timeText }}
@@ -25,16 +29,30 @@
                 </template>
             </view>
 
-            <view class="avatar_panel">
-                <MyAvatar
-                    :src="faceURL"
-                    :desc="nickname"
-                    size="184rpx"
-                />
-                <text class="fz-42 text-inverse mt-30">
-                    {{ nickname }}
-                </text>
-            </view>
+            <template v-if="storeIsVideoCall">
+                <view class="avatar_panel avatar_video_panel">
+                    <MyAvatar
+                        :src="faceURL"
+                        :desc="nickname"
+                        size="140rpx"
+                    />
+                    <text class="fz-42 text-inverse mt-14">
+                        {{ nickname }}
+                    </text>
+                </view>
+            </template>
+            <template v-else>
+                <view class="avatar_panel">
+                    <MyAvatar
+                        :src="faceURL"
+                        :desc="nickname"
+                        size="184rpx"
+                    />
+                    <text class="fz-42 text-inverse mt-30">
+                        {{ nickname }}
+                    </text>
+                </view>
+            </template>
 
             <view class="tips_text">
                 {{ tipsText }}
@@ -42,7 +60,7 @@
 
             <view class="btn_nav">
                 <view class="mb-66">
-                    <HandleBtn />
+                    <HandleBtn @onHandle="onHandle" />
                 </view>
                 <AnswerBtn
                     :animate-fade-out.sync="animateFadeOut"
@@ -91,7 +109,8 @@ export default {
             'storeIncomingCallCatchUser', 
             'storeIncomingCallThrowUser', 
             'storeIsIncomingCallIng', 
-            'storeIsIncomingCallMain'
+            'storeIsIncomingCallMain',
+            'storeIsVideoCall'
         ]),
 
         shouldShow () {
@@ -172,11 +191,15 @@ export default {
                 this.style = {};
             }, 500);
         },
+        onHandle ({key, value}) {
+            this.$emit('onHandle', {key, value});
+        },
         onDanger () {
             this.$emit('onDanger');
         },
         onSuccess () {
-            this.$emit('onDanger');
+            this.$store.dispatch('incomingCall/onCatchCall');
+            this.$emit('onSuccess');
         },
     }
 };
@@ -222,12 +245,17 @@ export default {
   width: 44rpx;
   height: 44rpx;
 }
+
 .avatar_panel {
   margin-top: 15vh;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+}
+
+.avatar_video_panel {
+  margin-top: 12vh;
 }
 
 .tips_text {

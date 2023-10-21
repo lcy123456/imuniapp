@@ -19,10 +19,10 @@ export default {
     },
     methods: {
         onDanger () {
-            console.log('拒绝电话');
+            console.log('拒绝电话  Page/index.vue');
         },
         onSuccess () {
-            console.log('接通电话');
+            console.log('接通电话 Page/index.vue');
         },
     }
 };
