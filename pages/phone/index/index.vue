@@ -59,29 +59,30 @@ import {
     RemoteParticipant,
     RemoteTrack,
     RemoteTrackPublication,
-    RemoteAudioTrack,
     Room,
     RoomEvent,
 } from 'livekit-client';
-
 export default {
     data () {
         return {
-            room: null,
-            renderWSURL: '',
-            renderToken: '',
-        };
+            device: '',
+            trackList: [],
+            systemInfo: uni.getSystemInfoSync(),
+            room: null
+        }
     },
     methods: {
         onChangeWSURL(newValue, oldValue, ownerVm, vm) {
           this.renderWSURL = newValue
         },
+
         onChangeToken(newValue, oldValue, ownerVm, vm) {
           this.renderToken = newValue
           if(!this.renderToken) return
 
-          this.onJoinRoom()
+          this.testOpenRoom()
         },
+
         onChangeHandleAttr(newValue, oldValue, ownerVm, vm) {
           // isActiveMic: false, // 麦克风
           // isActiveSpeak: false, // 扬声器
@@ -95,115 +96,129 @@ export default {
 
           const keys = Object.keys(newValue)
           if(isActiveMic != isActiveMicOld)
-            this.setLocalTrackMicrophone(isActiveMic)
+            this.toggleAudio()
           else if(isActiveSpeak != isActiveSpeakOld)
-            this.setVolume()
+            console.log('扬声器===待实现===')
           else if(isActiveCam != isActiveCamOld)
-            console.log()
+            this.toggleVideo()
           else if(isActiveOverturn != isActiveOverturnOld)
-          this.onSwitchActiveDevice(isActiveCam)
+            this.toggleVideoInput()
         },
 
-        // 麦克风
-        setLocalTrackMicrophone(shouldOpen){
-            const local_participant = this.room.localParticipant;
-            console.log('setLocalTrackMicrophone()===', local_participant)
-            if(shouldOpen){
-              local_participant.setMicrophoneEnabled(true)
+        getDom (id) {
+            return document.getElementById(id);
+        },
+        setDomAttr (map) {
+            const { width = `${this.systemInfo.windowWidth}px`, height = `${this.systemInfo.windowHeight}px`, id, dom } = map;
+            dom.id = id;
+            dom.style.width = width;
+            dom.style.height = height;
+        },
+        updateData () {
+            this.testOpenRoom();
+        },
+        async toggleAudio () {
+            if (!this.room) return;
+            const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
+            await this.room?.localParticipant?.setMicrophoneEnabled(!enabled);
+        },
+
+        async toggleVideo () {
+            if (!this.room) return;
+            const enabled = this.room?.localParticipant.isCameraEnabled;
+            await this.room?.localParticipant.setCameraEnabled(!enabled);
+        },
+
+        async toggleVideoInput () {
+            const devices = await Room.getLocalDevices('videoinput');
+            if (this.device === '') {
+                this.device = devices[1];
             } else {
-              local_participant.setMicrophoneEnabled(false)
+                const otherDevices = devices.filter(item => item.deviceId !== this.device.deviceId);
+                this.device = otherDevices[0];
             }
-        },
-
-        // 扬声器
-        setVolume(has) {
-          // console.log('setVolume()====', RemoteAudioTrack)
-          // const volumeNum = RemoteAudioTrack.getVolume()
-        },
-
-        // 翻转摄像头
-        async onSwitchActiveDevice(has) {
-
-        },
-        onJoinRoom() {
-          // 传递参数给普通js
-          // ownerVm.callMethod('onSuccess', 123)
-
-          console.log('renderjs   onJoinRoom  准备加入房间')
-          this.testOpenRoom()
+            this.device && await this.room.switchActiveDevice('videoinput', this.device.deviceId);
         },
         async testOpenRoom () {
             const wsURL = `ws://192.168.2.20:7880`;
-            const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
+            const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMDM2NDIsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5NzcxMTY0Miwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTEiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0._-3jkKTw-wBFJVI6BCN2bBdbEQKujeUwHVazttNCNCE`;
             this.room = new Room();
             this.trackList = [];
             try {
                 await this.room.connect(wsURL, token);
                 console.log('connected to room----', this.room.name);
                 const p = this.room.localParticipant;
+                // await p.enableCameraAndMicrophone();
+                const myBoxDom = this.getDom('my-box');
+                const otherDom = this.getDom('other-box');
+                this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
+                    this.removeElment({
+                        participant,
+                        parentDom: otherDom
+                    });
+                });
+                this.room?.participants?.forEach(participant => {
+                    participant?.tracks?.forEach(track => {
+                        this.addElement({
+                            participant,
+                            track: track.track,
+                            parentDom: otherDom
+                        });
+                    });
+                });
+                this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    this.addElement({
+                        parentDom: otherDom,
+                        track,
+                        participant
+                    });
+                })
                 await p.setCameraEnabled(true);
                 await p.setMicrophoneEnabled(true);
-                await p.enableCameraAndMicrophone();
                 const cameraTrack = p.getTrack(RemoteTrack.Source.Camera);
                 const myVideo = cameraTrack?.track?.attach();
-                // incomingCallMainMeVideo标签定义在IncomingCall/IncomingCallMain.vue
-                const myVideoDiv = document.getElementById('incomingCallMainMeVideo');
-                const videoDiv = document.getElementById('video');
-                this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-                    const { identity } = participant;
-                    const element = track.attach();
-                    const type = `${identity}-${track.kind}`;
-                    console.log(this.trackList, 'trackListtrackListtrackListtrackListtrackListtrackListtrackList----');
-                    if (this.trackList.includes(type)) {
-                        const dom = document.getElementById(type);
-                        console.log(dom, '要删除的dom');
-                        videoDiv.removeChild(dom);
-                    }
-                    element.style.width = "300px";
-                    element.style.height = "300px";
-                    element.id = type;
-                    videoDiv.appendChild(element);
-                    this.trackList.push(type);
-                    console.log(track, 'tracktracktrack');
-                    console.log('tracktracktrack', participant);
-                    console.log(publication);
-                })
-                if (!myVideoDiv.children[0]) {
-                    // myVideo.style.width = "300px";
-                    // myVideo.style.height = "300px";
-                    myVideo.id = 'myVideo';
-                    myVideoDiv.appendChild(myVideo);
+                if (!myBoxDom.children[0]) {
+                    // this.setDomAttr({
+                    //     dom: myVideo,
+                    //     id: 'myVideo'
+                    // })
+                    myVideo.id = 'myVideo'
+                    myBoxDom.appendChild(myVideo);
                 }
             } catch (err) {
                 console.log('fail -----connected to room----', err);
-                setTimeout(async () => {
-                    await this.room.connect(wsURL, token);
-                }, 1000);
             }
-            // console.log(uni.createVideoContext('screenshare-video'), 'tracktracktrack');
-            // window.console.log(videoElement, 'elementelement');
-            // videoelm.appendChild(element);
-            // console.log(RemoteTrack.Source, '=======');
-            // const screenSharePub = p.getTrack(RemoteTrack.Source.ScreenShare);
-            // console.log(screenSharePub, '====999===');
-            // screenSharePub.videoTrack?.attach(videoelm);
-            // this.room.on(RoomEvent.AudioPlaybackStatusChanged, () => {
-            // console.log(this.room.canPlaybackAudio, 'this.room.canPlaybackAudiothis.room.canPlaybackAudio');
-            // console.log(button, 'this.room.canPlaybackAudiothis.room.canPlaybackAudio');
-            // this.room.startAudio();
-            // if (!this.room.canPlaybackAudio) {
-            //     button.onclick = () => {
-            //         // startAudio *must* be called in an click/tap handler.
-            //         this.room.startAudio().then(() => {
-            //             // successful, UI can be removed now
-            //             button.remove();
-            //         });
-            //     }
-            // }
-            // });
         },
+        addElement ({ parentDom, track, participant}) {
+            const { identity } = participant;
+            const element = track.attach();
+            const type = `${identity}-${track.kind}`;
+            if (this.trackList.includes(type)) {
+                const dom = this.getDom(type);
+                parentDom.removeChild(dom);
+            }
+            this.setDomAttr({
+                dom: element,
+                id: type
+            })
+            parentDom.appendChild(element);
+            this.trackList.push(type);
+        },
+        removeElment ({parentDom, participant}) {
+            const { identity } = participant;
+            const video = this.getDom(`${identity}-video`);
+            const audio = this.getDom(`${identity}-audio`);
+            this.trackList = this.trackList.filter(item => ![`${identity}-video`, `${identity}-audio`].includes(item));
+            parentDom.removeChild(video);
+            parentDom.removeChild(audio);
+        },
+        beforeDestroy () {
+            this.room && this.room.disconnect();
+            this.myVideo = null;
+            this.trackList = [];
+        }
     }
-};
+}
 </script>
 
 <style lang="scss" scoped></style>

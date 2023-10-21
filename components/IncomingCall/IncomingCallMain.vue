@@ -1,6 +1,6 @@
 <template>
     <view
-        v-if="shouldShow"
+        v-show="shouldShow"
         :class="['incoming_call_main animate__animated',
                  animateFadeIn && 'animate__fadeIn',
                  animateFadeOut && 'animate__fadeOut'
@@ -8,20 +8,21 @@
         :style="style"
     >
         <view
-            id="incomingCallMainMeVideo"
+            id="my-box"
             class="page_back_img"
         />
-        <!--        <image-->
-        <!--            class="page_back_img"-->
-        <!--            :src="incomingCallMainBack"-->
-        <!--        />-->
+        <image
+            class="page_back_img"
+            style="z-index: 997"
+            :src="incomingCallMainBack"
+        />
         <view class="z_index_999">
             <view class="header_panel">
-                <!--                <image-->
-                <!--                    class="right_icon"-->
-                <!--                    :src="incomingCallMainReduce"-->
-                <!--                    @click="onSmaller"-->
-                <!--                />-->
+                <image
+                    class="right_icon"
+                    :src="incomingCallMainReduce"
+                    @click="onSmaller"
+                />
                 <template v-if="storeIsIncomingCallIng">
                     <text class="fz-32 text-inverse">
                         {{ timeText }}
@@ -136,6 +137,10 @@ export default {
         shouldShow (val) {
             if (val) {
                 this.animateFadeIn = true;
+                // 还原偏移位置
+                this.style = {
+                    transform: 'none'
+                };
             }
         },
         storeIsIncomingCallIng (val) {
@@ -187,8 +192,6 @@ export default {
                 // 延时等待动画执行完毕
                 store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', false);
                 store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', true);
-                // 清除向左上角偏移，避免下次不生效
-                this.style = {};
             }, 500);
         },
         onHandle ({key, value}) {
@@ -226,6 +229,8 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
   z-index: 998;
