@@ -91,6 +91,7 @@ export default {
     storeIsIncomingCallMain: (state) => state.incomingCall.isIncomingCallMain,
     storeIsIncomingCallSmall: (state) => state.incomingCall.isIncomingCallSmall,
     storeIsIncomingCallIng: (state) => state.incomingCall.isIncomingCallIng,
+    storeIncomingCallCallTime: (state) => state.incomingCall.callTime,
     storeIsVideoCall: (state) => state.incomingCall.isVideoCall,
     storeHandleAttr: (state) => state.incomingCall.handleAttr,
 };

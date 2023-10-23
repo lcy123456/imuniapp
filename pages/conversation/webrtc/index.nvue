@@ -1,6 +1,7 @@
 <template>
     <view>
         <web-view
+            ref="webviewRef"
             @onPostMessage="handlePostMessage"
             :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
             :src="src"
@@ -13,12 +14,15 @@ import { mapGetters, mapActions } from "vuex";
 export default {
     data () {
         return {
+            time: '',
+            updateKey: '',
             systemInfo: uni.getSystemInfoSync()
         }
     },
     computed: {
         ...mapGetters([
-            "storeIsVideoCall"
+            "storeIsVideoCall",
+            "storeIncomingCallCallTime"
         ]),
         src () {
             return `/hybrid/html/chat.html?type=${this.storeIsVideoCall ? 'video' : 'audio'}`;
@@ -32,6 +36,10 @@ export default {
         console.log('onReady-onReady');
     },
     onShow () {
+        if (this.time !== this.storeIncomingCallCallTime) {
+            this.$refs.webviewRef.evalJs(`uniEvent(${JSON.stringify({})})`);
+        }
+        this.time = this.storeIncomingCallCallTime;
         console.log('onShow');
     },
     onUnload () {

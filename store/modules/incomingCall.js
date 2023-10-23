@@ -1,8 +1,11 @@
+import conversation from './conversation';
 const state = {
     incomingCallWSURL: '',
     incomingCallTOKEN: 'testTokenxxxxxxxx',
     incomingCallCatch: false, // 等待接电话，拒绝/接听
     incomingCallThrow: false, // 主动拨打电话
+    conversationID: '',
+    callTime: '',
     incomingCallCatchUser: {
         nickname: '好上头接电话'
     }, // 接电话用户
@@ -14,7 +17,7 @@ const state = {
     isIncomingCallMain: false, // 全屏通话
     isIncomingCallSmall: false, // 悬浮缩小
     isIncomingCallIng: false, // 通话中,
-
+    
 
     handleAttr: {
         isActiveMic: true, // 麦克风
@@ -61,6 +64,12 @@ const mutations = {
     SET_ON_HANDLE_ATTR (state, {key, value}) {
         state.handleAttr[key] = value;
     },
+    SET_CALL_CONVERSATIONID (state, value) {
+        state.conversationID = value;
+    },
+    SET_CALL_TIME (state, value) {
+        state.callTime = value;
+    }
 };
 
 const actions = {
@@ -76,17 +85,9 @@ const actions = {
         commit
     }, isVideoCall) {
         try {
-            // const data = await pinList({
-            //     conversationID,
-            //     pagination: {
-            //         pageNumber: 1,
-            //         showNumber: 200
-            //     }
-            // });
-            // console.log(data.list, 'pinListpinListpinListpinList', conversationID);
-            const wsurl = '123';
             const token = '321';
-            commit('SET_INCOMING_CALL_WSURL', wsurl);
+            commit('SET_CALL_CONVERSATIONID', conversation.state.currentConversation.conversationID);
+            commit('SET_CALL_TIME', +new Date());
             commit('SET_INCOMING_CALL_TOKEN', token);
             commit('SET_IS_VIDEO_CALL', isVideoCall);
             commit('SET_INCOMING_CALL_THROW', true);
