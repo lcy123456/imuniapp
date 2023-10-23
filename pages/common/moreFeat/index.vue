@@ -216,7 +216,8 @@ export default {
                 console.log('conversationIDconversationIDconversationIDconversationID', conversationID, time, this.sessionType, this.sourceID);
                 await IMSDK.asyncApi(IMMethods.SetConversationPrivateChat, IMSDK.uuid(), {
                     conversationID,
-                    isPrivate: time !== 'stop'
+                    isPrivate: time !== 'stop',
+                    ex: this.storeSelfInfo.nickname
                 });
                 const data = await IMSDK.asyncApi(IMMethods.SetConversationBurnDuration, IMSDK.uuid(), {
                     conversationID,

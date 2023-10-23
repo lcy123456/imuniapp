@@ -259,6 +259,7 @@ export default {
                     EncryptoAES(text)
                 );
             }
+            console.log(message, '-----messagemessagemessagemessagemessagemessage');
             return message;
         },
         async sendTextMessage () {

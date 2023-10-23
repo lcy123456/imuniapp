@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+        <script type="text/javascript" src="https://unpkg.com/@dcloudio/uni-webview-js@0.0.1/index.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+        <script src="./chat.js"></script>
+	</head>
+	
+	<style type="text/css">
+		* {
+            padding: 0;
+            margin: 0;
+        }
+        .chat-main-css {
+        }
+        .video-box {
+        }
+        .big-video {
+            position: fixed;
+            top: 0!important;
+            left: 50%!important;
+            transform: translate(-50%)!important;
+            z-index: 1;
+        }
+        .small-video {
+            position: fixed;
+            top: 100px!important;
+            right: 50px!important;
+            width: 40%!important;
+            height: auto!important;
+            z-index: 2;
+        }
+        audio {
+            position: fixed;
+            z-index: -1!important;
+        }
+	</style>
+	
+	<body>
+		<div class="chat-main-css">
+            <div
+                id="other-box"
+                class="video-box other"
+            ></div>
+            <div
+                id="my-box"
+                class="video-box my"
+            ></div>
+        </div>
+	</body>
+</html>
+

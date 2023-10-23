@@ -1,0 +1,38 @@
+<template>
+    <view>
+        <web-view :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}" :src="'../../../hybrid/html/chat.html'" />
+    </view>
+</template>
+
+<script>
+export default {
+    data () {
+        return {
+            systemInfo: uni.getSystemInfoSync()
+        }
+    },
+    onLoad () {
+        console.log('onLoad-onLoad');
+    },
+    onBackPress () {
+        return true;
+    },
+    onReady () {
+        console.log('onReady-onReady');
+        uni.preloadPage({url: "/pages/conversation/webrtc/index"});
+    },
+    onShow () {
+        console.log('onShow');
+    },
+    onUnload () {
+        console.log('onUnloadonUnload');
+    },
+    onHide () {
+        console.log('onHideonHideonHide');
+    }
+}
+</script>
+
+<style>
+
+</style>

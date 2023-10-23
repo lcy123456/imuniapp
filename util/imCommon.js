@@ -44,6 +44,23 @@ dayjs.updateLocale("zh-cn", {
     },
 });
 
+const timeMap = {
+    86400: `一天`,
+    604800: `一周`,
+    2592000: `一个月`,
+    5184000: `二个月`,
+    7776000: `三个月`,
+    10368000: `四个月`,
+    12960000: `五个月`,
+    15552000: `六个月`,
+    18144000: `七个月`,
+    20736000: `八个月`,
+    23328000: `九个月`,
+    25920000: `十个月`,
+    28512000: `十一个月`,
+    31104000: `十二个月`
+};
+
 const nomalTypes = [GroupAtType.AtAll, GroupAtType.AtAllAtMe, GroupAtType.AtMe];
 
 export const conversationSort = (conversationList) => {
@@ -302,7 +319,9 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
         return customNoti.text;
     case MessageType.BurnMessageChange:
         const burnDetails = JSON.parse(pmsg.notificationElem.detail);
-        return `${burnDetails.sendID === store.getters.storeCurrentUserID ? '你' : '对方'}设置阅后即焚已${burnDetails.isPrivate ? "开启" : "关闭"}`;
+        const name = `${burnDetails.revokerID === store.getters.storeCurrentUserID ? '你' : burnDetails.revokerNickname}`;
+        console.log(burnDetails, 'burnDetailsburnDetailsburnDetailsburnDetailsburnDetailsburnDetails');
+        return burnDetails.revokerRole ? `${name}已设置自动删除${timeMap[burnDetails.revokeTime]}前发送的消息` : `${name}已停用自动删除消息`;
     default:
         return "";
     }
@@ -454,7 +473,9 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
         }`;
     case MessageType.BurnMessageChange:
         const burnDetails = JSON.parse(msg.notificationElem.detail);
-        return `${burnDetails.sendID === store.getters.storeCurrentUserID ? '你' : '对方'}设置阅后即焚已${burnDetails.isPrivate ? "开启" : "关闭"}`;
+        const name = `${burnDetails.revokerID === store.getters.storeCurrentUserID ? '你' : burnDetails.revokerNickname}`;
+        console.log(burnDetails, 'burnDetailsburnDetailsburnDetailsburnDetailsburnDetailsburnDetails');
+        return burnDetails.revokerRole ? `${name}已设置自动删除${timeMap[burnDetails.revokeTime]}前发送的消息` : `${name}已停用自动删除消息`;
     case MessageType.OANotification:
         const customNoti = JSON.parse(msg.notificationElem.detail);
         return customNoti.text;

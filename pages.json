@@ -12,6 +12,12 @@
 		{
 			"path": "pages/phone/index/index"
 		},
+		{
+			"path": "pages/conversation/webrtc/index",
+            "style" : {
+                "popGesture": "none"  
+            }
+		},
         {
             "path": "pages/profile/index/index"
         },
