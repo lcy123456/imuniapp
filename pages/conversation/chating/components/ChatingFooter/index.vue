@@ -494,7 +494,7 @@ export default {
         },
         async goWebrtc (type) {
             console.log('goWebrtc----goWebrtc');
-            await this.onThrowCall(type === 'video');
+            await this.onThrowCall(type);
             uni.navigateTo({url: `/pages/conversation/webrtc/index`});
         },
         chooseOrShotImage (sourceType) {

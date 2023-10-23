@@ -147,7 +147,7 @@ export default {
         openPhone () {
             store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', false);
             uni.navigateTo({
-              url: '/pages/conversation/webrtc/index',
+                url: '/pages/conversation/webrtc/index',
             });
         }
     }

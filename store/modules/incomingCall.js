@@ -57,6 +57,12 @@ const mutations = {
     SET_ON_HANDLE_ATTR (state, {key, value}) {
         state.handleAttr[key] = value;
     },
+    SET_CALL_CONVERSATIONID (state, value) {
+        state.conversationID = value;
+    },
+    SET_CALL_TIME (state, value) {
+        state.callTime = value;
+    }
 };
 
 const actions = {
@@ -86,6 +92,8 @@ const actions = {
             commit('SET_INCOMING_CALL_TOKEN', token);
             commit('SET_CALL_TYPE', callType);
             commit('SET_IS_CALL_OR_ANSWER', true);
+            commit('SET_CALL_CONVERSATIONID', conversation.state.currentConversation.conversationID);
+            commit('SET_CALL_TIME', +new Date());
         } catch (e) {
             console.log(e, '拨打电话失败');
         }
