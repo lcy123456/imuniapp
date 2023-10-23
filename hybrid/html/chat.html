@@ -218,6 +218,10 @@
                             <image class="handle_icon" :src="micImage"></image>
                             <p class="mt-10 fz-14 text-inverse">{{ micText }}</p>
                         </div>
+                        <div class="handle_cell">
+                            <image class="handle_icon" :src="speakImage"></image>
+                            <p class="mt-10 fz-14 text-inverse">{{ speakText }}</p>
+                        </div>
                         <div class="handle_cell" @click="toggleVideo">
                             <image class="handle_icon" :src="camImage"></image>
                             <p class="mt-10 fz-14 text-inverse">{{ camText }}</p>
@@ -270,6 +274,8 @@
                     micText: '麦克风已关',
                     camImage: 'images/incoming_call_handle_cam_2.png',
                     camText: '摄像头已关',
+                    speakImage: 'images/incoming_call_handle_speak_2.png',
+                    speakText: '扬声器已关'
                 },
                 computed: {
                 },
@@ -441,6 +447,11 @@
                         parentDom.removeChild(audio);
                     },
                     back () {
+                        uni.postMessage({
+                            data: {
+                                isSmall: true
+                            }
+                        });
                         uni.navigateBack();
                     },
                     close () {

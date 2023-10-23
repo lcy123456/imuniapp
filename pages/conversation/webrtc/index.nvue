@@ -11,6 +11,8 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+const { store } = getApp().globalData;
+
 export default {
     data () {
         return {
@@ -21,11 +23,11 @@ export default {
     },
     computed: {
         ...mapGetters([
-            "storeIsVideoCall",
+            "storeCallType",
             "storeIncomingCallCallTime"
         ]),
         src () {
-            return `/hybrid/html/chat.html?type=${this.storeIsVideoCall ? 'video' : 'audio'}`;
+            return `/hybrid/html/chat.html?type=${this.storeCallType}`;
         }
     },
     onLoad () {
@@ -49,9 +51,21 @@ export default {
         console.log('onHideonHideonHide');
     },
     methods: {
-        handlePostMessage (data) {
-            const d = data.detail;
-            console.log(d);
+        handlePostMessage (event) {
+            console.log('handlePostMessage()===', event)
+            const [data] = event.detail.data
+            if(data.isSmall) {
+                // 缩小
+                store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', true);
+            }
+            if(data.isDanger) {
+                // 挂断
+                // store.commit('incomingCall/onDangerCall');
+            }
+            if(data.isSuccess) {
+                // 接听
+
+            }
         }
     }
 }

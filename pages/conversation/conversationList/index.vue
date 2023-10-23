@@ -1,46 +1,47 @@
 <template>
-    <view
-        class="conversation_container"
-        @click="closeAllSwipe"
-    >
-        <chat-header ref="chatHeaderRef" />
+    <Page>
         <view
-            class="px-20 pb-20 pt-10 bg-grey"
-            @click="handleToSearch"
+            class="conversation_container"
+            @click="closeAllSwipe"
         >
-            <uni-search-bar
-                v-model="keyword"
-                bg-color="#fff"
-                class="h-70"
-                placeholder="搜索"
-                readonly
-            />
-        </view>
-        <!-- v-if="!storeIsSyncing" -->
-        <z-paging
-            ref="paging"
-            :fixed="false"
-            :auto="false"
-            default-page-size="20"
-            :show-loading-more-no-more-view="false"
-            :refresher-enabled="!storeIsSyncing"
-            @query="queryList"
-            @refresherTouchmove="refresherTouchmove"
-            @refresherTouchend="refresherTouchend"
-        >
-            <u-swipe-action
-                ref="swipeWrapperRef"
-                class="swipe_wrapper"
+            <chat-header ref="chatHeaderRef" />
+            <view
+                class="px-20 pb-20 pt-10 bg-grey"
+                @click="handleToSearch"
             >
-                <ConversationItem
-                    v-for="item in showConversationList"
-                    :key="item.conversationID"
-                    :source="item"
-                    :is-disabled="isDisabledSwipe"
-                    @closeAllSwipe="closeAllSwipe"
+                <uni-search-bar
+                    v-model="keyword"
+                    bg-color="#fff"
+                    class="h-70"
+                    placeholder="搜索"
+                    readonly
                 />
-            </u-swipe-action>
-        </z-paging>
+            </view>
+            <!-- v-if="!storeIsSyncing" -->
+            <z-paging
+                ref="paging"
+                :fixed="false"
+                :auto="false"
+                default-page-size="20"
+                :show-loading-more-no-more-view="false"
+                :refresher-enabled="!storeIsSyncing"
+                @query="queryList"
+                @refresherTouchmove="refresherTouchmove"
+                @refresherTouchend="refresherTouchend"
+            >
+                <u-swipe-action
+                    ref="swipeWrapperRef"
+                    class="swipe_wrapper"
+                >
+                    <ConversationItem
+                        v-for="item in showConversationList"
+                        :key="item.conversationID"
+                        :source="item"
+                        :is-disabled="isDisabledSwipe"
+                        @closeAllSwipe="closeAllSwipe"
+                    />
+                </u-swipe-action>
+            </z-paging>
 
         <!-- <view
             v-else
@@ -48,7 +49,8 @@
         >
             <u-loading-icon text="同步中" />
         </view> -->
-    </view>
+        </view>
+    </Page>
 </template>
 
 <script>

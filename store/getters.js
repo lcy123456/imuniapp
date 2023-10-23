@@ -89,6 +89,7 @@ export default {
     storeIsIncomingCallTop: (state) => state.incomingCall.isIncomingCallTop,
     storeIsIncomingCallSmall: (state) => state.incomingCall.isIncomingCallSmall,
     storeIsIncomingCallIng: (state) => state.incomingCall.isIncomingCallIng,
+    storeCallType: (state) => state.incomingCall.callType,
     storeIncomingCallCallTime: (state) => state.incomingCall.callTime,
     storeHandleAttr: (state) => state.incomingCall.handleAttr,
 };
