@@ -22,20 +22,31 @@
         }
         .video-box {
         }
-        .big-video {
+        .video-box.my .video-box {
             position: fixed;
             top: 0!important;
             left: 50%!important;
-            transform: translate(-50%)!important;
+            transform: translateX(-50%)!important;
             z-index: 1;
         }
-        .small-video {
+        .video-box.my .video-box .video {
+        }
+        .video-box.other .video-box {
             position: fixed;
-            top: 100px!important;
-            right: 50px!important;
+            top: 50px!important;
+            right: 20px!important;
             width: 40%!important;
-            height: auto!important;
+            height: 30%!important;
+            overflow: hidden;
             z-index: 2;
+        }
+        .video-box.other .video {
+            width: auto!important;
+            height: 100%!important;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
         }
         audio {
             position: fixed;
@@ -195,10 +206,12 @@
                 <div
                     id="other-box"
                     class="video-box other"
+                    @click="changeBox('other')"
                 ></div>
                 <div
                     id="my-box"
                     class="video-box my"
+                    @click="changeBox('my')"
                 ></div>
             </div>
 
@@ -280,7 +293,7 @@
                 computed: {
                 },
                 mounted () {
-                    // this.init();
+                    this.init();
                 },
                 methods: {
                     init (data) {
@@ -350,7 +363,7 @@
                     },
                     async openRoom () {
                         const wsURL = `ws://192.168.2.20:7880`;
-                        const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMDM2NDIsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5NzcxMTY0Miwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTEiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0._-3jkKTw-wBFJVI6BCN2bBdbEQKujeUwHVazttNCNCE`;
+                        const token = localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMDM2NDIsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5NzcxMTY0Miwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTEiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0._-3jkKTw-wBFJVI6BCN2bBdbEQKujeUwHVazttNCNCE`;
                         this.room = new Room();
                         this.trackList = [];
                         try {
@@ -401,7 +414,7 @@
                     },
                     // 添加自己
                     async addSelf (type) {
-                        const myVideoDom = document.getElementById('myVideo');
+                        const myVideoDom = this.getDom('myVideo');
                         if (myVideoDom) return;
                         const myBoxDom = this.getDom('my-box');
                         const p = this.room.localParticipant;
@@ -411,12 +424,19 @@
                             const cameraTrack = p.getTrack(RemoteTrack.Source.Camera);
                             const myVideo = cameraTrack?.track?.attach();
                             if (myVideo) {
+                                const div = document.createElement('div');
+                                this.setDomAttr({
+                                    dom: div,
+                                    id: 'myVideo',
+                                    className: 'video-box'
+                                });
                                 this.setDomAttr({
                                     dom: myVideo,
-                                    id: 'myVideo',
-                                    className: 'big-video'
+                                    id: '',
+                                    className: 'video'
                                 });
-                                myBoxDom.appendChild(myVideo);
+                                div.appendChild(myVideo);
+                                myBoxDom.appendChild(div);
                             }
                         } catch (err) {
                             console.log('video，麦克风拒绝');
@@ -434,13 +454,33 @@
                             const dom = this.getDom(type);
                             parentDom.removeChild(dom);
                         }
+                        const div = document.createElement('div');
+                        this.setDomAttr({
+                            dom: div,
+                            id: type,
+                            className: 'video-box'
+                        });
                         this.setDomAttr({
                             dom: element,
                             id: type,
-                            className: 'small-video'
+                            className: 'video'
                         });
-                        parentDom.appendChild(element);
+                        div.appendChild(element);
+                        parentDom.appendChild(div);
                         this.trackList.push(type);
+                    },
+                    changeBox (type) {
+                        console.log('换');
+                        const otherDom = this.getDom('other-box');
+                        const myBoxDom = this.getDom('my-box');
+                        if (type === 'other' && otherDom.className === `video-box other`) {
+                            otherDom.className = `video-box my`;
+                            myBoxDom.className = `video-box other`;
+                        }
+                        if (type === 'my' && otherDom.className === `video-box my`) {
+                            otherDom.className = `video-box other`;
+                            myBoxDom.className = `video-box my`;
+                        }
                     },
                     removeElment ({parentDom, participant}) {
                         const { identity } = participant;
