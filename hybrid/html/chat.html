@@ -230,7 +230,7 @@
                     <div :class="['answer_panel', isShowCall ? '' : 'flex-center']">
                         <button
                             class="danger_btn"
-                            @click="disconnect"
+                            @click="goOut"
                         >
                             <image src="images/incoming_call_icon.png" class="call_icon" />
                         </button>
@@ -280,12 +280,17 @@
                 computed: {
                 },
                 mounted () {
-                    this.init();
+                    // this.init();
                 },
                 methods: {
-                    init () {
-                        this.close();
-                        this.type = this.getLocationKeyValue('type');
+                    init (data) {
+                        if (data) {
+                            for (let k in data) {
+                                this.$set(this, k, data[k]);
+                            }
+                        }
+                        this.disconnect();
+                        // this.type = this.getLocationKeyValue('type');
                         this.openRoom();
                     },
                     getLocationKeyValue (key) {
@@ -412,7 +417,6 @@
                                     className: 'big-video'
                                 });
                                 myBoxDom.appendChild(myVideo);
-
                             }
                         } catch (err) {
                             console.log('video，麦克风拒绝');
@@ -454,7 +458,7 @@
                         });
                         uni.navigateBack();
                     },
-                    close () {
+                    disconnect () {
                         const otherDom = this.getDom('other-box');
                         const myBoxDom = this.getDom('my-box');
                         otherDom.innerHTML = '';
@@ -463,19 +467,18 @@
                         this.trackList = [];
                         this.room && this.room.disconnect();
                     },
-                    disconnect () {
-                        this.close();
+                    goOut () {
+                        this.disconnect();
                         uni.navigateBack();
                     }
                 },
                 beforeDestroy () {
                     this.room && this.room.disconnect();
-                    this.myVideo = null;
                     this.trackList = [];
                 }
             })
-            function uniEvent () {
-                app.init();
+            function uniEvent (res) {
+                app.init(res);
             }
         </script>
 	</body>

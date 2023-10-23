@@ -492,9 +492,9 @@ export default {
                 }
             }
         },
-        goWebrtc (type) {
+        async goWebrtc (type) {
             console.log('goWebrtc----goWebrtc');
-            this.onThrowCall(type === 'video');
+            await this.onThrowCall(type === 'video');
             uni.navigateTo({url: `/pages/conversation/webrtc/index`});
         },
         chooseOrShotImage (sourceType) {
