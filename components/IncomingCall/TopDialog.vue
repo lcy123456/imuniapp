@@ -7,7 +7,7 @@
     >
         <view
             class="flex align-center ml-40"
-            @click="openMain"
+            @click="openPhone"
         >
             <MyAvatar
                 :src="faceURL"
@@ -67,19 +67,19 @@ export default {
     computed: {
         ...mapGetters([
             'storeIsIncomingCallTop',
-            'storeIncomingCallCatch',
-            'storeIncomingCallThrowUser',
+            'storeIsCallOrAnswer',
+            'storeIncomingCallThrowUser'
         ]),
         shouldShow () {
             return this.storeIsIncomingCallTop;
         },
         faceURL () {
             const {faceURL: throwUser} = this.storeIncomingCallThrowUser;
-            return this.storeIncomingCallCatch ? throwUser : '';
+            return this.storeIsCallOrAnswer ? throwUser : '';
         },
         nickname () {
             const {nickname: throwUser} = this.storeIncomingCallThrowUser;
-            return this.storeIncomingCallCatch ? throwUser : '';
+            return this.storeIsCallOrAnswer ? throwUser : '';
         },
     },
     created () {
@@ -118,20 +118,24 @@ export default {
 
             this.stopMusic();
         },
-        openMain () {
+        openPhone () {
             this.visibleHandle();
-            store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
+            uni.navigateTo({
+                url: '/pages/conversation/webrtc/index',
+            });
         },
         dangerClick () {
             this.visibleHandle();
-            store.commit('incomingCall/SET_INCOMING_CALL_CATCH', false);
             this.$emit('onDanger');
         },
         successClick () {
             this.visibleHandle();
-            store.commit('incomingCall/SET_IS_INCOMING_CALL_ING', true);
-            store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', true);
-            store.commit('incomingCall/SET_INCOMING_CALL_CATCH', false);
+            store.commit('SET_IS_INCOMING_CALL_ING', true);
+            store.commit('SET_IS_INCOMING_CALL_SMALL', false);
+            store.commit('incomingCall/SET_IS_CALL_OR_ANSWER', false);
+            uni.navigateTo({
+                url: '/pages/conversation/webrtc/index',
+            });
             this.$emit('onSuccess');
         },
     }

@@ -9,15 +9,19 @@ import config from "./common/config";
 import { getDbDir, toastWithCallback } from "@/util/common.js";
 import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes } from "@/constant";
+import store from "@/store";
 
 export default {
+    //nvue全局变量存储
+    globalData: {
+        store
+    },
     onLaunch: function () {
         this.$store.dispatch("user/getAppConfig");
         this.setGlobalIMlistener();
         this.tryLogin();
         this.handleAudioManager();
         this.handleUniPush();
-        // this.preloadPage();
         uni.preloadPage({url: "/pages/conversation/webrtc/index"});
     },
     onShow: function () {
@@ -537,9 +541,6 @@ export default {
             console.log('push', JSON.stringify(payload));
             if (!payload.conversationID) return;
             uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
-        },
-        preloadPage () {
-            uni.preloadPage({url: "/pages/phone/index/index"}); // 预加载 pages/phone/index/index 页面（仅触发onLoad，onReady)
         }
     },
 };

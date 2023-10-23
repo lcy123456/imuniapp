@@ -1,9 +1,8 @@
 import conversation from './conversation';
 const state = {
-    incomingCallWSURL: '',
+    incomingCallWSURL: 'testWSURL',
     incomingCallTOKEN: 'testTokenxxxxxxxx',
-    incomingCallCatch: false, // 等待接电话，拒绝/接听
-    incomingCallThrow: false, // 主动拨打电话
+    isCallOrAnswer: false, // true主动拨打  false等待接听
     conversationID: '',
     callTime: '',
     incomingCallCatchUser: {
@@ -12,12 +11,12 @@ const state = {
     incomingCallThrowUser: {
         nickname: '好上头打电话'
     }, // 拨打电话用户
+    callType: 'video', // video视频通话 audio语音通话
     isVideoCall: false, // true视频通话, false语音通话
     isIncomingCallTop: false, // 顶部弹出
-    isIncomingCallMain: false, // 全屏通话
     isIncomingCallSmall: false, // 悬浮缩小
-    isIncomingCallIng: false, // 通话中,
-    
+    isIncomingCallIng: false, // 正在通话中
+
 
     handleAttr: {
         isActiveMic: true, // 麦克风
@@ -34,11 +33,11 @@ const mutations = {
     SET_INCOMING_CALL_TOKEN (state, value) {
         state.incomingCallTOKEN = value;
     },
-    SET_INCOMING_CALL_CATCH (state, value) {
-        state.incomingCallCatch = value;
+    SET_IS_CALL_OR_ANSWER (state, value) {
+        state.isCallOrAnswer = value;
     },
-    SET_INCOMING_CALL_THROW (state, value) {
-        state.incomingCallThrow = value;
+    SET_CALL_TYPE (state, value) {
+        state.callType = value;
     },
     SET_INCOMING_CALL_CATCH_USER (state, value) {
         state.incomingCallCatchUser = value;
@@ -49,14 +48,8 @@ const mutations = {
     SET_INCOMING_CALL_TOP (state, value) {
         state.isIncomingCallTop = value;
     },
-    SET_IS_INCOMING_CALL_MAIN (state, value) {
-        state.isIncomingCallMain = value;
-    },
     SET_IS_INCOMING_CALL_SMALL (state, value) {
         state.isIncomingCallSmall = value;
-    },
-    SET_IS_VIDEO_CALL (state, value) {
-        state.isVideoCall = value;
     },
     SET_IS_INCOMING_CALL_ING (state, value) {
         state.isIncomingCallIng = value;
@@ -64,12 +57,6 @@ const mutations = {
     SET_ON_HANDLE_ATTR (state, {key, value}) {
         state.handleAttr[key] = value;
     },
-    SET_CALL_CONVERSATIONID (state, value) {
-        state.conversationID = value;
-    },
-    SET_CALL_TIME (state, value) {
-        state.callTime = value;
-    }
 };
 
 const actions = {
@@ -83,27 +70,39 @@ const actions = {
     // 拨打电话
     async onThrowCall ({
         commit
-    }, isVideoCall) {
+    }, callType) {
         try {
-            const token = '321';
-            commit('SET_CALL_CONVERSATIONID', conversation.state.currentConversation.conversationID);
-            commit('SET_CALL_TIME', +new Date());
+            // const data = await pinList({
+            //     conversationID,
+            //     pagination: {
+            //         pageNumber: 1,
+            //         showNumber: 200
+            //     }
+            // });
+            // console.log(data.list, 'pinListpinListpinListpinList', conversationID);
+            const wsURL = `ws://192.168.2.20:7880`;
+            const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
+            commit('SET_INCOMING_CALL_WSURL', wsURL);
             commit('SET_INCOMING_CALL_TOKEN', token);
-            commit('SET_IS_VIDEO_CALL', isVideoCall);
-            commit('SET_INCOMING_CALL_THROW', true);
-            commit('SET_IS_INCOMING_CALL_MAIN', true);
+            commit('SET_CALL_TYPE', callType);
+            commit('SET_IS_CALL_OR_ANSWER', true);
         } catch (e) {
             console.log(e, '拨打电话失败');
         }
     },
 
-    // 接听电话
+    // 等待接听电话
     async onCatchCall ({
         commit
-    },) {
+    }, callType) {
         try {
-            // commit('SET_INCOMING_CALL_WSURL', wsurl);
-            // commit('SET_INCOMING_CALL_TOKEN', token);
+            const wsURL = `ws://192.168.2.20:7880`;
+            const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
+            commit('SET_INCOMING_CALL_WSURL', wsURL);
+            commit('SET_INCOMING_CALL_TOKEN', token);
+            commit('SET_CALL_TYPE', callType);
+            commit('SET_IS_CALL_OR_ANSWER', false);
+            commit('SET_INCOMING_CALL_TOP', true);
         } catch (e) {
             console.log(e, '接听电话失败');
         }

@@ -22,6 +22,8 @@
 <script>
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 
+import {mapActions} from 'vuex';
+
 export default {
     components: {
         CustomNavBar
@@ -33,8 +35,12 @@ export default {
     },
     onLoad () {
         this.getAppVersion();
+        
+        this.onCatchCall('video');
     },
     methods: {
+        ...mapActions('incomingCall', ['onCatchCall']),
+
         getAppVersion () {
             this.appVersion = plus.runtime.version;
         },

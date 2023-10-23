@@ -6,7 +6,7 @@
         @touchstart="onTouchstart($event)"
         @touchmove="onTouchmove($event)"
         @touchend="onTouchend($event)"
-        @click="openMain"
+        @click="openPhone"
     >
         <image :src="incomingCallSmallSIcon" />
         <text class="fz-26 text_time">
@@ -41,22 +41,23 @@ export default {
         };
     },
     watch: {
-        storeIsIncomingCallIng (val) {
-            if (val) this.intervalHandle();
-        },
-        storeIncomingCallCatch (val) {
-            this.timeText = val ? '等待接听' : '00:00';
-        },
-        storeIncomingCallThrow (val) {
-            this.timeText = val ? '等待接听' : '00:00';
+        storeIsIncomingCallIng: {
+            handler (val) {
+                if (val) {
+                    this.intervalHandle();
+                } else {
+                    this.timeText = '等待接听';
+                }
+            },
+            immediate: true
         },
     },
     computed: {
-        ...mapGetters(['storeIncomingCallCatch', 'storeIncomingCallThrow', 'storeIsIncomingCallIng', 'storeIsIncomingCallSmall']),
+        ...mapGetters(['storeIsIncomingCallSmall', 'storeIsIncomingCallIng']),
 
-        // (等待接听 || 主动拨打 || 通话中) && 悬浮缩小
+        // 悬浮缩小
         shouldShow () {
-            return (this.storeIncomingCallCatch || this.storeIncomingCallThrow || this.storeIsIncomingCallIng) && this.storeIsIncomingCallSmall;
+            return this.storeIsIncomingCallSmall;
         }
     },
     methods: {
@@ -143,9 +144,11 @@ export default {
         // 手指抬起时
         onTouchend () {
         },
-        openMain () {
-            store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
+        openPhone () {
             store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', false);
+            uni.navigateTo({
+              url: '/pages/conversation/webrtc/index',
+            });
         }
     }
 };
