@@ -92,7 +92,7 @@ const actions = {
             commit('SET_INCOMING_CALL_THROW', true);
             commit('SET_IS_INCOMING_CALL_MAIN', true);
 
-            uni.switchTab({
+            uni.navigateTo({
                 url: '/pages/phone/index/index',
             });
         } catch (e) {

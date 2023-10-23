@@ -1,58 +1,39 @@
 <template>
-    <Page>
-        <view
-            :wsurl="storeIncomingCallWSURL"
-            :token="storeIncomingCallTOKEN"
-            :handleattr="storeHandleAttr"
-            :change:wsurl="renderScript.onChangeWSURL"
-            :change:token="renderScript.onChangeToken"
-            :change:handleattr="renderScript.onChangeHandleAttr"
-        />
-        <view id="video" />
-    </Page>
+    <view>
+        <web-view  ref="webviewRef" src="/hybrid/html/phoneCall.html" style="width: 100vw;height: 750px;" @onPostMessage="getMessage"></web-view>
+    </view>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import store from '@/store';
-
 export default {
-    components: {
-    },
     data () {
         return {
+			wv: null, // 定义(app)webview对象节点
+			webV: {}, // 定义(H5)webview对象节点
+			sendData: [], // 发送数据对象
         };
     },
-    computed: {
-        ...mapGetters([
-            'storeConversationList',
-            'storeIsSyncing',
-            'storeIncomingCallWSURL',
-            'storeIncomingCallTOKEN',
-            'storeIncomingCallTOKEN',
-            'storeHandleAttr',
-        ]),
-    },
     onLoad () {
-        console.log('phone/index/index.vue  onLoad');
-
-        // 等待接电话
-        // store.commit('incomingCall/SET_INCOMING_CALL_CATCH', true);
-        // store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
-        // store.commit('incomingCall/SET_IS_VIDEO_CALL', true);
-
-        // 主动拨打电话
-        // store.commit('incomingCall/SET_INCOMING_CALL_THROW', true);
-        // store.commit('incomingCall/SET_IS_INCOMING_CALL_MAIN', true);
-        // store.commit('incomingCall/SET_IS_VIDEO_CALL', true);
-
+        console.log('phone/index/index.nvue  onLoad');
+		
+		setTimeout(()=> {
+			const info = {name: '嘻嘻'}
+			this.$refs.webviewRef.evalJs(`uniEvent(${JSON.stringify(info)})`);
+			// this.$refs.webviewRef.evalJs(`document.body.style.background ='#00FF00'`);
+		}, 2000)
+    },
+    onShow () {
+        console.log('phone/index/index.nvue  onShow');
     },
     methods: {
+        getMessage(event) {
+            console.log('getMessage()===', event)
+        }
     }
 };
 </script>
 
-
+<!-- 
 <script module="renderScript" lang="renderjs">
 import {
     Participant,
@@ -219,6 +200,6 @@ export default {
         }
     }
 }
-</script>
+</script> -->
 
 <style lang="scss" scoped></style>

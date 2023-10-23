@@ -17,6 +17,7 @@ export default {
         this.tryLogin();
         this.handleAudioManager();
         this.handleUniPush();
+        this.preloadPage();
     },
     onShow: function () {
         plus.runtime.setBadgeNumber(0);
@@ -535,6 +536,9 @@ export default {
             console.log('push', JSON.stringify(payload));
             if (!payload.conversationID) return;
             uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
+        },
+        preloadPage () {
+            uni.preloadPage({url: "/pages/phone/index/index"}); // 预加载 pages/phone/index/index 页面（仅触发onLoad，onReady)
         }
     },
 };
