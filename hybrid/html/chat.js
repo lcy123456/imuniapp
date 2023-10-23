@@ -3,7 +3,7 @@ window.onload = function () {
     // const back = document.getElementById('back');
     // back.onclick = function () {
     //     uni.navigateBack();
-    // }
+    // };
     const {
         // Participant,
         // RemoteParticipant,

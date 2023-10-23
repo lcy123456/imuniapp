@@ -91,10 +91,6 @@ const actions = {
             commit('SET_IS_VIDEO_CALL', isVideoCall);
             commit('SET_INCOMING_CALL_THROW', true);
             commit('SET_IS_INCOMING_CALL_MAIN', true);
-
-            uni.navigateTo({
-                url: '/pages/phone/index/index',
-            });
         } catch (e) {
             console.log(e, '拨打电话失败');
         }

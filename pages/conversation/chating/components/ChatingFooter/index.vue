@@ -476,7 +476,7 @@ export default {
                     );
                 } else if (type === ChatingFooterActionTypes.Call) {
                     // 发起视频通话
-                    this.onThrowCall(true);
+                    this.goWebrtc('video');
                 }
             } else if (idx === 1) {
                 const whenGetFile = (data) => {
@@ -487,10 +487,15 @@ export default {
                 } else if (type === ChatingFooterActionTypes.Camera) {
                     this.chooseOrShotVideo(['camera']).then(whenGetFile);
                 } else if (type === ChatingFooterActionTypes.Call) {
-                    // 发起语音通话
-                    this.onThrowCall(false);
+                    // 发起语音通话x
+                    this.goWebrtc('audio');
                 }
             }
+        },
+        goWebrtc (type) {
+            console.log('goWebrtc----goWebrtc');
+            this.onThrowCall(type === 'video');
+            uni.navigateTo({url: `/pages/conversation/webrtc/index`});
         },
         chooseOrShotImage (sourceType) {
             return new Promise((resolve, reject) => {

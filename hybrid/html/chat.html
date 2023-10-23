@@ -3,15 +3,20 @@
 	<head>
 		<meta charset="utf-8">
 		<title></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <script type="text/javascript" src="https://unpkg.com/@dcloudio/uni-webview-js@0.0.1/index.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
         <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
-        <script src="./chat.js"></script>
+        <!-- <script src="./chat.js"></script> -->
 	</head>
 	
 	<style type="text/css">
 		* {
             padding: 0;
             margin: 0;
+        }
+        body, html {
+            overflow: hidden;
         }
         .chat-main-css {
         }
@@ -36,19 +41,432 @@
             position: fixed;
             z-index: -1!important;
         }
+        #back {
+            z-index: 999999;
+        }
+        .text-inverse {
+            color: #FFFFFF;
+        }
+        .fz-14 {
+            font-size: 14px;
+        }
+        .fz-16 {
+            font-size: 16px;
+        }
+        .fz-21 {
+            font-size: 21px;
+        }
+        .mt-7 {
+            margin-top: 7px;
+        }
+        .mt-10 {
+            margin-top: 10px;
+        }
+        .btn {
+            display: block;
+            background-color: #007aff;
+            border: 0;
+            color: #ffffff;
+            height: 60px;
+            width: 200px;
+        }
+
+        .btn-red {
+            background-color: #dd524d;
+        }
+
+
+        .desc {
+            padding: 10px;
+            color: #999999;
+        }
+
+
+        .incoming_call_main {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: url("images/incoming_call_main_back.png") no-repeat;
+            background-size: 100% 100%;
+        }
+        .incoming_call_main .header_panel {
+            position: relative;
+            margin-top: 10vh;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+        }
+        .incoming_call_main .right_icon {
+            position: absolute;
+            top: 0;
+            left: 43px;
+            width: 22px;
+            height: 22px;
+        }
+
+        .avatar_panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-top: 12vh;
+        }
+        .avatar {
+            background-color: #5496EB;
+            border-radius: 10px;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 18px;
+        }
+
+        .tips_text {
+            font-size: 18px;
+            color: #FFFFFF;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .btn_nav {
+            position: fixed;
+            width: 86%;
+            bottom: 10vh;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            z-index: 2;
+        }
+
+        .handle_panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .handle_cell{
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        .handle_icon {
+            width: 70px;
+            height: 70px;
+        }
+
+        .answer_panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 33px;
+        }
+        .answer_panel button {
+            border-radius: 100%;
+            width: 70px;
+            height: 70px;
+            border: none;
+        }
+        .flex-center {
+            justify-content: center!important;
+        }
+        .call_icon {
+            width: 30px;
+            height: 30px;
+        }
+        .danger_btn{
+            background-color: #F45955;
+        }
+        .danger_btn .call_icon {
+            transform: rotate(135deg);
+            margin-top: 5px;
+        }
+        .success_btn {
+            background-color: #58BE6B;
+        }
 	</style>
 	
 	<body>
-		<div class="chat-main-css">
-            <div
-                id="other-box"
-                class="video-box other"
-            ></div>
-            <div
-                id="my-box"
-                class="video-box my"
-            ></div>
+        <div id="app">
+            <div class="chat-main-css">
+                <div
+                    id="other-box"
+                    class="video-box other"
+                ></div>
+                <div
+                    id="my-box"
+                    class="video-box my"
+                ></div>
+            </div>
+
+            <div class="incoming_call_main">
+                <div class="header_panel">
+                    <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
+                    <span class="fz-16 text-inverse">00:09</span>
+                </div>
+                <div class="avatar_panel">
+                    <div class="avatar">{{ name }}</div>
+                    <p class="fz-21 text-inverse mt-7">{{ name }}</p>
+                </div>
+                <div class="tips_text">等待对方接受邀请</div>
+                <div class="btn_nav">
+                    <div class="handle_panel">
+                        <div class="handle_cell" @click="toggleAudio">
+                            <image class="handle_icon" :src="micImage"></image>
+                            <p class="mt-10 fz-14 text-inverse">{{ micText }}</p>
+                        </div>
+                        <div class="handle_cell" @click="toggleVideo">
+                            <image class="handle_icon" :src="camImage"></image>
+                            <p class="mt-10 fz-14 text-inverse">{{ camText }}</p>
+                        </div>
+                    </div>
+                    <div :class="['answer_panel', isShowCall ? '' : 'flex-center']">
+                        <button class="danger_btn">
+                            <image src="images/incoming_call_icon.png" class="call_icon" />
+                        </button>
+                        <button
+                            v-if="isShowCall"
+                            class="success_btn"
+                            @click="disconnect"
+                        >
+                            <image src="images/incoming_call_icon.png" class="call_icon" />
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <script type="text/javascript">
+            const {
+                // Participant,
+                // RemoteParticipant,
+                // RemoteTrackPublication,
+                RemoteTrack,
+                Room,
+                RoomEvent,
+            } = window.LivekitClient;
+            const app = new Vue({
+                el: '#app',
+                data: {
+                    name: '好好',
+                    type: '',
+                    device: '',
+                    trackList: [],
+                    room: null,
+                    isShowCall: false,
+                    handleAttr: {
+                        isActiveMic: true, // 麦克风
+                        isActiveSpeak: true, // 扬声器
+                        isActiveCam: true, // 摄像头
+                        isActiveOverturn: false, // 翻转
+                    },
+                    micImage: '',
+                    micText: '',
+                    camImage: '',
+                    camText: '',
+                },
+                computed: {
+                },
+                mounted () {
+                    this.type = this.getLocationKeyValue('type');
+                    this.setHandleImageAndText();
+                    this.init();
+                },
+                methods: {
+                    init () {
+                        this.openRoom();
+                    },
+                    getLocationKeyValue (key) {
+                        const reg = new RegExp(`${key}=([^&]*)`);
+                        const href = location.href;
+                        return href.match(reg) && href.match(reg)[1] ? href.match(reg)[1] : '';
+                    },
+                    getDom (id) {
+                        return document.getElementById(id);
+                    },
+                    setDomAttr (map) {
+                        // const { width = `300px`, height = `300px`, id, dom } = map;
+                        const { width = `auto`, height = `${document.documentElement.clientHeight}px`, id, dom } = map;
+                        if (!dom) return;
+                        dom.id = id;
+                        dom.className = map.className;
+                        dom.style.width = width;
+                        dom.style.height = height;
+                    },
+                    updateData () {
+                        this.openRoom();
+                    },
+                    async toggleAudio () {
+                        if (!this.room) return;
+                        const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
+                        await this.room?.localParticipant?.setMicrophoneEnabled(!enabled);
+                        this.setInitAudioImg();
+                    },
+                    setInitAudioImg () {
+                        const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
+                        this.micImage =  !enabled ? 'images/incoming_call_handle_mic_1.png' : 'images/incoming_call_handle_mic_2.png';
+                        this.micText = !enabled ? '麦克风打开' : '麦克风关闭';
+                    },
+
+                    async toggleVideo () {
+                        if (!this.room) return;
+                        const enabled = this.room?.localParticipant.isCameraEnabled;
+                        await this.room?.localParticipant.setCameraEnabled(!enabled);
+                        this.setInitVideoImg();
+                        !enabled && this.addSelf();
+                    },
+                    setInitVideoImg () {
+                        const enabled = this.room?.localParticipant.isCameraEnabled;
+                        this.camImage =  !enabled ? 'images/incoming_call_handle_cam_1.png' : 'images/incoming_call_handle_cam_2.png';
+                        this.camText =  !enabled ? '摄像头打开' : '摄像头关闭';
+                    },
+
+                    async toggleVideoInput () {
+                        const devices = await Room.getLocalDevices('videoinput');
+                        if (this.device === '') {
+                            this.device = devices[1];
+                        } else {
+                            const otherDevices = devices.filter(item => item.deviceId !== this.device.deviceId);
+                            this.device = otherDevices[0];
+                        }
+                        this.device && await this.room.switchActiveDevice('videoinput', this.device.deviceId);
+                    },
+                    async openRoom () {
+                        const wsURL = `ws://192.168.2.20:7880`;
+                        const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMDM2NDIsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5NzcxMTY0Miwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTEiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0._-3jkKTw-wBFJVI6BCN2bBdbEQKujeUwHVazttNCNCE`;
+                        this.room = new Room();
+                        this.trackList = [];
+                        try {
+                            await this.room.connect(wsURL, token);
+                            console.log('connected to room----', this.room.name);
+                            // await p.enableCameraAndMicrophone();
+                            this.removeMember();
+                            this.addInitMember();
+                            this.addJoinMember();
+                            this.addSelf('init');
+                        } catch (err) {
+                            console.log('fail -----connected to room----', err);
+                        }
+                    },
+                    // 断线删除成员
+                    async removeMember () {
+                        const otherDom = this.getDom('other-box');
+                        this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
+                            this.removeElment({
+                                participant,
+                                parentDom: otherDom
+                            });
+                        });
+                    },
+                    // 加入新进成员
+                    async addJoinMember () {
+                        const otherDom = this.getDom('other-box');
+                        this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                            this.addElement({
+                                parentDom: otherDom,
+                                track,
+                                participant
+                            });
+                        });
+                    },
+                    // 初始化已在成员
+                    async addInitMember () {
+                        const otherDom = this.getDom('other-box');
+                        this.room?.participants?.forEach(participant => {
+                            participant?.tracks?.forEach(track => {
+                                this.addElement({
+                                    participant,
+                                    track: track.track,
+                                    parentDom: otherDom
+                                });
+                            });
+                        });
+                    },
+                    // 添加自己
+                    async addSelf (type) {
+                        const myVideoDom = document.getElementById('myVideo');
+                        if (myVideoDom) {
+                            console.log('dom存在，。。。。');
+                            return;
+                        }
+                        const myBoxDom = this.getDom('my-box');
+                        const p = this.room.localParticipant;
+                        try {
+                            await p.setCameraEnabled(type ? (this.type === 'video') : true);
+                            await p.setMicrophoneEnabled(true);
+                            const cameraTrack = p.getTrack(RemoteTrack.Source.Camera);
+                            const myVideo = cameraTrack?.track?.attach();
+                            if (myVideo) {
+                                this.setDomAttr({
+                                    dom: myVideo,
+                                    id: 'myVideo',
+                                    className: 'big-video'
+                                });
+                                myBoxDom.appendChild(myVideo);
+
+                            }
+                        } catch (err) {
+                            console.log('video，麦克风拒绝');
+                        }
+                        setTimeout(() => {
+                            this.setInitVideoImg();
+                            this.setInitAudioImg();
+                        }, 2000);
+                    },
+                    addElement ({ parentDom, track, participant}) {
+                        const { identity } = participant;
+                        const element = track.attach();
+                        const type = `${identity}-${track.kind}`;
+                        if (this.trackList.includes(type)) {
+                            const dom = this.getDom(type);
+                            parentDom.removeChild(dom);
+                        }
+                        this.setDomAttr({
+                            dom: element,
+                            id: type,
+                            className: 'small-video'
+                        });
+                        parentDom.appendChild(element);
+                        this.trackList.push(type);
+                    },
+                    removeElment ({parentDom, participant}) {
+                        const { identity } = participant;
+                        const video = this.getDom(`${identity}-video`);
+                        const audio = this.getDom(`${identity}-audio`);
+                        this.trackList = this.trackList.filter(item => ![`${identity}-video`, `${identity}-audio`].includes(item));
+                        parentDom.removeChild(video);
+                        parentDom.removeChild(audio);
+                    },
+                    back () {
+                        uni.navigateBack();
+                    },
+                    handleSwitch (key) {
+                        this.handleAttr[key] = !this.handleAttr[key];
+                        this.setHandleImageAndText()
+                    },
+                    setHandleImageAndText () {
+                        const {isActiveMic, isActiveCam} = this.handleAttr;
+                        this.micImage =  isActiveMic ? 'images/incoming_call_handle_mic_1.png' : 'images/incoming_call_handle_mic_2.png';
+                        this.micText = isActiveMic ? '麦克风打开' : '麦克风关闭';
+                        this.camImage =  isActiveCam ? 'images/incoming_call_handle_cam_1.png' : 'images/incoming_call_handle_cam_2.png';
+                        this.camText =  isActiveCam ? '摄像头打开' : '摄像头关闭';
+                    },
+                    disconnect () {
+                        this.room && this.room.disconnect();
+                        // uni.unPreloadPage();
+                        uni.navigateBack();
+                    }
+                },
+                beforeDestroy () {
+                    this.room && this.room.disconnect();
+                    this.myVideo = null;
+                    this.trackList = [];
+                }
+            })
+        </script>
 	</body>
 </html>
 

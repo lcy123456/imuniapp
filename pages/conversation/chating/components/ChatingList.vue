@@ -46,7 +46,6 @@
                         :is-checked="checkedMsgIds.includes(item.clientMsgID)"
                         :position-msg-i-d="positionMsgID"
                         @menuRect="menuRect"
-                        @click.native="goWeb"
                     />
                     <!-- @messageItemRender="messageItemRender" -->
                 </view>
@@ -186,10 +185,6 @@ export default {
         handleTouchstart () {
             this.isShowMenuFlag = true;
             this.$emit('touchstart');
-        },
-        goWeb () {
-            console.log('goWeb----goWeb');
-            uni.navigateTo({url: '/pages/conversation/webrtc/index'});
         },
         onScroll (event) {
             const { scrollHeight, scrollTop } = event.target;

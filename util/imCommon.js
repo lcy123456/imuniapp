@@ -320,7 +320,6 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
     case MessageType.BurnMessageChange:
         const burnDetails = JSON.parse(pmsg.notificationElem.detail);
         const name = `${burnDetails.revokerID === store.getters.storeCurrentUserID ? '你' : burnDetails.revokerNickname}`;
-        console.log(burnDetails, 'burnDetailsburnDetailsburnDetailsburnDetailsburnDetailsburnDetails');
         return burnDetails.revokerRole ? `${name}已设置自动删除${timeMap[burnDetails.revokeTime]}前发送的消息` : `${name}已停用自动删除消息`;
     default:
         return "";
@@ -474,7 +473,6 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
     case MessageType.BurnMessageChange:
         const burnDetails = JSON.parse(msg.notificationElem.detail);
         const name = `${burnDetails.revokerID === store.getters.storeCurrentUserID ? '你' : burnDetails.revokerNickname}`;
-        console.log(burnDetails, 'burnDetailsburnDetailsburnDetailsburnDetailsburnDetailsburnDetails');
         return burnDetails.revokerRole ? `${name}已设置自动删除${timeMap[burnDetails.revokeTime]}前发送的消息` : `${name}已停用自动删除消息`;
     case MessageType.OANotification:
         const customNoti = JSON.parse(msg.notificationElem.detail);

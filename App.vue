@@ -17,7 +17,7 @@ export default {
         this.tryLogin();
         this.handleAudioManager();
         this.handleUniPush();
-        this.preloadPage();
+        // this.preloadPage();
         uni.preloadPage({url: "/pages/conversation/webrtc/index"});
     },
     onShow: function () {
