@@ -55,12 +55,14 @@ export default {
         console.log('onHideonHideonHide');
     },
     methods: {
+        ...mapActions('incomingCall', ['onSmall']),
+
         handlePostMessage (event) {
             console.log('handlePostMessage()===', event)
             const [data] = event.detail.data
             if(data.isSmall) {
                 // 缩小
-                store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', true);
+                this.onSmall()
             }
             if(data.isDanger) {
                 // 挂断

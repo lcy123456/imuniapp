@@ -114,6 +114,13 @@ const actions = {
         } catch (e) {
             console.log(e, '接听电话失败');
         }
+    },
+
+    // 缩小
+    onSmall ({
+        commit
+    }) {
+        commit('SET_IS_INCOMING_CALL_SMALL', true);
     }
 };
 

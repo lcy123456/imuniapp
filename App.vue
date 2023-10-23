@@ -9,13 +9,8 @@ import config from "./common/config";
 import { getDbDir, toastWithCallback } from "@/util/common.js";
 import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes } from "@/constant";
-import store from "@/store";
 
 export default {
-    //nvue全局变量存储
-    globalData: {
-        store
-    },
     onLaunch: function () {
         this.$store.dispatch("user/getAppConfig");
         this.setGlobalIMlistener();
