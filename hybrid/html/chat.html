@@ -32,12 +32,14 @@
         position: fixed;
         top: 10vh;
     }
+
     .chat-group-css .video-box {
-        width: 50%!important;
-        height: 200px!important;
+        width: 50% !important;
+        height: 200px !important;
         position: relative;
         overflow: hidden;
     }
+
     .chat-group-css .video-box .video {
         width: 100% !important;
         object-fit: cover;
@@ -100,25 +102,6 @@
         margin-top: 10px;
     }
 
-    .btn {
-        display: block;
-        background-color: #007aff;
-        border: 0;
-        color: #ffffff;
-        height: 60px;
-        width: 200px;
-    }
-
-    .btn-red {
-        background-color: #dd524d;
-    }
-
-
-    .desc {
-        padding: 10px;
-        color: #999999;
-    }
-
 
     .incoming_call_main {
         width: 100%;
@@ -135,6 +118,7 @@
         height: 22px;
         line-height: 22px;
         text-align: center;
+        z-index: 1;
     }
 
     .incoming_call_main .right_icon {
@@ -151,6 +135,8 @@
         justify-content: center;
         flex-direction: column;
         margin-top: 12vh;
+        position: relative;
+        z-index: 1;
     }
 
     .avatar {
@@ -256,23 +242,19 @@
             <div id="my-box" class="video-box my" @click="changeBox('my')"></div>
         </div>
         <div id="chat-group-css" class="chat-group-css">
-            
+
         </div>
 
         <div class="incoming_call_main">
             <div class="header_panel">
                 <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
-                <span class="fz-16 text-inverse">00:09</span>
+                <span class="fz-16 text-inverse" v-if="isCallIng">00:09</span>
             </div>
-            <div
-                v-if="!isDomIn"
-                class="avatar_panel">
-                <div class="avatar">{{ name }}</div>
-                <p class="fz-21 text-inverse mt-7">{{ name }}</p>
+            <div v-if="isAlone && !isCallIng" class="avatar_panel">
+                <div class="avatar">{{ baseMap.callUserInfo.nickname }}</div>
+                <p class="fz-21 text-inverse mt-7">{{ baseMap.callUserInfo.nickname }}</p>
             </div>
-            <div
-                v-if="!isDomIn"
-                class="tips_text">等待对方接受邀请</div>
+            <div v-if="isAlone && !isCallIng" class="tips_text">等待对方接受邀请</div>
             <div class="btn_nav">
                 <div class="handle_panel">
                     <div class="handle_cell" @click="toggleAudio">
@@ -295,7 +277,7 @@
                     <button v-if="isShowCall" class="success_btn">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
-                    <image class="overturn_small" src="images/incoming_call_handle_overturn_2.png" v-if="!isShowCall"
+                    <image class="overturn_small" src="images/incoming_call_handle_overturn_2.png" v-if="isCallIng"
                         @click="toggleVideoInput">
                     </image>
                 </div>
@@ -312,6 +294,12 @@
             Room,
             RoomEvent,
         } = window.LivekitClient;
+        const defaultBaseMap = {
+            message: {
+                sessionType: 3
+            },
+            conversation: {},
+        };
         const app = new Vue({
             el: '#app',
             data: {
@@ -321,20 +309,16 @@
                 callTime: '',
                 trackList: [],
                 isDomIn: false,
-                baseMap: {
-                    message: {
-                        sessionType: 3
-                    },
-                    conversation: {}
+                isCallOrAnswer: false, // true主动拨打  false等待接听
+                isCallLoading: false, // 双方等待接通电话
+                isCallIng: false, // 正在通话中
+                callUserInfo: {
+                    faceURL: '',
+                    nickname: '未知',
                 },
+                baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
                 room: null,
                 isShowCall: false,
-                handleAttr: {
-                    isActiveMic: true, // 麦克风
-                    isActiveSpeak: true, // 扬声器
-                    isActiveCam: true, // 摄像头
-                    isActiveOverturn: false, // 翻转
-                },
                 micImage: 'images/incoming_call_handle_mic_2.png',
                 micText: '麦克风已关',
                 camImage: 'images/incoming_call_handle_cam_2.png',
@@ -343,13 +327,21 @@
                 speakText: '扬声器已关'
             },
             computed: {
+                // 群聊
+                isGroup() {
+                    return this.baseMap.message.sessionType === 3
+                },
+                // 个人聊天
+                isAlone() {
+                    return this.baseMap.message.sessionType !== 3
+                }
             },
-            mounted () {
+            mounted() {
                 this.init();
             },
             methods: {
-                checkDom () {
-                    if (this.baseMap.message.sessionType === 3) {
+                checkDom() {
+                    if (this.isGroup) {
                         const dom = this.getDom('chat-group-css');
                         console.log(dom, '==');
                         this.isDomIn = !!dom.children[0];
@@ -360,12 +352,19 @@
                     }
                 },
                 init(data) {
-                    this.baseMap = data || {
-                        message: {
-                            sessionType: 3
-                        },
-                        conversation: {}
-                    };
+                    this.baseMap = data || JSON.parse(JSON.stringify(defaultBaseMap));
+                    if (data) {
+                        const {
+                            isCallOrAnswer,
+                            isCallLoading,
+                            isCallIng,
+                            callUserInfo
+                        } = data
+                        this.isCallOrAnswer = isCallOrAnswer
+                        this.isCallLoading = isCallLoading
+                        this.isCallIng = isCallIng
+                        this.callUserInfo = callUserInfo
+                    }
                     this.disconnect();
                     this.openRoom();
                 },
@@ -407,12 +406,14 @@
                     await this.room?.localParticipant.setCameraEnabled(!enabled);
                     this.setInitVideoImg();
                     let myDom = null;
-                    if (this.baseMap.message.sessionType === 3) {
+                    if (this.isGroup) {
                         myDom = this.getDom('chat-group-css');
                     } else {
                         myDom = this.getDom('my-box');
                     }
-                    !enabled && this.addSelf({parentDom: myDom, type: ''});
+                    console.log(myDom)
+                    console.log('enabled====', enabled)
+                    !enabled && this.addSelf({ parentDom: myDom, type: '' });
                 },
                 setInitVideoImg() {
                     const enabled = this.room?.localParticipant.isCameraEnabled;
@@ -432,7 +433,7 @@
                 },
                 async openRoom() {
                     const wsURL = `ws://192.168.2.20:7880`;
-                    const token = localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMDM2NDIsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5NzcxMTY0Miwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTEiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0._-3jkKTw-wBFJVI6BCN2bBdbEQKujeUwHVazttNCNCE`;
+                    const token = localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
                     this.room = new Room();
                     this.trackList = [];
                     try {
@@ -441,7 +442,7 @@
                         // await p.enableCameraAndMicrophone();
                         let myDom = null;
                         let otherDom = null;
-                        if (this.baseMap.message.sessionType === 3) {
+                        if (this.isGroup) {
                             myDom = this.getDom('chat-group-css');
                             otherDom = this.getDom('chat-group-css');
                         } else {
@@ -451,7 +452,7 @@
                         this.removeMember({ parentDom: otherDom });
                         this.addInitMember({ parentDom: otherDom });
                         this.addJoinMember({ parentDom: otherDom });
-                        this.addSelf({parentDom: myDom, type: 'init'});
+                        this.addSelf({ parentDom: myDom, type: 'init' });
                     } catch (err) {
                         console.log('fail -----connected to room----', err);
                     }

@@ -25,7 +25,10 @@ export default {
             "storeIncomingCallMessage",
             "storeIncomingCallCallTime",
             "storeCurrentConversation",
-            "storeIsIncomingCallLoading"
+            "storeIsCallOrAnswer",
+            "storeIsIncomingCallLoading",
+            "storeIsIncomingCallIng",
+            "storeIncomingCallUserInfo"
         ]),
         src () {
             return `/hybrid/html/chat.html`;
@@ -43,8 +46,13 @@ export default {
             console.log('22222');
             const map = {
                 message: this.storeIncomingCallMessage,
-                conversation: this.storeCurrentConversation
+                conversation: this.storeCurrentConversation,
+                isCallOrAnswer: this.storeIsCallOrAnswer,
+                isCallLoading: this.storeIsIncomingCallLoading,
+                isCallIng: this.storeIsIncomingCallIng,
+                callUserInfo: this.storeIncomingCallUserInfo
             }
+            console.log('evalJs()=====发送参数给webview', map)
             this.$refs.webviewRef.evalJs(`uniEvent(${JSON.stringify(map)})`);
         }
         this.time = this.storeIncomingCallCallTime;

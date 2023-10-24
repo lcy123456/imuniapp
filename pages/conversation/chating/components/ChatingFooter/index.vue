@@ -123,7 +123,8 @@ import IMSDK, {
     IMMethods,
     MessageStatus,
     MessageType,
-    SessionType
+    SessionType,
+    GroupMemberFilter
 } from 'openim-uniapp-polyfill';
 import CustomEditor from './CustomEditor.vue';
 import ChatingActionBar from './ChatingActionBar.vue';
@@ -262,6 +263,26 @@ export default {
             }
             console.log(message, '-----messagemessagemessagemessagemessagemessage');
             return message;
+        },
+        async getGroupMemberList () {
+            const { userID, groupID } = this.storeCurrentConversation;
+            if (groupID) {
+                const data = await IMSDK.asyncApi(
+                    IMMethods.GetGroupMemberList,
+                    {
+                        groupID,
+                        filter: GroupMemberFilter.All,
+                        offset: 0,
+                        count: 100
+                    }
+                );
+                console.log(data, 'getGroupMemberList()  GetGroupMemberList===');
+            } else {
+                const [{ friendInfo }] = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                    [userID]
+                );
+                console.log(friendInfo);
+            }
         },
         async createCustomMessage (data) {
             let message = await IMSDK.asyncApi(
@@ -543,10 +564,10 @@ export default {
         async goWebrtc (type) {
             console.log('goWebrtc----goWebrtc');
             const hasPermission  = await this.reviewPermission();
-            console.log(hasPermission, 'hasPermissionhasPermissionhasPermissionhasPermission');
             if (hasPermission) {
+                await this.getGroupMemberList();
                 const data = await this.sendCustomMessage(type);
-                console.log(data, '------datadatadata');
+                
                 if (typeof data === 'boolean' && !data) return;
                 await this.onThrowCall({
                     ...data,

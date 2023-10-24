@@ -1,6 +1,5 @@
 import conversation from './conversation';
 import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting } from '@/util/permission.js';
-import { showToast } from '@/util/unisdk';
 
 const state = {
     incomingCallWSURL: 'testWSURL',
@@ -12,7 +11,7 @@ const state = {
     isIncomingCallTop: false, // 顶部弹出
     isIncomingCallSmall: false, // 悬浮缩小
     isIncomingCallIng: false, // 正在通话中
-    isIncomingCallLoading: false, // 双方等待接听电话
+    isIncomingCallLoading: false, // 双方等待接通电话
     incomingCallMessage: {},
     incomingCallUserInfo: {
         faceURL: '',
