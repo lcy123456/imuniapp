@@ -22,9 +22,10 @@ export default {
     },
     computed: {
         ...mapGetters([
-            "storeCallType",
+            "storeIncomingCallMessage",
             "storeIncomingCallCallTime",
-			"storeIsIncomingCallLoading",
+            "storeCurrentConversation",
+            "storeIsIncomingCallLoading"
         ]),
         src () {
             return `/hybrid/html/chat.html`;
@@ -41,7 +42,8 @@ export default {
         if (this.time !== this.storeIncomingCallCallTime) {
             console.log('22222');
             const map = {
-                type: this.storeCallType
+                message: this.storeIncomingCallMessage,
+                conversation: this.storeCurrentConversation
             }
             this.$refs.webviewRef.evalJs(`uniEvent(${JSON.stringify(map)})`);
         }

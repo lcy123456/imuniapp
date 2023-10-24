@@ -13,6 +13,7 @@ const state = {
     isIncomingCallSmall: false, // 悬浮缩小
     isIncomingCallIng: false, // 正在通话中
     isIncomingCallLoading: false, // 双方等待接听电话
+    incomingCallMessage: {},
     incomingCallUserInfo: {
         faceURL: '',
         nickname: '菠萝吹雪'
@@ -60,6 +61,9 @@ const mutations = {
     SET_IS_INCOMING_CALL_SMALL_STYLE (state, value) {
         state.incomingCallSmallStyle = value;
     },
+    SET_IS_INCOMING_CALL_MESSAGE (state, value) {
+        state.incomingCallMessage = value;
+    },
 };
 
 const actions = {
@@ -96,7 +100,7 @@ const actions = {
     // 拨打电话
     async onThrowCall ({
         commit
-    }, callType) {
+    }, data) {
         try {
             // const data = await pinList({
             //     conversationID,
@@ -110,7 +114,8 @@ const actions = {
             const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
             commit('SET_INCOMING_CALL_WSURL', wsURL);
             commit('SET_INCOMING_CALL_TOKEN', token);
-            commit('SET_CALL_TYPE', callType);
+            commit('SET_CALL_TYPE', data.callType);
+            commit('SET_IS_INCOMING_CALL_MESSAGE', data);
             commit('SET_IS_CALL_OR_ANSWER', true);
             commit('SET_IS_INCOMING_CALL_LOADING', true);
             commit('SET_CALL_CONVERSATIONID', conversation.state.currentConversation.conversationID);

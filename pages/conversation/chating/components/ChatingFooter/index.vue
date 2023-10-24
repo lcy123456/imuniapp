@@ -110,6 +110,7 @@ import { mapGetters, mapActions } from 'vuex';
 import { base64ToPath } from 'image-tools';
 import { formatInputHtml, getPurePath, html2Text } from '@/util/common';
 import { offlinePushInfo } from '@/util/imCommon';
+import { AudioVideoStatus, AudioVideoType } from '@/enum';
 import {
     ChatingFooterActionTypes,
     UpdateMessageTypes,
@@ -262,20 +263,51 @@ export default {
             console.log(message, '-----messagemessagemessagemessagemessagemessage');
             return message;
         },
-        async createCustomMessage () {
+        async createCustomMessage (data) {
             let message = await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,
                 IMSDK.uuid(),
-                {
-                    data: JSON.stringify({
-                        type: 1,
-                        status: 1
-                    }),
-                    extension: 'test1',
-                    description: 'test2'
-                }
+                {...data}
             );
             return message;
+        },
+        async sendCustomMessage (type) {
+            const message = await this.createCustomMessage({
+                data: JSON.stringify({
+                    type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio,
+                    status: AudioVideoStatus.Send
+                }),
+                extension: '',
+                description: ''
+            });
+            return this.sendAudioVideoMessage(message);
+        },
+        async sendAudioVideoMessage (message) {
+            const { userID, groupID } = this.storeCurrentConversation;
+            try {
+                const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                    recvID: userID,
+                    groupID,
+                    message,
+                    offlinePushInfo,
+                });
+                console.log('发起音视频消息成功', data);
+                return data;
+                // if (data.quoteElem) {
+                //     data.quoteElem.quoteMessage = this.quoteMessage;
+                // }
+                // this.updateOneMessage({
+                //     message: data,
+                //     isSuccess: true,
+                // });
+            } catch ({ data, errCode }) {
+                console.log('发送失败', data, errCode);
+                if (errCode === 1302) {
+                    console.log('被拉黑了');
+                    this.isShowNotification = true;
+                    return false;
+                }
+            }
         },
         async sendTextMessage () {
             const message = await this.createTextMessage();
@@ -513,7 +545,13 @@ export default {
             const hasPermission  = await this.reviewPermission();
             console.log(hasPermission, 'hasPermissionhasPermissionhasPermissionhasPermission');
             if (hasPermission) {
-                await this.onThrowCall(type);
+                const data = await this.sendCustomMessage(type);
+                console.log(data, '------datadatadata');
+                if (typeof data === 'boolean' && !data) return;
+                await this.onThrowCall({
+                    ...data,
+                    type
+                });
                 uni.navigateTo({url: `/pages/conversation/webrtc/index`});
             }
         },

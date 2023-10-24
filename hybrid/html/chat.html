@@ -22,15 +22,30 @@
         overflow: hidden;
     }
 
-    .chat-main-css {}
+    .chat-single-css {}
 
-    .video-box {}
+    .chat-group-css {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        position: fixed;
+        top: 10vh;
+    }
+    .chat-group-css .video-box {
+        width: 50%!important;
+        height: 200px!important;
+        position: relative;
+        overflow: hidden;
+    }
+    .chat-group-css .video-box .video {
+        width: 100% !important;
+        object-fit: cover;
+        height: 100% !important;
+    }
 
     .video-box.my .video-box {
         position: fixed;
-        top: 0 !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
         z-index: 1;
     }
 
@@ -50,12 +65,9 @@
         width: auto !important;
         height: 100% !important;
         position: absolute;
-        left: 50%;
-        top: 0;
-        transform: translateX(-50%);
     }
 
-    audio {
+    .audio-box {
         position: fixed;
         z-index: -1 !important;
     }
@@ -119,7 +131,7 @@
 
     .incoming_call_main .header_panel {
         position: relative;
-        margin-top: 10vh;
+        margin-top: 3vh;
         height: 22px;
         line-height: 22px;
         text-align: center;
@@ -239,9 +251,12 @@
 
 <body>
     <div id="app">
-        <div class="chat-main-css">
+        <div class="chat-single-css">
             <div id="other-box" class="video-box other" @click="changeBox('other')"></div>
             <div id="my-box" class="video-box my" @click="changeBox('my')"></div>
+        </div>
+        <div id="chat-group-css" class="chat-group-css">
+            
         </div>
 
         <div class="incoming_call_main">
@@ -249,11 +264,15 @@
                 <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
                 <span class="fz-16 text-inverse">00:09</span>
             </div>
-            <div class="avatar_panel">
+            <div
+                v-if="!isDomIn"
+                class="avatar_panel">
                 <div class="avatar">{{ name }}</div>
                 <p class="fz-21 text-inverse mt-7">{{ name }}</p>
             </div>
-            <div class="tips_text">等待对方接受邀请</div>
+            <div
+                v-if="!isDomIn"
+                class="tips_text">等待对方接受邀请</div>
             <div class="btn_nav">
                 <div class="handle_panel">
                     <div class="handle_cell" @click="toggleAudio">
@@ -301,6 +320,13 @@
                 device: '',
                 callTime: '',
                 trackList: [],
+                isDomIn: false,
+                baseMap: {
+                    message: {
+                        sessionType: 3
+                    },
+                    conversation: {}
+                },
                 room: null,
                 isShowCall: false,
                 handleAttr: {
@@ -318,18 +344,29 @@
             },
             computed: {
             },
-            mounted() {
-                // this.init();
+            mounted () {
+                this.init();
             },
             methods: {
-                init(data) {
-                    if (data) {
-                        for (let k in data) {
-                            this.$set(this, k, data[k]);
-                        }
+                checkDom () {
+                    if (this.baseMap.message.sessionType === 3) {
+                        const dom = this.getDom('chat-group-css');
+                        console.log(dom, '==');
+                        this.isDomIn = !!dom.children[0];
+                    } else {
+                        const otherDom = this.getDom('other-box');
+                        const myDom = this.getDom('my-box');
+                        this.isDomIn = !!(otherDom.children[0] || myDom.children[0]);
                     }
+                },
+                init(data) {
+                    this.baseMap = data || {
+                        message: {
+                            sessionType: 3
+                        },
+                        conversation: {}
+                    };
                     this.disconnect();
-                    // this.type = this.getLocationKeyValue('type');
                     this.openRoom();
                 },
                 getLocationKeyValue(key) {
@@ -369,7 +406,13 @@
                     const enabled = this.room?.localParticipant.isCameraEnabled;
                     await this.room?.localParticipant.setCameraEnabled(!enabled);
                     this.setInitVideoImg();
-                    !enabled && this.addSelf();
+                    let myDom = null;
+                    if (this.baseMap.message.sessionType === 3) {
+                        myDom = this.getDom('chat-group-css');
+                    } else {
+                        myDom = this.getDom('my-box');
+                    }
+                    !enabled && this.addSelf({parentDom: myDom, type: ''});
                 },
                 setInitVideoImg() {
                     const enabled = this.room?.localParticipant.isCameraEnabled;
@@ -396,59 +439,68 @@
                         await this.room.connect(wsURL, token);
                         console.log('connected to room----', this.room.name);
                         // await p.enableCameraAndMicrophone();
-                        this.removeMember();
-                        this.addInitMember();
-                        this.addJoinMember();
-                        this.addSelf('init');
+                        let myDom = null;
+                        let otherDom = null;
+                        if (this.baseMap.message.sessionType === 3) {
+                            myDom = this.getDom('chat-group-css');
+                            otherDom = this.getDom('chat-group-css');
+                        } else {
+                            myDom = this.getDom('my-box');
+                            otherDom = this.getDom('other-box');
+                        }
+                        this.removeMember({ parentDom: otherDom });
+                        this.addInitMember({ parentDom: otherDom });
+                        this.addJoinMember({ parentDom: otherDom });
+                        this.addSelf({parentDom: myDom, type: 'init'});
                     } catch (err) {
                         console.log('fail -----connected to room----', err);
                     }
                 },
                 // 断线删除成员
-                async removeMember() {
-                    const otherDom = this.getDom('other-box');
+                async removeMember({ parentDom }) {
                     this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
                         this.removeElment({
                             participant,
-                            parentDom: otherDom
+                            parentDom
                         });
                     });
                 },
                 // 加入新进成员
-                async addJoinMember() {
-                    const otherDom = this.getDom('other-box');
+                async addJoinMember({ parentDom }) {
                     this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
                         this.addElement({
-                            parentDom: otherDom,
+                            parentDom,
                             track,
-                            participant
+                            participant,
+                            publication
                         });
                     });
                 },
                 // 初始化已在成员
-                async addInitMember() {
-                    const otherDom = this.getDom('other-box');
+                async addInitMember({ parentDom }) {
+                    console.log(this.room?.participants, 'this.room?.participantsthis.room?.participants');
                     this.room?.participants?.forEach(participant => {
                         participant?.tracks?.forEach(track => {
                             this.addElement({
                                 participant,
+                                publication: track,
                                 track: track.track,
-                                parentDom: otherDom
+                                parentDom
                             });
                         });
                     });
                 },
                 // 添加自己
-                async addSelf(type) {
+                async addSelf({ parentDom, type }) {
                     const myVideoDom = this.getDom('myVideo');
                     if (myVideoDom) return;
-                    const myBoxDom = this.getDom('my-box');
                     const p = this.room.localParticipant;
                     try {
-                        await p.setCameraEnabled(type ? (this.type === 'video') : true);
+                        await p.setCameraEnabled(type ? (this.baseMap?.message?.type === 'video') : true);
                         await p.setMicrophoneEnabled(true);
                         const cameraTrack = p.getTrack(RemoteTrack.Source.Camera);
                         const myVideo = cameraTrack?.track?.attach();
+                        console.log(cameraTrack, 'cameraTrack?.track');
                         if (myVideo) {
                             const div = document.createElement('div');
                             this.setDomAttr({
@@ -462,17 +514,18 @@
                                 className: 'video'
                             });
                             div.appendChild(myVideo);
-                            myBoxDom.appendChild(div);
+                            parentDom.appendChild(div);
                         }
                     } catch (err) {
                         console.log('video，麦克风拒绝');
                     }
+                    this.checkDom();
                     setTimeout(() => {
                         this.setInitVideoImg();
                         this.setInitAudioImg();
                     }, 0);
                 },
-                addElement({ parentDom, track, participant }) {
+                addElement({ parentDom, track, participant, publication = {} }) {
                     const { identity } = participant;
                     const element = track.attach();
                     const type = `${identity}-${track.kind}`;
@@ -480,20 +533,29 @@
                         const dom = this.getDom(type);
                         parentDom.removeChild(dom);
                     }
+                    console.log(publication, 'publicationpublicationpublicationpublication');
                     const div = document.createElement('div');
                     this.setDomAttr({
                         dom: div,
                         id: type,
-                        className: 'video-box'
+                        className: `${track.kind}-box`
                     });
                     this.setDomAttr({
                         dom: element,
-                        id: type,
-                        className: 'video'
+                        id: '',
+                        className: `${track.kind}`
                     });
+                    // const divHeader = document.createElement('div');
+                    // this.setDomAttr({
+                    //     dom: divHeader,
+                    //     id: '',
+                    //     className: 'video-header'
+                    // });
+                    // div.appendChild(divHeader);
                     div.appendChild(element);
                     parentDom.appendChild(div);
                     this.trackList.push(type);
+                    this.checkDom();
                 },
                 changeBox(type) {
                     console.log('换');
@@ -515,6 +577,7 @@
                     this.trackList = this.trackList.filter(item => ![`${identity}-video`, `${identity}-audio`].includes(item));
                     parentDom.removeChild(video);
                     parentDom.removeChild(audio);
+                    this.checkDom();
                 },
                 back() {
                     uni.postMessage({
@@ -527,8 +590,10 @@
                 disconnect() {
                     const otherDom = this.getDom('other-box');
                     const myBoxDom = this.getDom('my-box');
+                    const groupDom = this.getDom('chat-group-css');
                     otherDom && (otherDom.innerHTML = '');
                     myBoxDom && (myBoxDom.innerHTML = '');
+                    groupDom && (groupDom.innerHTML = '');
                     this.myVideo = null;
                     this.trackList = [];
                     this.room && this.room.disconnect();
