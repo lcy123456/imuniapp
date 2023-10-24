@@ -298,7 +298,7 @@ export default {
 
 <style lang="scss" scoped>
 .group_settings_container {
-    height: 100%;
+    height: 100vh;
     background-color: $uni-bg-color-grey;
     padding: 0 40rpx 40rpx;
     display: flex;

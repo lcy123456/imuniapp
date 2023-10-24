@@ -214,17 +214,22 @@ export default {
                     sessionType: this.sessionType
                 });
                 console.log('conversationIDconversationIDconversationIDconversationID', conversationID, time, this.sessionType, this.sourceID);
-                await IMSDK.asyncApi(IMMethods.SetConversationPrivateChat, IMSDK.uuid(), {
+                const privateChatData = await IMSDK.asyncApi(IMMethods.SetConversationPrivateChat, IMSDK.uuid(), {
                     conversationID,
                     isPrivate: time !== 'stop',
                     ex: this.storeSelfInfo.nickname
                 });
+                if (privateChatData && time === 'stop') {
+                    this.show = false;
+                    uni.$u.toast('设置成功');
+                    this.moreIndex = 0;
+                    return;
+                }
                 const data = await IMSDK.asyncApi(IMMethods.SetConversationBurnDuration, IMSDK.uuid(), {
                     conversationID,
                     burnDuration: time,
                     ex: this.storeSelfInfo.nickname
                 });
-                console.log('datadatadatadatadatadatadatadatadatadatadatadatadata', data);
                 if (data) {
                     this.show = false;
                     uni.$u.toast('设置成功');
@@ -247,7 +252,7 @@ export default {
     .select-box {
         position: absolute;
         width: 420rpx;
-        z-index: 99;
+        z-index: 99999;
         top: 130rpx;
         margin-top: 10rpx;
         right: 0;
