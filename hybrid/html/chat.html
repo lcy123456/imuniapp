@@ -271,270 +271,266 @@
     </div>
 
     <script type="text/javascript">
-        window.onload = function () {
-
-
-            const {
-                // Participant,
-                // RemoteParticipant,
-                // RemoteTrackPublication,
-                RemoteTrack,
-                Room,
-                RoomEvent,
-            } = window.LivekitClient;
-            const app = new Vue({
-                el: '#app',
-                data: {
-                    name: '好好',
-                    type: '',
-                    device: '',
-                    callTime: '',
-                    trackList: [],
-                    room: null,
-                    isShowCall: false,
-                    handleAttr: {
-                        isActiveMic: true, // 麦克风
-                        isActiveSpeak: true, // 扬声器
-                        isActiveCam: true, // 摄像头
-                        isActiveOverturn: false, // 翻转
-                    },
-                    micImage: 'images/incoming_call_handle_mic_2.png',
-                    micText: '麦克风已关',
-                    camImage: 'images/incoming_call_handle_cam_2.png',
-                    camText: '摄像头已关',
-                    speakImage: 'images/incoming_call_handle_speak_2.png',
-                    speakText: '扬声器已关'
+        const {
+            // Participant,
+            // RemoteParticipant,
+            // RemoteTrackPublication,
+            RemoteTrack,
+            Room,
+            RoomEvent,
+        } = window.LivekitClient;
+        const app = new Vue({
+            el: '#app',
+            data: {
+                name: '好好',
+                type: '',
+                device: '',
+                callTime: '',
+                trackList: [],
+                room: null,
+                isShowCall: false,
+                handleAttr: {
+                    isActiveMic: true, // 麦克风
+                    isActiveSpeak: true, // 扬声器
+                    isActiveCam: true, // 摄像头
+                    isActiveOverturn: false, // 翻转
                 },
-                computed: {
+                micImage: 'images/incoming_call_handle_mic_2.png',
+                micText: '麦克风已关',
+                camImage: 'images/incoming_call_handle_cam_2.png',
+                camText: '摄像头已关',
+                speakImage: 'images/incoming_call_handle_speak_2.png',
+                speakText: '扬声器已关'
+            },
+            computed: {
+            },
+            mounted () {
+                // this.init();
+            },
+            methods: {
+                init(data) {
+                    if (data) {
+                        for (let k in data) {
+                            this.$set(this, k, data[k]);
+                        }
+                    }
+                    this.disconnect();
+                    // this.type = this.getLocationKeyValue('type');
+                    this.openRoom();
                 },
-                mounted() {
-                    this.init();
+                getLocationKeyValue(key) {
+                    const reg = new RegExp(`${key}=([^&]*)`);
+                    const href = location.href;
+                    return href.match(reg) && href.match(reg)[1] ? href.match(reg)[1] : '';
                 },
-                methods: {
-                    init(data) {
-                        if (data) {
-                            for (let k in data) {
-                                this.$set(this, k, data[k]);
-                            }
-                        }
-                        this.disconnect();
-                        // this.type = this.getLocationKeyValue('type');
-                        this.openRoom();
-                    },
-                    getLocationKeyValue(key) {
-                        const reg = new RegExp(`${key}=([^&]*)`);
-                        const href = location.href;
-                        return href.match(reg) && href.match(reg)[1] ? href.match(reg)[1] : '';
-                    },
-                    getDom(id) {
-                        return document.getElementById(id);
-                    },
-                    setDomAttr(map) {
-                        // const { width = `300px`, height = `300px`, id, dom } = map;
-                        const { width = `auto`, height = `${document.documentElement.clientHeight}px`, id, dom } = map;
-                        if (!dom) return;
-                        dom.id = id;
-                        dom.className = map.className;
-                        dom.style.width = width;
-                        dom.style.height = height;
-                    },
-                    updateData() {
-                        this.openRoom();
-                    },
-                    async toggleAudio() {
-                        if (!this.room) return;
-                        const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
-                        await this.room?.localParticipant?.setMicrophoneEnabled(!enabled);
-                        this.setInitAudioImg();
-                    },
-                    setInitAudioImg() {
-                        const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
-                        this.micImage = !enabled ? 'images/incoming_call_handle_mic_2.png' : 'images/incoming_call_handle_mic_1.png';
-                        this.micText = !enabled ? '麦克风已关' : '麦克风已开';
-                    },
+                getDom(id) {
+                    return document.getElementById(id);
+                },
+                setDomAttr(map) {
+                    // const { width = `300px`, height = `300px`, id, dom } = map;
+                    const { width = `auto`, height = `${document.documentElement.clientHeight}px`, id, dom } = map;
+                    if (!dom) return;
+                    dom.id = id;
+                    dom.className = map.className;
+                    dom.style.width = width;
+                    dom.style.height = height;
+                },
+                updateData() {
+                    this.openRoom();
+                },
+                async toggleAudio() {
+                    if (!this.room) return;
+                    const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
+                    await this.room?.localParticipant?.setMicrophoneEnabled(!enabled);
+                    this.setInitAudioImg();
+                },
+                setInitAudioImg() {
+                    const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
+                    this.micImage = !enabled ? 'images/incoming_call_handle_mic_2.png' : 'images/incoming_call_handle_mic_1.png';
+                    this.micText = !enabled ? '麦克风已关' : '麦克风已开';
+                },
 
-                    async toggleVideo() {
-                        if (!this.room) return;
-                        const enabled = this.room?.localParticipant.isCameraEnabled;
-                        await this.room?.localParticipant.setCameraEnabled(!enabled);
-                        this.setInitVideoImg();
-                        !enabled && this.addSelf();
-                    },
-                    setInitVideoImg() {
-                        const enabled = this.room?.localParticipant.isCameraEnabled;
-                        this.camImage = !enabled ? 'images/incoming_call_handle_cam_2.png' : 'images/incoming_call_handle_cam_1.png';
-                        this.camText = !enabled ? '摄像头已关' : '摄像头已开';
-                    },
+                async toggleVideo() {
+                    if (!this.room) return;
+                    const enabled = this.room?.localParticipant.isCameraEnabled;
+                    await this.room?.localParticipant.setCameraEnabled(!enabled);
+                    this.setInitVideoImg();
+                    !enabled && this.addSelf();
+                },
+                setInitVideoImg() {
+                    const enabled = this.room?.localParticipant.isCameraEnabled;
+                    this.camImage = !enabled ? 'images/incoming_call_handle_cam_2.png' : 'images/incoming_call_handle_cam_1.png';
+                    this.camText = !enabled ? '摄像头已关' : '摄像头已开';
+                },
 
-                    async toggleVideoInput() {
-                        const devices = await Room.getLocalDevices('videoinput');
-                        if (this.device === '') {
-                            this.device = devices[1];
-                        } else {
-                            const otherDevices = devices.filter(item => item.deviceId !== this.device.deviceId);
-                            this.device = otherDevices[0];
-                        }
-                        this.device && await this.room.switchActiveDevice('videoinput', this.device.deviceId);
-                    },
-                    async openRoom() {
-                        const wsURL = `ws://192.168.2.20:7880`;
-                        const token = localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMDM2NDIsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5NzcxMTY0Miwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTEiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0._-3jkKTw-wBFJVI6BCN2bBdbEQKujeUwHVazttNCNCE`;
-                        this.room = new Room();
-                        this.trackList = [];
-                        try {
-                            await this.room.connect(wsURL, token);
-                            console.log('connected to room----', this.room.name);
-                            // await p.enableCameraAndMicrophone();
-                            this.removeMember();
-                            this.addInitMember();
-                            this.addJoinMember();
-                            this.addSelf('init');
-                        } catch (err) {
-                            console.log('fail -----connected to room----', err);
-                        }
-                    },
-                    // 断线删除成员
-                    async removeMember() {
-                        const otherDom = this.getDom('other-box');
-                        this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
-                            this.removeElment({
+                async toggleVideoInput() {
+                    const devices = await Room.getLocalDevices('videoinput');
+                    if (this.device === '') {
+                        this.device = devices[1];
+                    } else {
+                        const otherDevices = devices.filter(item => item.deviceId !== this.device.deviceId);
+                        this.device = otherDevices[0];
+                    }
+                    this.device && await this.room.switchActiveDevice('videoinput', this.device.deviceId);
+                },
+                async openRoom() {
+                    const wsURL = `ws://192.168.2.20:7880`;
+                    const token = localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMDM2NDIsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5NzcxMTY0Miwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTEiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0._-3jkKTw-wBFJVI6BCN2bBdbEQKujeUwHVazttNCNCE`;
+                    this.room = new Room();
+                    this.trackList = [];
+                    try {
+                        await this.room.connect(wsURL, token);
+                        console.log('connected to room----', this.room.name);
+                        // await p.enableCameraAndMicrophone();
+                        this.removeMember();
+                        this.addInitMember();
+                        this.addJoinMember();
+                        this.addSelf('init');
+                    } catch (err) {
+                        console.log('fail -----connected to room----', err);
+                    }
+                },
+                // 断线删除成员
+                async removeMember() {
+                    const otherDom = this.getDom('other-box');
+                    this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
+                        this.removeElment({
+                            participant,
+                            parentDom: otherDom
+                        });
+                    });
+                },
+                // 加入新进成员
+                async addJoinMember() {
+                    const otherDom = this.getDom('other-box');
+                    this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                        this.addElement({
+                            parentDom: otherDom,
+                            track,
+                            participant
+                        });
+                    });
+                },
+                // 初始化已在成员
+                async addInitMember() {
+                    const otherDom = this.getDom('other-box');
+                    this.room?.participants?.forEach(participant => {
+                        participant?.tracks?.forEach(track => {
+                            this.addElement({
                                 participant,
+                                track: track.track,
                                 parentDom: otherDom
                             });
                         });
-                    },
-                    // 加入新进成员
-                    async addJoinMember() {
-                        const otherDom = this.getDom('other-box');
-                        this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-                            this.addElement({
-                                parentDom: otherDom,
-                                track,
-                                participant
+                    });
+                },
+                // 添加自己
+                async addSelf(type) {
+                    const myVideoDom = this.getDom('myVideo');
+                    if (myVideoDom) return;
+                    const myBoxDom = this.getDom('my-box');
+                    const p = this.room.localParticipant;
+                    try {
+                        await p.setCameraEnabled(type ? (this.type === 'video') : true);
+                        await p.setMicrophoneEnabled(true);
+                        const cameraTrack = p.getTrack(RemoteTrack.Source.Camera);
+                        const myVideo = cameraTrack?.track?.attach();
+                        if (myVideo) {
+                            const div = document.createElement('div');
+                            this.setDomAttr({
+                                dom: div,
+                                id: 'myVideo',
+                                className: 'video-box'
                             });
-                        });
-                    },
-                    // 初始化已在成员
-                    async addInitMember() {
-                        const otherDom = this.getDom('other-box');
-                        this.room?.participants?.forEach(participant => {
-                            participant?.tracks?.forEach(track => {
-                                this.addElement({
-                                    participant,
-                                    track: track.track,
-                                    parentDom: otherDom
-                                });
+                            this.setDomAttr({
+                                dom: myVideo,
+                                id: '',
+                                className: 'video'
                             });
-                        });
-                    },
-                    // 添加自己
-                    async addSelf(type) {
-                        const myVideoDom = this.getDom('myVideo');
-                        if (myVideoDom) return;
-                        const myBoxDom = this.getDom('my-box');
-                        const p = this.room.localParticipant;
-                        try {
-                            await p.setCameraEnabled(type ? (this.type === 'video') : true);
-                            await p.setMicrophoneEnabled(true);
-                            const cameraTrack = p.getTrack(RemoteTrack.Source.Camera);
-                            const myVideo = cameraTrack?.track?.attach();
-                            if (myVideo) {
-                                const div = document.createElement('div');
-                                this.setDomAttr({
-                                    dom: div,
-                                    id: 'myVideo',
-                                    className: 'video-box'
-                                });
-                                this.setDomAttr({
-                                    dom: myVideo,
-                                    id: '',
-                                    className: 'video'
-                                });
-                                div.appendChild(myVideo);
-                                myBoxDom.appendChild(div);
-                            }
-                        } catch (err) {
-                            console.log('video，麦克风拒绝');
+                            div.appendChild(myVideo);
+                            myBoxDom.appendChild(div);
                         }
-                        setTimeout(() => {
-                            this.setInitVideoImg();
-                            this.setInitAudioImg();
-                        }, 0);
-                    },
-                    addElement({ parentDom, track, participant }) {
-                        const { identity } = participant;
-                        const element = track.attach();
-                        const type = `${identity}-${track.kind}`;
-                        if (this.trackList.includes(type)) {
-                            const dom = this.getDom(type);
-                            parentDom.removeChild(dom);
-                        }
-                        const div = document.createElement('div');
-                        this.setDomAttr({
-                            dom: div,
-                            id: type,
-                            className: 'video-box'
-                        });
-                        this.setDomAttr({
-                            dom: element,
-                            id: type,
-                            className: 'video'
-                        });
-                        div.appendChild(element);
-                        parentDom.appendChild(div);
-                        this.trackList.push(type);
-                    },
-                    changeBox(type) {
-                        console.log('换');
-                        const otherDom = this.getDom('other-box');
-                        const myBoxDom = this.getDom('my-box');
-                        if (type === 'other' && otherDom.className === `video-box other`) {
-                            otherDom.className = `video-box my`;
-                            myBoxDom.className = `video-box other`;
-                        }
-                        if (type === 'my' && otherDom.className === `video-box my`) {
-                            otherDom.className = `video-box other`;
-                            myBoxDom.className = `video-box my`;
-                        }
-                    },
-                    removeElment({ parentDom, participant }) {
-                        const { identity } = participant;
-                        const video = this.getDom(`${identity}-video`);
-                        const audio = this.getDom(`${identity}-audio`);
-                        this.trackList = this.trackList.filter(item => ![`${identity}-video`, `${identity}-audio`].includes(item));
-                        parentDom.removeChild(video);
-                        parentDom.removeChild(audio);
-                    },
-                    back() {
-                        uni.postMessage({
-                            data: {
-                                isSmall: true
-                            }
-                        });
-                        uni.navigateBack();
-                    },
-                    disconnect() {
-                        const otherDom = this.getDom('other-box');
-                        const myBoxDom = this.getDom('my-box');
-                        otherDom.innerHTML = '';
-                        myBoxDom.innerHTML = '';
-                        this.myVideo = null;
-                        this.trackList = [];
-                        this.room && this.room.disconnect();
-                    },
-                    goOut() {
-                        this.disconnect();
-                        uni.navigateBack();
+                    } catch (err) {
+                        console.log('video，麦克风拒绝');
+                    }
+                    setTimeout(() => {
+                        this.setInitVideoImg();
+                        this.setInitAudioImg();
+                    }, 0);
+                },
+                addElement({ parentDom, track, participant }) {
+                    const { identity } = participant;
+                    const element = track.attach();
+                    const type = `${identity}-${track.kind}`;
+                    if (this.trackList.includes(type)) {
+                        const dom = this.getDom(type);
+                        parentDom.removeChild(dom);
+                    }
+                    const div = document.createElement('div');
+                    this.setDomAttr({
+                        dom: div,
+                        id: type,
+                        className: 'video-box'
+                    });
+                    this.setDomAttr({
+                        dom: element,
+                        id: type,
+                        className: 'video'
+                    });
+                    div.appendChild(element);
+                    parentDom.appendChild(div);
+                    this.trackList.push(type);
+                },
+                changeBox(type) {
+                    console.log('换');
+                    const otherDom = this.getDom('other-box');
+                    const myBoxDom = this.getDom('my-box');
+                    if (type === 'other' && otherDom.className === `video-box other`) {
+                        otherDom.className = `video-box my`;
+                        myBoxDom.className = `video-box other`;
+                    }
+                    if (type === 'my' && otherDom.className === `video-box my`) {
+                        otherDom.className = `video-box other`;
+                        myBoxDom.className = `video-box my`;
                     }
                 },
-                beforeDestroy() {
-                    this.room && this.room.disconnect();
+                removeElment({ parentDom, participant }) {
+                    const { identity } = participant;
+                    const video = this.getDom(`${identity}-video`);
+                    const audio = this.getDom(`${identity}-audio`);
+                    this.trackList = this.trackList.filter(item => ![`${identity}-video`, `${identity}-audio`].includes(item));
+                    parentDom.removeChild(video);
+                    parentDom.removeChild(audio);
+                },
+                back() {
+                    uni.postMessage({
+                        data: {
+                            isSmall: true
+                        }
+                    });
+                    uni.navigateBack();
+                },
+                disconnect() {
+                    const otherDom = this.getDom('other-box');
+                    const myBoxDom = this.getDom('my-box');
+                    otherDom && (otherDom.innerHTML = '');
+                    myBoxDom && (myBoxDom.innerHTML = '');
+                    this.myVideo = null;
                     this.trackList = [];
+                    this.room && this.room.disconnect();
+                },
+                goOut() {
+                    this.disconnect();
+                    uni.navigateBack();
                 }
-            })
-            function uniEvent(res) {
-                app.init(res);
+            },
+            beforeDestroy() {
+                this.room && this.room.disconnect();
+                this.trackList = [];
             }
+        })
+        function uniEvent(res) {
+            app.init(res);
         }
     </script>
 </body>
