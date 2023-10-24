@@ -511,6 +511,7 @@ export default {
         async goWebrtc (type) {
             console.log('goWebrtc----goWebrtc');
             const hasPermission  = await this.reviewPermission();
+            console.log(hasPermission, 'hasPermissionhasPermissionhasPermissionhasPermission');
             if (hasPermission) {
                 await this.onThrowCall(type);
                 uni.navigateTo({url: `/pages/conversation/webrtc/index`});

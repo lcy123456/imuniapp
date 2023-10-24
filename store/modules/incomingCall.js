@@ -62,10 +62,9 @@ const actions = {
     // 检查麦克风、摄像头权限
     async reviewPermission () {
         let result = false;
-        if (plus.io.name === 'ios') {
+        if (uni.$u.os() === 'ios') {
             const haveRecord = judgeIosPermission('record');
             const haveCamera = judgeIosPermission('camera');
-            console.log('reviewPermission()', haveRecord, haveCamera);
             if (haveRecord !== 1)
                 showToast({ title: '请开启麦克风权限'});
             if (!haveCamera)
