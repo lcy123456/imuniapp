@@ -65,18 +65,19 @@ const actions = {
         if (plus.io.name === 'ios') {
             const haveRecord = judgeIosPermission('record');
             const haveCamera = judgeIosPermission('camera');
-            if (!haveCamera)
+            console.log('reviewPermission()', haveRecord, haveCamera);
+            if (haveRecord !== 1)
                 showToast({ title: '请开启麦克风权限'});
             if (!haveCamera)
                 showToast({ title: '请开启摄像头权限'});
 
-            result = haveRecord &&  haveCamera;
+            result = haveRecord === 1 &&  haveCamera;
         } else {
             const HAVE_RECORD_AUDIO = await requestAndroidPermission('android.permission.RECORD_AUDIO');
             const HAVE_CAMERA = await requestAndroidPermission('android.permission.CAMERA');
-            if ([0, -1].includes(HAVE_RECORD_AUDIO))
+            if (HAVE_RECORD_AUDIO !== 1)
                 showToast({ title: '请开启麦克风权限'});
-            if ([0, -1].includes(HAVE_CAMERA))
+            if (HAVE_CAMERA !== 1)
                 showToast({ title: '请开启摄像头权限'});
 
             result = HAVE_RECORD_AUDIO === 1 && HAVE_CAMERA === 1;
