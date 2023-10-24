@@ -190,6 +190,7 @@
     }
 
     .answer_panel {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -201,6 +202,16 @@
         width: 70px;
         height: 70px;
         border: none;
+    }
+
+    .answer_panel .overturn_small {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 7%;
+        width: 30px;
+        height: 23px;
+        margin: auto 0;
     }
 
     .flex-center {
@@ -265,6 +276,9 @@
                     <button v-if="isShowCall" class="success_btn">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
+                    <image class="overturn_small" src="images/incoming_call_handle_overturn_2.png" v-if="!isShowCall"
+                        @click="toggleVideoInput">
+                    </image>
                 </div>
             </div>
         </div>
@@ -304,7 +318,7 @@
             },
             computed: {
             },
-            mounted () {
+            mounted() {
                 // this.init();
             },
             methods: {
