@@ -1,264 +1,279 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title></title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script type="text/javascript" src="https://unpkg.com/@dcloudio/uni-webview-js@0.0.1/index.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-        <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
-        <!-- <script src="./chat.js"></script> -->
-	</head>
-	
-	<style type="text/css">
-		* {
-            padding: 0;
-            margin: 0;
-        }
-        body, html {
-            overflow: hidden;
-        }
-        .chat-main-css {
-        }
-        .video-box {
-        }
-        .video-box.my .video-box {
-            position: fixed;
-            top: 0!important;
-            left: 50%!important;
-            transform: translateX(-50%)!important;
-            z-index: 1;
-        }
-        .video-box.my .video-box .video {
-        }
-        .video-box.other .video-box {
-            position: fixed;
-            top: 50px!important;
-            right: 20px!important;
-            width: 40%!important;
-            height: 30%!important;
-            overflow: hidden;
-            z-index: 2;
-        }
-        .video-box.other .video {
-            width: auto!important;
-            height: 100%!important;
-            position: absolute;
-            left: 50%;
-            top: 0;
-            transform: translateX(-50%);
-        }
-        audio {
-            position: fixed;
-            z-index: -1!important;
-        }
-        #back {
-            z-index: 999999;
-        }
-        .text-inverse {
-            color: #FFFFFF;
-        }
-        .fz-14 {
-            font-size: 14px;
-        }
-        .fz-16 {
-            font-size: 16px;
-        }
-        .fz-21 {
-            font-size: 21px;
-        }
-        .mt-7 {
-            margin-top: 7px;
-        }
-        .mt-10 {
-            margin-top: 10px;
-        }
-        .btn {
-            display: block;
-            background-color: #007aff;
-            border: 0;
-            color: #ffffff;
-            height: 60px;
-            width: 200px;
-        }
 
-        .btn-red {
-            background-color: #dd524d;
-        }
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="https://unpkg.com/@dcloudio/uni-webview-js@0.0.1/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <!-- <script src="./chat.js"></script> -->
+</head>
+
+<style type="text/css">
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    body,
+    html {
+        overflow: hidden;
+    }
+
+    .chat-main-css {}
+
+    .video-box {}
+
+    .video-box.my .video-box {
+        position: fixed;
+        top: 0 !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 1;
+    }
+
+    .video-box.my .video-box .video {}
+
+    .video-box.other .video-box {
+        position: fixed;
+        top: 50px !important;
+        right: 20px !important;
+        width: 40% !important;
+        height: 30% !important;
+        overflow: hidden;
+        z-index: 2;
+    }
+
+    .video-box.other .video {
+        width: auto !important;
+        height: 100% !important;
+        position: absolute;
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+    }
+
+    audio {
+        position: fixed;
+        z-index: -1 !important;
+    }
+
+    #back {
+        z-index: 999999;
+    }
+
+    .text-inverse {
+        color: #FFFFFF;
+    }
+
+    .fz-14 {
+        font-size: 14px;
+    }
+
+    .fz-16 {
+        font-size: 16px;
+    }
+
+    .fz-21 {
+        font-size: 21px;
+    }
+
+    .mt-7 {
+        margin-top: 7px;
+    }
+
+    .mt-10 {
+        margin-top: 10px;
+    }
+
+    .btn {
+        display: block;
+        background-color: #007aff;
+        border: 0;
+        color: #ffffff;
+        height: 60px;
+        width: 200px;
+    }
+
+    .btn-red {
+        background-color: #dd524d;
+    }
 
 
-        .desc {
-            padding: 10px;
-            color: #999999;
-        }
+    .desc {
+        padding: 10px;
+        color: #999999;
+    }
 
 
-        .incoming_call_main {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: url("images/incoming_call_main_back.png") no-repeat;
-            background-size: 100% 100%;
-        }
-        .incoming_call_main .header_panel {
-            position: relative;
-            margin-top: 10vh;
-            height: 22px;
-            line-height: 22px;
-            text-align: center;
-        }
-        .incoming_call_main .right_icon {
-            position: absolute;
-            top: 0;
-            left: 43px;
-            width: 22px;
-            height: 22px;
-        }
+    .incoming_call_main {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: url("images/incoming_call_main_back.png") no-repeat;
+        background-size: 100% 100%;
+    }
 
-        .avatar_panel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            margin-top: 12vh;
-        }
-        .avatar {
-            background-color: #5496EB;
-            border-radius: 10px;
-            width: 70px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #FFFFFF;
-            font-size: 18px;
-        }
+    .incoming_call_main .header_panel {
+        position: relative;
+        margin-top: 10vh;
+        height: 22px;
+        line-height: 22px;
+        text-align: center;
+    }
 
-        .tips_text {
-            font-size: 18px;
-            color: #FFFFFF;
-            height: 24px;
-            line-height: 24px;
-            text-align: center;
-            margin-top: 80px;
-        }
+    .incoming_call_main .right_icon {
+        position: absolute;
+        top: 0;
+        left: 43px;
+        width: 22px;
+        height: 22px;
+    }
 
-        .btn_nav {
-            position: fixed;
-            width: 86%;
-            bottom: 10vh;
-            left: 0;
-            right: 0;
-            margin: 0 auto;
-            z-index: 2;
-        }
+    .avatar_panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        margin-top: 12vh;
+    }
 
-        .handle_panel {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .handle_cell{
-            display: flex;
-            align-items: center;
-            flex-direction: column;
-        }
-        .handle_icon {
-            width: 70px;
-            height: 70px;
-        }
+    .avatar {
+        background-color: #5496EB;
+        border-radius: 10px;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #FFFFFF;
+        font-size: 18px;
+    }
 
-        .answer_panel {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 33px;
-        }
-        .answer_panel button {
-            border-radius: 100%;
-            width: 70px;
-            height: 70px;
-            border: none;
-        }
-        .flex-center {
-            justify-content: center!important;
-        }
-        .call_icon {
-            width: 30px;
-            height: 30px;
-        }
-        .danger_btn{
-            background-color: #F45955;
-        }
-        .danger_btn .call_icon {
-            transform: rotate(135deg);
-            margin-top: 5px;
-        }
-        .success_btn {
-            background-color: #58BE6B;
-        }
-	</style>
-	
-	<body>
-        <div id="app">
-            <div class="chat-main-css">
-                <div
-                    id="other-box"
-                    class="video-box other"
-                    @click="changeBox('other')"
-                ></div>
-                <div
-                    id="my-box"
-                    class="video-box my"
-                    @click="changeBox('my')"
-                ></div>
+    .tips_text {
+        font-size: 18px;
+        color: #FFFFFF;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        margin-top: 80px;
+    }
+
+    .btn_nav {
+        position: fixed;
+        width: 86%;
+        bottom: 10vh;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        z-index: 2;
+    }
+
+    .handle_panel {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .handle_cell {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .handle_icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .answer_panel {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 33px;
+    }
+
+    .answer_panel button {
+        border-radius: 100%;
+        width: 70px;
+        height: 70px;
+        border: none;
+    }
+
+    .flex-center {
+        justify-content: center !important;
+    }
+
+    .call_icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .danger_btn {
+        background-color: #F45955;
+    }
+
+    .danger_btn .call_icon {
+        transform: rotate(135deg);
+        margin-top: 5px;
+    }
+
+    .success_btn {
+        background-color: #58BE6B;
+    }
+</style>
+
+<body>
+    <div id="app">
+        <div class="chat-main-css">
+            <div id="other-box" class="video-box other" @click="changeBox('other')"></div>
+            <div id="my-box" class="video-box my" @click="changeBox('my')"></div>
+        </div>
+
+        <div class="incoming_call_main">
+            <div class="header_panel">
+                <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
+                <span class="fz-16 text-inverse">00:09</span>
             </div>
-
-            <div class="incoming_call_main">
-                <div class="header_panel">
-                    <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
-                    <span class="fz-16 text-inverse">00:09</span>
-                </div>
-                <div class="avatar_panel">
-                    <div class="avatar">{{ name }}</div>
-                    <p class="fz-21 text-inverse mt-7">{{ name }}</p>
-                </div>
-                <div class="tips_text">等待对方接受邀请</div>
-                <div class="btn_nav">
-                    <div class="handle_panel">
-                        <div class="handle_cell" @click="toggleAudio">
-                            <image class="handle_icon" :src="micImage"></image>
-                            <p class="mt-10 fz-14 text-inverse">{{ micText }}</p>
-                        </div>
-                        <!-- <div class="handle_cell">
+            <div class="avatar_panel">
+                <div class="avatar">{{ name }}</div>
+                <p class="fz-21 text-inverse mt-7">{{ name }}</p>
+            </div>
+            <div class="tips_text">等待对方接受邀请</div>
+            <div class="btn_nav">
+                <div class="handle_panel">
+                    <div class="handle_cell" @click="toggleAudio">
+                        <image class="handle_icon" :src="micImage"></image>
+                        <p class="mt-10 fz-14 text-inverse">{{ micText }}</p>
+                    </div>
+                    <!-- <div class="handle_cell">
                             <image class="handle_icon" :src="speakImage"></image>
                             <p class="mt-10 fz-14 text-inverse">{{ speakText }}</p>
                         </div> -->
-                        <div class="handle_cell" @click="toggleVideo">
-                            <image class="handle_icon" :src="camImage"></image>
-                            <p class="mt-10 fz-14 text-inverse">{{ camText }}</p>
-                        </div>
+                    <div class="handle_cell" @click="toggleVideo">
+                        <image class="handle_icon" :src="camImage"></image>
+                        <p class="mt-10 fz-14 text-inverse">{{ camText }}</p>
                     </div>
-                    <div :class="['answer_panel', isShowCall ? '' : 'flex-center']">
-                        <button
-                            class="danger_btn"
-                            @click="goOut"
-                        >
-                            <image src="images/incoming_call_icon.png" class="call_icon" />
-                        </button>
-                        <button
-                            v-if="isShowCall"
-                            class="success_btn"
-                        >
-                            <image src="images/incoming_call_icon.png" class="call_icon" />
-                        </button>
-                    </div>
+                </div>
+                <div :class="['answer_panel', isShowCall ? '' : 'flex-center']">
+                    <button class="danger_btn" @click="goOut">
+                        <image src="images/incoming_call_icon.png" class="call_icon" />
+                    </button>
+                    <button v-if="isShowCall" class="success_btn">
+                        <image src="images/incoming_call_icon.png" class="call_icon" />
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script type="text/javascript">
+    <script type="text/javascript">
+        window.onload = function () {
+
+
             const {
                 // Participant,
                 // RemoteParticipant,
@@ -292,11 +307,11 @@
                 },
                 computed: {
                 },
-                mounted () {
+                mounted() {
                     this.init();
                 },
                 methods: {
-                    init (data) {
+                    init(data) {
                         if (data) {
                             for (let k in data) {
                                 this.$set(this, k, data[k]);
@@ -306,15 +321,15 @@
                         // this.type = this.getLocationKeyValue('type');
                         this.openRoom();
                     },
-                    getLocationKeyValue (key) {
+                    getLocationKeyValue(key) {
                         const reg = new RegExp(`${key}=([^&]*)`);
                         const href = location.href;
                         return href.match(reg) && href.match(reg)[1] ? href.match(reg)[1] : '';
                     },
-                    getDom (id) {
+                    getDom(id) {
                         return document.getElementById(id);
                     },
-                    setDomAttr (map) {
+                    setDomAttr(map) {
                         // const { width = `300px`, height = `300px`, id, dom } = map;
                         const { width = `auto`, height = `${document.documentElement.clientHeight}px`, id, dom } = map;
                         if (!dom) return;
@@ -323,35 +338,35 @@
                         dom.style.width = width;
                         dom.style.height = height;
                     },
-                    updateData () {
+                    updateData() {
                         this.openRoom();
                     },
-                    async toggleAudio () {
+                    async toggleAudio() {
                         if (!this.room) return;
                         const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
                         await this.room?.localParticipant?.setMicrophoneEnabled(!enabled);
                         this.setInitAudioImg();
                     },
-                    setInitAudioImg () {
+                    setInitAudioImg() {
                         const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
-                        this.micImage =  !enabled ? 'images/incoming_call_handle_mic_2.png' : 'images/incoming_call_handle_mic_1.png';
+                        this.micImage = !enabled ? 'images/incoming_call_handle_mic_2.png' : 'images/incoming_call_handle_mic_1.png';
                         this.micText = !enabled ? '麦克风已关' : '麦克风已开';
                     },
 
-                    async toggleVideo () {
+                    async toggleVideo() {
                         if (!this.room) return;
                         const enabled = this.room?.localParticipant.isCameraEnabled;
                         await this.room?.localParticipant.setCameraEnabled(!enabled);
                         this.setInitVideoImg();
                         !enabled && this.addSelf();
                     },
-                    setInitVideoImg () {
+                    setInitVideoImg() {
                         const enabled = this.room?.localParticipant.isCameraEnabled;
-                        this.camImage =  !enabled ? 'images/incoming_call_handle_cam_2.png' : 'images/incoming_call_handle_cam_1.png';
-                        this.camText =  !enabled ? '摄像头已关' : '摄像头已开';
+                        this.camImage = !enabled ? 'images/incoming_call_handle_cam_2.png' : 'images/incoming_call_handle_cam_1.png';
+                        this.camText = !enabled ? '摄像头已关' : '摄像头已开';
                     },
 
-                    async toggleVideoInput () {
+                    async toggleVideoInput() {
                         const devices = await Room.getLocalDevices('videoinput');
                         if (this.device === '') {
                             this.device = devices[1];
@@ -361,7 +376,7 @@
                         }
                         this.device && await this.room.switchActiveDevice('videoinput', this.device.deviceId);
                     },
-                    async openRoom () {
+                    async openRoom() {
                         const wsURL = `ws://192.168.2.20:7880`;
                         const token = localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzMDM2NDIsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5NzcxMTY0Miwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTEiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0._-3jkKTw-wBFJVI6BCN2bBdbEQKujeUwHVazttNCNCE`;
                         this.room = new Room();
@@ -379,7 +394,7 @@
                         }
                     },
                     // 断线删除成员
-                    async removeMember () {
+                    async removeMember() {
                         const otherDom = this.getDom('other-box');
                         this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
                             this.removeElment({
@@ -389,7 +404,7 @@
                         });
                     },
                     // 加入新进成员
-                    async addJoinMember () {
+                    async addJoinMember() {
                         const otherDom = this.getDom('other-box');
                         this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
                             this.addElement({
@@ -400,7 +415,7 @@
                         });
                     },
                     // 初始化已在成员
-                    async addInitMember () {
+                    async addInitMember() {
                         const otherDom = this.getDom('other-box');
                         this.room?.participants?.forEach(participant => {
                             participant?.tracks?.forEach(track => {
@@ -413,7 +428,7 @@
                         });
                     },
                     // 添加自己
-                    async addSelf (type) {
+                    async addSelf(type) {
                         const myVideoDom = this.getDom('myVideo');
                         if (myVideoDom) return;
                         const myBoxDom = this.getDom('my-box');
@@ -446,7 +461,7 @@
                             this.setInitAudioImg();
                         }, 0);
                     },
-                    addElement ({ parentDom, track, participant}) {
+                    addElement({ parentDom, track, participant }) {
                         const { identity } = participant;
                         const element = track.attach();
                         const type = `${identity}-${track.kind}`;
@@ -469,7 +484,7 @@
                         parentDom.appendChild(div);
                         this.trackList.push(type);
                     },
-                    changeBox (type) {
+                    changeBox(type) {
                         console.log('换');
                         const otherDom = this.getDom('other-box');
                         const myBoxDom = this.getDom('my-box');
@@ -482,7 +497,7 @@
                             myBoxDom.className = `video-box my`;
                         }
                     },
-                    removeElment ({parentDom, participant}) {
+                    removeElment({ parentDom, participant }) {
                         const { identity } = participant;
                         const video = this.getDom(`${identity}-video`);
                         const audio = this.getDom(`${identity}-audio`);
@@ -490,7 +505,7 @@
                         parentDom.removeChild(video);
                         parentDom.removeChild(audio);
                     },
-                    back () {
+                    back() {
                         uni.postMessage({
                             data: {
                                 isSmall: true
@@ -498,7 +513,7 @@
                         });
                         uni.navigateBack();
                     },
-                    disconnect () {
+                    disconnect() {
                         const otherDom = this.getDom('other-box');
                         const myBoxDom = this.getDom('my-box');
                         otherDom.innerHTML = '';
@@ -507,20 +522,21 @@
                         this.trackList = [];
                         this.room && this.room.disconnect();
                     },
-                    goOut () {
+                    goOut() {
                         this.disconnect();
                         uni.navigateBack();
                     }
                 },
-                beforeDestroy () {
+                beforeDestroy() {
                     this.room && this.room.disconnect();
                     this.trackList = [];
                 }
             })
-            function uniEvent (res) {
+            function uniEvent(res) {
                 app.init(res);
             }
-        </script>
-	</body>
-</html>
+        }
+    </script>
+</body>
 
+</html>
