@@ -15,7 +15,7 @@ const state = {
     },
     incomingCallSmallStyle: {
         moveX: 7,
-        moveY: 100
+        moveY: 90
     }
 };
 

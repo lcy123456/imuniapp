@@ -1,73 +1,72 @@
 <template>
-    <Page>
+    <view
+        id="chating_container"
+        class="chating_container"
+        @touchstart="handleHideMenu"
+    >
+        <!-- <video id="screenshare-video" autoplay playsinline></video> -->
+        <chating-header
+            :is-multiple-msg="isMultipleMsg"
+            :checked-msg-ids="checkedMsgIds"
+        />
+        <PinToTop
+            ref="pin"
+            :list="storePinList"
+            @setPositionMsgID="getPositionMsgID"
+        />
+        <chating-list
+            :key="updateChatKey"
+            ref="chatingListRef"
+            :menu-outside-flag="menuOutsideFlag"
+            :is-multiple-msg="isMultipleMsg"
+            :checked-msg-ids="checkedMsgIds"
+            :position-msg-i-d="positionMsgID"
+            @scroll="handleHideMenu"
+            @touchstart="chatListClick"
+            @initSuccess="initSuccess"
+            @menuRect="menuRect"
+        />
+        <chating-footer
+            ref="chatingFooterRef"
+            :is-multiple-msg="isMultipleMsg"
+            :footer-outside-flag="footerOutsideFlag"
+            :checked-msg-ids="checkedMsgIds"
+            @sendInit="getPositionMsgID('')"
+        />
         <view
-            id="chating_container"
-            class="chating_container"
-            @touchstart="handleHideMenu"
+            v-show="storeIsShowSetEnd"
+            class="set-end"
+            @click="getPositionMsgID('')"
         >
-            <!-- <video id="screenshare-video" autoplay playsinline></video> -->
-            <chating-header
-                :is-multiple-msg="isMultipleMsg"
-                :checked-msg-ids="checkedMsgIds"
-            />
-            <PinToTop
-                ref="pin"
-                :list="storePinList"
-                @setPositionMsgID="getPositionMsgID"
-            />
-            <chating-list
-                :key="updateChatKey"
-                ref="chatingListRef"
-                :menu-outside-flag="menuOutsideFlag"
-                :is-multiple-msg="isMultipleMsg"
-                :checked-msg-ids="checkedMsgIds"
-                :position-msg-i-d="positionMsgID"
-                @scroll="handleHideMenu"
-                @touchstart="chatListClick"
-                @initSuccess="initSuccess"
-                @menuRect="menuRect"
-            />
-            <chating-footer
-                ref="chatingFooterRef"
-                :is-multiple-msg="isMultipleMsg"
-                :footer-outside-flag="footerOutsideFlag"
-                :checked-msg-ids="checkedMsgIds"
-                @sendInit="getPositionMsgID('')"
-            />
             <view
-                v-show="storeIsShowSetEnd"
-                class="set-end"
-                @click="getPositionMsgID('')"
+                v-if="conversationUnread"
+                class="unread"
             >
-                <view
-                    v-if="conversationUnread"
-                    class="unread"
-                >
-                    {{ conversationUnread < 100 ? conversationUnread : '99' }}
-                </view>
-                <image
-                    src="/static/images/set-end.png"
-                />
+                {{ conversationUnread < 100 ? conversationUnread : '99' }}
             </view>
-            <!-- <u-loading-page :loading="initLoading" /> -->
-            <view style="height: 0">
-                <transition name="fade">
-                    <MessageMenu
-                        v-if="menuState.visible"
-                        :message="menuState.message"
-                        :pater-rect="menuState.paterRect"
-                        @updatePin="updatePin"
-                        @close="menuState.visible = false"
-                    />
-                </transition>
-            </view>
-            <Notification
-                v-model="isShowNotification"
-                :text="notificationText"
-                :icon="notificationIcon"
+            <image
+                src="/static/images/set-end.png"
             />
         </view>
-    </Page>
+        <!-- <u-loading-page :loading="initLoading" /> -->
+        <view style="height: 0">
+            <transition name="fade">
+                <MessageMenu
+                    v-if="menuState.visible"
+                    :message="menuState.message"
+                    :pater-rect="menuState.paterRect"
+                    @updatePin="updatePin"
+                    @close="menuState.visible = false"
+                />
+            </transition>
+        </view>
+        <Notification
+            v-model="isShowNotification"
+            :text="notificationText"
+            :icon="notificationIcon"
+        />
+        <Page />
+    </view>
 </template>
 
 <script>
