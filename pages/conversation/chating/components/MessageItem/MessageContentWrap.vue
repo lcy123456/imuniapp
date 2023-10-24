@@ -24,9 +24,20 @@
             :is-success-message="isSuccessMessage"
             :is-sender="isSender"
         />
-        <ErrorMessageRender v-else />
+        <AudioVideoMessageRender
+            v-else-if="showAudioVideoRender"
+            :message="message"
+            :is-success-message="isSuccessMessage"
+            :is-sender="isSender"
+        />
+        <ErrorMessageRender
+            v-else
+            :message="message"
+            :is-success-message="isSuccessMessage"
+            :is-sender="isSender"
+        />
         <MessageReadState
-            v-if="!showTextRender"
+            v-if="showMediaRender || showFileRender || showMergeRender"
             class="read-state"
             :is-sender="isSender"
             :message="message"
@@ -42,6 +53,7 @@
 <script>
 import { MessageType } from 'openim-uniapp-polyfill';
 import TextMessageRender from './TextMessageRender.vue';
+import AudioVideoMessageRender from './AudioVideoMessageRender.vue';
 import MediaMessageRender from './MediaMessageRender.vue';
 import FileMessageRender from './FileMessageRender.vue';
 import MergeMessageRender from './MergeMessageRender.vue';
@@ -52,14 +64,17 @@ import {
     TextRenderTypes,
     MediaRenderTypes,
     FileRenderTypes,
-    MergeRenderTypes
+    MergeRenderTypes,
+    AudioVideoRenderTypes
 } from '@/constant';
+import { AudioVideoType } from '@/enum';
 
 
 export default {
     components: {
         MessageReadState,
         TextMessageRender,
+        AudioVideoMessageRender,
         MediaMessageRender,
         FileMessageRender,
         MergeMessageRender,
@@ -88,6 +103,16 @@ export default {
         };
     },
     computed: {
+        showAudioVideoRender () {
+            const customElemData = this.message.customElem.data;
+            let data = {};
+            try {
+                data = JSON.parse(customElemData);
+            } catch (err) {
+                console.log(err);
+            }
+            return AudioVideoRenderTypes.includes(this.message.contentType) && data.type && [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type);
+        },
         showTextRender () {
             return TextRenderTypes.includes(this.message.contentType);
         },

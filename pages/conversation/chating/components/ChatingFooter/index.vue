@@ -230,11 +230,13 @@ export default {
         this.setSendMessageListener();
         this.setKeyboardListener();
         uni.$on('quote_message', this.handleQuoteListener);
+        uni.$on('goWebrtc', this.goWebrtc);
     },
     beforeDestroy () {
         this.disposeSendMessageListener();
         this.disposeKeyboardListener();
         uni.$off('quote_message', this.handleQuoteListener);
+        uni.$off('goWebrtc', this.goWebrtc);
     },
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),

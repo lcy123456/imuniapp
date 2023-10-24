@@ -1,5 +1,6 @@
 import store from "@/store";
 import { businessLogin } from '@/api/login';
+import { AudioVideoType } from '@/enum';
 import {
     CustomType,
     AddFriendQrCodePrefix,
@@ -128,13 +129,11 @@ export const parseEmoji = (msgStr) => {
 };
 
 const switchCustomMsg = (cMsg) => {
-    switch (cMsg.customType) {
-    case CustomType.MassMsg:
-        return "[通知]";
-    case CustomType.Call:
-        return "[通话消息]";
-    case CustomType.MeetingInvitation:
-        return "[会议邀请]";
+    switch (cMsg.type) {
+    case AudioVideoType.Video:
+        return "[视频通话]";
+    case AudioVideoType.Audio:
+        return "[语音通话]";
     default:
         return "";
     }
@@ -212,7 +211,7 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
     case MessageType.CustomMessage:
         const customEl = pmsg.customElem;
         const customData = JSON.parse(customEl.data);
-        if (customData.customType) {
+        if (customData.type) {
             return switchCustomMsg(customData);
         }
         return "[自定义消息]";
