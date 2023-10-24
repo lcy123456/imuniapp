@@ -77,10 +77,8 @@ export default {
         ...mapGetters([
             'storeConversationList',
             'storeIsSyncing',
-            'storeIncomingCallWSURL', 
+            'storeIncomingCallWSURL',
             'storeIncomingCallTOKEN',
-            'storeIncomingCallTOKEN',
-            'storeHandleAttr',
         ]),
         showConversationList () {
             return this.storeConversationList.filter(v => {

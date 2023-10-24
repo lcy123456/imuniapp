@@ -51,9 +51,19 @@ export default {
             },
             immediate: true
         },
+        storeIncomingCallSmallStyle: {
+            handler (data) {
+                const {moveX, moveY} = data;
+                this.style = {
+                    transform: `translate(${moveX}px, ${moveY}px)`
+                };
+            },
+            deep: true,
+            immediate: true
+        }
     },
     computed: {
-        ...mapGetters(['storeIsIncomingCallSmall', 'storeIsIncomingCallIng']),
+        ...mapGetters(['storeIsIncomingCallSmall', 'storeIsIncomingCallIng', 'storeIncomingCallSmallStyle']),
 
         // 悬浮缩小
         shouldShow () {
@@ -116,7 +126,6 @@ export default {
             const halfDomHeight = domHeight / 2;
             const padding = 12;
 
-            console.log(moveX, moveY);
             // 控制范围：在元素 被拖拽的过程中 判断 元素的定位值 是否到达边界 如果到了 就不能在走了
             //左边界
             if (moveX <= halfDomWidth) moveX = halfDomWidth + padding;
@@ -132,14 +141,10 @@ export default {
             // 减一半元素宽高，定位到中心点
             moveX = moveX - halfDomWidth;
             moveY = moveY - halfDomHeight;
-            this.style = {
-                transform: `translate(${moveX}px, ${moveY}px)`
-            };
-        },
-        throttleTouchmove (event) {
-            uni.$u.throttle(() => {
-                this.onTouchmove(event);
-            }, 30);
+            store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL_STYLE', {
+                moveX,
+                moveY
+            });
         },
         // 手指抬起时
         onTouchend () {
@@ -161,7 +166,7 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  transform: translate(14rpx, 15vh);
+  transform: translate(14rpx, 200rpx);
   transition: all 0.1s;
   width: 140rpx;
   height: 140rpx;

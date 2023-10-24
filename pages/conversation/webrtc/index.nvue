@@ -11,7 +11,6 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-const { store } = getApp().globalData;
 
 export default {
     data () {
@@ -53,6 +52,7 @@ export default {
     },
     onHide () {
         console.log('onHideonHideonHide');
+        this.onSmall()
     },
     methods: {
         ...mapActions('incomingCall', ['onSmall']),

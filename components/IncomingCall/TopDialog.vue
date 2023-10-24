@@ -68,18 +68,18 @@ export default {
         ...mapGetters([
             'storeIsIncomingCallTop',
             'storeIsCallOrAnswer',
-            'storeIncomingCallThrowUser'
+            'storeIncomingCallUserInfo'
         ]),
         shouldShow () {
             return this.storeIsIncomingCallTop;
         },
         faceURL () {
-            const {faceURL: throwUser} = this.storeIncomingCallThrowUser;
-            return this.storeIsCallOrAnswer ? throwUser : '';
+            const {faceURL} = this.storeIncomingCallUserInfo;
+            return this.storeIsCallOrAnswer ? faceURL : '';
         },
         nickname () {
-            const {nickname: throwUser} = this.storeIncomingCallThrowUser;
-            return this.storeIsCallOrAnswer ? throwUser : '';
+            const {nickname} = this.storeIncomingCallUserInfo;
+            return this.storeIsCallOrAnswer ? nickname : '未知';
         },
     },
     created () {
