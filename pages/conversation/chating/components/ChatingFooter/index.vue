@@ -262,8 +262,24 @@ export default {
             console.log(message, '-----messagemessagemessagemessagemessagemessage');
             return message;
         },
+        async createCustomMessage () {
+            let message = await IMSDK.asyncApi(
+                IMMethods.CreateCustomMessage,
+                IMSDK.uuid(),
+                {
+                    data: JSON.stringify({
+                        type: 1,
+                        status: 1
+                    }),
+                    extension: 'test1',
+                    description: 'test2'
+                }
+            );
+            return message;
+        },
         async sendTextMessage () {
             const message = await this.createTextMessage();
+            // const message = await this.createCustomMessage();
             this.sendMessage(message);
         },
         async sendMessage (message) {
