@@ -23,7 +23,8 @@ export default {
     computed: {
         ...mapGetters([
             "storeCallType",
-            "storeIncomingCallCallTime"
+            "storeIncomingCallCallTime",
+			"storeIsIncomingCallLoading",
         ]),
         src () {
             return `/hybrid/html/chat.html`;
@@ -52,10 +53,13 @@ export default {
     },
     onHide () {
         console.log('onHideonHideonHide');
-        this.onSmall()
+		
+        if(this.storeIsIncomingCallLoading) {
+			this.onSmall()
+		}
     },
     methods: {
-        ...mapActions('incomingCall', ['onSmall']),
+        ...mapActions('incomingCall', ['onSmall', 'onDangerCall']),
 
         handlePostMessage (event) {
             console.log('handlePostMessage()===', event)
@@ -66,7 +70,8 @@ export default {
             }
             if(data.isDanger) {
                 // 挂断
-                // store.commit('incomingCall/onDangerCall');
+				console.log('挂断 this.onDangerCall()')
+                this.onDangerCall()
             }
             if(data.isSuccess) {
                 // 接听

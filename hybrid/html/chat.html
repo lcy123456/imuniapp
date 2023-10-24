@@ -535,6 +535,11 @@
                 },
                 goOut() {
                     this.disconnect();
+                    uni.postMessage({
+                        data: {
+                            isDanger: true
+                        }
+                    });
                     uni.navigateBack();
                 }
             },

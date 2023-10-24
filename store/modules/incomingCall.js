@@ -12,6 +12,7 @@ const state = {
     isIncomingCallTop: false, // 顶部弹出
     isIncomingCallSmall: false, // 悬浮缩小
     isIncomingCallIng: false, // 正在通话中
+    isIncomingCallLoading: false, // 双方等待接听电话
     incomingCallUserInfo: {
         faceURL: '',
         nickname: '菠萝吹雪'
@@ -46,6 +47,9 @@ const mutations = {
     },
     SET_IS_INCOMING_CALL_ING (state, value) {
         state.isIncomingCallIng = value;
+    },
+    SET_IS_INCOMING_CALL_LOADING (state, value) {
+        state.isIncomingCallLoading = value;
     },
     SET_CALL_CONVERSATIONID (state, value) {
         state.conversationID = value;
@@ -102,6 +106,7 @@ const actions = {
             commit('SET_INCOMING_CALL_TOKEN', token);
             commit('SET_CALL_TYPE', callType);
             commit('SET_IS_CALL_OR_ANSWER', true);
+            commit('SET_IS_INCOMING_CALL_LOADING', true);
             commit('SET_CALL_CONVERSATIONID', conversation.state.currentConversation.conversationID);
             commit('SET_CALL_TIME', +new Date());
         } catch (e) {
@@ -120,6 +125,7 @@ const actions = {
             commit('SET_INCOMING_CALL_TOKEN', token);
             commit('SET_CALL_TYPE', callType);
             commit('SET_IS_CALL_OR_ANSWER', false);
+            commit('SET_IS_INCOMING_CALL_LOADING', true);
             commit('SET_INCOMING_CALL_TOP', true);
             commit('SET_CALL_CONVERSATIONID', conversation.state.currentConversation.conversationID);
             commit('SET_CALL_TIME', +new Date());
@@ -133,6 +139,16 @@ const actions = {
         commit
     }) {
         commit('SET_IS_INCOMING_CALL_SMALL', true);
+    },
+    
+    // 挂断电话
+    onDangerCall ({ commit }) {
+        commit('SET_INCOMING_CALL_WSURL', '');
+        commit('SET_INCOMING_CALL_TOKEN', '');
+        commit('SET_IS_INCOMING_CALL_SMALL', false);
+        commit('SET_INCOMING_CALL_TOP', false);
+        commit('SET_IS_INCOMING_CALL_ING', false);
+        commit('SET_IS_INCOMING_CALL_LOADING', false);
     }
 };
 
