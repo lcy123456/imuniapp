@@ -237,7 +237,7 @@ export default {
     },
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
-        ...mapActions('incomingCall', ['onThrowCall']),
+        ...mapActions('incomingCall', ['onThrowCall', 'reviewPermission']),
         async createTextMessage () {
             let message = '';
             const { text } = formatInputHtml(this.inputHtml, 1);
@@ -494,8 +494,11 @@ export default {
         },
         async goWebrtc (type) {
             console.log('goWebrtc----goWebrtc');
-            await this.onThrowCall(type);
-            uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+            const hasPermission  = await this.reviewPermission();
+            if (hasPermission) {
+                await this.onThrowCall(type);
+                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+            }
         },
         chooseOrShotImage (sourceType) {
             return new Promise((resolve, reject) => {

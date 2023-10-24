@@ -1,4 +1,7 @@
 import conversation from './conversation';
+import { requestAndroidPermission, judgeIosPermission } from '@/util/permission.js';
+import { showToast } from '@/util/unisdk';
+
 const state = {
     incomingCallWSURL: 'testWSURL',
     incomingCallTOKEN: 'testToken',
@@ -56,6 +59,30 @@ const mutations = {
 };
 
 const actions = {
+    // 检查麦克风、摄像头权限
+    async reviewPermission () {
+        let result = false;
+        if (plus.io.name === 'ios') {
+            const haveRecord = judgeIosPermission('record');
+            const haveCamera = judgeIosPermission('camera');
+            if (!haveCamera)
+                showToast({ title: '请开启麦克风权限'});
+            if (!haveCamera)
+                showToast({ title: '请开启摄像头权限'});
+
+            result = haveRecord &&  haveCamera;
+        } else {
+            const HAVE_RECORD_AUDIO = await requestAndroidPermission('android.permission.RECORD_AUDIO');
+            const HAVE_CAMERA = await requestAndroidPermission('android.permission.CAMERA');
+            if ([0, -1].includes(HAVE_RECORD_AUDIO))
+                showToast({ title: '请开启麦克风权限'});
+            if ([0, -1].includes(HAVE_CAMERA))
+                showToast({ title: '请开启摄像头权限'});
+
+            result = HAVE_RECORD_AUDIO === 1 && HAVE_CAMERA === 1;
+        }
+        return result;
+    },
     // 拨打电话
     async onThrowCall ({
         commit
