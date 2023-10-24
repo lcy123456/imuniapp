@@ -21,10 +21,14 @@
     html {
         overflow: hidden;
     }
-
+    .chat-single-css .my .avatar-box {
+        display: none;
+    }
     .chat-single-css {}
 
     .chat-group-css {
+        padding: 0 20px;
+        box-sizing: border-box;
         width: 100%;
         min-height: 250px;
         max-height: 360px;
@@ -38,16 +42,30 @@
     }
 
     .chat-group-css .video-box {
-        width: 50%!important;
+        width: calc(50% - 10px)!important;
         height: 170px!important;
+        margin: 5px;
         position: relative;
         overflow: hidden;
     }
+    .avatar-box {
+        width: 100%!important;
+        height: 100%!important;
+        background-color: #5496EB;
+        border-radius: 10px;
+    }
 
-    .chat-group-css .video-box .video {
+    .video-box .video, .video-box .audio {
         width: 100% !important;
-        object-fit: cover;
         height: 100% !important;
+        object-fit: cover;
+        border-radius: 10px;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+    .video-box .video {
+        z-index: 99;
     }
 
     .video-box.my .video-box {
@@ -55,22 +73,14 @@
         z-index: 1;
     }
 
-    .video-box.my .video-box .video {}
-
     .video-box.other .video-box {
         position: fixed;
         top: 50px !important;
         right: 20px !important;
         width: 40% !important;
-        height: 30% !important;
+        height: 25% !important;
         overflow: hidden;
         z-index: 2;
-    }
-
-    .video-box.other .video {
-        width: auto !important;
-        height: 100% !important;
-        position: absolute;
     }
 
     .audio-box {
@@ -255,8 +265,8 @@
                 <span class="fz-16 text-inverse" v-if="isCallIng">00:09</span>
             </div>
             <div v-if="isAlone && !isCallIng" class="avatar_panel">
-                <div class="avatar">{{ baseMap.callUserInfo.nickname }}</div>
-                <p class="fz-21 text-inverse mt-7">{{ baseMap.callUserInfo.nickname }}</p>
+                <div class="avatar">{{ baseMap?.callUserInfo?.nickname }}</div>
+                <p class="fz-21 text-inverse mt-7">{{ baseMap?.callUserInfo?.nickname }}</p>
             </div>
             <div v-if="isAlone && !isCallIng" class="tips_text">等待对方接受邀请</div>
             <div class="btn_nav">
@@ -382,7 +392,7 @@
                 },
                 setDomAttr(map) {
                     // const { width = `300px`, height = `300px`, id, dom } = map;
-                    const { width = `auto`, height = `${document.documentElement.clientHeight}px`, id, dom } = map;
+                    const { width = `100%`, height = `${document.documentElement.clientHeight}px`, id, dom } = map;
                     if (!dom) return;
                     dom.id = id;
                     dom.className = map.className;
@@ -503,24 +513,38 @@
                     try {
                         await p.setCameraEnabled(type ? (this.baseMap?.message?.type === 'video') : true);
                         await p.setMicrophoneEnabled(true);
-                        const cameraTrack = p.getTrack(RemoteTrack.Source.Camera);
-                        const myVideo = cameraTrack?.track?.attach();
-                        console.log(cameraTrack, 'cameraTrack?.track');
-                        if (myVideo) {
-                            const div = document.createElement('div');
-                            this.setDomAttr({
-                                dom: div,
-                                id: 'myVideo',
-                                className: 'video-box'
-                            });
-                            this.setDomAttr({
-                                dom: myVideo,
-                                id: '',
-                                className: 'video'
-                            });
-                            div.appendChild(myVideo);
-                            parentDom.appendChild(div);
-                        }
+                        [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
+                            console.log(source, 'sourcesource');
+                            const track = p.getTrack(source);
+                            const myVideo = track?.track?.attach();
+                            console.log(track, 'track?.track');
+                            if (myVideo) {
+                                const dom = this.getDom(`myVideo`);
+                                const div = dom || document.createElement('div');
+                                const avatar = this.getDom(`myVideo-avatar`);
+                                this.setDomAttr({
+                                    dom: div,
+                                    id: 'myVideo',
+                                    className: 'video-box'
+                                });
+                                this.setDomAttr({
+                                    dom: myVideo,
+                                    id: '',
+                                    className: source === 'camera' ? 'video' : 'audio'
+                                });
+                                if (!avatar) {
+                                    const avatarDom = document.createElement('div');
+                                    this.setDomAttr({
+                                        dom: avatarDom,
+                                        id: `myVideo-avatar`,
+                                        className: `avatar-box`
+                                    });
+                                    div.appendChild(avatarDom);
+                                }
+                                div.appendChild(myVideo);
+                                !dom && parentDom.appendChild(div);
+                            }
+                        });
                     } catch (err) {
                         console.log('video，麦克风拒绝');
                     }
@@ -533,32 +557,36 @@
                 addElement({ parentDom, track, participant, publication = {} }) {
                     const { identity } = participant;
                     const element = track.attach();
-                    const type = `${identity}-${track.kind}`;
-                    if (this.trackList.includes(type)) {
-                        const dom = this.getDom(type);
-                        parentDom.removeChild(dom);
-                    }
+                    const type = `${identity}-box`;
+                    // if (this.trackList.includes(type)) {
+                    //     const dom = this.getDom(type);
+                    //     parentDom.removeChild(dom);
+                    // }
                     console.log(publication, 'publicationpublicationpublicationpublication');
-                    const div = document.createElement('div');
+                    const dom = this.getDom(`${identity}-box`);
+                    const avatar = this.getDom(`${identity}-avatar`);
+                    const div = dom || document.createElement('div');
                     this.setDomAttr({
                         dom: div,
-                        id: type,
-                        className: `${track.kind}-box`
+                        id: `${identity}-box`,
+                        className: `video-box`
                     });
                     this.setDomAttr({
                         dom: element,
                         id: '',
                         className: `${track.kind}`
                     });
-                    // const divHeader = document.createElement('div');
-                    // this.setDomAttr({
-                    //     dom: divHeader,
-                    //     id: '',
-                    //     className: 'video-header'
-                    // });
-                    // div.appendChild(divHeader);
+                    if (!avatar) {
+                        const avatarDom = document.createElement('div');
+                        this.setDomAttr({
+                            dom: avatarDom,
+                            id: `${identity}-avatar`,
+                            className: `avatar-box`
+                        });
+                        div.appendChild(avatarDom);
+                    }
                     div.appendChild(element);
-                    parentDom.appendChild(div);
+                    !dom && parentDom.appendChild(div);
                     this.trackList.push(type);
                     this.checkDom();
                 },
@@ -577,11 +605,8 @@
                 },
                 removeElment({ parentDom, participant }) {
                     const { identity } = participant;
-                    const video = this.getDom(`${identity}-video`);
-                    const audio = this.getDom(`${identity}-audio`);
-                    this.trackList = this.trackList.filter(item => ![`${identity}-video`, `${identity}-audio`].includes(item));
-                    parentDom.removeChild(video);
-                    parentDom.removeChild(audio);
+                    const dom = this.getDom(`${identity}-box`);
+                    parentDom.removeChild(dom);
                     this.checkDom();
                 },
                 back() {
