@@ -1,34 +1,36 @@
 <template>
-    <view class="favorite_container">
-        <CustomNavBar
-            title="我的收藏"
-            is-bg-color2
-        />
-        <z-paging
-            ref="pagingRef"
-            :fixed="false"
-            :auto="false"
-            default-page-size="20"
-            :show-loading-more-no-more-view="false"
-            @query="queryList"
-            @refresherTouchmove="refresherTouchmove"
-            @refresherTouchend="refresherTouchend"
-        >
-            <u-swipe-action ref="swipeWrapperRef">
-                <u-swipe-action-item
-                    v-for="item in favoriteList"
-                    :key="item.idx"
-                    :index="item.idx"
-                    :options="swipeAction"
-                    :disabled="isDisabled"
-                    :threshold="50"
-                    @click="swipeActionClick"
-                >
-                    <ItemCell :source="item" />
-                </u-swipe-action-item>
-            </u-swipe-action>
-        </z-paging>
-    </view>
+    <Page>
+        <view class="favorite_container">
+            <CustomNavBar
+                title="我的收藏"
+                is-bg-color2
+            />
+            <z-paging
+                ref="pagingRef"
+                :fixed="false"
+                :auto="false"
+                default-page-size="20"
+                :show-loading-more-no-more-view="false"
+                @query="queryList"
+                @refresherTouchmove="refresherTouchmove"
+                @refresherTouchend="refresherTouchend"
+            >
+                <u-swipe-action ref="swipeWrapperRef">
+                    <u-swipe-action-item
+                        v-for="item in favoriteList"
+                        :key="item.idx"
+                        :index="item.idx"
+                        :options="swipeAction"
+                        :disabled="isDisabled"
+                        :threshold="50"
+                        @click="swipeActionClick"
+                    >
+                        <ItemCell :source="item" />
+                    </u-swipe-action-item>
+                </u-swipe-action>
+            </z-paging>
+        </view>
+    </Page>
 </template>
 
 <script>

@@ -1,27 +1,29 @@
 <template>
-    <view class="switch_join_container">
-        <custom-nav-bar title="加入群聊" />
+    <Page>
+        <view class="switch_join_container">
+            <custom-nav-bar title="加入群聊" />
 
-        <view class="action_row">
-            <action-item
-                v-for="item in joinGroupMenus"
-                :key="item.idx"
-                :action="item"
-                @click="actionClick(item)"
-            >
-                <view
-                    slot="icon"
-                    class="custom_icon"
-                    :class="{'custom_icon_id':item.idx === 1}"
+            <view class="action_row">
+                <action-item
+                    v-for="item in joinGroupMenus"
+                    :key="item.idx"
+                    :action="item"
+                    @click="actionClick(item)"
                 >
-                    <image
-                        :src="item.icon"
-                        mode=""
-                    />
-                </view>
-            </action-item>
+                    <view
+                        slot="icon"
+                        class="custom_icon"
+                        :class="{'custom_icon_id':item.idx === 1}"
+                    >
+                        <image
+                            :src="item.icon"
+                            mode=""
+                        />
+                    </view>
+                </action-item>
+            </view>
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>

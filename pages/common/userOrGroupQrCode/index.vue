@@ -1,35 +1,37 @@
 <template>
-    <view class="page_container">
-        <custom-nav-bar title="二维码" />
+    <Page>
+        <view class="page_container">
+            <custom-nav-bar title="二维码" />
 
-        <view class="qr_wrap">
-            <view class="info_row">
-                <my-avatar
-                    :src="sourceInfo.faceURL"
-                    :desc="sourceInfo.nickname"
-                    :is-group="sourceInfo.groupID!==undefined"
-                    size="48"
-                />
-                <text class="nickname">
-                    {{ sourceInfo.nickname||sourceInfo.groupName }}
-                </text>
-            </view>
+            <view class="qr_wrap">
+                <view class="info_row">
+                    <my-avatar
+                        :src="sourceInfo.faceURL"
+                        :desc="sourceInfo.nickname"
+                        :is-group="sourceInfo.groupID!==undefined"
+                        size="48"
+                    />
+                    <text class="nickname">
+                        {{ sourceInfo.nickname||sourceInfo.groupName }}
+                    </text>
+                </view>
 
-            <view class="desc_tip">
-                <text>{{ getDescTip }}</text>
-            </view>
+                <view class="desc_tip">
+                    <text>{{ getDescTip }}</text>
+                </view>
 
-            <view class="qr_icon">
-                <uqrcode
-                    ref="uqrcode"
-                    canvas-id="qrcode"
-                    :value="qrLink"
-                    :size="140"
-                    :options="{ margin: 10, }"
-                />
+                <view class="qr_icon">
+                    <uqrcode
+                        ref="uqrcode"
+                        canvas-id="qrcode"
+                        :value="qrLink"
+                        :size="140"
+                        :options="{ margin: 10, }"
+                    />
+                </view>
             </view>
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>

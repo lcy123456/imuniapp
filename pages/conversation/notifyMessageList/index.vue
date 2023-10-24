@@ -1,21 +1,23 @@
 <template>
-    <view class="page_container">
-        <custom-nav-bar :title="storeCurrentConversation.showName" />
+    <Page>
+        <view class="page_container">
+            <custom-nav-bar :title="storeCurrentConversation.showName" />
 
-        <u-list
-            lower-threshold="100"
-            class="notify_list"
-            height="1"
-            @scrolltolower="scrolltolower"
-        >
-            <u-list-item
-                v-for="message in getRenderList"
-                :key="message.clientMsgID"
+            <u-list
+                lower-threshold="100"
+                class="notify_list"
+                height="1"
+                @scrolltolower="scrolltolower"
             >
-                <notify-message-render :source="message" />
-            </u-list-item>
-        </u-list>
-    </view>
+                <u-list-item
+                    v-for="message in getRenderList"
+                    :key="message.clientMsgID"
+                >
+                    <notify-message-render :source="message" />
+                </u-list-item>
+            </u-list>
+        </view>
+    </Page>
 </template>
 
 <script>

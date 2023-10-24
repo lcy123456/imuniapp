@@ -1,53 +1,55 @@
 <template>
-    <view class="search_container">
-        <custom-nav-bar :route="false">
-            <view slot="left" />
+    <Page>
+        <view class="search_container">
+            <custom-nav-bar :route="false">
+                <view slot="left" />
+                <view
+                    slot="center"
+                    class="search_bar"
+                >
+                    <u-search
+                        v-model="keyword"
+                        action-text="取消"
+                        shape="square"
+                        :placeholder="getPlaceholder"
+                        @change="keywordChange"
+                        @custom="cancel"
+                        @search="startSearch"
+                    />
+                </view>
+            </custom-nav-bar>
+
             <view
-                slot="center"
-                class="search_bar"
+                v-show="!empty && !searching"
+                class="result_row"
+                @click="startSearch"
             >
-                <u-search
-                    v-model="keyword"
-                    action-text="取消"
-                    shape="square"
-                    :placeholder="getPlaceholder"
-                    @change="keywordChange"
-                    @custom="cancel"
-                    @search="startSearch"
+                <image
+                    class="icon"
+                    :src="getIcon"
+                    alt=""
                 />
+                <view class="">
+                    <text>搜索：</text>
+                    <text>{{ keyword }}</text>
+                </view>
             </view>
-        </custom-nav-bar>
 
-        <view
-            v-show="!empty && !searching"
-            class="result_row"
-            @click="startSearch"
-        >
-            <image
-                class="icon"
-                :src="getIcon"
-                alt=""
-            />
-            <view class="">
-                <text>搜索：</text>
-                <text>{{ keyword }}</text>
+            <view
+                v-show="searching && !empty"
+                class="result_row result_row_empty"
+            >
+                <u-loading-icon />
+            </view>
+
+            <view
+                v-show="empty"
+                class="result_row result_row_empty"
+            >
+                <text>暂无搜索结果</text>
             </view>
         </view>
-
-        <view
-            v-show="searching && !empty"
-            class="result_row result_row_empty"
-        >
-            <u-loading-icon />
-        </view>
-
-        <view
-            v-show="empty"
-            class="result_row result_row_empty"
-        >
-            <text>暂无搜索结果</text>
-        </view>
-    </view>
+    </Page>
 </template>
 
 <script>

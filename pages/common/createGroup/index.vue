@@ -1,25 +1,26 @@
 <template>
-    <view class="create_group_container">
-        <CustomNavBar
-            title="发起群聊"
-            is-bg-color2
-        />
-
-        <view class="group_base_info">
-            <MyAvatar
-                :is-group="true"
-                :src="groupFaceUrl"
-                size="62"
-                @click="chooseImage"
+    <Page>
+        <view class="create_group_container">
+            <CustomNavBar
+                title="发起群聊"
+                is-bg-color2
             />
-            <u--input
-                v-model="groupName"
-                placeholder="取个群名"
-                border="none"
-            />
-        </view>
 
-        <!-- <view
+            <view class="group_base_info">
+                <MyAvatar
+                    :is-group="true"
+                    :src="groupFaceUrl"
+                    size="62"
+                    @click="chooseImage"
+                />
+                <u--input
+                    v-model="groupName"
+                    placeholder="取个群名"
+                    border="none"
+                />
+            </view>
+
+            <!-- <view
             class="member_row"
             @click="toChooseMember"
         >
@@ -45,19 +46,20 @@
             </view>
         </view> -->
 
-        <view class="my-30">
-            <u-button
-                :loading="createLoading"
-                :disabled="disabledNext"
-                type="primary"
-                text="下一步"
-                shape="circle"
-                size="large"
-                @click="toChooseMember"
-            />
+            <view class="my-30">
+                <u-button
+                    :loading="createLoading"
+                    :disabled="disabledNext"
+                    type="primary"
+                    text="下一步"
+                    shape="circle"
+                    size="large"
+                    @click="toChooseMember"
+                />
+            </view>
+            <u-toast ref="uToast" />
         </view>
-        <u-toast ref="uToast" />
-    </view>
+    </Page>
 </template>
 
 <script>

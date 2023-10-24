@@ -1,89 +1,91 @@
 <template>
-    <view class="group_card_container">
-        <custom-nav-bar title="" />
+    <Page>
+        <view class="group_card_container">
+            <custom-nav-bar title="" />
 
-        <view class="base_info">
-            <my-avatar
-                :src="sourceGroupInfo.faceURL"
-                :is-group="true"
-                size="48"
-            />
-            <view>
-                <view class="group_name">
-                    <text>{{ sourceGroupInfo.groupName }}</text>
-                    <text v-if="!!sourceGroupInfo.memberCount">
-                        （{{ sourceGroupInfo.memberCount }}）
-                    </text>
+            <view class="base_info">
+                <my-avatar
+                    :src="sourceGroupInfo.faceURL"
+                    :is-group="true"
+                    size="48"
+                />
+                <view>
+                    <view class="group_name">
+                        <text>{{ sourceGroupInfo.groupName }}</text>
+                        <text v-if="!!sourceGroupInfo.memberCount">
+                            （{{ sourceGroupInfo.memberCount }}）
+                        </text>
+                    </view>
+                    <view class="create_time">
+                        <u-icon
+                            name="clock"
+                            color="#999"
+                            size="18"
+                        />
+                        <text>{{ getCreateTime }}</text>
+                    </view>
                 </view>
-                <view class="create_time">
+            </view>
+
+            <view
+                v-if="!!sourceGroupInfo.memberCount"
+                class="member_row info_row"
+            >
+                <view class="member_desc">
+                    <text>群成员</text>
+                    <text class="member_count">
+                        {{ `${sourceGroupInfo.memberCount}人` }}
+                    </text>
                     <u-icon
-                        name="clock"
+                        name="arrow-right"
                         color="#999"
                         size="18"
                     />
-                    <text>{{ getCreateTime }}</text>
+                </view>
+                <view class="member_list">
+                    <my-avatar
+                        v-for="member in getRenderMemberList"
+                        :key="member.userID"
+                        class="member_item"
+                        size="42"
+                        :src="member.faceURL"
+                        :desc="member.nickname"
+                    />
+                    <u-avatar
+                        bg-color="#5496EB"
+                        icon="more-dot-fill"
+                        shape="square"
+                        size="42"
+                    />
                 </view>
             </view>
-        </view>
 
-        <view
-            v-if="!!sourceGroupInfo.memberCount"
-            class="member_row info_row"
-        >
-            <view class="member_desc">
-                <text>群成员</text>
-                <text class="member_count">
-                    {{ `${sourceGroupInfo.memberCount}人` }}
-                </text>
-                <u-icon
-                    name="arrow-right"
-                    color="#999"
-                    size="18"
+            <view class="info_row">
+                <user-info-row-item
+                    lable="群ID号"
+                    :content="sourceGroupInfo.groupID"
                 />
             </view>
-            <view class="member_list">
-                <my-avatar
-                    v-for="member in getRenderMemberList"
-                    :key="member.userID"
-                    class="member_item"
-                    size="42"
-                    :src="member.faceURL"
-                    :desc="member.nickname"
-                />
-                <u-avatar
-                    bg-color="#5496EB"
-                    icon="more-dot-fill"
-                    shape="square"
-                    size="42"
-                />
+
+            <view
+                v-if="!isJoinedGroup"
+                class="action_row"
+                @click="joinGroup"
+            >
+                <text>申请加入该群</text>
             </view>
-        </view>
 
-        <view class="info_row">
-            <user-info-row-item
-                lable="群ID号"
-                :content="sourceGroupInfo.groupID"
-            />
-        </view>
+            <view
+                v-else
+                class="action_row"
+                @click="chatingInGroup"
+            >
+                <text>发消息</text>
+            </view>
 
-        <view
-            v-if="!isJoinedGroup"
-            class="action_row"
-            @click="joinGroup"
-        >
-            <text>申请加入该群</text>
+            <u-toast ref="uToast" />
         </view>
-
-        <view
-            v-else
-            class="action_row"
-            @click="chatingInGroup"
-        >
-            <text>发消息</text>
-        </view>
-
-        <u-toast ref="uToast" />
-    </view>
+    </Page>
 </template>
 
 <script>

@@ -1,68 +1,70 @@
 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
 <template>
-    <view class="page_container">
-        <CustomNavBar
-            title="账号设置"
-            is-bg-color2
-        />
+    <Page>
+        <view class="page_container">
+            <CustomNavBar
+                title="账号设置"
+                is-bg-color2
+            />
 
-        <view class="info_wrap">
-            <SettingItem
-                title="通讯录黑名单"
-                show-arrow
-                @click="toBlockList"
-            />
-            <SettingItem
-                :loading="loading"
-                title="勿扰模式"
-                :switch-value="globalOptEnable"
-                show-switch
-                @switch="switchGlobalOpt"
-            />
-        </view>
-        <view class="add-user">
-            <view slot="content">
-                <view class="ul">
-                    <u-swipe-action-item
-                        v-for="item of storeUserList"
-                        v-if="storeSelfInfo.userID !== item.userID"
-                        :key="item.userID"
-                        :threshold="50"
-                        :options="options"
-                        @click="clickConversationMenu(item)"
-                    >
+            <view class="info_wrap">
+                <SettingItem
+                    title="通讯录黑名单"
+                    show-arrow
+                    @click="toBlockList"
+                />
+                <SettingItem
+                    :loading="loading"
+                    title="勿扰模式"
+                    :switch-value="globalOptEnable"
+                    show-switch
+                    @switch="switchGlobalOpt"
+                />
+            </view>
+            <view class="add-user">
+                <view slot="content">
+                    <view class="ul">
+                        <u-swipe-action-item
+                            v-for="item of storeUserList"
+                            v-if="storeSelfInfo.userID !== item.userID"
+                            :key="item.userID"
+                            :threshold="50"
+                            :options="options"
+                            @click="clickConversationMenu(item)"
+                        >
+                            <view
+                                class="li"
+                                @click="checkUser(item)"
+                            >
+                                <image
+                                    v-if="item.faceURL"
+                                    :src="getAvatarUrl(item.faceURL)"
+                                />
+                                <view
+                                    v-else
+                                    class="avatar"
+                                >
+                                    {{ item.nickname.slice(item.nickname.length - 2, item.nickname.length) }}
+                                </view>
+                                <text>{{ item.nickname }}</text>
+                                <u-loading-icon v-if="checkUserLoading" />
+                            </view>
+                        </u-swipe-action-item>
                         <view
-                            class="li"
-                            @click="checkUser(item)"
+                            :class="['li', 'add', storeUserList.length === 1 ? 'empty' : '']"
+                            @click="goLogin('')"
                         >
                             <image
-                                v-if="item.faceURL"
-                                :src="getAvatarUrl(item.faceURL)"
+                                src="/static/images/add_user.png"
                             />
-                            <view
-                                v-else
-                                class="avatar"
-                            >
-                                {{ item.nickname.slice(item.nickname.length - 2, item.nickname.length) }}
-                            </view>
-                            <text>{{ item.nickname }}</text>
-                            <u-loading-icon v-if="checkUserLoading" />
+                            <text>添加账号</text>
+                            <u-loading-icon v-if="addUserLoading" />
                         </view>
-                    </u-swipe-action-item>
-                    <view
-                        :class="['li', 'add', storeUserList.length === 1 ? 'empty' : '']"
-                        @click="goLogin('')"
-                    >
-                        <image
-                            src="/static/images/add_user.png"
-                        />
-                        <text>添加账号</text>
-                        <u-loading-icon v-if="addUserLoading" />
                     </view>
                 </view>
             </view>
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>

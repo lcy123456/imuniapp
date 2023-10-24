@@ -1,63 +1,65 @@
 <template>
-    <view class="page_container">
-        <view class="status-bar-height" />
-        <view class="self_info_row">
-            <MyAvatar
-                :src="selfInfo.faceURL"
-                :desc="selfInfo.nickname"
-                size="190rpx"
-            />
-            <text class="nickname">
-                {{ selfInfo.nickname }}
-            </text>
-            <view class="id_row">
-                <text>{{ selfInfo.userID }}</text>
-                <image
-                    class="w-32 h-32 ml-20"
-                    src="/static/images/profile_copy.png"
-                    @click="copyID"
+    <Page>
+        <view class="page_container">
+            <view class="status-bar-height" />
+            <view class="self_info_row">
+                <MyAvatar
+                    :src="selfInfo.faceURL"
+                    :desc="selfInfo.nickname"
+                    size="190rpx"
                 />
-            </view>
-            <image
-                class="qrCode w-38 h-38"
-                src="/static/images/profile_top_qr.png"
-                @click="toSelfQr"
-            />
-        </view>
-
-        <view class="px-40">
-            <view
-                v-for="item in profileMenus"
-                :key="item.idx"
-                class="profile_menu_item"
-                @click="profileMenuClick(item)"
-            >
-                <view class="menu_left">
+                <text class="nickname">
+                    {{ selfInfo.nickname }}
+                </text>
+                <view class="id_row">
+                    <text>{{ selfInfo.userID }}</text>
                     <image
-                        class="w-38 h-38"
-                        :src="item.icon"
-                        mode=""
+                        class="w-32 h-32 ml-20"
+                        src="/static/images/profile_copy.png"
+                        @click="copyID"
                     />
-                    <text>{{ item.title }}</text>
                 </view>
-                <u-icon
-                    class="text-grey"
-                    name="arrow-right"
-                    size="20rpx"
+                <image
+                    class="qrCode w-38 h-38"
+                    src="/static/images/profile_top_qr.png"
+                    @click="toSelfQr"
                 />
             </view>
-        </view>
 
-        <u-modal
-            width="500rpx"
-            show-cancel-button
-            :show="showComfirm"
-            content="确定要退出当前账号吗？"
-            async-close
-            @confirm="logoutConfirm"
-            @cancel="closeModal"
-        />
-    </view>
+            <view class="px-40">
+                <view
+                    v-for="item in profileMenus"
+                    :key="item.idx"
+                    class="profile_menu_item"
+                    @click="profileMenuClick(item)"
+                >
+                    <view class="menu_left">
+                        <image
+                            class="w-38 h-38"
+                            :src="item.icon"
+                            mode=""
+                        />
+                        <text>{{ item.title }}</text>
+                    </view>
+                    <u-icon
+                        class="text-grey"
+                        name="arrow-right"
+                        size="20rpx"
+                    />
+                </view>
+            </view>
+
+            <u-modal
+                width="500rpx"
+                show-cancel-button
+                :show="showComfirm"
+                content="确定要退出当前账号吗？"
+                async-close
+                @confirm="logoutConfirm"
+                @cancel="closeModal"
+            />
+        </view>
+    </Page>
 </template>
 
 <script>

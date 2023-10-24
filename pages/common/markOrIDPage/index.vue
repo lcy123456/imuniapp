@@ -1,49 +1,51 @@
 <template>
-    <view class="mark_id_container">
-        <CustomNavBar :title="getTitle">
-            <template slot="more">
-                <text
-                    class="primary mr-30 fz-32"
-                    @click="saveOrCopy"
+    <Page>
+        <view class="mark_id_container">
+            <CustomNavBar :title="getTitle">
+                <template slot="more">
+                    <text
+                        class="primary mr-30 fz-32"
+                        @click="saveOrCopy"
+                    >
+                        完成
+                    </text>
+                </template>
+            </CustomNavBar>
+
+            <view class="py-40 px-60 bg-color">
+                <u-input
+                    v-model="content"
+                    maxlength="20"
+                    :placeholder="getPlaceholder"
+                    border="none"
+                    clearable
+                    :password="type === CustomMarkType.AccountCancel && !eying"
                 >
-                    完成
-                </text>
-            </template>
-        </CustomNavBar>
-
-        <view class="py-40 px-60 bg-color">
-            <u-input
-                v-model="content"
-                maxlength="20"
-                :placeholder="getPlaceholder"
-                border="none"
-                clearable
-                :password="type === CustomMarkType.AccountCancel && !eying"
+                    <u-icon
+                        v-if="type === CustomMarkType.AccountCancel"
+                        slot="suffix"
+                        :name="eying ? 'eye-off' : 'eye'"
+                        @click="eying = !eying"
+                    />
+                </u-input>
+            </view>
+            <text
+                v-if="type === CustomMarkType.AccountCancel"
+                class="fz-28 text-grey"
             >
-                <u-icon
-                    v-if="type === CustomMarkType.AccountCancel"
-                    slot="suffix"
-                    :name="eying ? 'eye-off' : 'eye'"
-                    @click="eying = !eying"
-                />
-            </u-input>
-        </view>
-        <text
-            v-if="type === CustomMarkType.AccountCancel"
-            class="fz-28 text-grey"
-        >
-            请谨慎操作，注销后将对账号和数据进行清空！
-        </text>
+                请谨慎操作，注销后将对账号和数据进行清空！
+            </text>
 
-        <u-modal
-            :content="`确定要注销账户${sourceInfo.nickname}吗？`"
-            async-close
-            :show="showConfirm"
-            show-cancel-button
-            @confirm="confirm"
-            @cancel="() => showConfirm = false"
-        />
-    </view>
+            <u-modal
+                :content="`确定要注销账户${sourceInfo.nickname}吗？`"
+                async-close
+                :show="showConfirm"
+                show-cancel-button
+                @confirm="confirm"
+                @cancel="() => showConfirm = false"
+            />
+        </view>
+    </Page>
 </template>
 
 <script>

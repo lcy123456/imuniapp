@@ -1,79 +1,81 @@
 <template>
-    <view class="group_list_container">
-        <CustomNavBar
-            title="我的群组"
-            is-bg-color2
-        >
-            <view
-                slot="more"
-                class="mr-30 primary ff-medium fz-30"
-                @click="toCreateGroup"
+    <Page>
+        <view class="group_list_container">
+            <CustomNavBar
+                title="我的群组"
+                is-bg-color2
             >
-                <text>发起群聊</text>
+                <view
+                    slot="more"
+                    class="mr-30 primary ff-medium fz-30"
+                    @click="toCreateGroup"
+                >
+                    <text>发起群聊</text>
+                </view>
+            </CustomNavBar>
+            <view class="px-20 pb-20 pt-10">
+                <u-search
+                    v-model="keyword"
+                    shape="square"
+                    placeholder="搜索群组"
+                    :show-action="false"
+                    input-align="center"
+                    bg-color="#fff"
+                    height="70rpx"
+                />
             </view>
-        </CustomNavBar>
-        <view class="px-20 pb-20 pt-10">
-            <u-search
-                v-model="keyword"
-                shape="square"
-                placeholder="搜索群组"
-                :show-action="false"
-                input-align="center"
-                bg-color="#fff"
-                height="70rpx"
-            />
-        </view>
 
-        <view class="bg-color px-30 py-28">
-            <MyTabs
-                :list="tabList"
-                @change="tabsChange"
-            />
-        </view>
-        <view class="pane_row">
-            <view
-                class="pane_transform"
-                :style="{
-                    transform: `translateX(${isMyCreate ? '0' : '-100%'})`,
-                }"
-            >
-                <view class="pane_content">
-                    <u-list
-                        v-if="getMyCreateGroupList.length > 0"
-                        class="group_list"
-                    >
-                        <u-list-item
-                            v-for="group in getMyCreateGroupList"
-                            :key="group.groupID"
+            <view class="bg-color px-30 py-28">
+                <MyTabs
+                    :list="tabList"
+                    @change="tabsChange"
+                />
+            </view>
+            <view class="pane_row">
+                <view
+                    class="pane_transform"
+                    :style="{
+                        transform: `translateX(${isMyCreate ? '0' : '-100%'})`,
+                    }"
+                >
+                    <view class="pane_content">
+                        <u-list
+                            v-if="getMyCreateGroupList.length > 0"
+                            class="group_list"
                         >
-                            <GroupItem :group-info="group" />
-                        </u-list-item>
-                    </u-list>
-                    <u-empty
-                        v-else
-                        mode="list"
-                    />
-                </view>
-                <view class="pane_content">
-                    <u-list
-                        v-if="getMyJoinedGroupList.length > 0"
-                        class="application_list"
-                    >
-                        <u-list-item
-                            v-for="group in getMyJoinedGroupList"
-                            :key="group.groupID"
+                            <u-list-item
+                                v-for="group in getMyCreateGroupList"
+                                :key="group.groupID"
+                            >
+                                <GroupItem :group-info="group" />
+                            </u-list-item>
+                        </u-list>
+                        <u-empty
+                            v-else
+                            mode="list"
+                        />
+                    </view>
+                    <view class="pane_content">
+                        <u-list
+                            v-if="getMyJoinedGroupList.length > 0"
+                            class="application_list"
                         >
-                            <GroupItem :group-info="group" />
-                        </u-list-item>
-                    </u-list>
-                    <u-empty
-                        v-else
-                        mode="list"
-                    />
+                            <u-list-item
+                                v-for="group in getMyJoinedGroupList"
+                                :key="group.groupID"
+                            >
+                                <GroupItem :group-info="group" />
+                            </u-list-item>
+                        </u-list>
+                        <u-empty
+                            v-else
+                            mode="list"
+                        />
+                    </view>
                 </view>
             </view>
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>

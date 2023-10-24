@@ -1,95 +1,96 @@
 <template>
-    <view class="group_settings_container">
-        <CustomNavBar
-            title=""
-            is-bg-color2
-        />
-        <view class="base_info">
-            <MyAvatar
-                :src="currentGroup.faceURL"
-                :is-group="true"
-                size="190rpx"
-                @click="updateAvatar"
+    <Page>
+        <view class="group_settings_container">
+            <CustomNavBar
+                title=""
+                is-bg-color2
             />
-            <view class="mt-30">
-                <text class="nickname">
-                    {{ currentGroup.groupName }}
-                </text>
-                <image
-                    class="w-24 ml-20 h-28"
-                    src="/static/images/group_setting_edit.png"
-                    @click="editGroupName"
+            <view class="base_info">
+                <MyAvatar
+                    :src="currentGroup.faceURL"
+                    :is-group="true"
+                    size="190rpx"
+                    @click="updateAvatar"
                 />
+                <view class="mt-30">
+                    <text class="nickname">
+                        {{ currentGroup.groupName }}
+                    </text>
+                    <image
+                        class="w-24 ml-20 h-28"
+                        src="/static/images/group_setting_edit.png"
+                        @click="editGroupName"
+                    />
+                </view>
+                <view class="id_row">
+                    ID：<text>{{ currentGroup.groupID }}</text>
+                    <image
+                        class="w-32 h-32 ml-20"
+                        src="/static/images/profile_copy.png"
+                        @click="copyGroupID"
+                    />
+                </view>
             </view>
-            <view class="id_row">
-                ID：<text>{{ currentGroup.groupID }}</text>
-                <image
-                    class="w-32 h-32 ml-20"
-                    src="/static/images/profile_copy.png"
-                    @click="copyGroupID"
+            <view class="flex mb-30">
+                <SettingItem
+                    class="flex-grow"
+                    title="查找用户/聊天记录"
+                    show-arrow
+                    @click="handleRecord"
                 />
-            </view>
-        </view>
-        <view class="flex mb-30">
-            <SettingItem
-                class="flex-grow"
-                title="查找用户/聊天记录"
-                show-arrow
-                @click="handleRecord"
-            />
-            <view
-                class="flex justify-center more-box w-210 ml-30 bg-color br-30 flex-column align-center"
-                @click="showMore"
-            >
-                <image
-                    class="h-10 my-20 w-42"
-                    src="/static/images/common_more_active.png"
-                />
-                <text class="fz-26">
-                    更多
-                </text>
-                <more-feat
-                    ref="moreFeat"
-                    :options="[{
-                        icon: '/static/images/group_out.png',
-                        text: isOwner ? '解散群聊' : '退出群聊',
-                        style: {
-                            color: '#EC4B37'
-                        },
-                        id: 1
-                    }]"
-                    :source-i-d="currentGroup.groupID"
-                    :session-type="3"
-                    @callBack="callBack"
-                />
-            </view>
-        </view>
-        <view class="member_row_box">
-            <view class="member_title">
                 <view
-                    class="member_desc"
-                    @click="inviteMember"
+                    class="flex justify-center more-box w-210 ml-30 bg-color br-30 flex-column align-center"
+                    @click="showMore"
                 >
                     <image
-                        src="/static/images/contact_add_search_user.png"
-                        class="w-44 h-44"
+                        class="h-10 my-20 w-42"
+                        src="/static/images/common_more_active.png"
                     />
-                    <text class="ml-20 primary">
-                        邀请新成员
+                    <text class="fz-26">
+                        更多
+                    </text>
+                    <more-feat
+                        ref="moreFeat"
+                        :options="[{
+                            icon: '/static/images/group_out.png',
+                            text: isOwner ? '解散群聊' : '退出群聊',
+                            style: {
+                                color: '#EC4B37'
+                            },
+                            id: 1
+                        }]"
+                        :source-i-d="currentGroup.groupID"
+                        :session-type="3"
+                        @callBack="callBack"
+                    />
+                </view>
+            </view>
+            <view class="member_row_box">
+                <view class="member_title">
+                    <view
+                        class="member_desc"
+                        @click="inviteMember"
+                    >
+                        <image
+                            src="/static/images/contact_add_search_user.png"
+                            class="w-44 h-44"
+                        />
+                        <text class="ml-20 primary">
+                            邀请新成员
+                        </text>
+                    </view>
+                    <text class="text-grey">
+                        {{ `${currentGroup.memberCount}位成员` }}
                     </text>
                 </view>
-                <text class="text-grey">
-                    {{ `${currentGroup.memberCount}位成员` }}
-                </text>
+                <GroupMemberSwipe
+                    :is-owner="isOwner"
+                    :is-admin="isAdmin"
+                    :list="groupMemberList"
+                    :group-i-d="currentGroup.groupID"
+                    @change="handleMemberChange"
+                />
             </view>
-            <GroupMemberSwipe
-                :is-owner="isOwner"
-                :is-admin="isAdmin"
-                :list="groupMemberList"
-                :group-i-d="currentGroup.groupID"
-                @change="handleMemberChange"
-            />
-        </view>
         <!-- <view class="mt-30">
             <u-button
                 type="error"
@@ -108,7 +109,8 @@
                 @cancel="() => (confirmType = null)"
             />
         </view> -->
-    </view>
+        </view>
+    </Page>
 </template>
 
 <script>

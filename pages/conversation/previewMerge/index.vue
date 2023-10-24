@@ -1,27 +1,29 @@
 <template>
-    <view class="merger_message_container">
-        <CustomNavBar
-            :title="mergeTitle.slice(0, -5)"
-        />
-        <view
-            v-for="v in multiMessage"
-            :key="v.clientMsgID"
-            class="multi_message_box"
-        >
-            <MyAvatar
-                size="80rpx"
-                :desc="v.senderNickname"
-                :src="v.senderFaceUrl"
-                class="mr-30"
+    <Page>
+        <view class="merger_message_container">
+            <CustomNavBar
+                :title="mergeTitle.slice(0, -5)"
             />
-            <view class="message_box">
-                <view class="message_sender">
-                    <text>{{ v.senderNickname }}</text>
+            <view
+                v-for="v in multiMessage"
+                :key="v.clientMsgID"
+                class="multi_message_box"
+            >
+                <MyAvatar
+                    size="80rpx"
+                    :desc="v.senderNickname"
+                    :src="v.senderFaceUrl"
+                    class="mr-30"
+                />
+                <view class="message_box">
+                    <view class="message_sender">
+                        <text>{{ v.senderNickname }}</text>
+                    </view>
+                    <MessageContentWrap :message="v" />
                 </view>
-                <MessageContentWrap :message="v" />
             </view>
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>

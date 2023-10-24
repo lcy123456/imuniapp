@@ -1,56 +1,57 @@
 <template>
-    <view class="page_container">
-        <CustomNavBar
-            title="我的信息"
-            is-bg-color2
-        />
+    <Page>
+        <view class="page_container">
+            <CustomNavBar
+                title="我的信息"
+                is-bg-color2
+            />
 
-        <view class="info_wrap">
-            <SettingItem
-                :loading="loadingState.faceURL"
-                title="头像"
-                show-arrow
-                @click="updateAvatar"
-            >
-                <MyAvatar
-                    slot="right"
-                    :src="selfInfo.faceURL"
-                    :desc="selfInfo.nickname"
-                    size="80rpx"
+            <view class="info_wrap">
+                <SettingItem
+                    :loading="loadingState.faceURL"
+                    title="头像"
+                    show-arrow
+                    @click="updateAvatar"
+                >
+                    <MyAvatar
+                        slot="right"
+                        :src="selfInfo.faceURL"
+                        :desc="selfInfo.nickname"
+                        size="80rpx"
+                    />
+                </SettingItem>
+                <SettingItem
+                    title="姓名"
+                    :content="selfInfo.nickname"
+                    show-arrow
+                    @click="updateNickname"
                 />
-            </SettingItem>
-            <SettingItem
-                title="姓名"
-                :content="selfInfo.nickname"
-                show-arrow
-                @click="updateNickname"
-            />
-            <SettingItem
-                :loading="loadingState.gender"
-                title="性别"
-                :content="getGender"
-                show-arrow
-                @click="updateGender"
-            />
-            <SettingItem
-                :loading="loadingState.birth"
-                title="生日"
-                :content="getBirth"
-                show-arrow
-                @click="() => (showDatePicker = true)"
-            />
-        </view>
-        <view class="info_wrap">
-            <SettingItem
-                :show-arrow="false"
-                title="手机号码"
-                :content="selfInfo.phoneNumber || '-'"
-            />
-            <SettingItem
-                :show-arrow="false"
-                title="邮箱"
-                :content="selfInfo.email || '-'"
-            />
+                <SettingItem
+                    :loading="loadingState.gender"
+                    title="性别"
+                    :content="getGender"
+                    show-arrow
+                    @click="updateGender"
+                />
+                <SettingItem
+                    :loading="loadingState.birth"
+                    title="生日"
+                    :content="getBirth"
+                    show-arrow
+                    @click="() => (showDatePicker = true)"
+                />
+            </view>
+            <view class="info_wrap">
+                <SettingItem
+                    :show-arrow="false"
+                    title="手机号码"
+                    :content="selfInfo.phoneNumber || '-'"
+                />
+                <SettingItem
+                    :show-arrow="false"
+                    title="邮箱"
+                    :content="selfInfo.email || '-'"
+                />
             <!-- <SettingItem
                 title="二维码名片"
                 @click="toQrCode"
@@ -68,24 +69,25 @@
                 :content="selfInfo.userID"
                 @click="copyID"
             /> -->
-        </view>
-        <view 
-            class="operation-btn error"
-            @click="handleAccountCancel"
-        >
-            注销账号
-        </view>
+            </view>
+            <view 
+                class="operation-btn error"
+                @click="handleAccountCancel"
+            >
+                注销账号
+            </view>
 
-        <u-datetime-picker
-            v-model="selfInfo.birth"
-            :min-date="0"
-            :max-date="nowDate"
-            :show="showDatePicker"
-            mode="date"
-            @confirm="confirmDate"
-            @cancel="() => (showDatePicker = false)"
-        />
-    </view>
+            <u-datetime-picker
+                v-model="selfInfo.birth"
+                :min-date="0"
+                :max-date="nowDate"
+                :show="showDatePicker"
+                mode="date"
+                @confirm="confirmDate"
+                @cancel="() => (showDatePicker = false)"
+            />
+        </view>
+    </Page>
 </template>
 
 <script>

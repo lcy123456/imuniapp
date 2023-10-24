@@ -1,5 +1,5 @@
 <template>
-    <view class="page_container">
+    <view>
         <slot />
       
         <!-- 电话呼入 -->

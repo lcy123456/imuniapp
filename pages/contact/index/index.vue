@@ -1,60 +1,62 @@
 <template>
-    <view
-        class="contact_container"
-    >
-        <!-- <div>
+    <Page>
+        <view
+            class="contact_container"
+        >
+            <!-- <div>
             <text @click="roomModule.toggleAudio">切换声音</text>
             <text @click="roomModule.toggleVideo">开关视频</text>
             <text @click="roomModule.toggleVideoInput">切换视频</text>
         </div> -->
-        <CustomNavBar
-            :show-left="false" 
-            is-bg-color2
-            title="通讯录"
-        >
-            <view
-                slot="more"
-                class="mr-30"
-                @click="contactAddClick"
+            <CustomNavBar
+                :show-left="false" 
+                is-bg-color2
+                title="通讯录"
             >
-                <image
-                    src="@/static/images/common_circle_add.png"
-                    class="w-44 h-44"
+                <view
+                    slot="more"
+                    class="mr-30"
+                    @click="contactAddClick"
+                >
+                    <image
+                        src="@/static/images/common_circle_add.png"
+                        class="w-44 h-44"
+                    />
+                </view>
+            </CustomNavBar>
+            <view
+                class="px-20 pt-10 pb-20"
+                @click="handleToSearch"
+            >
+                <uni-search-bar
+                    v-model="keyword"
+                    bg-color="#fff"
+                    class="h-70"
+                    placeholder="搜索"
+                    readonly
                 />
             </view>
-        </CustomNavBar>
-        <view
-            class="px-20 pt-10 pb-20"
-            @click="handleToSearch"
-        >
-            <uni-search-bar
-                v-model="keyword"
-                bg-color="#fff"
-                class="h-70"
-                placeholder="搜索"
-                readonly
-            />
-        </view>
-        <ContactMenus />
+            <ContactMenus />
 
-        <view class="list_title">
-            <text>常用联系人</text>
-        </view>
+            <view class="list_title">
+                <text>常用联系人</text>
+            </view>
 
-        <u-list
-            class="user_list"
-        >
-            <u-list-item
-                v-for="user in frequentContacts"
-                :key="user.userID"
+            <u-list
+                class="user_list"
             >
-                <UserItem
-                    :item="user"
-                    @itemClick="userClick"
-                />
-            </u-list-item>
-        </u-list>
-    </view>
+                <u-list-item
+                    v-for="user in frequentContacts"
+                    :key="user.userID"
+                >
+                    <UserItem
+                        :item="user"
+                        @itemClick="userClick"
+                    />
+                </u-list-item>
+            </u-list>
+        </view>
+    </Page>
 </template>
 
 <script>

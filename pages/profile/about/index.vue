@@ -35,8 +35,8 @@ export default {
     },
     onLoad () {
         this.getAppVersion();
-        
-        this.onCatchCall('video');
+
+        // this.onCatchCall('video');
     },
     methods: {
         ...mapActions('incomingCall', ['onCatchCall']),

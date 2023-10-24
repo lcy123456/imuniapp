@@ -1,43 +1,45 @@
 <template>
-    <view class="page_container">
-        <CustomNavBar title="通讯录黑名单" />
+    <Page>
+        <view class="page_container">
+            <CustomNavBar title="通讯录黑名单" />
 
-        <u-list
-            v-if="blockList.length>0"
-            class="block_list"
-            height="1"
-        >
-            <u-list-item
-                v-for="item in blockList"
-                :key="item.userID"
+            <u-list
+                v-if="blockList.length>0"
+                class="block_list"
+                height="1"
             >
-                <UserItem :item="item">
-                    <view
-                        slot="action"
-                        class="user_action"
-                        @click="tryRemove(item)"
-                    >
-                        移除
-                    </view>
-                </UserItem>
-            </u-list-item>
-        </u-list>
+                <u-list-item
+                    v-for="item in blockList"
+                    :key="item.userID"
+                >
+                    <UserItem :item="item">
+                        <view
+                            slot="action"
+                            class="user_action"
+                            @click="tryRemove(item)"
+                        >
+                            移除
+                        </view>
+                    </UserItem>
+                </u-list-item>
+            </u-list>
 
-        <u-empty
-            v-else
-            mode="list"
-        />
+            <u-empty
+                v-else
+                mode="list"
+            />
 
-        <u-modal
-            width="500rpx"
-            show-cancel-button
-            :show="showComfirm"
-            content="确定将用户移除黑名单吗？"
-            :async-close="true"
-            @confirm="confirm"
-            @cancel="closeModal"
-        />
-    </view>
+            <u-modal
+                width="500rpx"
+                show-cancel-button
+                :show="showComfirm"
+                content="确定将用户移除黑名单吗？"
+                :async-close="true"
+                @confirm="confirm"
+                @cancel="closeModal"
+            />
+        </view>
+    </Page>
 </template>
 
 <script>

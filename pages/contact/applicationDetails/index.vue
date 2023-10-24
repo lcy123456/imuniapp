@@ -1,75 +1,77 @@
 <template>
-    <view class="page_container">
-        <custom-nav-bar :title="isGroupApplication ? '群通知' : '好友请求'" />
+    <Page>
+        <view class="page_container">
+            <custom-nav-bar :title="isGroupApplication ? '群通知' : '好友请求'" />
 
-        <view class="application_item">
-            <view class="base_info_row">
-                <view
-                    class="base_info_left"
-                    @click="toSourceDetails"
-                >
-                    <my-avatar
-                        :src="getSourceFaceURL"
-                        :desc="getSourceName"
-                    />
-                    <view class="base_info_details">
-                        <text class="nickname">
-                            {{ getSourceName }}
-                        </text>
-                        <view class="online_state">
-                            <view
-                                class="dot"
-                                :style="{ backgroundColor: isOnline ? '#10CC64' : '#999' }"
-                            />
-                            <text>{{ onlineStr }}</text>
+            <view class="application_item">
+                <view class="base_info_row">
+                    <view
+                        class="base_info_left"
+                        @click="toSourceDetails"
+                    >
+                        <my-avatar
+                            :src="getSourceFaceURL"
+                            :desc="getSourceName"
+                        />
+                        <view class="base_info_details">
+                            <text class="nickname">
+                                {{ getSourceName }}
+                            </text>
+                            <view class="online_state">
+                                <view
+                                    class="dot"
+                                    :style="{ backgroundColor: isOnline ? '#10CC64' : '#999' }"
+                                />
+                                <text>{{ onlineStr }}</text>
+                            </view>
                         </view>
                     </view>
+
+                    <u-icon
+                        name="arrow-right"
+                        size="18"
+                        color="#999"
+                    />
                 </view>
 
-                <u-icon
-                    name="arrow-right"
-                    size="18"
-                    color="#999"
+                <view class="request_message">
+                    <view
+                        v-if="isGroupApplication"
+                        class="title"
+                    >
+                        <text>申请加入 </text>
+                        <text class="group_name">
+                            {{ currentApplication.groupName }}
+                        </text>
+                    </view>
+                    <text v-else>
+                        {{ `${getSourceName}：` }}
+                    </text>
+                    <text>{{ currentApplication.reqMsg }}</text>
+                </view>
+            </view>
+
+            <view class="action_row">
+                <u-button
+                    :loading="loadingState.accept"
+                    type="primary"
+                    :plain="true"
+                    :text="`通过${isGroupApplication ? '入群' : '好友'}申请`"
+                    @click="acceptAplication"
                 />
             </view>
 
-            <view class="request_message">
-                <view
-                    v-if="isGroupApplication"
-                    class="title"
-                >
-                    <text>申请加入 </text>
-                    <text class="group_name">
-                        {{ currentApplication.groupName }}
-                    </text>
-                </view>
-                <text v-else>
-                    {{ `${getSourceName}：` }}
-                </text>
-                <text>{{ currentApplication.reqMsg }}</text>
+            <view class="action_row">
+                <u-button
+                    :loading="loadingState.refuse"
+                    type="primary"
+                    :plain="true"
+                    :text="`拒绝${isGroupApplication ? '入群' : '好友'}申请`"
+                    @click="refuseAplication"
+                />
             </view>
         </view>
-
-        <view class="action_row">
-            <u-button
-                :loading="loadingState.accept"
-                type="primary"
-                :plain="true"
-                :text="`通过${isGroupApplication ? '入群' : '好友'}申请`"
-                @click="acceptAplication"
-            />
-        </view>
-
-        <view class="action_row">
-            <u-button
-                :loading="loadingState.refuse"
-                type="primary"
-                :plain="true"
-                :text="`拒绝${isGroupApplication ? '入群' : '好友'}申请`"
-                @click="refuseAplication"
-            />
-        </view>
-    </view>
+    </Page>
 </template>
 
 <script>

@@ -1,124 +1,126 @@
 <template>
-    <view class="user_card_container">
-        <CustomNavBar
-            title=""
-            is-bg-color2
-        />
-
-        <view class="base_info">
-            <MyAvatar
-                :src="sourceUserInfo.faceURL"
-                :desc="sourceUserInfo.remark || sourceUserInfo.nickname"
-                size="190rpx"
+    <Page>
+        <view class="user_card_container">
+            <CustomNavBar
+                title=""
+                is-bg-color2
             />
-            <text class="nickname">
-                {{ getShowName }}
-            </text>
-            <view class="id_row">
-                ID：<text>{{ sourceID }}</text>
-                <image
-                    class="w-32 h-32 ml-20"
-                    src="/static/images/profile_copy.png"
-                    @click="copyID"
-                />
-            </view>
-        </view>
 
-        <view v-if="isFriend">
-            <view class="flex justify-between mb-30">
-                <view
-                    v-for="item in infoMenus"
-                    :key="item.idx"
-                    class="flex feat-item w-210 h-130 bg-color br-30 flex-column justify-evenly align-center"
-                    @click="infoMenusClick(item)"
-                >
-                    <view
-                        class="w-50 h-54"
-                    >
-                        <image
-                            :class="['w-' + (item.w || 50), 'h-' + (item.h || 54)]"
-                            :src="item.icon"
-                        />
-                    </view>
-                    <view class="fz-26">
-                        {{ item.title }}
-                    </view>
-                    <view v-if="item.idx === 2">
-                        <more-feat
-                            ref="moreFeat"
-                            :options="[{
-                                icon: '/static/images/user_card_group.png',
-                                text: '建立群组',
-                                id: 1
-                            }]"
-                            :source-i-d="sourceID"
-                            @callBack="callBack"
-                        />
-                    </view>
+            <view class="base_info">
+                <MyAvatar
+                    :src="sourceUserInfo.faceURL"
+                    :desc="sourceUserInfo.remark || sourceUserInfo.nickname"
+                    size="190rpx"
+                />
+                <text class="nickname">
+                    {{ getShowName }}
+                </text>
+                <view class="id_row">
+                    ID：<text>{{ sourceID }}</text>
+                    <image
+                        class="w-32 h-32 ml-20"
+                        src="/static/images/profile_copy.png"
+                        @click="copyID"
+                    />
                 </view>
             </view>
-            <SettingItem
-                class="info-row"
-                title="查找聊天记录"
-                show-arrow
-                @click="handleRecord"
-            />
-            <SettingItem
-                class="info-row"
-                title="加入黑名单"
-                show-switch
-                :loading="blackLoading"
-                :switch-value="isBlacked"
-                @switch="blackChange"
-            />
-            <view 
-                class="flex justify-center h-130 bg-color br-30 align-center error"
-                @click="()=>showConfirm=true"
-            >
-                解除好友关系
+
+            <view v-if="isFriend">
+                <view class="flex justify-between mb-30">
+                    <view
+                        v-for="item in infoMenus"
+                        :key="item.idx"
+                        class="flex feat-item w-210 h-130 bg-color br-30 flex-column justify-evenly align-center"
+                        @click="infoMenusClick(item)"
+                    >
+                        <view
+                            class="w-50 h-54"
+                        >
+                            <image
+                                :class="['w-' + (item.w || 50), 'h-' + (item.h || 54)]"
+                                :src="item.icon"
+                            />
+                        </view>
+                        <view class="fz-26">
+                            {{ item.title }}
+                        </view>
+                        <view v-if="item.idx === 2">
+                            <more-feat
+                                ref="moreFeat"
+                                :options="[{
+                                    icon: '/static/images/user_card_group.png',
+                                    text: '建立群组',
+                                    id: 1
+                                }]"
+                                :source-i-d="sourceID"
+                                @callBack="callBack"
+                            />
+                        </view>
+                    </view>
+                </view>
+                <SettingItem
+                    class="info-row"
+                    title="查找聊天记录"
+                    show-arrow
+                    @click="handleRecord"
+                />
+                <SettingItem
+                    class="info-row"
+                    title="加入黑名单"
+                    show-switch
+                    :loading="blackLoading"
+                    :switch-value="isBlacked"
+                    @switch="blackChange"
+                />
+                <view 
+                    class="flex justify-center h-130 bg-color br-30 align-center error"
+                    @click="()=>showConfirm=true"
+                >
+                    解除好友关系
+                </view>
             </view>
-        </view>
-        <!-- <SettingItem
+            <!-- <SettingItem
             class="info-row"
             :title="infoMenus[1].title"
             show-arrow
             @click="infoMenusClick(infoMenus[1])"
         /> -->
 
-        <view class="action_row">
-            <view
-                v-if="showSendMessage"
-                class="action_item"
-                @click="toDesignatedConversation"
-            >
-                <img
-                    src="static/images/user_card_message.png"
-                    alt=""
+            <view class="action_row">
+                <view
+                    v-if="showSendMessage"
+                    class="action_item"
+                    @click="toDesignatedConversation"
                 >
-                <text>发消息</text>
-            </view>
-            <view
-                v-if="!isFriend"
-                class="action_item"
-                @click="toAddFriend"
-            >
-                <img
-                    src="static/images/user_card_add.png"
-                    alt=""
+                    <img
+                        src="static/images/user_card_message.png"
+                        alt=""
+                    >
+                    <text>发消息</text>
+                </view>
+                <view
+                    v-if="!isFriend"
+                    class="action_item"
+                    @click="toAddFriend"
                 >
-                <text>添加好友</text>
+                    <img
+                        src="static/images/user_card_add.png"
+                        alt=""
+                    >
+                    <text>添加好友</text>
+                </view>
             </view>
-        </view>
         
-        <u-modal
-            :content="`确定要解除与${sourceUserInfo.nickname}的好友关系吗？`"
-            async-close
-            :show="showConfirm"
-            show-cancel-button
-            @confirm="confirmRemove"
-            @cancel="() => showConfirm = false"
-        />
-    </view>
+            <u-modal
+                :content="`确定要解除与${sourceUserInfo.nickname}的好友关系吗？`"
+                async-close
+                :show="showConfirm"
+                show-cancel-button
+                @confirm="confirmRemove"
+                @cancel="() => showConfirm = false"
+            />
+        </view>
+    </Page>
 </template>
 
 <script>

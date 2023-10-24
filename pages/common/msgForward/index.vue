@@ -1,95 +1,97 @@
 <template>
-    <view class="forward_container">
-        <CustomNavBar
-            title="转发"
-            is-bg-color2
-        >
-            <template slot="more">
-                <text
-                    class="mr-32 primary fz-32"
-                    @click="chooseContact"
-                >
-                    选择联系人
-                </text>
-            </template>
-        </CustomNavBar>
-        <view class="px-20">
-            <uni-search-bar
-                v-model="keyword"
-                class="h-70"
-                placeholder="搜索"
-            />
-        </view>
-        <MyTabs
-            :list="tabList"
-            type="square"
-            class="mx-32 fz-28"
-            :height="86"
-        />
-        <view class="px-32 conversation_box bg-color">
-            <view
-                v-for="item in showConversationList" 
-                :key="item.conversationID"
-                class="flex li h-108 align-center"
-                @click="chooseConversation(item)"
+    <Page>
+        <view class="forward_container">
+            <CustomNavBar
+                title="转发"
+                is-bg-color2
             >
-                <MyAvatar
-                    :is-group="item.conversationType === SessionType.WorkingGroup"
-                    :src="item.faceURL"
-                    :desc="item.showName"
-                    size="78rpx"
+                <template slot="more">
+                    <text
+                        class="mr-32 primary fz-32"
+                        @click="chooseContact"
+                    >
+                        选择联系人
+                    </text>
+                </template>
+            </CustomNavBar>
+            <view class="px-20">
+                <uni-search-bar
+                    v-model="keyword"
+                    class="h-70"
+                    placeholder="搜索"
                 />
-                <view class="flex-grow ml-20 name_box ">
-                    {{ item.showName }}
+            </view>
+            <MyTabs
+                :list="tabList"
+                type="square"
+                class="mx-32 fz-28"
+                :height="86"
+            />
+            <view class="px-32 conversation_box bg-color">
+                <view
+                    v-for="item in showConversationList" 
+                    :key="item.conversationID"
+                    class="flex li h-108 align-center"
+                    @click="chooseConversation(item)"
+                >
+                    <MyAvatar
+                        :is-group="item.conversationType === SessionType.WorkingGroup"
+                        :src="item.faceURL"
+                        :desc="item.showName"
+                        size="78rpx"
+                    />
+                    <view class="flex-grow ml-20 name_box ">
+                        {{ item.showName }}
+                    </view>
                 </view>
             </view>
-        </view>
-        <view>
-            <u-modal
-                :show="showModal"
-                show-cancel-button
-                confirm-text="发送"
-                @confirm="handleConfirm"
-                @cancel="showModal = false"
-            >
-                <view class="flex-grow over-hide">
-                    <view class="mb-20 ff-bold fz-36">
-                        发送给:
-                    </view>
-                    <view class="flex align-center">
-                        <MyAvatar
-                            v-for="item in sendObjectArr"
-                            :key="item.userID"
-                            :is-group="item.conversationType === SessionType.WorkingGroup"
-                            :src="item.faceURL"
-                            :desc="item.showName"
-                            size="78rpx"
-                            class="mr-20"
-                        />
-                        <view
-                            v-if="sendObjectArr.length === 1"
-                            class="flex-grow name_box"
-                        >
-                            {{ sendObjectArr[0].showName }}
+            <view>
+                <u-modal
+                    :show="showModal"
+                    show-cancel-button
+                    confirm-text="发送"
+                    @confirm="handleConfirm"
+                    @cancel="showModal = false"
+                >
+                    <view class="flex-grow over-hide">
+                        <view class="mb-20 ff-bold fz-36">
+                            发送给:
+                        </view>
+                        <view class="flex align-center">
+                            <MyAvatar
+                                v-for="item in sendObjectArr"
+                                :key="item.userID"
+                                :is-group="item.conversationType === SessionType.WorkingGroup"
+                                :src="item.faceURL"
+                                :desc="item.showName"
+                                size="78rpx"
+                                class="mr-20"
+                            />
+                            <view
+                                v-if="sendObjectArr.length === 1"
+                                class="flex-grow name_box"
+                            >
+                                {{ sendObjectArr[0].showName }}
+                            </view>
+                        </view>
+                        <view :class="['flex mt-10', (isTextRender && isMergeRender) ? '' : 'justify-center']">
+                            <view v-if="isMergeRender">
+                                [合并消息]{{ message.mergeElem.title }}
+                            </view>
+                            <MessageContentWrap
+                                v-else
+                                :message="message"
+                            />
                         </view>
                     </view>
-                    <view :class="['flex mt-10', (isTextRender && isMergeRender) ? '' : 'justify-center']">
-                        <view v-if="isMergeRender">
-                            [合并消息]{{ message.mergeElem.title }}
-                        </view>
-                        <MessageContentWrap
-                            v-else
-                            :message="message"
-                        />
-                    </view>
-                </view>
-            </u-modal>
+                </u-modal>
+            </view>
+            <Notification
+                v-model="isShowNotification"
+                text="消息已发出，但对方拒收了！"
+            />
         </view>
-        <Notification
-            v-model="isShowNotification"
-            text="消息已发出，但对方拒收了！"
-        />
-    </view>
+    </Page>
 </template>
 
 <script>

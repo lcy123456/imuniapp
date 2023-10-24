@@ -1,98 +1,100 @@
 <template>
-    <view class="record_detail_container page_container">
-        <view class="status-bar-height" />
-        <view class="px-20 pt-10 pb-20">
-            <uni-search-bar
-                v-model="keyword"
-                bg-color="#fff"
-                class="h-70"
-                focus
-                placeholder="搜索"
-                @cancel="handleCancel"
-            >
-                <view
-                    v-if="from === RecordFormMap.All"
-                    slot="searchIcon"
-                    class="flex align-center"
+    <Page>
+        <view class="record_detail_container page_container">
+            <view class="status-bar-height" />
+            <view class="px-20 pt-10 pb-20">
+                <uni-search-bar
+                    v-model="keyword"
+                    bg-color="#fff"
+                    class="h-70"
+                    focus
+                    placeholder="搜索"
+                    @cancel="handleCancel"
                 >
-                    <u-icon
-                        name="search"
-                        size="18"
-                    />
-                    <text class="primary">
-                        {{ conversation.showName }}
-                    </text>
-                </view>
-            </uni-search-bar>
-        </view>
-        <view
-            v-if="from === RecordFormMap.All"
-            class="mb-20 bg-color px-30"
-        >
-            <RecordItem
-                :source="conversation"
-                :keyword="keyword"
-                :type="RecordTypeMap.Contact"
-                show-icon
-                @click.native="handleItemClick()"
-            />
-        </view>
-        <view
-            class="flex flex-grow pb-20 bg-color flex-column px-30 over-auto"
-            @touchstart="touchstart"
-        >
-            <view class="title_box">
-                {{ tabActive.label }}
+                    <view
+                        v-if="from === RecordFormMap.All"
+                        slot="searchIcon"
+                        class="flex align-center"
+                    >
+                        <u-icon
+                            name="search"
+                            size="18"
+                        />
+                        <text class="primary">
+                            {{ conversation.showName }}
+                        </text>
+                    </view>
+                </uni-search-bar>
             </view>
-            <template v-if="tabActive.value === TextRenderTypes">
-                <RecordItem
-                    v-for="v in messageList"
-                    :key="v.clientMsgID"
-                    :source="v"
-                    :keyword="keyword"
-                    :type="RecordTypeMap.Message"
-                    @click.native="handleItemClick(v)"
-                />
-            </template>
             <view
-                v-else-if="tabActive.value === MediaRenderTypes"
-                class="flex flex-wrap"
+                v-if="from === RecordFormMap.All"
+                class="mb-20 bg-color px-30"
             >
-                <MediaRender
-                    v-for="(v, i) in messageList"
-                    :key="v.clientMsgID"
-                    :message="v"
-                    :size="boxWidth / 3"
-                    @click="handleMediaClick(i)"
+                <RecordItem
+                    :source="conversation"
+                    :keyword="keyword"
+                    :type="RecordTypeMap.Contact"
+                    show-icon
+                    @click.native="handleItemClick()"
                 />
             </view>
-            <template v-else-if="tabActive.value === FileRenderTypes">
-                <FileRender
-                    v-for="v in messageList"
-                    :key="v.clientMsgID"
-                    :message="v"
+            <view
+                class="flex flex-grow pb-20 bg-color flex-column px-30 over-auto"
+                @touchstart="touchstart"
+            >
+                <view class="title_box">
+                    {{ tabActive.label }}
+                </view>
+                <template v-if="tabActive.value === TextRenderTypes">
+                    <RecordItem
+                        v-for="v in messageList"
+                        :key="v.clientMsgID"
+                        :source="v"
+                        :keyword="keyword"
+                        :type="RecordTypeMap.Message"
+                        @click.native="handleItemClick(v)"
+                    />
+                </template>
+                <view
+                    v-else-if="tabActive.value === MediaRenderTypes"
+                    class="flex flex-wrap"
+                >
+                    <MediaRender
+                        v-for="(v, i) in messageList"
+                        :key="v.clientMsgID"
+                        :message="v"
+                        :size="boxWidth / 3"
+                        @click="handleMediaClick(i)"
+                    />
+                </view>
+                <template v-else-if="tabActive.value === FileRenderTypes">
+                    <FileRender
+                        v-for="v in messageList"
+                        :key="v.clientMsgID"
+                        :message="v"
+                    />
+                </template>
+                <GroupMemberSwipe
+                    v-else-if="tabActive.value === UserRenderTypes"
+                    :is-owner="
+                        selfGroupInfo.roleLevel === GroupMemberRole.Owner
+                    "
+                    :is-admin="
+                        selfGroupInfo.roleLevel === GroupMemberRole.Admin
+                    "
+                    :list="showMemberList"
+                    :group-i-d="groupID"
+                    @change="handleMemberChange"
                 />
-            </template>
-            <GroupMemberSwipe
-                v-else-if="tabActive.value === UserRenderTypes"
-                :is-owner="
-                    selfGroupInfo.roleLevel === GroupMemberRole.Owner
-                "
-                :is-admin="
-                    selfGroupInfo.roleLevel === GroupMemberRole.Admin
-                "
-                :list="showMemberList"
-                :group-i-d="groupID"
-                @change="handleMemberChange"
+            </view>
+            <MyTabs
+                v-if="from !== RecordFormMap.All"
+                class="myTabs"
+                :list="tabList"
+                @change="handleTabChange"
             />
         </view>
-        <MyTabs
-            v-if="from !== RecordFormMap.All"
-            class="myTabs"
-            :list="tabList"
-            @change="handleTabChange"
-        />
-    </view>
+    </Page>
 </template>
 
 <script>

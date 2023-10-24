@@ -1,33 +1,35 @@
 <template>
-    <view class="request_join_container">
-        <custom-nav-bar :title="isGroup ? '群聊验证' : '好友验证'">
-            <view
-                slot="more"
-                class="top_right_btn"
-            >
-                <u-button
-                    text="发送"
-                    type="primary"
-                    @click="sendRequest"
+    <Page>
+        <view class="request_join_container">
+            <custom-nav-bar :title="isGroup ? '群聊验证' : '好友验证'">
+                <view
+                    slot="more"
+                    class="top_right_btn"
+                >
+                    <u-button
+                        text="发送"
+                        type="primary"
+                        @click="sendRequest"
+                    />
+                </view>
+            </custom-nav-bar>
+
+            <text class="title">
+                {{ `发送${isGroup ? "入群" : "好友"}申请` }}
+            </text>
+
+            <view class="input_container">
+                <u--textarea
+                    v-model="reason"
+                    height="120"
+                    border="none"
+                    placeholder="请输入内容"
+                    maxlength="200"
+                    count
                 />
             </view>
-        </custom-nav-bar>
-
-        <text class="title">
-            {{ `发送${isGroup ? "入群" : "好友"}申请` }}
-        </text>
-
-        <view class="input_container">
-            <u--textarea
-                v-model="reason"
-                height="120"
-                border="none"
-                placeholder="请输入内容"
-                maxlength="200"
-                count
-            />
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>

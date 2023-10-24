@@ -1,45 +1,47 @@
 <template>
-    <view class="page_container">
-        <CustomNavBar
-            title="更多资料"
-            is-bg-color2
-        />
+    <Page>
+        <view class="page_container">
+            <CustomNavBar
+                title="更多资料"
+                is-bg-color2
+            />
 
-        <view class="info_wrap">
-            <SettingItem
-                title="头像"
-            >
-                <MyAvatar
-                    slot="right"
-                    :src="sourceInfo.faceURL"
-                    :desc="sourceInfo.nickname"
-                    size="80rpx"
+            <view class="info_wrap">
+                <SettingItem
+                    title="头像"
+                >
+                    <MyAvatar
+                        slot="right"
+                        :src="sourceInfo.faceURL"
+                        :desc="sourceInfo.nickname"
+                        size="80rpx"
+                    />
+                </SettingItem>
+                <SettingItem
+                    title="姓名"
+                    :content="sourceInfo.nickname"
                 />
-            </SettingItem>
-            <SettingItem
-                title="姓名"
-                :content="sourceInfo.nickname"
-            />
-            <SettingItem
-                title="性别"
-                :content="getGender"
-            />
-            <SettingItem
-                title="生日"
-                :content="getBirth"
-            />
+                <SettingItem
+                    title="性别"
+                    :content="getGender"
+                />
+                <SettingItem
+                    title="生日"
+                    :content="getBirth"
+                />
+            </view>
+            <view class="info_wrap">
+                <SettingItem
+                    title="手机号码"
+                    :content="sourceInfo.phoneNumber || '-'"
+                />
+                <SettingItem
+                    title="邮箱"
+                    :content="sourceInfo.email || '-'"
+                />
+            </view>
         </view>
-        <view class="info_wrap">
-            <SettingItem
-                title="手机号码"
-                :content="sourceInfo.phoneNumber || '-'"
-            />
-            <SettingItem
-                title="邮箱"
-                :content="sourceInfo.email || '-'"
-            />
-        </view>
-    </view>
+    </Page>
 </template>
 
 <script>
