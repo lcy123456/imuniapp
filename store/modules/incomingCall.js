@@ -1,5 +1,5 @@
 import conversation from './conversation';
-import { requestAndroidPermission, judgeIosPermission } from '@/util/permission.js';
+import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting } from '@/util/permission.js';
 import { showToast } from '@/util/unisdk';
 
 const state = {
@@ -65,27 +65,33 @@ const mutations = {
 const actions = {
     // 检查麦克风、摄像头权限
     async reviewPermission () {
-        let result = false;
-        if (uni.$u.os() === 'ios') {
-            const haveRecord = judgeIosPermission('record');
-            const haveCamera = judgeIosPermission('camera');
-            if (haveRecord !== 1)
-                showToast({ title: '请开启麦克风权限'});
-            if (!haveCamera)
-                showToast({ title: '请开启摄像头权限'});
+        const isIOS = uni.$u.os() === 'ios';
+        let hasRecord = false;
+        let hasCamera = false;
 
-            result = haveRecord === 1 &&  haveCamera;
+        if (isIOS) {
+            const recordResult = judgeIosPermission('record');
+            const cameraResult = judgeIosPermission('camera');
+            hasRecord = recordResult === 1;
+            hasCamera = cameraResult;
         } else {
-            const HAVE_RECORD_AUDIO = await requestAndroidPermission('android.permission.RECORD_AUDIO');
-            const HAVE_CAMERA = await requestAndroidPermission('android.permission.CAMERA');
-            if (HAVE_RECORD_AUDIO !== 1)
-                showToast({ title: '请开启麦克风权限'});
-            if (HAVE_CAMERA !== 1)
-                showToast({ title: '请开启摄像头权限'});
-
-            result = HAVE_RECORD_AUDIO === 1 && HAVE_CAMERA === 1;
+            const recordResult = await requestAndroidPermission('android.permission.RECORD_AUDIO');
+            const cameraResult = await requestAndroidPermission('android.permission.CAMERA');
+            hasRecord = recordResult === 1;
+            hasCamera = cameraResult === 1;
         }
-        return result;
+        
+        if (!hasRecord || !hasCamera) {
+            uni.showModal({
+                title: "使用麦克风",
+                content: '想访问您的麦克风与摄像头',
+                success: res => {
+                    if (res.confirm) gotoAppPermissionSetting();
+                }
+            });
+        }
+
+        return hasRecord && hasCamera;
     },
     // 拨打电话
     async onThrowCall ({
