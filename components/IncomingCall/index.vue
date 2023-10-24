@@ -1,10 +1,7 @@
 <template>
-    <view class="incoming_call_container">
+    <view>
         <!-- 顶部来电弹出层 -->
-        <TopDialog
-            @onDanger="onDanger"
-            @onSuccess="onSuccess"
-        />
+        <TopDialog />
 
         <!-- 通话中，悬浮拖动弹出层 -->
         <SmallPopup />
@@ -25,10 +22,6 @@ export default {
         };
     },
     methods: {
-        onDanger () {
-        },
-        onSuccess () {
-        },
     }
 };
 </script>

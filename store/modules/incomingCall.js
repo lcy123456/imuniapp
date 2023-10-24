@@ -141,20 +141,29 @@ const actions = {
     },
 
     // 缩小
-    onSmall ({
+    async onSmall ({
         commit
     }) {
         commit('SET_IS_INCOMING_CALL_SMALL', true);
     },
     
     // 挂断电话
-    onDangerCall ({ commit }) {
+    async onDangerCall ({ commit }) {
         commit('SET_INCOMING_CALL_WSURL', '');
         commit('SET_INCOMING_CALL_TOKEN', '');
         commit('SET_IS_INCOMING_CALL_SMALL', false);
         commit('SET_INCOMING_CALL_TOP', false);
         commit('SET_IS_INCOMING_CALL_ING', false);
         commit('SET_IS_INCOMING_CALL_LOADING', false);
+    },
+
+    // 接通电话
+    async onSuccessCall ({ commit }) {
+        commit('SET_IS_INCOMING_CALL_SMALL', false);
+        commit('SET_INCOMING_CALL_TOP', false);
+        commit('SET_IS_INCOMING_CALL_ING', true);
+        commit('SET_IS_INCOMING_CALL_LOADING', false);
+        commit('SET_IS_CALL_OR_ANSWER', false);
     }
 };
 

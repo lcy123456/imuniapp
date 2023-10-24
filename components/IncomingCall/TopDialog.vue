@@ -4,6 +4,8 @@
         :class="['top_dialog_container', 
                  shouldFadeIn && 'top_dialog_in',
                  shouldFadeOut && 'top_dialog_out']"
+        @touchstart="onTouchstart($event)"
+        @touchend="onTouchend($event)"
     >
         <view
             class="flex align-center ml-40"
@@ -47,7 +49,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import store from "@/store";
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import incomingCallIcon from '@/static/images/incoming_call_icon.png';
@@ -62,6 +64,7 @@ export default {
             incomingCallIcon,
             shouldFadeIn: false,
             shouldFadeOut: false,
+            startPageY: 0,
         };
     },
     computed: {
@@ -91,6 +94,26 @@ export default {
         // }, 2000);
     },
     methods: {
+        ...mapActions('incomingCall', ['onSmall', 'onDangerCall', 'onSuccessCall']),
+
+        // 手指落下时触发
+        onTouchstart (event) {
+            const [touches] = event.touches;
+            const {pageY} = touches;
+            this.startPageY = pageY;
+        },
+        // 手指抬起时
+        onTouchend (event) {
+            const [touches] = event.changedTouches;
+            const {pageY} = touches;
+            const moveY = this.startPageY - pageY;
+            if (moveY > 45) {
+                this.visibleHandle();
+                setTimeout(()=> {
+                    this.onSmall();
+                }, 400);
+            }
+        },
         // 唤起铃声
         startMusic () {
             if (!this.storeIsIncomingCallTop) return;
@@ -124,19 +147,18 @@ export default {
                 url: '/pages/conversation/webrtc/index',
             });
         },
-        dangerClick () {
+        async dangerClick () {
             this.visibleHandle();
-            this.$emit('onDanger');
+            setTimeout(()=> {
+                this.onDangerCall();
+            }, 400);
         },
-        successClick () {
+        async successClick () {
             this.visibleHandle();
-            store.commit('SET_IS_INCOMING_CALL_ING', true);
-            store.commit('SET_IS_INCOMING_CALL_SMALL', false);
-            store.commit('incomingCall/SET_IS_CALL_OR_ANSWER', false);
+            await this.onSuccessCall();
             uni.navigateTo({
                 url: '/pages/conversation/webrtc/index',
             });
-            this.$emit('onSuccess');
         },
     }
 };

@@ -36,7 +36,9 @@ export default {
     onLoad () {
         this.getAppVersion();
 
-        // this.onCatchCall('video');
+        setTimeout(()=> {
+            this.onCatchCall('video');
+        }, 2000);
     },
     methods: {
         ...mapActions('incomingCall', ['onCatchCall']),
