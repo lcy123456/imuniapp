@@ -26,16 +26,20 @@
 
     .chat-group-css {
         width: 100%;
+        min-height: 250px;
+        max-height: 360px;
+        overflow: auto;
         display: flex;
         justify-content: center;
+        align-items: center;
         flex-wrap: wrap;
         position: fixed;
         top: 10vh;
     }
 
     .chat-group-css .video-box {
-        width: 50% !important;
-        height: 200px !important;
+        width: 50%!important;
+        height: 170px!important;
         position: relative;
         overflow: hidden;
     }
@@ -424,10 +428,10 @@
                 async toggleVideoInput() {
                     const devices = await Room.getLocalDevices('videoinput');
                     if (this.device === '') {
-                        this.device = devices[1];
+                        this.device = devices[1] || devices[0];
                     } else {
                         const otherDevices = devices.filter(item => item.deviceId !== this.device.deviceId);
-                        this.device = otherDevices[0];
+                        this.device = otherDevices[0] || this.device;
                     }
                     this.device && await this.room.switchActiveDevice('videoinput', this.device.deviceId);
                 },
