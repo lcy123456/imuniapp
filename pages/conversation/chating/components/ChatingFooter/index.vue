@@ -271,6 +271,7 @@ export default {
             if (groupID) {
                 const data = await IMSDK.asyncApi(
                     IMMethods.GetGroupMemberList,
+                    IMSDK.uuid(),
                     {
                         groupID,
                         filter: GroupMemberFilter.All,
@@ -280,10 +281,10 @@ export default {
                 );
                 console.log(data, 'getGroupMemberList()  GetGroupMemberList===');
             } else {
-                const [{ friendInfo }] = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                const data = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
                     [userID]
                 );
-                console.log(friendInfo);
+                console.log(data);
             }
         },
         async createCustomMessage (data) {
