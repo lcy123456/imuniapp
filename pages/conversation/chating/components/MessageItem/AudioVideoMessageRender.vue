@@ -4,7 +4,11 @@
         @click="initWebrtc"
     >
         <view class="main">
-            <text>{{ getContent }}</text>
+            <text
+                v-if="isSender"
+            >
+                {{ getContent }}
+            </text>
             <image
                 v-if="isVideo"
                 class="video-icon"
@@ -15,6 +19,11 @@
                 class="phone-icon"
                 src="/static/images/phone.png"
             />
+            <text
+                v-if="!isSender"
+            >
+                {{ getContent }}
+            </text>
         </view>
         <MessageReadState
             :message="message"
@@ -59,7 +68,7 @@ export default {
     computed: {
         getContent () {
             let text = '';
-            const { contentType, customElem, senderNickname } = this.message;
+            const { contentType } = this.message;
             
             if (contentType === AudioVideoStatus.Reject) {
                 text = `[已拒绝]`;
@@ -72,7 +81,7 @@ export default {
             } else if (contentType === AudioVideoStatus.Done) {
                 text = `[通话时间长]`;
             } else {
-                text = `[测试通话]`;
+                text = this.isVideo ? `[发起视频]` : `[发起通话]`;
             }
             return text;
         },
@@ -103,12 +112,12 @@ export default {
     .phone-icon {
         width: 45rpx;
         height: 19rpx;
-        margin-left: 10rpx;
+        margin: 0 10rpx;
     }
     .video-icon {
         width: 44rpx;
         height: 30rpx;
-        margin-left: 10rpx;
+        margin: 0 10rpx;
     }
 }
 </style>

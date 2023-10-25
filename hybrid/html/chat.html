@@ -84,6 +84,11 @@
 
     .video-box.other .video-box {
         position: fixed;
+        z-index: 3!important;
+    }
+
+    .video-box.other .video-box {
+        position: fixed;
         top: 50px !important;
         right: 20px !important;
         width: 40% !important;
@@ -337,7 +342,7 @@
         const defaultBaseMap = {
             message: {
                 sessionType: 1,
-                type: 'video'
+                type: ''
             },
             conversation: {},
         };
@@ -400,12 +405,14 @@
                             isCallOrAnswer,
                             isCallLoading,
                             isCallIng,
-                            callUserInfo
+                            callUserInfo,
+                            message
                         } = data
                         this.isCallOrAnswer = isCallOrAnswer
                         this.isCallLoading = isCallLoading
                         this.isCallIng = isCallIng
                         this.callUserInfo = callUserInfo
+                        this.isShowCall = !!message.isAnswer;
                     }
                     this.disconnect();
                     this.openRoom();

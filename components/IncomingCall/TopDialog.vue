@@ -55,11 +55,7 @@ import MyAvatar from '@/components/MyAvatar/index.vue';
 import incomingCallIcon from '@/static/images/incoming_call_icon.png';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import IMSDK, {
-    IMMethods,
-    MessageStatus,
-    MessageType,
-    SessionType,
-    GroupMemberFilter
+    IMMethods
 } from 'openim-uniapp-polyfill';
 let innerAudioContext = null;
 export default {
@@ -163,18 +159,17 @@ export default {
         },
         async dangerClick () {
             this.visibleHandle();
-            const message = await this.createCustomMessage({
-                data: JSON.stringify({
-                    type: this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio,
-                    status: AudioVideoStatus.Reject
-                }),
-                extension: '',
-                description: ''
-            });
             await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,
                 IMSDK.uuid(),
-                {...message}
+                {
+                    data: JSON.stringify({
+                        type: this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio,
+                        status: AudioVideoStatus.Reject
+                    }),
+                    extension: '',
+                    description: ''
+                }
             );
         },
         async successClick () {
