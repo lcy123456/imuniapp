@@ -125,14 +125,6 @@
         font-size: 16px;
     }
 
-    .fz-21 {
-        font-size: 21px;
-    }
-
-    .mt-7 {
-        margin-top: 7px;
-    }
-
     .mt-10 {
         margin-top: 10px;
     }
@@ -193,6 +185,14 @@
         justify-content: center;
         color: #FFFFFF;
         font-size: 18px;
+    }
+
+    .nick_name {
+        font-size: 21px;
+        color: #FFFFFF;
+        text-align: center;
+        margin-top: 7px;
+        padding: 0 24px;
     }
 
     .tips_text {
@@ -298,7 +298,7 @@
             <div v-if="isAlone" class="avatar_panel">
                 <image class="avatar" :src="faceURLHandle" v-if="callUserInfo.faceURL"></image>
                 <div class="avatar" v-else>{{ nicknameHandle }}</div>
-                <p class="fz-21 text-inverse mt-7">{{ nicknameHandle }}</p>
+                <p class="nick_name">{{ callUserInfo.nickname }}</p>
             </div>
             <div v-if="isAlone && !isCallIng" class="tips_text">等待对方接受邀请</div>
             <div class="btn_nav">
@@ -342,7 +342,7 @@
         } = window.LivekitClient;
         const defaultBaseMap = {
             message: {
-                sessionType: 1,
+                sessionType: 3,
                 type: ''
             }
         };
@@ -377,18 +377,19 @@
             computed: {
                 // 群聊
                 isGroup() {
-                    return this.baseMap.message.sessionType === 3
+                    return this.baseMap.message.sessionType === 3;
                 },
                 // 个人聊天
                 isAlone() {
-                    return this.baseMap.message.sessionType !== 3
+                    return this.baseMap.message.sessionType !== 3;
                 },
                 faceURLHandle() {
-                    const faceURL = this.callUserInfo?.faceURL
-                    return `defaultAvatars/${faceURL}.png`
+                    const faceURL = this.callUserInfo?.faceURL;
+                    const hasHttpURL = RegExp(/['http', 'https']/).exec(faceURL);
+                    return hasHttpURL ? faceURL : `defaultAvatars/${faceURL}.png`;
                 },
                 nicknameHandle () {
-                    const nickname = this.callUserInfo?.nickname
+                    const nickname = this.callUserInfo?.nickname;
                     return nickname ? nickname.slice(nickname.length > 1 ? -2 : -1) : '未知';
                 },
             },

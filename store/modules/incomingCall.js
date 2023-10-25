@@ -2,8 +2,10 @@ import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting 
 import IMSDK, {
     IMMethods,
 } from "openim-uniapp-polyfill";
+import dayjs from 'dayjs';
 
 const state = {
+    startTime: '',
     callTime: '',
     incomingCallToken: '',
     isIncomingCallTop: false, // 顶部弹出
@@ -46,6 +48,9 @@ const mutations = {
     },
     SET_CALL_TIME (state, value) {
         state.callTime = value;
+    },
+    SET_START_TIME (state, value) {
+        state.startTime = value;
     },
     SET_IS_INCOMING_CALL_SMALL_STYLE (state, value) {
         state.incomingCallSmallStyle = value;
@@ -162,6 +167,7 @@ const actions = {
         commit('SET_INCOMING_CALL_TOP', false);
         commit('SET_IS_INCOMING_CALL_ING', true);
         commit('SET_IS_INCOMING_CALL_LOADING', false);
+        commit('SET_START_TIME', dayjs());
     }
 };
 

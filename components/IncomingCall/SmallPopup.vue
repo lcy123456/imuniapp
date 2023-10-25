@@ -33,8 +33,8 @@ export default {
                 width: 0,
                 height: 0
             },
-            timeStart: 0,
             timeText: '00:00',
+            timer: null,
             windowWidth: 0,
             windowHeight: 0,
             style: {}
@@ -43,11 +43,11 @@ export default {
     watch: {
         storeIsIncomingCallIng: {
             handler (val) {
-                if (val) {
-                    this.intervalHandle();
-                } else {
-                    this.timeText = '等待接听';
-                }
+                this.timer = null;
+                clearTimeout(this.timer);
+
+                if (val) this.intervalHandle(); 
+                else this.timeText = '等待接听';
             },
             immediate: true
         },
@@ -63,7 +63,12 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['storeIsIncomingCallSmall', 'storeIsIncomingCallIng', 'storeIncomingCallSmallStyle']),
+        ...mapGetters([
+            'storeIsIncomingCallSmall',
+            'storeIsIncomingCallIng',
+            'storeIncomingCallSmallStyle',
+            'storeIncomingCallStartTime'
+        ]),
 
         // 悬浮缩小
         shouldShow () {
@@ -73,28 +78,24 @@ export default {
     methods: {
         // 计时器
         interval (func, delay) {
-            let timer = null;
             const _this = this;
             const interFunc = function () {
-                if (timer && !_this.storeIsIncomingCallIng) {
-                    timer = null;
-                    clearTimeout(timer);
+                if (_this.timer && !_this.storeIsIncomingCallIng) {
+                    _this.timer = null;
+                    clearTimeout(_this.timer);
                     console.log('&&&&&&清空通话中计时器&&&&&&');
                     return;
                 }
                 func.call(null);
-                timer = setTimeout(interFunc, delay); // 递归调用
+                _this.timer = setTimeout(interFunc, delay); // 递归调用
             };
             interFunc();
-        // return function () {
-        //     timer = setTimeout(interFunc, delay); // 递归调用
-        // }();
         },
         intervalHandle () {
-            this.timeStart = dayjs();
+            const timeStart = this.storeIncomingCallStartTime;
             const oneHour = 3600;
             this.interval(()=> {
-                const secondsDiff = dayjs().diff(this.timeStart, 'second');
+                const secondsDiff = dayjs().diff(timeStart, 'second');
                 const format = secondsDiff > oneHour ? 'HH:mm:ss' : 'mm:ss';
                 this.timeText = dayjs.duration(secondsDiff, 'seconds').format(format);
             }, 1000);
