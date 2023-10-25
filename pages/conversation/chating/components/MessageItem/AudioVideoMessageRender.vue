@@ -68,17 +68,19 @@ export default {
     computed: {
         getContent () {
             let text = '';
-            const { contentType } = this.message;
+            // const { contentType } = this.message;
+            const { data } = this.message.customElem;
+            const res = JSON.parse(data); 
             
-            if (contentType === AudioVideoStatus.Reject) {
+            if (res.status === AudioVideoStatus.Reject) {
                 text = `[已拒绝]`;
-            } else if (contentType === AudioVideoStatus.Cancel) {
+            } else if (res.status === AudioVideoStatus.Cancel) {
                 text = `[已取消]`;
-            } else if (contentType === AudioVideoStatus.NotAnswered) {
+            } else if (res.status === AudioVideoStatus.NotAnswered) {
                 text = `[未应答]`;
-            } else if (contentType === AudioVideoStatus.Busy) {
+            } else if (res.status === AudioVideoStatus.Busy) {
                 text = `[忙线中]`;
-            } else if (contentType === AudioVideoStatus.Done) {
+            } else if (res.status === AudioVideoStatus.Done) {
                 text = `[通话时间长]`;
             } else {
                 text = this.isVideo ? `[发起视频]` : `[发起通话]`;
@@ -103,7 +105,7 @@ export default {
 .audio_video_message_container {
     word-break: break-all;
     display: flex;
-    align-items: end;
+    align-items: flex-end;
     .main {
         display: flex;
         justify-content: center;

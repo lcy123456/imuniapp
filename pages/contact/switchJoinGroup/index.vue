@@ -108,7 +108,7 @@ export default {
 			}
 
 			/deep/ .action_item {
-				align-items: start;
+				align-items: flex-start;
 			}
 
 			.action_item:last-child {

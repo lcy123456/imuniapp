@@ -123,7 +123,7 @@ export default {
 
 		.message_container {
 			margin-left: 24rpx;
-			text-align: start;
+			text-align: flex-start;
 			max-width: 80%;
 			position: relative;
 
@@ -139,7 +139,7 @@ export default {
 			.message_content_wrap {
 				@include vCenterBox();
 				@include ellipsisWithLine(10);
-				text-align: start;
+				text-align: flex-start;
 				font-size: 14px;
 				color: $uni-text-color;
 				width: fit-content;

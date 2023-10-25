@@ -132,6 +132,7 @@ import ChatingEmojiBar from './ChatingEmojiBar.vue';
 import ChatQuote from '@/components/ChatQuote';
 import { EncryptoAES } from '@/util/crypto';
 import { chooseFile } from '@/util/unisdk';
+import { videoCreateRoomAndGetToken } from '@/api/incoming';
 
 const needClearTypes = [
     MessageType.TextMessage,
@@ -307,7 +308,7 @@ export default {
             return this.sendAudioVideoMessage(message);
         },
         async sendAudioVideoMessage (message) {
-            const { userID, groupID } = this.storeCurrentConversation;
+            const { userID, groupID, conversationID } = this.storeCurrentConversation;
             try {
                 this.pushNewMessage({
                     ...message,
@@ -315,6 +316,13 @@ export default {
                     groupID,
                     sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
                 });
+                const { token } = await videoCreateRoomAndGetToken({
+                    sendID: message.sendID,
+                    conversationID
+                });
+                console.log('tokenDatatokenDatatokenDatatokenDatatokenData', token);
+                this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
+
                 const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                     recvID: userID,
                     groupID,
@@ -580,20 +588,6 @@ export default {
                 }
                 await this.onThrowCall({
                     ...data,
-                    type
-                });
-                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
-            }
-        },
-        async goWebrtc (message) {
-            console.log('goWebrtc----goWebrtc');
-            const hasPermission  = await this.reviewPermission();
-            const { data } = message.customElem;
-            const res = JSON.parse(data); 
-            const type = res.type === AudioVideoType.Video ? 'video' : 'audio';
-            if (hasPermission) {
-                await this.onThrowCall({
-                    ...message,
                     type
                 });
                 uni.navigateTo({url: `/pages/conversation/webrtc/index`});

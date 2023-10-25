@@ -513,7 +513,15 @@ export default {
                 }
             }
             if (this.isAudioVideoSend(newServerMsg)) {
+                console.log(newServerMsg, 'newServerMsgnewServerMsg');
                 this.appearLoadingCall(newServerMsg);
+                // if (this.storeSelfInfo.userID !== newServerMsg.sendID) {
+                //     this.appearLoadingCall(newServerMsg);
+                // }
+                //  else {
+                //     this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', newServerMsg.token);
+                //     uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+                // }
             }
         },
         inCurrentConversation (newServerMsg) {

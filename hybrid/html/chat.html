@@ -352,6 +352,7 @@
             data: {
                 name: '好好',
                 type: '',
+                token: '',
                 device: '',
                 timeText: '00:00',
                 callTime: '',
@@ -396,7 +397,7 @@
                 this.init();
             },
             methods: {
-                checkDom() {
+                checkDom () {
                     if (this.isGroup) {
                         const dom = this.getDom('chat-group-css');
                         console.log(dom, '==');
@@ -407,7 +408,7 @@
                         this.isDomIn = !!(otherDom.children[0] || myDom.children[0]);
                     }
                 },
-                init(data) {
+                init (data) {
                     this.baseMap = data || JSON.parse(JSON.stringify(defaultBaseMap));
                     if (data) {
                         const {
@@ -415,12 +416,14 @@
                             isCallIng,
                             isAnswer,
                             callUserInfo,
-                            message
+                            message,
+                            token
                         } = data
-                        this.isCallLoading = isCallLoading
-                        this.isCallIng = isCallIng
-                        this.isAnswer = isAnswer
-                        this.callUserInfo = callUserInfo
+                        this.isCallLoading = isCallLoading;
+                        this.isCallIng = isCallIng;
+                        this.isAnswer = isAnswer;
+                        this.callUserInfo = callUserInfo;
+                        this.token = token;
 
                         if(this.isCallIng) this.timerFn();
                     }
@@ -504,7 +507,8 @@
                 },
                 async openRoom() {
                     const wsURL = `ws://192.168.2.20:7880`;
-                    const token = localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
+                    const token = this.token || localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
+                    console.log('tokentokentoken', token);
                     this.room = new Room();
                     this.trackList = [];
                     try {
@@ -702,7 +706,6 @@
                             isDanger: true
                         }
                     });
-                    uni.navigateBack();
                 },
                 beforeDestroy() {
                     this.room && this.room.disconnect();
