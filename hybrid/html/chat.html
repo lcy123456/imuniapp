@@ -356,7 +356,6 @@
                 callTime: '',
                 trackList: [],
                 isDomIn: false,
-                isCallOrAnswer: false, // true主动拨打  false等待接听
                 isCallLoading: false, // 双方等待接通电话
                 isCallIng: false, // 正在通话中
                 callUserInfo: {
@@ -402,13 +401,11 @@
                     this.baseMap = data || JSON.parse(JSON.stringify(defaultBaseMap));
                     if (data) {
                         const {
-                            isCallOrAnswer,
                             isCallLoading,
                             isCallIng,
                             callUserInfo,
                             message
                         } = data
-                        this.isCallOrAnswer = isCallOrAnswer
                         this.isCallLoading = isCallLoading
                         this.isCallIng = isCallIng
                         this.callUserInfo = callUserInfo

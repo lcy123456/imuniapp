@@ -21,7 +21,8 @@ export default {
         return {
             time: '',
             updateKey: '',
-            systemInfo: uni.getSystemInfoSync()
+            systemInfo: uni.getSystemInfoSync(),
+            innerAudioContext: null,
         }
     },
     computed: {
@@ -29,14 +30,22 @@ export default {
             "storeIncomingCallMessage",
             "storeIncomingCallCallTime",
             "storeCurrentConversation",
-            "storeIsCallOrAnswer",
-            "storeIsIncomingCallLoading",
+            "storeIsIncomingCallTop",
+			"storeIsIncomingCallLoading",
             "storeIsIncomingCallIng",
             "storeIncomingCallUserInfo"
         ]),
         src () {
             return `/hybrid/html/chat.html`;
         }
+    },
+    watch: {
+		storeIsIncomingCallTop: {
+			handler(val){
+				if(val) this.startMusic()
+				else this.stopMusic()
+			}
+		}
     },
     onLoad () {
         console.log('onLoad-onLoad');
@@ -51,7 +60,6 @@ export default {
             const map = {
                 message: this.storeIncomingCallMessage,
                 conversation: this.storeCurrentConversation,
-                isCallOrAnswer: this.storeIsCallOrAnswer,
                 isCallLoading: this.storeIsIncomingCallLoading,
                 isCallIng: this.storeIsIncomingCallIng,
                 callUserInfo: this.storeIncomingCallUserInfo
@@ -75,6 +83,22 @@ export default {
     methods: {
         ...mapActions('incomingCall', ['onSmall', 'onDangerCall']),
 
+        // 唤起铃声
+        async startMusic () {
+            // 避免重复唤起铃声
+            if (this.innerAudioContext != null) return;
+
+            this.innerAudioContext = uni.createInnerAudioContext();
+            this.innerAudioContext.autoplay = true;
+            this.innerAudioContext.loop = true;
+            this.innerAudioContext.src = '/static/audio/incoming_call_music.mp3';
+        },
+        // 销毁铃声
+        stopMusic () {
+            if (this.innerAudioContext == null) return;
+            this.innerAudioContext.stop();
+            this.innerAudioContext.destroy();
+        },
         handlePostMessage (event) {
             console.log('handlePostMessage()===', event)
             const [data] = event.detail.data

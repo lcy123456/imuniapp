@@ -1,6 +1,6 @@
 <template>
     <view
-        v-if="shouldShow"
+        v-if="storeIsIncomingCallTop"
         :class="['top_dialog_container', 
                  shouldFadeIn && 'top_dialog_in',
                  shouldFadeOut && 'top_dialog_out']"
@@ -74,13 +74,9 @@ export default {
     computed: {
         ...mapGetters([
             'storeIsIncomingCallTop',
-            'storeIsCallOrAnswer',
             'storeIncomingCallUserInfo',
             'storeIncomingCallMessage'
         ]),
-        shouldShow () {
-            return this.storeIsIncomingCallTop;
-        },
         faceURL () {
             const {faceURL} = this.storeIncomingCallUserInfo;
             return faceURL;
@@ -95,13 +91,19 @@ export default {
             return res.type === AudioVideoType.Video;
         }
     },
-    created () {
-        this.shouldFadeIn = !this.storeIsIncomingCallTop;
-    },
-    mounted () {
-        // setTimeout(()=> {
-        //     this.startMusic();
-        // }, 2000);
+    watch: {
+        storeIsIncomingCallTop: {
+            handler (val) {
+                if (val) {
+                    this.shouldFadeOut = false;
+
+                    setTimeout(()=> {
+                      this.shouldFadeIn = true;
+                    },0)
+                }
+            },
+            immediate: true
+        }
     },
     methods: {
         ...mapActions('incomingCall', ['onSmall', 'onDangerCall', 'onSuccessCall']),
@@ -124,23 +126,6 @@ export default {
                 }, 400);
             }
         },
-        // 唤起铃声
-        startMusic () {
-            if (!this.storeIsIncomingCallTop) return;
-            // 避免重复唤起铃声
-            if (innerAudioContext != null) return;
-
-            innerAudioContext = uni.createInnerAudioContext();
-            innerAudioContext.autoplay = true;
-            innerAudioContext.loop = true;
-            innerAudioContext.src = '/static/audio/incoming_call_music.mp3';
-        },
-        // 销毁铃声
-        stopMusic () {
-            if (innerAudioContext == null) return;
-            innerAudioContext.stop();
-            innerAudioContext.destroy();
-        },
         visibleHandle () {
             this.shouldFadeOut = true;
 
@@ -148,8 +133,6 @@ export default {
             setTimeout(()=> {
                 store.commit('incomingCall/SET_INCOMING_CALL_TOP', false);
             }, 400);
-
-            this.stopMusic();
         },
         openPhone () {
             this.visibleHandle();
