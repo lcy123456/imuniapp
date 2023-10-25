@@ -309,6 +309,12 @@ export default {
         async sendAudioVideoMessage (message) {
             const { userID, groupID } = this.storeCurrentConversation;
             try {
+                this.pushNewMessage({
+                    ...message,
+                    recvID: userID,
+                    groupID,
+                    sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
+                });
                 const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                     recvID: userID,
                     groupID,
@@ -316,6 +322,11 @@ export default {
                     offlinePushInfo,
                 });
                 console.log('发起音视频消息成功', data);
+                this.updateOneMessage({
+                    message: data,
+                    isSuccess: true,
+                });
+                uni.$emit(PageEvents.ScrollToBottom);
                 return data;
             } catch ({ data, errCode }) {
                 console.log('发送失败', data, errCode);
