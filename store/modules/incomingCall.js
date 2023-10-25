@@ -7,6 +7,7 @@ const state = {
     callTime: '',
     isIncomingCallTop: false, // 顶部弹出
     isIncomingCallSmall: false, // 悬浮缩小
+    isAnswer: false, // true拨打电话 false接听电话
     isIncomingCallIng: false, // 正在通话中
     isIncomingCallLoading: false, // 双方等待接通电话
     incomingCallMessage: {},
@@ -29,6 +30,9 @@ const mutations = {
     },
     SET_IS_INCOMING_CALL_SMALL (state, value) {
         state.isIncomingCallSmall = value;
+    },
+    SET_IS_ANSWER (state, value) {
+        state.isAnswer = value;
     },
     SET_IS_INCOMING_CALL_ING (state, value) {
         state.isIncomingCallIng = value;
@@ -85,10 +89,22 @@ const actions = {
     // 拨打电话
     async onThrowCall ({
         commit
-    }, data) {
+    }, message) {
         try {
-            commit('SET_IS_INCOMING_CALL_MESSAGE', data);
+            const { sendID } = message;
+            const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                [sendID]
+            );
+            if (usersInfo?.data) {
+                // eslint-disable-next-line no-unsafe-optional-chaining
+                const { faceURL, nickname } = usersInfo?.data[0]?.friendInfo;
+                commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
+                console.log('拨打电话，对方用户信息', { faceURL, nickname });
+            }
+
+            commit('SET_IS_INCOMING_CALL_MESSAGE', message);
             commit('SET_IS_INCOMING_CALL_LOADING', true);
+            commit('SET_IS_ANSWER', false);
             commit('SET_CALL_TIME', +new Date());
         } catch (e) {
             console.log(e, '拨打电话失败');
@@ -114,6 +130,7 @@ const actions = {
             commit('SET_IS_INCOMING_CALL_MESSAGE', message);
             commit('SET_IS_INCOMING_CALL_LOADING', true);
             commit('SET_INCOMING_CALL_TOP', true);
+            commit('SET_IS_ANSWER', true);
             commit('SET_CALL_TIME', +new Date());
         } catch (e) {
             console.log(e, '接听电话失败');

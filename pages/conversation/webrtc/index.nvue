@@ -33,6 +33,7 @@ export default {
             "storeIsIncomingCallTop",
 			"storeIsIncomingCallLoading",
             "storeIsIncomingCallIng",
+            "storeIsAnswer",
             "storeIncomingCallUserInfo"
         ]),
         src () {
@@ -56,12 +57,12 @@ export default {
     },
     onShow () {
         if (this.time !== this.storeIncomingCallCallTime) {
-            console.log('22222');
             const map = {
                 message: this.storeIncomingCallMessage,
                 conversation: this.storeCurrentConversation,
                 isCallLoading: this.storeIsIncomingCallLoading,
                 isCallIng: this.storeIsIncomingCallIng,
+                isAnswer: this.storeIsAnswer,
                 callUserInfo: this.storeIncomingCallUserInfo
             }
             console.log('evalJs()=====发送参数给webview', map)

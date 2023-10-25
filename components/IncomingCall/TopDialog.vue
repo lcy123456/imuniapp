@@ -7,9 +7,7 @@
         @touchstart="onTouchstart($event)"
         @touchend="onTouchend($event)"
     >
-        <view
-            class="flex ml-40 align-center"
-        >
+        <view class="flex ml-40 align-center">
             <MyAvatar
                 :src="faceURL"
                 :desc="nickname"
@@ -154,19 +152,16 @@ export default {
             );
         },
         async successClick () {
-            console.log('success');
             this.visibleHandle();
-            this.onSuccessCall();
-            this.goWebrtc();
+            await this.onSuccessCall();
+            await this.goWebrtc();
         },
         async goWebrtc () {
             const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
             const type = this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio;
             if (hasPermission) {
-                store.commit('incomingCall/SET_IS_INCOMING_CALL_ING', true);
-                await this.onThrowCall({
+                store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', {
                     ...this.storeIncomingCallMessage,
-                    isAnswer: true,
                     type
                 });
                 uni.navigateTo({url: `/pages/conversation/webrtc/index`});

@@ -84,6 +84,7 @@ export default {
     storeIncomingCallUserInfo: (state) => state.incomingCall.incomingCallUserInfo,
     storeIsIncomingCallTop: (state) => state.incomingCall.isIncomingCallTop,
     storeIsIncomingCallSmall: (state) => state.incomingCall.isIncomingCallSmall,
+    storeIsAnswer: (state) => state.incomingCall.isAnswer,
     storeIsIncomingCallIng: (state) => state.incomingCall.isIncomingCallIng,
     storeIsIncomingCallLoading: (state) => state.incomingCall.isIncomingCallLoading,
     storeIncomingCallMessage: (state) => state.incomingCall.incomingCallMessage,

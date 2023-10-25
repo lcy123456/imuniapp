@@ -295,9 +295,10 @@
                 <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
                 <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
             </div>
-            <div v-if="isAlone && !isCallIng" class="avatar_panel">
-                <div class="avatar">{{ baseMap?.callUserInfo?.nickname }}</div>
-                <p class="fz-21 text-inverse mt-7">{{ baseMap?.callUserInfo?.nickname }}</p>
+            <div v-if="isAlone" class="avatar_panel">
+                <image class="avatar" :src="faceURLHandle" v-if="callUserInfo.faceURL"></image>
+                <div class="avatar" v-else>{{ nicknameHandle }}</div>
+                <p class="fz-21 text-inverse mt-7">{{ nicknameHandle }}</p>
             </div>
             <div v-if="isAlone && !isCallIng" class="tips_text">等待对方接受邀请</div>
             <div class="btn_nav">
@@ -319,7 +320,7 @@
                     <button class="danger_btn" @click="goOut">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
-                    <button v-if="!isCallIng" class="success_btn">
+                    <button v-if="isAnswer && isCallLoading" class="success_btn">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
                     <image class="overturn_small" src="images/incoming_call_handle_overturn_2.png" v-if="isCallIng"
@@ -358,6 +359,7 @@
                 isDomIn: false,
                 isCallLoading: false, // 双方等待接通电话
                 isCallIng: false, // 正在通话中
+                isAnswer: false, // true拨打电话 false接听电话
                 callUserInfo: {
                     faceURL: '',
                     nickname: '未知',
@@ -380,7 +382,15 @@
                 // 个人聊天
                 isAlone() {
                     return this.baseMap.message.sessionType !== 3
-                }
+                },
+                faceURLHandle() {
+                    const { faceURL } = this.callUserInfo
+                    return `defaultAvatars/${faceURL}.png`
+                },
+                nicknameHandle () {
+                    const { nickname } = this.callUserInfo
+                    return nickname ? nickname.slice(nickname.length > 1 ? -2 : -1) : '未知';
+                },
             },
             mounted() {
                 this.init();
@@ -403,13 +413,14 @@
                         const {
                             isCallLoading,
                             isCallIng,
+                            isAnswer,
                             callUserInfo,
                             message
                         } = data
                         this.isCallLoading = isCallLoading
                         this.isCallIng = isCallIng
+                        this.isAnswer = isAnswer
                         this.callUserInfo = callUserInfo
-                        // this.isShowCall = !!message.isAnswer;
 
                         if(this.isCallIng) this.timerFn();
                     }
@@ -581,13 +592,12 @@
                                 });
                                 if (!avatar) {
                                     let avatarDom = ''
-                                    const hasFaceURL = false
-                                    if(hasFaceURL) {
+                                    if(this.callUserInfo.faceURL) {
                                         avatarDom = document.createElement('img');
-                                        avatarDom.src = 'https://img.cdn.aliyun.dcloud.net.cn/guide/uniapp/uni-h5-hosting-qr.png'
+                                        avatarDom.src = `https://img.cdn.aliyun.dcloud.net.cn/guide/uniapp/uni-h5-hosting-qr.png`
                                     } else {
                                         avatarDom = document.createElement('div');
-                                        avatarDom.innerHTML = '菠萝'
+                                        avatarDom.innerHTML = `菠萝`
                                     }
                                     this.setDomAttr({
                                         dom: avatarDom,
