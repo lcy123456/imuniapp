@@ -91,13 +91,13 @@ const actions = {
         commit
     }, message) {
         try {
-            const { sendID } = message;
+            const { recvID } = message;
             const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
-                [sendID]
+                [recvID]
             );
             if (usersInfo?.data) {
-                // eslint-disable-next-line no-unsafe-optional-chaining
-                const { faceURL, nickname } = usersInfo?.data[0]?.friendInfo;
+                const [uData] = usersInfo.data;
+                const { faceURL, nickname } = uData.friendInfo;
                 commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
                 console.log('拨打电话，对方用户信息', { faceURL, nickname });
             }
@@ -121,8 +121,8 @@ const actions = {
                 [sendID]
             );
             if (usersInfo?.data) {
-                // eslint-disable-next-line no-unsafe-optional-chaining
-                const { faceURL, nickname } = usersInfo?.data[0]?.friendInfo;
+                const [uData] = usersInfo.data;
+                const { faceURL, nickname } = uData.friendInfo;
                 commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
                 console.log('等待接听电话，对方用户信息', { faceURL, nickname });
             }

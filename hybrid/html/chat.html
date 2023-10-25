@@ -316,7 +316,7 @@
                         <p class="mt-10 fz-14 text-inverse">{{ camText }}</p>
                     </div>
                 </div>
-                <div :class="['answer_panel', isCallIng ? 'flex-center' : '']">
+                <div :class="['answer_panel', !isAnswer || isCallIng ? 'flex-center' : '']">
                     <button class="danger_btn" @click="goOut">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
@@ -344,8 +344,7 @@
             message: {
                 sessionType: 1,
                 type: ''
-            },
-            conversation: {},
+            }
         };
         const app = new Vue({
             el: '#app',
@@ -384,11 +383,11 @@
                     return this.baseMap.message.sessionType !== 3
                 },
                 faceURLHandle() {
-                    const { faceURL } = this.callUserInfo
+                    const faceURL = this.callUserInfo?.faceURL
                     return `defaultAvatars/${faceURL}.png`
                 },
                 nicknameHandle () {
-                    const { nickname } = this.callUserInfo
+                    const nickname = this.callUserInfo?.nickname
                     return nickname ? nickname.slice(nickname.length > 1 ? -2 : -1) : '未知';
                 },
             },
@@ -592,7 +591,8 @@
                                 });
                                 if (!avatar) {
                                     let avatarDom = ''
-                                    if(this.callUserInfo.faceURL) {
+                                    const hasFaceURL = false
+                                    if(hasFaceURL) {
                                         avatarDom = document.createElement('img');
                                         avatarDom.src = `https://img.cdn.aliyun.dcloud.net.cn/guide/uniapp/uni-h5-hosting-qr.png`
                                     } else {

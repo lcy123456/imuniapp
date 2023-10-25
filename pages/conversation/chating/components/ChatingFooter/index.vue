@@ -582,6 +582,7 @@ export default {
                     ...data,
                     type
                 });
+
                 uni.navigateTo({url: `/pages/conversation/webrtc/index`});
             }
         },

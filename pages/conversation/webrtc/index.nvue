@@ -29,7 +29,6 @@ export default {
         ...mapGetters([
             "storeIncomingCallMessage",
             "storeIncomingCallCallTime",
-            "storeCurrentConversation",
             "storeIsIncomingCallTop",
 			"storeIsIncomingCallLoading",
             "storeIsIncomingCallIng",
@@ -59,7 +58,6 @@ export default {
         if (this.time !== this.storeIncomingCallCallTime) {
             const map = {
                 message: this.storeIncomingCallMessage,
-                conversation: this.storeCurrentConversation,
                 isCallLoading: this.storeIsIncomingCallLoading,
                 isCallIng: this.storeIsIncomingCallIng,
                 isAnswer: this.storeIsAnswer,
@@ -85,7 +83,7 @@ export default {
         ...mapActions('incomingCall', ['onSmall', 'onDangerCall']),
 
         // 唤起铃声
-        async startMusic () {
+        startMusic () {
             // 避免重复唤起铃声
             if (this.innerAudioContext != null) return;
 
