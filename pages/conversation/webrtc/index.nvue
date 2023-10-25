@@ -30,7 +30,6 @@ export default {
         }
     },
     computed: {
-        ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         ...mapGetters([
             "storeIncomingCallMessage",
             "storeIncomingCallCallTime",
@@ -89,7 +88,7 @@ export default {
     },
     methods: {
         ...mapActions('incomingCall', ['onSmall', 'onDangerCall']),
-
+        ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         // 唤起铃声
         startMusic () {
             // 避免重复唤起铃声
@@ -138,12 +137,12 @@ export default {
                 }
             );
             const { recvID, groupID } = this.storeIncomingCallMessage;
-            // this.pushNewMessage({
-            //     ...message,
-            //     recvID,
-            //     groupID,
-            //     sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
-            // });
+            this.pushNewMessage({
+                ...message,
+                recvID,
+                groupID,
+                sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
+            });
             console.log('this.storeIncomingCallMessage');
             const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                 recvID: recvID,
@@ -158,12 +157,11 @@ export default {
                 }
             });
             console.log('data', data);
-            // this.updateOneMessage({
-            //     message: data,
-            //     isSuccess: true,
-            // });
+            this.updateOneMessage({
+                message: data,
+                isSuccess: true,
+            });
             uni.$emit(PageEvents.ScrollToBottom);
-            uni.navigateBack();
         }
     }
 }

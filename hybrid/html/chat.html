@@ -707,6 +707,7 @@
                             isDanger: true
                         }
                     });
+                    uni.navigateBack();
                 },
                 beforeDestroy() {
                     this.room && this.room.disconnect();
