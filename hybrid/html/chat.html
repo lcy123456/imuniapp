@@ -8,6 +8,9 @@
     <script type="text/javascript" src="lib/uni-webview-js@0.0.1.js"></script>
     <script src="lib/vue@2.js"></script>
     <script src="lib/livekit-client.umd.min.js"></script>
+    <script src="lib/dayjs/dayjs.min.js"></script>
+    <script src="lib/dayjs/duration.js"></script>
+    <script>dayjs.extend(window.dayjs_plugin_duration)</script>
     <!-- <script src="./chat.js"></script> -->
 </head>
 
@@ -272,7 +275,7 @@
         <div class="incoming_call_main">
             <div class="header_panel">
                 <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
-                <span class="fz-16 text-inverse" v-if="isCallIng">00:09</span>
+                <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
             </div>
             <div v-if="isAlone && !isCallIng" class="avatar_panel">
                 <div class="avatar">{{ baseMap?.callUserInfo?.nickname }}</div>
@@ -330,6 +333,7 @@
                 name: '好好',
                 type: '',
                 device: '',
+                timeText: '00:00',
                 callTime: '',
                 trackList: [],
                 isDomIn: false,
@@ -662,12 +666,38 @@
                         }
                     });
                     uni.navigateBack();
-                }
+                },
+                beforeDestroy() {
+                    this.room && this.room.disconnect();
+                    this.trackList = [];
+                },
+                // 计时器
+                initTimer(func, delay) {
+                    let timer = null;
+                    const _this = this;
+                    const interFunc = function () {
+                        if (timer && !_this.isCallIng) {
+                            timer = null;
+                            clearTimeout(timer);
+                            console.log('&&&&&&清空通话中计时器&&&&&&');
+                            return;
+                        }
+                        func.call(null);
+                        timer = setTimeout(interFunc, delay); // 递归调用
+                    };
+                    interFunc();
+                },
+                // 执行计时器
+                timerFn() {
+                    this.timeStart = dayjs();
+                    const oneHour = 3600;
+                    this.initTimer(() => {
+                        const secondsDiff = dayjs().diff(this.timeStart, 'second');
+                        const format = secondsDiff > oneHour ? 'HH:mm:ss' : 'mm:ss';
+                        this.timeText = dayjs.duration(secondsDiff, 'seconds').format(format);
+                    }, 1000);
+                },
             },
-            beforeDestroy() {
-                this.room && this.room.disconnect();
-                this.trackList = [];
-            }
         })
         function uniEvent(res) {
             app.init(res);
