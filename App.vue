@@ -513,9 +513,7 @@ export default {
                 }
             }
             if (this.isAudioVideoSend(newServerMsg)) {
-                if (this.storeSelfInfo.userID !== newServerMsg.sendID) {
-                    this.appearLoadingCall(newServerMsg);
-                }
+                this.appearLoadingCall(newServerMsg);
             }
         },
         inCurrentConversation (newServerMsg) {

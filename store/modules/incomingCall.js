@@ -65,7 +65,10 @@ const mutations = {
         state.incomingCallSmallStyle = value;
     },
     SET_IS_INCOMING_CALL_MESSAGE (state, value) {
-        state.incomingCallMessage = value;
+        state.incomingCallMessage = {
+            ...state.incomingCallMessage,
+            ...value
+        };
     },
 };
 
