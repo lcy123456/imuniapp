@@ -562,8 +562,11 @@ export default {
             if (hasPermission) {
                 await this.getGroupMemberList();
                 const data = await this.sendCustomMessage(type);
-                
-                if (typeof data === 'boolean' && !data) return;
+                console.log(data, '======sendCustomMessagesendCustomMessagesendCustomMessage');
+                if (typeof data === 'boolean' && !data) {
+                    uni.$u.toast('网络异常，请稍后重试');
+                    return;
+                }
                 await this.onThrowCall({
                     ...data,
                     type

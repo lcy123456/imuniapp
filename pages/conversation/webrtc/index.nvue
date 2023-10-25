@@ -11,6 +11,10 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import { AudioVideoType, AudioVideoStatus } from '@/enum';
+import IMSDK, {
+    IMMethods
+} from 'openim-uniapp-polyfill';
 
 export default {
     data () {
@@ -81,11 +85,26 @@ export default {
             if(data.isDanger) {
                 // 挂断
 				console.log('挂断 this.onDangerCall()')
+                this.reject();
                 this.onDangerCall()
             }
             if(data.isSuccess) {
                 // 接听
             }
+        },
+        async reject () {
+            await IMSDK.asyncApi(
+                IMMethods.CreateCustomMessage,
+                IMSDK.uuid(),
+                {
+                    data: JSON.stringify({
+                        type: this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio,
+                        status: this.storeIncomingCallMessage.isAnswer ? AudioVideoStatus.Reject : AudioVideoStatus.Cancel
+                    }),
+                    extension: '',
+                    description: ''
+                }
+            );
         }
     }
 }

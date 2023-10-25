@@ -4,17 +4,28 @@
         @click="initWebrtc"
     >
         <view class="main">
-            <text>{{ getContent }}</text>
-            <image
-                v-if="isVideo"
-                class="video-icon"
-                src="/static/images/video.png"
-            />
-            <image
-                v-else
-                class="phone-icon"
-                src="/static/images/phone.png"
-            />
+            <text
+                v-if="isSender"
+            >
+                {{ getContent }}
+            </text>
+            <view>
+                <image
+                    v-if="isVideo"
+                    class="video-icon"
+                    src="/static/images/video.png"
+                />
+                <image
+                    v-else
+                    class="phone-icon"
+                    src="/static/images/phone.png"
+                />
+            </view>
+            <text
+                v-if="!isSender"
+            >
+                {{ getContent }}
+            </text>
         </view>
         <MessageReadState
             :message="message"
@@ -72,7 +83,7 @@ export default {
             } else if (contentType === AudioVideoStatus.Done) {
                 text = `[通话时间长]`;
             } else {
-                text = `[测试通话]`;
+                text = `[发起通话]`;
             }
             return text;
         },
