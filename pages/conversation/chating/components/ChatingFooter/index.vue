@@ -310,18 +310,23 @@ export default {
         async sendAudioVideoMessage (message) {
             const { userID, groupID, conversationID } = this.storeCurrentConversation;
             try {
+                try {
+                    const { token } = await videoCreateRoomAndGetToken({
+                        sendID: message.sendID,
+                        conversationID
+                    });
+                    console.log('tokenDatatokenDatatokenDatatokenDatatokenData', token);
+                    this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
+                } catch (err) {
+                    uni.$u.toast('网络异常，请稍后重试');
+                    return false;
+                }
                 this.pushNewMessage({
                     ...message,
                     recvID: userID,
                     groupID,
                     sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
                 });
-                const { token } = await videoCreateRoomAndGetToken({
-                    sendID: message.sendID,
-                    conversationID
-                });
-                console.log('tokenDatatokenDatatokenDatatokenDatatokenData', token);
-                this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
 
                 const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                     recvID: userID,
@@ -579,19 +584,24 @@ export default {
             console.log('initWebrtc----initWebrtc');
             const hasPermission  = await this.reviewPermission();
             if (hasPermission) {
-                await this.getGroupMemberList();
-                const data = await this.sendCustomMessage(type);
-                console.log(data, '======sendCustomMessagesendCustomMessagesendCustomMessage');
-                if (typeof data === 'boolean' && !data) {
+                try {
+                    await this.getGroupMemberList();
+                    const data = await this.sendCustomMessage(type);
+                    console.log(data, '======sendCustomMessagesendCustomMessagesendCustomMessage');
+                    if (typeof data === 'boolean' && !data) {
+                        uni.$u.toast('网络异常，请稍后重试');
+                        return;
+                    }
+                    await this.onThrowCall({
+                        ...data,
+                        type
+                    });
+
+                    uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+                } catch (err) {
                     uni.$u.toast('网络异常，请稍后重试');
                     return;
                 }
-                await this.onThrowCall({
-                    ...data,
-                    type
-                });
-
-                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
             }
         },
         chooseOrShotImage (sourceType) {
