@@ -56,7 +56,6 @@ import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import IMSDK, {
     IMMethods
 } from 'openim-uniapp-polyfill';
-let innerAudioContext = null;
 export default {
     name: "TopDialog",
     components: {
@@ -97,15 +96,15 @@ export default {
                     this.shouldFadeOut = false;
 
                     setTimeout(()=> {
-                      this.shouldFadeIn = true;
-                    },0)
+                        this.shouldFadeIn = true;
+                    }, 0);
                 }
             },
             immediate: true
         }
     },
     methods: {
-        ...mapActions('incomingCall', ['onSmall', 'onDangerCall', 'onSuccessCall']),
+        ...mapActions('incomingCall', ['onSmall', 'onDangerCall', 'onSuccessCall', 'onThrowCall']),
 
         // 手指落下时触发
         onTouchstart (event) {
