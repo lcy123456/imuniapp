@@ -5,6 +5,7 @@ import IMSDK, {
 
 const state = {
     callTime: '',
+    incomingCallToken: '',
     isIncomingCallTop: false, // 顶部弹出
     isIncomingCallSmall: false, // 悬浮缩小
     isAnswer: false, // true拨打电话 false接听电话
@@ -22,6 +23,9 @@ const state = {
 };
 
 const mutations = {
+    SET_INCOMING_CALL_TOKEN (state, value) {
+        state.incomingCallToken = value;
+    },
     SET_INCOMING_CALL_USER_INFO (state, value) {
         state.incomingCallUserInfo = value;
     },

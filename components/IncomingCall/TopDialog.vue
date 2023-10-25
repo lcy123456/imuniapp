@@ -54,6 +54,7 @@ import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import IMSDK, {
     IMMethods
 } from 'openim-uniapp-polyfill';
+import { offlinePushInfo } from '@/util/imCommon';
 export default {
     name: "TopDialog",
     components: {
@@ -138,7 +139,7 @@ export default {
         },
         async dangerClick () {
             this.visibleHandle();
-            await IMSDK.asyncApi(
+            const message = await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,
                 IMSDK.uuid(),
                 {
@@ -150,6 +151,15 @@ export default {
                     description: ''
                 }
             );
+            const data = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                recvID: this.storeIncomingCallMessage.sendID,
+                groupID: this.storeIncomingCallMessage.groupID,
+                message,
+                offlinePushInfo,
+            });
+            
+            console.log('this.storeIncomingCallMessagethis.storeIncomingCallMessage', this.storeIncomingCallMessage);
+            console.log('rejectDatarejectDatarejectData', data);
         },
         async successClick () {
             this.visibleHandle();

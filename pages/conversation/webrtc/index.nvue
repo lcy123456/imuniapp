@@ -12,8 +12,12 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
+import {
+    PageEvents
+} from '@/constant';
 import IMSDK, {
-    IMMethods
+    IMMethods,
+    SessionType,
 } from 'openim-uniapp-polyfill';
 
 export default {
@@ -26,6 +30,7 @@ export default {
         }
     },
     computed: {
+        ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         ...mapGetters([
             "storeIncomingCallMessage",
             "storeIncomingCallCallTime",
@@ -33,7 +38,8 @@ export default {
 			"storeIsIncomingCallLoading",
             "storeIsIncomingCallIng",
             "storeIsAnswer",
-            "storeIncomingCallUserInfo"
+            "storeIncomingCallUserInfo",
+            "storeIncomingCallToken"
         ]),
         src () {
             return `/hybrid/html/chat.html`;
@@ -55,13 +61,15 @@ export default {
         console.log('onReady-onReady');
     },
     onShow () {
+        console.log('onshow', this.time, this.storeIncomingCallCallTime);
         if (this.time !== this.storeIncomingCallCallTime) {
             const map = {
                 message: this.storeIncomingCallMessage,
                 isCallLoading: this.storeIsIncomingCallLoading,
                 isCallIng: this.storeIsIncomingCallIng,
                 isAnswer: this.storeIsAnswer,
-                callUserInfo: this.storeIncomingCallUserInfo
+                callUserInfo: this.storeIncomingCallUserInfo,
+                token: this.storeIncomingCallToken
             }
             console.log('evalJs()=====发送参数给webview', map)
             this.$refs.webviewRef.evalJs(`uniEvent(${JSON.stringify(map)})`);
@@ -116,7 +124,8 @@ export default {
             }
         },
         async reject () {
-            await IMSDK.asyncApi(
+            console.log(11);
+            const message = await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,
                 IMSDK.uuid(),
                 {
@@ -128,6 +137,33 @@ export default {
                     description: ''
                 }
             );
+            const { recvID, groupID } = this.storeIncomingCallMessage;
+            // this.pushNewMessage({
+            //     ...message,
+            //     recvID,
+            //     groupID,
+            //     sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
+            // });
+            console.log('this.storeIncomingCallMessage');
+            const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                recvID: recvID,
+                groupID: groupID,
+                message,
+                offlinePushInfo: {
+                    title: "you have a new message",
+                    desc: "you have a new message",
+                    ex: "",
+                    iOSPushSound: "",
+                    iOSBadgeCount: true
+                }
+            });
+            console.log('data', data);
+            // this.updateOneMessage({
+            //     message: data,
+            //     isSuccess: true,
+            // });
+            uni.$emit(PageEvents.ScrollToBottom);
+            uni.navigateBack();
         }
     }
 }

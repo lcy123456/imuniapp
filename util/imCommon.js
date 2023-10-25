@@ -14,7 +14,7 @@ import IMSDK, {
     MessageType,
     SessionType,
 } from "openim-uniapp-polyfill";
-import emojis from "../common/emojis";
+import emojis from "@/common/emojis";
 import { getPurePath } from '@/util/common';
 import { DecryptoAES } from '@/util/crypto';
 
