@@ -49,10 +49,16 @@
         overflow: hidden;
     }
     .avatar-box {
+        position: relative;
         width: 100%!important;
         height: 100%!important;
         background-color: #5496EB;
         border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #FFFFFF;
+        font-size: 24px;
     }
 
     .video-box .video, .video-box .audio {
@@ -90,6 +96,10 @@
 
     #back {
         z-index: 999999;
+    }
+
+    .z-index-100 {
+        z-index: 100;
     }
 
     .text-inverse {
@@ -425,9 +435,14 @@
                     } else {
                         myDom = this.getDom('my-box');
                     }
+
+                    const myAvatarDom = this.getDom('myVideo-avatar')
+                    if(!enabled) myAvatarDom.classList.remove('z-index-100')
+                    else myAvatarDom.classList.add('z-index-100')
+
                     console.log(myDom)
                     console.log('enabled====', enabled)
-                    !enabled && this.addSelf({ parentDom: myDom, type: '' });
+                    !enabled &&  this.addSelf({ parentDom: myDom, type: '' });
                 },
                 setInitVideoImg() {
                     const enabled = this.room?.localParticipant.isCameraEnabled;
@@ -534,7 +549,15 @@
                                     className: source === 'camera' ? 'video' : 'audio'
                                 });
                                 if (!avatar) {
-                                    const avatarDom = document.createElement('div');
+                                    let avatarDom = ''
+                                    const hasFaceURL = false
+                                    if(hasFaceURL){
+                                        avatarDom = document.createElement('img');
+                                        avatarDom.src = 'https://img.cdn.aliyun.dcloud.net.cn/guide/uniapp/uni-h5-hosting-qr.png'
+                                    } else {
+                                        avatarDom = document.createElement('div');
+                                        avatarDom.innerHTML = '菠萝'
+                                    }
                                     this.setDomAttr({
                                         dom: avatarDom,
                                         id: `myVideo-avatar`,
