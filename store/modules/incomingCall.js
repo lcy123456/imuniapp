@@ -2,7 +2,6 @@ import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting 
 import IMSDK, {
     IMMethods,
 } from "openim-uniapp-polyfill";
-import { AudioVideoType } from "@/enum";
 
 const state = {
     callTime: '',
@@ -88,11 +87,6 @@ const actions = {
         commit
     }, data) {
         try {
-            // console.log(data, '-----------1111111111111111');
-            // const customElem = JSON.parse(data.customElem.data);
-            // const callType = customElem?.type == AudioVideoType.Video ? AudioVideoType.Video : AudioVideoType.Audio;
-            // console.log('拨打电话类型是多少?', callType);
-
             commit('SET_IS_INCOMING_CALL_MESSAGE', data);
             commit('SET_IS_INCOMING_CALL_LOADING', true);
             commit('SET_CALL_TIME', +new Date());

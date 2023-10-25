@@ -315,11 +315,11 @@
                         <p class="mt-10 fz-14 text-inverse">{{ camText }}</p>
                     </div>
                 </div>
-                <div :class="['answer_panel', isShowCall ? '' : 'flex-center']">
+                <div :class="['answer_panel', isCallIng ? 'flex-center' : '']">
                     <button class="danger_btn" @click="goOut">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
-                    <button v-if="isShowCall" class="success_btn">
+                    <button v-if="!isCallIng" class="success_btn">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
                     <image class="overturn_small" src="images/incoming_call_handle_overturn_2.png" v-if="isCallIng"
@@ -409,7 +409,9 @@
                         this.isCallLoading = isCallLoading
                         this.isCallIng = isCallIng
                         this.callUserInfo = callUserInfo
-                        this.isShowCall = !!message.isAnswer;
+                        // this.isShowCall = !!message.isAnswer;
+
+                        if(this.isCallIng) this.timerFn();
                     }
                     this.disconnect();
                     this.openRoom();

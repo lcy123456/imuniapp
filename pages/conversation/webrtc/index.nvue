@@ -96,8 +96,8 @@ export default {
         // 销毁铃声
         stopMusic () {
             if (this.innerAudioContext == null) return;
-            this.innerAudioContext.stop();
             this.innerAudioContext.destroy();
+            this.innerAudioContext = null;
         },
         handlePostMessage (event) {
             console.log('handlePostMessage()===', event)

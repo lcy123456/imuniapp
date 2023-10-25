@@ -20,7 +20,7 @@
                     {{ nickname }}
                 </text>
                 <text class="fz-28 text-grey">
-                    邀请你{{ this.isVideo ? '视频通话' : '语音通话' }}
+                    邀请你{{ isVideo ? '视频通话' : '语音通话' }}
                 </text>
             </view>
         </view>
@@ -160,11 +160,10 @@ export default {
             this.goWebrtc();
         },
         async goWebrtc () {
-            console.log('goWebrtc----goWebrtc');
             const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
             const type = this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio;
-            console.log(hasPermission, 'hasPermissionhasPermission');
             if (hasPermission) {
+                store.commit('incomingCall/SET_IS_INCOMING_CALL_ING', true);
                 await this.onThrowCall({
                     ...this.storeIncomingCallMessage,
                     isAnswer: true,
