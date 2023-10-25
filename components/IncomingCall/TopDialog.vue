@@ -8,7 +8,7 @@
         @touchend="onTouchend($event)"
     >
         <view
-            class="flex align-center ml-40"
+            class="flex ml-40 align-center"
             @click="openPhone"
         >
             <MyAvatar
@@ -16,7 +16,7 @@
                 :desc="nickname"
                 size="80rpx"
             />
-            <view class="flex flex-column ml-16">
+            <view class="flex ml-16 flex-column">
                 <text class="fz-28 text-inverse ff-bold">
                     {{ nickname }}
                 </text>
@@ -71,7 +71,8 @@ export default {
         ...mapGetters([
             'storeIsIncomingCallTop',
             'storeIsCallOrAnswer',
-            'storeIncomingCallUserInfo'
+            'storeIncomingCallUserInfo',
+            'storeIncomingCallMessage'
         ]),
         shouldShow () {
             return this.storeIsIncomingCallTop;

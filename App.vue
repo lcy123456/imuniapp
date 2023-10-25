@@ -5,10 +5,11 @@ import IMSDK, {
     MessageType,
     SessionType,
 } from "openim-uniapp-polyfill";
+import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import config from "./common/config";
 import { getDbDir, toastWithCallback } from "@/util/common.js";
 import { IMLogin, conversationSort } from "@/util/imCommon";
-import { PageEvents, UpdateMessageTypes } from "@/constant";
+import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
 
 export default {
     onLaunch: function () {
@@ -472,10 +473,47 @@ export default {
             }
         },
 
+        
+        async goWebrtc (message) {
+            console.log('goWebrtc----goWebrtc');
+            const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
+            const { data } = message.customElem;
+            const res = JSON.parse(data); 
+            const type = res.type === AudioVideoType.Video ? 'video' : 'audio';
+            if (hasPermission) {
+                await this.onThrowCall({
+                    ...message,
+                    type
+                });
+                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+            }
+        },
+        isAudioVideoSend (message) {
+            const customElemData = message.customElem?.data;
+            let data = {};
+            try {
+                data = JSON.parse(customElemData);
+            } catch (err) {
+                console.log(err);
+                return false;
+            }
+            return AudioVideoRenderTypes.includes(message.contentType)
+                && data.type
+                && [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type)
+                && [AudioVideoStatus.Send].includes(data.status);
+        },
+
         handleNewMessage (newServerMsg) {
             this.innerAudioContext.play();
             if (this.inCurrentConversation(newServerMsg)) {
                 if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
+                    if (this.isAudioVideoSend(newServerMsg)) {
+                        if (this.storeSelfInfo.userID !== newServerMsg.sendID) {
+                            // this.goWebrtc(newServerMsg);
+                            this.$store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
+                            this.$store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', newServerMsg);
+                        }
+                    }
                     if (this.storeHasMoreAfterMessage) {
                         console.log('当前数据不在底端，不做数据推送');
                         let conversationUnread = this.conversationUnread + 1;
