@@ -507,8 +507,9 @@
                 },
                 // 添加自己
                 async addSelf({ parentDom, type }) {
-                    const myVideoDom = this.getDom('myVideo');
-                    if (myVideoDom) return;
+                    const myVideoDom = this.getDom('myVideo-video');
+                    const myAudioDom = this.getDom('myVideo-video');
+                    if (myVideoDom && myAudioDom) return;
                     const p = this.room.localParticipant;
                     try {
                         await p.setCameraEnabled(type ? (this.baseMap?.message?.type === 'video') : true);
@@ -529,7 +530,7 @@
                                 });
                                 this.setDomAttr({
                                     dom: myVideo,
-                                    id: '',
+                                    id: `myVideo-${source === 'camera' ? 'video' : 'audio'}`,
                                     className: source === 'camera' ? 'video' : 'audio'
                                 });
                                 if (!avatar) {
@@ -541,7 +542,9 @@
                                     });
                                     div.appendChild(avatarDom);
                                 }
-                                div.appendChild(myVideo);
+                                if (!this.getDom(`myVideo-${source === 'camera' ? 'video' : 'audio'}`)) {
+                                    div.appendChild(myVideo);
+                                }
                                 !dom && parentDom.appendChild(div);
                             }
                         });

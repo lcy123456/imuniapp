@@ -231,13 +231,13 @@ export default {
         this.setSendMessageListener();
         this.setKeyboardListener();
         uni.$on('quote_message', this.handleQuoteListener);
-        uni.$on('goWebrtc', this.goWebrtc);
+        uni.$on('initWebrtc', this.initWebrtc);
     },
     beforeDestroy () {
         this.disposeSendMessageListener();
         this.disposeKeyboardListener();
         uni.$off('quote_message', this.handleQuoteListener);
-        uni.$off('goWebrtc', this.goWebrtc);
+        uni.$off('initWebrtc', this.initWebrtc);
     },
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
@@ -548,7 +548,7 @@ export default {
                     );
                 } else if (type === ChatingFooterActionTypes.Call) {
                     // 发起视频通话
-                    this.goWebrtc('video');
+                    this.initWebrtc('video');
                 }
             } else if (idx === 1) {
                 const whenGetFile = (data) => {
@@ -560,12 +560,12 @@ export default {
                     this.chooseOrShotVideo(['camera']).then(whenGetFile);
                 } else if (type === ChatingFooterActionTypes.Call) {
                     // 发起语音通话x
-                    this.goWebrtc('audio');
+                    this.initWebrtc('audio');
                 }
             }
         },
-        async goWebrtc (type) {
-            console.log('goWebrtc----goWebrtc');
+        async initWebrtc (type) {
+            console.log('initWebrtc----initWebrtc');
             const hasPermission  = await this.reviewPermission();
             if (hasPermission) {
                 await this.getGroupMemberList();
@@ -574,6 +574,20 @@ export default {
                 if (typeof data === 'boolean' && !data) return;
                 await this.onThrowCall({
                     ...data,
+                    type
+                });
+                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+            }
+        },
+        async goWebrtc (message) {
+            console.log('goWebrtc----goWebrtc');
+            const hasPermission  = await this.reviewPermission();
+            const { data } = message.customElem;
+            const res = JSON.parse(data); 
+            const type = res.type === AudioVideoType.Video ? 'video' : 'audio';
+            if (hasPermission) {
+                await this.onThrowCall({
+                    ...message,
                     type
                 });
                 uni.navigateTo({url: `/pages/conversation/webrtc/index`});

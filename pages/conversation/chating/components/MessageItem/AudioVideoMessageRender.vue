@@ -1,7 +1,7 @@
 <template>
     <view
         class="audio_video_message_container bg_container"
-        @click="goWebrtc"
+        @click="initWebrtc"
     >
         <view class="main">
             <text>{{ getContent }}</text>
@@ -83,8 +83,8 @@ export default {
         }
     },
     methods: {
-        goWebrtc () {
-            uni.$emit('goWebrtc', this.isVideo ? 'video' : 'audio');
+        initWebrtc () {
+            uni.$emit('initWebrtc', this.isVideo ? 'video' : 'audio');
         }
     },
 };
