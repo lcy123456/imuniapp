@@ -9,7 +9,6 @@
     >
         <view
             class="flex ml-40 align-center"
-            @click="openPhone"
         >
             <MyAvatar
                 :src="faceURL"
@@ -21,7 +20,7 @@
                     {{ nickname }}
                 </text>
                 <text class="fz-28 text-grey">
-                    邀请你视频通话
+                    邀请你{{ this.isVideo ? '视频通话' : '语音通话' }}
                 </text>
             </view>
         </view>
@@ -156,14 +155,16 @@ export default {
             );
         },
         async successClick () {
+            console.log('success');
             this.visibleHandle();
-            await this.onSuccessCall();
+            this.onSuccessCall();
             this.goWebrtc();
         },
         async goWebrtc () {
             console.log('goWebrtc----goWebrtc');
             const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
             const type = this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio;
+            console.log(hasPermission, 'hasPermissionhasPermission');
             if (hasPermission) {
                 await this.onThrowCall({
                     ...this.storeIncomingCallMessage,
