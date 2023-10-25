@@ -317,13 +317,6 @@ export default {
                 });
                 console.log('发起音视频消息成功', data);
                 return data;
-                // if (data.quoteElem) {
-                //     data.quoteElem.quoteMessage = this.quoteMessage;
-                // }
-                // this.updateOneMessage({
-                //     message: data,
-                //     isSuccess: true,
-                // });
             } catch ({ data, errCode }) {
                 console.log('发送失败', data, errCode);
                 if (errCode === 1302) {
@@ -335,7 +328,6 @@ export default {
         },
         async sendTextMessage () {
             const message = await this.createTextMessage();
-            // const message = await this.createCustomMessage();
             this.sendMessage(message);
         },
         async sendMessage (message) {

@@ -472,22 +472,6 @@ export default {
                 // uni.$u.route('/pages/login/index');
             }
         },
-
-        
-        async goWebrtc (message) {
-            console.log('goWebrtc----goWebrtc');
-            const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
-            const { data } = message.customElem;
-            const res = JSON.parse(data); 
-            const type = res.type === AudioVideoType.Video ? 'video' : 'audio';
-            if (hasPermission) {
-                await this.onThrowCall({
-                    ...message,
-                    type
-                });
-                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
-            }
-        },
         isAudioVideoSend (message) {
             const customElemData = message.customElem?.data;
             let data = {};
@@ -508,8 +492,9 @@ export default {
             if (this.inCurrentConversation(newServerMsg)) {
                 if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
                     if (this.isAudioVideoSend(newServerMsg)) {
+                        console.log(newServerMsg, 'newServerMsgnewServerMsgnewServerMsgnewServerMsgnewServerMsg');
+                        console.log(this.storeSelfInfo, 'newServerMsgnewServerMsgnewServerMsgnewServerMsgnewServerMsg');
                         if (this.storeSelfInfo.userID !== newServerMsg.sendID) {
-                            // this.goWebrtc(newServerMsg);
                             this.$store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
                             this.$store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', newServerMsg);
                         }

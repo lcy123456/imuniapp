@@ -79,7 +79,7 @@
 
     .video-box.my .video-box {
         position: fixed;
-        z-index: 1;
+        z-index: 2;
     }
 
     .video-box.other .video-box {
@@ -157,7 +157,7 @@
         height: 22px;
         line-height: 22px;
         text-align: center;
-        z-index: 1;
+        z-index: 3;
     }
 
     .incoming_call_main .right_icon {
@@ -206,7 +206,7 @@
         left: 0;
         right: 0;
         margin: 0 auto;
-        z-index: 2;
+        z-index: 3;
     }
 
     .handle_panel {
@@ -336,7 +336,8 @@
         } = window.LivekitClient;
         const defaultBaseMap = {
             message: {
-                sessionType: 1
+                sessionType: 1,
+                type: 'video'
             },
             conversation: {},
         };
@@ -547,7 +548,7 @@
                 // 添加自己
                 async addSelf({ parentDom, type }) {
                     const myVideoDom = this.getDom('myVideo-video');
-                    const myAudioDom = this.getDom('myVideo-video');
+                    const myAudioDom = this.getDom('myVideo-audio');
                     if (myVideoDom && myAudioDom) return;
                     const p = this.room.localParticipant;
                     try {
@@ -575,7 +576,7 @@
                                 if (!avatar) {
                                     let avatarDom = ''
                                     const hasFaceURL = false
-                                    if(hasFaceURL){
+                                    if(hasFaceURL) {
                                         avatarDom = document.createElement('img');
                                         avatarDom.src = 'https://img.cdn.aliyun.dcloud.net.cn/guide/uniapp/uni-h5-hosting-qr.png'
                                     } else {

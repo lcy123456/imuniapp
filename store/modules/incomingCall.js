@@ -114,6 +114,7 @@ const actions = {
             commit('SET_INCOMING_CALL_WSURL', wsURL);
             commit('SET_INCOMING_CALL_TOKEN', token);
             commit('SET_CALL_TYPE', data.callType);
+            console.log(data, '-----------1111111111111111');
             commit('SET_IS_INCOMING_CALL_MESSAGE', data);
             commit('SET_IS_CALL_OR_ANSWER', true);
             commit('SET_IS_INCOMING_CALL_LOADING', true);

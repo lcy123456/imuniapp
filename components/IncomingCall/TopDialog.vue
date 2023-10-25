@@ -53,6 +53,14 @@ import { mapGetters, mapActions } from 'vuex';
 import store from "@/store";
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import incomingCallIcon from '@/static/images/incoming_call_icon.png';
+import { AudioVideoType, AudioVideoStatus } from '@/enum';
+import IMSDK, {
+    IMMethods,
+    MessageStatus,
+    MessageType,
+    SessionType,
+    GroupMemberFilter
+} from 'openim-uniapp-polyfill';
 let innerAudioContext = null;
 export default {
     name: "TopDialog",
@@ -85,6 +93,11 @@ export default {
             const {nickname} = this.storeIncomingCallUserInfo;
             return this.storeIsCallOrAnswer ? nickname : '未知';
         },
+        isVideo () {
+            const { data } = this.storeIncomingCallMessage.customElem;
+            const res = JSON.parse(data); 
+            return res.type === AudioVideoType.Video;
+        }
     },
     created () {
         this.shouldFadeIn = !this.storeIsIncomingCallTop;
@@ -150,16 +163,37 @@ export default {
         },
         async dangerClick () {
             this.visibleHandle();
-            setTimeout(()=> {
-                this.onDangerCall();
-            }, 400);
+            const message = await this.createCustomMessage({
+                data: JSON.stringify({
+                    type: this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio,
+                    status: AudioVideoStatus.Reject
+                }),
+                extension: '',
+                description: ''
+            });
+            await IMSDK.asyncApi(
+                IMMethods.CreateCustomMessage,
+                IMSDK.uuid(),
+                {...message}
+            );
         },
         async successClick () {
             this.visibleHandle();
             await this.onSuccessCall();
-            uni.navigateTo({
-                url: '/pages/conversation/webrtc/index',
-            });
+            this.goWebrtc();
+        },
+        async goWebrtc () {
+            console.log('goWebrtc----goWebrtc');
+            const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
+            const type = this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio;
+            if (hasPermission) {
+                await this.onThrowCall({
+                    ...this.storeIncomingCallMessage,
+                    isAnswer: true,
+                    type
+                });
+                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+            }
         },
     }
 };

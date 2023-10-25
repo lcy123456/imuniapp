@@ -23,7 +23,9 @@ module.exports = (vm) => {
                 ...config.header,
                 operationID: uuidV4()
             };
-            console.log('http request：', config);
+            if (!['/user/get_users_online_status'].includes(config.url)) {
+                console.log('http request：', config);
+            }
             // 可以在此通过vm引用vuex中的变量，具体值在vm.$store.state中
             return config;
         },
