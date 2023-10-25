@@ -1,5 +1,9 @@
 import conversation from './conversation';
 import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting } from '@/util/permission.js';
+import IMSDK, {
+    IMMethods,
+} from "openim-uniapp-polyfill";
+import { AudioVideoType } from "@/enum";
 
 const state = {
     incomingCallWSURL: 'testWSURL',
@@ -83,7 +87,7 @@ const actions = {
             hasRecord = recordResult === 1;
             hasCamera = cameraResult === 1;
         }
-        
+
         if (!hasRecord || !hasCamera) {
             uni.showModal({
                 title: "使用麦克风",
@@ -101,20 +105,11 @@ const actions = {
         commit
     }, data) {
         try {
-            // const data = await pinList({
-            //     conversationID,
-            //     pagination: {
-            //         pageNumber: 1,
-            //         showNumber: 200
-            //     }
-            // });
-            // console.log(data.list, 'pinListpinListpinListpinList', conversationID);
-            const wsURL = `ws://192.168.2.20:7880`;
-            const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
-            commit('SET_INCOMING_CALL_WSURL', wsURL);
-            commit('SET_INCOMING_CALL_TOKEN', token);
-            commit('SET_CALL_TYPE', data.callType);
             console.log(data, '-----------1111111111111111');
+            const customElem = JSON.parse(data.customElem.data);
+            const callType = customElem?.type == AudioVideoType.Video ? AudioVideoType.Video : AudioVideoType.Audio;
+            console.log('拨打电话类型是多少?', callType);
+            commit('SET_CALL_TYPE', callType);
             commit('SET_IS_INCOMING_CALL_MESSAGE', data);
             commit('SET_IS_CALL_OR_ANSWER', true);
             commit('SET_IS_INCOMING_CALL_LOADING', true);
@@ -125,16 +120,55 @@ const actions = {
         }
     },
 
-    // 等待接听电话
-    async onCatchCall ({
+    // 出现电话，等待接听
+    async appearLoadingCall ({
         commit
-    }, callType) {
+    }, message) {
+        // {
+        //     "seq": 37,
+        //     "contentType": 101,
+        //     "textElem": {
+        //     "content": "12"
+        // },
+        //     "status": 2,
+        //     "msgFrom": 100,
+        //     "sessionType": 1,
+        //     "sendTime": 1698207224598,
+        //     "clientMsgID": "3e6d1485875070f27c0d731e60791cec",
+        //     "attachedInfoElem": {
+        //     "isEncryption": false,
+        //         "inEncryptStatus": false,
+        //         "isPrivateChat": false,
+        //         "groupHasReadInfo": {
+        //         "hasReadCount": 0,
+        //             "groupMemberCount": 0
+        //     },
+        //     "hasReadTime": 0,
+        //         "burnDuration": 0,
+        //         "notSenderNotificationPush": false
+        // },
+        //     "senderPlatformID": 3,
+        //     "serverMsgID": "99b237bf72b4149c0f68cb49680f0365",
+        //     "createTime": 1698207224598,
+        //     "isRead": false,
+        //     "attachedInfo": "null",
+        //     "sendID": "2419517825",
+        //     "recvID": "3426910008",
+        //     "senderNickname": "半秋半冬"
+        // }
         try {
-            const wsURL = `ws://192.168.2.20:7880`;
-            const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
-            commit('SET_INCOMING_CALL_WSURL', wsURL);
-            commit('SET_INCOMING_CALL_TOKEN', token);
-            commit('SET_CALL_TYPE', callType);
+            const { sendID } = message;
+            const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                [sendID]
+            );
+            if (usersInfo?.data) {
+                // eslint-disable-next-line no-unsafe-optional-chaining
+                const { faceURL, nickname } = usersInfo?.data[0]?.friendInfo;
+                commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
+            }
+
+            commit('SET_CALL_TYPE', message.callType);
+            commit('SET_IS_INCOMING_CALL_MESSAGE', message);
             commit('SET_IS_CALL_OR_ANSWER', false);
             commit('SET_IS_INCOMING_CALL_LOADING', true);
             commit('SET_INCOMING_CALL_TOP', true);
@@ -151,7 +185,7 @@ const actions = {
     }) {
         commit('SET_IS_INCOMING_CALL_SMALL', true);
     },
-    
+
     // 挂断电话
     async onDangerCall ({ commit }) {
         commit('SET_INCOMING_CALL_WSURL', '');

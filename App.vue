@@ -109,6 +109,8 @@ export default {
             "pushNewSentGroupApplition",
             "updateSentGroupApplition",
         ]),
+        ...mapActions('incomingCall', ['appearLoadingCall']),
+      
         setGlobalIMlistener () {
             console.log("setGlobalIMlistener");
             // init
@@ -175,6 +177,7 @@ export default {
 
             // message
             const newMessagesHandler = ({ data }) => {
+                console.log('收到新的消息', data);
                 if (this.storeIsSyncing) {
                     return;
                 }
@@ -473,6 +476,7 @@ export default {
             }
         },
         isAudioVideoSend (message) {
+            console.log('isAudioVideoSend()自定义消息数据是什么？', message);
             const customElemData = message.customElem?.data;
             let data = {};
             try {
@@ -491,14 +495,6 @@ export default {
             this.innerAudioContext.play();
             if (this.inCurrentConversation(newServerMsg)) {
                 if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
-                    if (this.isAudioVideoSend(newServerMsg)) {
-                        console.log(newServerMsg, 'newServerMsgnewServerMsgnewServerMsgnewServerMsgnewServerMsg');
-                        console.log(this.storeSelfInfo, 'newServerMsgnewServerMsgnewServerMsgnewServerMsgnewServerMsg');
-                        if (this.storeSelfInfo.userID !== newServerMsg.sendID) {
-                            this.$store.commit('incomingCall/SET_INCOMING_CALL_TOP', true);
-                            this.$store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', newServerMsg);
-                        }
-                    }
                     if (this.storeHasMoreAfterMessage) {
                         console.log('当前数据不在底端，不做数据推送');
                         let conversationUnread = this.conversationUnread + 1;
@@ -514,6 +510,11 @@ export default {
                     uni.$u.debounce(this.markConversationAsRead, 2000);
                     if (this.storeIsShowSetEnd) return;
                     setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
+                }
+            }
+            if (this.isAudioVideoSend(newServerMsg)) {
+                if (this.storeSelfInfo.userID !== newServerMsg.sendID) {
+                    this.appearLoadingCall(newServerMsg);
                 }
             }
         },

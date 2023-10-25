@@ -87,11 +87,11 @@ export default {
         },
         faceURL () {
             const {faceURL} = this.storeIncomingCallUserInfo;
-            return this.storeIsCallOrAnswer ? faceURL : '';
+            return faceURL;
         },
         nickname () {
             const {nickname} = this.storeIncomingCallUserInfo;
-            return this.storeIsCallOrAnswer ? nickname : '未知';
+            return nickname;
         },
         isVideo () {
             const { data } = this.storeIncomingCallMessage.customElem;
