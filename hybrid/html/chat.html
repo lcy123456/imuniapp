@@ -101,6 +101,9 @@
         z-index: 999999;
     }
 
+    .z-index-minus-1 {
+        z-index: -1 !important;
+    }
     .z-index-100 {
         z-index: 100;
     }
@@ -135,8 +138,17 @@
         height: 100vh;
         display: flex;
         flex-direction: column;
-        background: url("images/incoming_call_main_back.png") no-repeat;
-        background-size: 100% 100%;
+    }
+
+    .page_main_back {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
     }
 
     .incoming_call_main .header_panel {
@@ -273,6 +285,7 @@
         </div>
 
         <div class="incoming_call_main">
+            <image id="pageMainBack" class="page_main_back" src="images/incoming_call_main_back.png"></image>
             <div class="header_panel">
                 <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
                 <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
@@ -323,7 +336,7 @@
         } = window.LivekitClient;
         const defaultBaseMap = {
             message: {
-                sessionType: 3
+                sessionType: 1
             },
             conversation: {},
         };
@@ -440,9 +453,16 @@
                         myDom = this.getDom('my-box');
                     }
 
-                    const myAvatarDom = this.getDom('myVideo-avatar')
-                    if(!enabled) myAvatarDom.classList.remove('z-index-100')
-                    else myAvatarDom.classList.add('z-index-100')
+                    if(this.isGroup) {
+                        const myAvatarDom = this.getDom('myVideo-avatar')
+                        if(!enabled) myAvatarDom.classList.remove('z-index-100')
+                        else myAvatarDom.classList.add('z-index-100')
+                    } else {
+                        const backDom = this.getDom('pageMainBack')
+                        if(!enabled) backDom.classList.add('z-index-minus-1')
+                        else backDom.classList.remove('z-index-minus-1')
+                    }
+
 
                     console.log(myDom)
                     console.log('enabled====', enabled)
