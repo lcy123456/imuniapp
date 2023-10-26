@@ -80,7 +80,11 @@ export default {
             } else if (res.status === AudioVideoStatus.Busy) {
                 text = `[忙线中]`;
             } else if (res.status === AudioVideoStatus.Done) {
-                const time = new Date(res.duration).Format('mm:ss');
+                const t = +new Date(new Date().Format('yyyy-MM-dd') +  ' 00:00:00');
+                let time = new Date(t + res.duration).Format('hh:mm:ss');
+                if (time.slice(0, 2) === '00') {
+                    time = time.slice(3);
+                }
                 text = `[通话时长]${time}`;
             } else {
                 text = this.isVideo ? `[发起视频通话]` : `[发起语音通话]`;
