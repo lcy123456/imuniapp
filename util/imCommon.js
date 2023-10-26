@@ -2,7 +2,6 @@ import store from "@/store";
 import { businessLogin } from '@/api/login';
 import { AudioVideoType } from '@/enum';
 import {
-    CustomType,
     AddFriendQrCodePrefix,
     AddGroupQrCodePrefix,
 } from "@/constant";
@@ -198,23 +197,31 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
     case MessageType.FileMessage:
         return `[文件]${pmsg.fileElem.fileName}`;
     case MessageType.RevokeMessage:
-        const data = JSON.parse(pmsg.notificationElem.detail);
-        const revoker = isSelf(data.revokerID) ? "你" : data.revokerNickname;
-        const sourcer = isSelf(data.sourceMessageSendID)
-            ? "你"
-            : data.sourceMessageSenderNickname;
-        const isAdminRevoke = data.revokerID !== data.sourceMessageSendID;
-        if (isAdminRevoke) {
-            return `${revoker}撤回了一条${sourcer}的消息`;
+        try {
+            const data = JSON.parse(pmsg.notificationElem.detail);
+            const revoker = isSelf(data.revokerID) ? "你" : data.revokerNickname;
+            const sourcer = isSelf(data.sourceMessageSendID)
+                ? "你"
+                : data.sourceMessageSenderNickname;
+            const isAdminRevoke = data.revokerID !== data.sourceMessageSendID;
+            if (isAdminRevoke) {
+                return `${revoker}撤回了一条${sourcer}的消息`;
+            }
+            return `${revoker}撤回了一条消息`;
+        } catch (err) {
+            return `撤回了一条消息`;
         }
-        return `${revoker}撤回了一条消息`;
     case MessageType.CustomMessage:
-        const customEl = pmsg.customElem;
-        const customData = JSON.parse(customEl.data);
-        if (customData.type) {
-            return switchCustomMsg(customData);
+        try {
+            const customEl = pmsg.customElem;
+            const customData = JSON.parse(customEl.data);
+            if (customData.type) {
+                return switchCustomMsg(customData);
+            }
+            return "[自定义消息]";
+        } catch (err) {
+            return '[自定义消息]';
         }
-        return "[自定义消息]";
     case MessageType.QuoteMessage:
         return "[引用消息]";
     case MessageType.FaceMessage:
@@ -382,6 +389,15 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
     };
 
     switch (msg.contentType) {
+    case MessageType.CustomMessage:
+        try {
+            const customEl = msg.customElem;
+            const customData = JSON.parse(customEl.data);
+            console.log(customData);
+            return `群聊的语音通知消息。。`;
+        } catch (err) {
+            return `群聊的。。`;
+        }
     case MessageType.FriendAdded:
         return `你们已经是好友了~`;
     case MessageType.GroupCreated:
