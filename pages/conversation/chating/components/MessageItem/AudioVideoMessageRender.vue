@@ -71,7 +71,6 @@ export default {
             // const { contentType } = this.message;
             const { data } = this.message.customElem;
             const res = JSON.parse(data); 
-            
             if (res.status === AudioVideoStatus.Reject) {
                 text = `[已拒绝]`;
             } else if (res.status === AudioVideoStatus.Cancel) {
@@ -81,7 +80,8 @@ export default {
             } else if (res.status === AudioVideoStatus.Busy) {
                 text = `[忙线中]`;
             } else if (res.status === AudioVideoStatus.Done) {
-                text = `[通话时间长]`;
+                const time = new Date(res.duration).Format('mm:ss');
+                text = `[通话时长]${time}`;
             } else {
                 text = this.isVideo ? `[发起视频通话]` : `[发起语音通话]`;
             }
