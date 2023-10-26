@@ -2,7 +2,6 @@ import store from "@/store";
 import { businessLogin } from '@/api/login';
 import { AudioVideoType } from '@/enum';
 import {
-    CustomType,
     AddFriendQrCodePrefix,
     AddGroupQrCodePrefix,
 } from "@/constant";
@@ -382,6 +381,15 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
     };
 
     switch (msg.contentType) {
+    case MessageType.CustomMessage:
+        try {
+            const customEl = msg.customElem;
+            const customData = JSON.parse(customEl.data);
+            console.log(customData);
+            return `群聊的语音通知消息。。`;
+        } catch (err) {
+            return `群聊的。。`;
+        }
     case MessageType.FriendAdded:
         return `你们已经是好友了~`;
     case MessageType.GroupCreated:
