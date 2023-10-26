@@ -31,7 +31,8 @@ export const noticeMessageTypes = [
     MessageType.GroupCancelMuted,
     MessageType.GroupMemberCancelMuted,
     MessageType.GroupNameUpdated,
-    MessageType.BurnMessageChange
+    MessageType.BurnMessageChange,
+    1703
 ];
 
 export const TextRenderTypes = [

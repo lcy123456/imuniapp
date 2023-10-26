@@ -389,14 +389,12 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
     };
 
     switch (msg.contentType) {
-    case MessageType.CustomMessage:
+    case 1703:
         try {
-            const customEl = msg.customElem;
-            const customData = JSON.parse(customEl.data);
-            console.log(customData);
-            return `群聊的语音通知消息。。`;
+            const groupVideoAudioDetail = JSON.parse(msg.notificationElem.detail);
+            return `群聊${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话已结束`;
         } catch (err) {
-            return `群聊的。。`;
+            return `通话已结束`;
         }
     case MessageType.FriendAdded:
         return `你们已经是好友了~`;

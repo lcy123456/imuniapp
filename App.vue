@@ -49,7 +49,9 @@ export default {
             "storeHasMoreAfterMessage",
             "storeIsShowSetEnd",
             "conversationUnread",
-            "storeUserID"
+            "storeUserID",
+            "storeIsIncomingCallIng",
+            "storeIsIncomingCallLoading"
         ]),
         contactBadgeRely () {
             return {
@@ -518,6 +520,9 @@ export default {
             if (customStatus) {
                 if ([AudioVideoStatus.Send].includes(customStatus)) {
                     console.log(newServerMsg, 'newServerMsgnewServerMsg');
+                    if (this.storeIsIncomingCallLoading || this.storeIsIncomingCallIng) {
+                        return uni.$u.toast('占线占线');
+                    }
                     try {
                         const { token } = await videoGetToken({
                             recvID: this.storeUserID,
