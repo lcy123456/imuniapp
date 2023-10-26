@@ -517,12 +517,18 @@ export default {
             }
             if (this.isAudioVideoSend(newServerMsg)) {
                 console.log(newServerMsg, 'newServerMsgnewServerMsg');
-                const { token } = await videoGetToken({
-                    sendID: this.storeUserID,
-                    conversationID: idsGetConversationID(newServerMsg)
-                });
-                this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
-                this.appearLoadingCall(newServerMsg);
+                try {
+                    const { token } = await videoGetToken({
+                        recvID: this.storeUserID,
+                        conversationID: idsGetConversationID(newServerMsg)
+                    });
+                    this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
+                    console.log(token);
+                    this.appearLoadingCall(newServerMsg);
+                } catch (err) {
+                    console.log(err);
+                    uni.$u.toast('聊天已过期');
+                }
                 // if (this.storeSelfInfo.userID !== newServerMsg.sendID) {
                 //     this.appearLoadingCall(newServerMsg);
                 // }
