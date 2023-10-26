@@ -31,6 +31,7 @@ export default {
     },
     computed: {
         ...mapGetters([
+            "storeUserID",
             "storeIncomingCallMessage",
             "storeIncomingCallCallTime",
             "storeIsIncomingCallTop",
@@ -130,7 +131,7 @@ export default {
                 {
                     data: JSON.stringify({
                         type: this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio,
-                        status: this.storeIncomingCallMessage.isAnswer ? AudioVideoStatus.Reject : AudioVideoStatus.Cancel
+                        status: this.storeIsAnswer ? AudioVideoStatus.Reject : AudioVideoStatus.Cancel
                     }),
                     extension: '',
                     description: ''
@@ -139,7 +140,7 @@ export default {
             const { recvID, groupID } = this.storeIncomingCallMessage;
             this.pushNewMessage({
                 ...message,
-                recvID,
+                recvID: this.storeIsAnswer ? this.storeUserID : recvID,
                 groupID,
                 sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
             });

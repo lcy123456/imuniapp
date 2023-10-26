@@ -60,6 +60,8 @@ const mutations = {
             ...state.incomingCallMessage,
             ...value
         };
+        console.log('state.incomingCallMessagestate.incomingCallMessage', state.incomingCallMessage);
+        console.log('value.value.value', value);
     },
 };
 
@@ -100,15 +102,17 @@ const actions = {
         commit
     }, message) {
         try {
-            const { recvID } = message;
-            const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
-                [recvID]
-            );
-            if (usersInfo?.data) {
-                const [uData] = usersInfo.data;
-                const { faceURL, nickname } = uData.friendInfo;
-                commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
-                console.log('拨打电话，对方用户信息', { faceURL, nickname });
+            if (message.sessionType !== 3) {
+                const { recvID } = message;
+                const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                    [recvID]
+                );
+                if (usersInfo?.data) {
+                    const [uData] = usersInfo.data;
+                    const { faceURL, nickname } = uData.friendInfo;
+                    commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
+                    console.log('拨打电话，对方用户信息', { faceURL, nickname });
+                }
             }
 
             commit('SET_IS_INCOMING_CALL_MESSAGE', message);
@@ -125,15 +129,17 @@ const actions = {
         commit
     }, message) {
         try {
-            const { sendID } = message;
-            const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
-                [sendID]
-            );
-            if (usersInfo?.data) {
-                const [uData] = usersInfo.data;
-                const { faceURL, nickname } = uData.friendInfo;
-                commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
-                console.log('等待接听电话，对方用户信息', { faceURL, nickname });
+            if (message.sessionType !== 3) {
+                const { sendID } = message;
+                const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                    [sendID]
+                );
+                if (usersInfo?.data) {
+                    const [uData] = usersInfo.data;
+                    const { faceURL, nickname } = uData.friendInfo;
+                    commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
+                    console.log('等待接听电话，对方用户信息', { faceURL, nickname });
+                }
             }
 
             commit('SET_IS_INCOMING_CALL_MESSAGE', message);
