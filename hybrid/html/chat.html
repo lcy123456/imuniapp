@@ -745,6 +745,7 @@
                     this.room && this.room.disconnect();
                 },
                 goOut(m) {
+                    if (!this.room) return;
                     const map = m || {};
                     this.disconnect();
                     uni.postMessage({

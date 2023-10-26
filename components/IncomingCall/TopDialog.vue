@@ -55,6 +55,9 @@ import IMSDK, {
     IMMethods,
     SessionType
 } from 'openim-uniapp-polyfill';
+import {
+    PageEvents
+} from '@/constant';
 import { offlinePushInfo } from '@/util/imCommon';
 export default {
     name: "TopDialog",
@@ -169,7 +172,7 @@ export default {
                 message: data,
                 isSuccess: true,
             });
-            
+            uni.$emit(PageEvents.ScrollToBottom);
             console.log('this.storeIncomingCallMessagethis.storeIncomingCallMessage', this.storeIncomingCallMessage);
             console.log('rejectDatarejectDatarejectData', data);
         },
