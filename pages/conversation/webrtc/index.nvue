@@ -87,7 +87,7 @@ export default {
 		}
     },
     methods: {
-        ...mapActions('incomingCall', ['onSmall', 'onDangerCall']),
+        ...mapActions('incomingCall', ['onSmall', 'onDangerCall', 'onSuccessCall']),
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         // 唤起铃声
         startMusic () {
@@ -105,7 +105,7 @@ export default {
             this.innerAudioContext.destroy();
             this.innerAudioContext = null;
         },
-        handlePostMessage (event) {
+        async handlePostMessage (event) {
             console.log('handlePostMessage()===', event)
             const [data] = event.detail.data
             if(data.isSmall) {
@@ -114,16 +114,33 @@ export default {
             }
             if(data.isDanger) {
                 // 挂断
-				console.log('挂断 this.onDangerCall()')
                 this.reject();
                 this.onDangerCall()
             }
             if(data.isSuccess) {
                 // 接听
+				this.onSuccessCall()
+                await this.userJoinCalling(data.joinUserID)
+            }
+        },
+        async userJoinCalling(joinUserID) {
+            if(joinUserID) return;
+
+            const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                [joinUserID]
+            );
+            if (usersInfo?.data) {
+                const [uData] = usersInfo.data;
+                const { faceURL, nickname } = uData.friendInfo;
+                commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
+                console.log('加入群聊的用户，用户信息', { faceURL, nickname });
             }
         },
         async reject () {
-            console.log(11);
+			console.log('双方等待接听，拨打方挂断电话，通话已取消');
+            console.log('通话中，主动挂断电话，通话已完成');
+            if(this.storeIsIncomingCallIng) return;
+
             const message = await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,
                 IMSDK.uuid(),

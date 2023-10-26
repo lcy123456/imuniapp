@@ -146,7 +146,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        z-index: 1;
+        z-index: 2;
     }
 
     .incoming_call_main .header_panel {
@@ -173,7 +173,7 @@
         flex-direction: column;
         margin-top: 12vh;
         position: relative;
-        z-index: 1;
+        z-index: 2;
     }
 
     .avatar {
@@ -343,7 +343,7 @@
         } = window.LivekitClient;
         const defaultBaseMap = {
             message: {
-                sessionType: 3,
+                sessionType: 1,
                 type: ''
             }
         };
@@ -367,7 +367,6 @@
                 },
                 baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
                 room: null,
-                isShowCall: false,
                 micImage: 'images/incoming_call_handle_mic_2.png',
                 micText: '麦克风已关',
                 camImage: 'images/incoming_call_handle_cam_2.png',
@@ -628,9 +627,24 @@
                     }, 0);
                 },
                 addElement({ parentDom, track, participant, publication = {} }) {
+                    const joinUserID = participant.identity
                     const { identity } = participant;
                     const element = track.attach();
                     const type = `${identity}-box`;
+
+                    if(joinUserID) {
+                        // 告诉APP双方接通电话
+                        // 如果是群聊，让APP根据joinUserID去获取加入者的头像、名称
+                        uni.postMessage({
+                            data: {
+                                joinUserID: this.isGroup ? joinUserID : '',
+                                isSuccess: true
+                            }
+                        });
+                        this.isCallLoading = true;
+                        this.isCallIng = true;
+                        this.timerFn();
+                    }
                     // if (this.trackList.includes(type)) {
                     //     const dom = this.getDom(type);
                     //     parentDom.removeChild(dom);

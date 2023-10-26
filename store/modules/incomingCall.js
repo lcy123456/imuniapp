@@ -13,6 +13,7 @@ const state = {
     isAnswer: false, // true拨打电话 false接听电话
     isIncomingCallIng: false, // 正在通话中
     isIncomingCallLoading: false, // 双方等待接通电话
+    isHangup: false, // 刚刚挂断
     incomingCallMessage: {},
     incomingCallUserInfo: {
         faceURL: '',
@@ -42,6 +43,9 @@ const mutations = {
     },
     SET_IS_INCOMING_CALL_ING (state, value) {
         state.isIncomingCallIng = value;
+    },
+    SET_IS_HANGUP (state, value) {
+        state.isHangup = value;
     },
     SET_IS_INCOMING_CALL_LOADING (state, value) {
         state.isIncomingCallLoading = value;
@@ -154,7 +158,15 @@ const actions = {
     },
 
     // 挂断电话
-    async onDangerCall ({ commit }) {
+    async onDangerCall ({ commit, state }) {
+        if (state.isIncomingCallIng) {
+            // 正在通话中，挂断代表已完成
+            commit('SET_IS_HANGUP', true);
+            setTimeout(()=> {
+                commit('SET_IS_HANGUP', false);
+            }, 3000);
+        }
+        
         commit('SET_IS_INCOMING_CALL_SMALL', false);
         commit('SET_INCOMING_CALL_TOP', false);
         commit('SET_IS_INCOMING_CALL_ING', false);
@@ -163,6 +175,7 @@ const actions = {
 
     // 接通电话
     async onSuccessCall ({ commit }) {
+        console.log('onSuccessCall()双方接通电话');
         commit('SET_IS_INCOMING_CALL_SMALL', false);
         commit('SET_INCOMING_CALL_TOP', false);
         commit('SET_IS_INCOMING_CALL_ING', true);

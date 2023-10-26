@@ -8,7 +8,7 @@
         @touchend="onTouchend($event)"
         @click="openPhone"
     >
-        <image :src="incomingCallSmallSIcon" />
+        <image :src="storeIncomingIsHangup ? incomingCallSmallNIcon : incomingCallSmallSIcon" />
         <text class="fz-26 text_time">
             {{ timeText }}
         </text>
@@ -67,7 +67,8 @@ export default {
             'storeIsIncomingCallSmall',
             'storeIsIncomingCallIng',
             'storeIncomingCallSmallStyle',
-            'storeIncomingCallStartTime'
+            'storeIncomingCallStartTime',
+            'storeIncomingIsHangup',
         ]),
 
         // 悬浮缩小
