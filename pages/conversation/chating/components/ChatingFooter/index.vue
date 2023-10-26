@@ -310,15 +310,16 @@ export default {
                 extension: '',
                 description: ''
             });
-            return this.sendAudioVideoMessage(message);
+            return this.sendAudioVideoMessage(message, type);
         },
-        async sendAudioVideoMessage (message) {
+        async sendAudioVideoMessage (message, type) {
             const { userID, groupID, conversationID } = this.storeCurrentConversation;
             try {
                 try {
                     const { token } = await videoCreateRoomAndGetToken({
                         sendID: message.sendID,
-                        conversationID
+                        conversationID,
+                        type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio
                     });
                     console.log('tokenDatatokenDatatokenDatatokenDatatokenData', token);
                     this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
