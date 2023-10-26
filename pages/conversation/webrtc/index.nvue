@@ -160,7 +160,7 @@ export default {
         },
         // 双方等待接听，拨打方挂断电话，状态已取消
         // 双方通话中，任意方挂断电话，状态已完成
-        async reject (data) {
+        async reject (map) {
             if(this.storeIsIncomingCallIng || data.type === 'done') return;
 
             const message = await IMSDK.asyncApi(
