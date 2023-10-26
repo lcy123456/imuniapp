@@ -14,6 +14,7 @@
             :list="storePinList"
             @setPositionMsgID="getPositionMsgID"
         />
+        <JoinGroupCall />
         <chating-list
             :key="updateChatKey"
             ref="chatingListRef"
@@ -80,7 +81,8 @@ import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
 import PinToTop from './components/pinToTop.vue';
-import { 
+import JoinGroupCall from './components/JoinGroupCall.vue';
+import {
     MediaRenderTypes,
 } from '@/constant';
 export default {
@@ -89,7 +91,8 @@ export default {
         ChatingFooter,
         ChatingList,
         MessageMenu,
-        PinToTop
+        PinToTop,
+        JoinGroupCall
     },
     provide () {
         return {

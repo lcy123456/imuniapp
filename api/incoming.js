@@ -22,3 +22,14 @@ export const videoCreateRoomAndGetToken = (params) => uni.$u?.http.post('/video/
         token: store.getters.storeBusinessToken,
     }
 });
+// 群通话人数与自己的token
+export const videoGetRoomMember = (params) => uni.$u?.http.post('/video/get_room_member', JSON.stringify({
+    ...params,
+}), {
+    custom: {
+        isIMApi: true,
+    },
+    header: {
+        token: store.getters.storeBusinessToken,
+    }
+});
