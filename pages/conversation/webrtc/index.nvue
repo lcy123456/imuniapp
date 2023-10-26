@@ -131,17 +131,20 @@ export default {
                 await this.userJoinCalling(data.joinUserID)
             }
         },
+        // 群聊场景，用户刚加入群聊
         async userJoinCalling(joinUserID) {
-            if(joinUserID) return;
+            console.log(joinUserID, ' 群聊场景，用户刚加入群聊()=======')
+            if(!joinUserID) return;
 
             const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
                 [joinUserID]
             );
             if (usersInfo?.data) {
                 const [uData] = usersInfo.data;
-                const { faceURL, nickname } = uData.friendInfo;
-                commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
-                console.log('加入群聊的用户，用户信息', { faceURL, nickname });
+                const { faceURL, nickname, userID } = uData.friendInfo;
+                const map = { faceURL, nickname, userID, isGroupUserJoin: true }
+                this.postMessage(`uniEvent(${JSON.stringify(map)})`);
+                console.log('加入群聊的用户，用户信息', uData);
             }
         },
         postMessage (str) {

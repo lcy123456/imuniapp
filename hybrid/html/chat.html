@@ -298,7 +298,6 @@
             <div id="my-box" class="video-box my" @click="changeBox('my')"></div>
         </div>
         <div id="chat-group-css" class="chat-group-css">
-
         </div>
 
         <div class="incoming_call_main">
@@ -308,8 +307,8 @@
                 <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
             </div>
             <div v-if="isAlone" class="avatar_panel">
-                <image class="avatar" :src="faceURLHandle(false)" v-if="callUserInfo.faceURL"></image>
-                <div class="avatar" v-else>{{ nicknameHandle(false) }}</div>
+                <image class="avatar" :src="faceURLHandle(callUserInfo.faceURL)" v-if="callUserInfo.faceURL"></image>
+                <div class="avatar" v-else>{{ nicknameHandle(callUserInfo.nickname) }}</div>
                 <p class="nick_name">{{ callUserInfo.nickname }}</p>
             </div>
             <div v-if="isAlone && !isCallIng" class="tips_text">等待对方接受邀请</div>
@@ -398,21 +397,15 @@
                 isAlone() {
                     return this.baseMap.message.sessionType !== 3;
                 },
-                faceURLHandle() {
-                    return function (isSelf = true) {
-                        const faceURL = isSelf ? this.selfUserInfo?.faceURL : this.callUserInfo?.faceURL;
-                        const hasHttpURL = RegExp(/['http', 'https']/).exec(faceURL);
-                        return hasHttpURL ? faceURL : `defaultAvatars/${faceURL}.png`;
-                    }
-                },
-                nicknameHandle () {
-                    return function (isSelf = true) {
-                        const nickname = isSelf ? this.selfUserInfo?.nickname : this.callUserInfo?.nickname;
-                        return nickname ? nickname.slice(nickname.length > 1 ? -2 : -1) : '未知';
-                    }
-                },
             },
             methods: {
+                faceURLHandle(faceURL) {
+                    const hasHttpURL = RegExp(/['http', 'https']/).exec(faceURL);
+                    return hasHttpURL ? faceURL : `defaultAvatars/${faceURL}.png`;
+                },
+                nicknameHandle (nickname) {
+                    return nickname ? nickname.slice(nickname.length > 1 ? -2 : -1) : '未知';
+                },
                 checkDom () {
                     if (this.isGroup) {
                         const dom = this.getDom('chat-group-css');
@@ -619,10 +612,10 @@
                                     const hasFaceURL = false
                                     if(hasFaceURL) {
                                         avatarDom = document.createElement('img');
-                                        avatarDom.src = this.faceURLHandle()
+                                        avatarDom.src = this.faceURLHandle(this.selfUserInfo.faceURL)
                                     } else {
                                         avatarDom = document.createElement('div');
-                                        avatarDom.innerHTML = this.nicknameHandle()
+                                        avatarDom.innerHTML = this.nicknameHandle(this.selfUserInfo.nickname)
                                     }
                                     this.setDomAttr({
                                         dom: avatarDom,
@@ -701,6 +694,18 @@
                     this.trackList.push(type);
                     this.checkDom();
                 },
+                // 设置加入群聊的用户头像、名称
+                setGroupJoinUserInfo({faceURL, nickname, userID}){
+                    const joinUserAvatarDom = this.getDom(`${userID}-avatar`)
+                    // joinUserAvatarDom.style.zIndex = '99999'
+                    if(faceURL) {
+                        const _faceURL = this.faceURLHandle(faceURL)
+                        joinUserAvatarDom.innerHTML = `<img class="avatar-box" src="${_faceURL}">`
+                    } else {
+                        const _nickname = this.nicknameHandle(nickname)
+                        joinUserAvatarDom.innerText = _nickname
+                    }
+                },
                 changeBox(type) {
                     console.log('换');
                     const otherDom = this.getDom('other-box');
@@ -752,10 +757,6 @@
 
                     this.resetData()
                 },
-                beforeDestroy() {
-                    this.room && this.room.disconnect();
-                    this.trackList = [];
-                },
                 // 计时器
                 initTimer(func, delay) {
                     let timer = null;
@@ -783,6 +784,7 @@
                     }, 1000);
                 },
                 resetData() {
+                    this.changeBox('my')
                     const defaultData = {
                         type: '',
                         token: '',
@@ -812,7 +814,14 @@
             },
         })
         function uniEvent(res) {
-            app && app.init(res);
+            if(app) {
+                const { isGroupUserJoin, faceURL, nickname, userID } = res
+                if(isGroupUserJoin) {
+                    app.setGroupJoinUserInfo({faceURL, nickname, userID})
+                } else {
+                    app.init(res);
+                }
+            }
         }
         function disconnectRoom (res) {
             app && app.goOut(res);
