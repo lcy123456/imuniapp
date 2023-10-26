@@ -362,7 +362,6 @@
         const app = new Vue({
             el: '#app',
             data: {
-                name: '好好',
                 type: '',
                 token: '',
                 device: '',
@@ -493,12 +492,15 @@
                         myDom = this.getDom('my-box');
                     }
 
+                    const myVideoDom = this.getDom('myVideo-video');
                     if(enabled) {
-                        myDom.classList.add('opacity_0')
-                        myDom.classList.remove('opacity_1')
+                        // 关闭摄像头
+                        myVideoDom.classList.add('opacity_0')
+                        myVideoDom.classList.remove('opacity_1')
                     } else {
-                        myDom.classList.add('opacity_1')
-                        myDom.classList.remove('opacity_0')
+                        // 开启摄像头
+                        myVideoDom.classList.add('opacity_1')
+                        myVideoDom.classList.remove('opacity_0')
                     }
 
                     console.log(myDom)
@@ -586,6 +588,7 @@
                 async addSelf({ parentDom, type }) {
                     const myVideoDom = this.getDom('myVideo-video');
                     const myAudioDom = this.getDom('myVideo-audio');
+                    const myAvatarDom = this.getDom(`myVideo-avatar`);
                     if (myVideoDom && myAudioDom) return;
                     const p = this.room.localParticipant;
                     try {
@@ -599,7 +602,6 @@
                             if (myVideo) {
                                 const dom = this.getDom(`myVideo`);
                                 const div = dom || document.createElement('div');
-                                const avatar = this.getDom(`myVideo-avatar`);
                                 this.setDomAttr({
                                     dom: div,
                                     id: 'myVideo',
@@ -607,18 +609,19 @@
                                 });
                                 this.setDomAttr({
                                     dom: myVideo,
-                                    id: `myVideo-${source === 'camera' ? 'video' : 'audio'}`,
+                                    // id: `myVideo-${source === 'camera' ? 'video' : 'audio'}`,
+                                    id: source === 'camera' ? 'myVideo-video' : 'myVideo-audio',
                                     className: source === 'camera' ? 'video' : 'audio'
                                 });
-                                if (!avatar) {
+                                if (!myAvatarDom) {
                                     let avatarDom = ''
                                     const hasFaceURL = false
                                     if(hasFaceURL) {
                                         avatarDom = document.createElement('img');
-                                        avatarDom.src = `https://img.cdn.aliyun.dcloud.net.cn/guide/uniapp/uni-h5-hosting-qr.png`
+                                        avatarDom.src = this.faceURLHandle()
                                     } else {
                                         avatarDom = document.createElement('div');
-                                        avatarDom.innerHTML = `菠萝`
+                                        avatarDom.innerHTML = this.nicknameHandle()
                                     }
                                     this.setDomAttr({
                                         dom: avatarDom,
@@ -660,6 +663,11 @@
                         this.isCallLoading = false;
                         this.isCallIng = true;
                         this.timerFn();
+                    }
+
+                    if(this.isAlone && joinUserID) {
+                        // 双方接通电话，对方显示在主屏幕
+                        this.changeBox('other')
                     }
                     // if (this.trackList.includes(type)) {
                     //     const dom = this.getDom(type);
@@ -740,6 +748,8 @@
                         }
                     });
                     (map.isInWebrtc || !m) && uni.navigateBack();
+
+                    this.resetData()
                 },
                 beforeDestroy() {
                     this.room && this.room.disconnect();
@@ -770,6 +780,33 @@
                         const format = secondsDiff > oneHour ? 'HH:mm:ss' : 'mm:ss';
                         this.timeText = dayjs.duration(secondsDiff, 'seconds').format(format);
                     }, 1000);
+                },
+                resetData() {
+                    const defaultData = {
+                        type: '',
+                        token: '',
+                        device: '',
+                        timeText: '00:00',
+                        callTime: '',
+                        trackList: [],
+                        isDomIn: false,
+                        isCallLoading: false, // 双方等待接通电话
+                        isCallIng: false, // 正在通话中
+                        isAnswer: false, // true拨打电话 false接听电话
+                        callUserInfo: {
+                            faceURL: '',
+                            nickname: '未知',
+                        },
+                        selfUserInfo: {
+                            faceURL: '',
+                            nickname: '未知',
+                        },
+                        baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
+                        room: null,
+                    }
+                    for (let key in defaultData){
+                        this[key] = defaultData[key]
+                    }
                 },
             },
         })
