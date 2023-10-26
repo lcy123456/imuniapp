@@ -54,6 +54,7 @@ export default {
 		}
     },
     onLoad () {
+        uni.$on('incoming_message_callback', this.incomingMessageCallback);
         console.log('onLoad-onLoad');
     },
     onReady () {
@@ -115,7 +116,7 @@ export default {
             }
             if(data.isDanger) {
                 // 挂断
-                this.reject();
+                this.reject(data);
                 this.onDangerCall()
             }
             if(data.isSuccess) {
@@ -137,10 +138,30 @@ export default {
                 console.log('加入群聊的用户，用户信息', { faceURL, nickname });
             }
         },
-        async reject () {
+        async incomingMessageCallback (data) {
+            console.log('incomingMessageCallback--incomingMessageCallback--incomingMessageCallback', data);
+            const { customStatus } = data;
+            if ([AudioVideoStatus.Done].includes(customStatus)) {
+                console.log('聊天结束。。。');
+                this.$refs.webviewRef.evalJs(`disconnectRoom()`);
+            } else if ([AudioVideoStatus.Cancel].includes(customStatus)) {
+                console.log('对方取消');
+                this.$refs.webviewRef.evalJs(`disconnectRoom()`);
+            } else if ([AudioVideoStatus.Reject].includes(customStatus)) {
+                console.log('对方拒绝。。。');
+                this.$refs.webviewRef.evalJs(`disconnectRoom()`);
+            } else if ([AudioVideoStatus.NotAnswered].includes(customStatus)) {
+                console.log('对方未应答。。。');
+                this.$refs.webviewRef.evalJs(`disconnectRoom()`);
+            } else if ([AudioVideoStatus.Busy].includes(customStatus)) {
+                console.log('对方忙线中。。。');
+                this.$refs.webviewRef.evalJs(`disconnectRoom()`);
+            }
+        },
+        async reject (data) {
 			console.log('双方等待接听，拨打方挂断电话，通话已取消');
             console.log('通话中，主动挂断电话，通话已完成');
-            if(this.storeIsIncomingCallIng) return;
+            if(this.storeIsIncomingCallIng || data.type === 'done') return;
 
             const message = await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,

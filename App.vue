@@ -479,7 +479,6 @@ export default {
             }
         },
         isAudioVideoSend (message) {
-            console.log('isAudioVideoSend()自定义消息数据是什么？', message);
             const customElemData = message.customElem?.data;
             let data = {};
             try {
@@ -491,7 +490,7 @@ export default {
             return AudioVideoRenderTypes.includes(message.contentType)
                 && data.type
                 && [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type)
-                && [AudioVideoStatus.Send].includes(data.status);
+                && data.status;
         },
 
         async handleNewMessage (newServerMsg) {
@@ -515,27 +514,53 @@ export default {
                     setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
                 }
             }
-            if (this.isAudioVideoSend(newServerMsg)) {
-                console.log(newServerMsg, 'newServerMsgnewServerMsg');
-                try {
-                    const { token } = await videoGetToken({
-                        recvID: this.storeUserID,
-                        conversationID: idsGetConversationID(newServerMsg)
+            const customStatus = this.isAudioVideoSend(newServerMsg);
+            if (customStatus) {
+                if ([AudioVideoStatus.Send].includes(customStatus)) {
+                    console.log(newServerMsg, 'newServerMsgnewServerMsg');
+                    try {
+                        const { token } = await videoGetToken({
+                            recvID: this.storeUserID,
+                            conversationID: idsGetConversationID(newServerMsg)
+                        });
+                        this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
+                        console.log(token);
+                        this.appearLoadingCall(newServerMsg);
+                    } catch (err) {
+                        console.log(err);
+                        // uni.$u.toast('聊天已过期');
+                    }
+                } else if ([AudioVideoStatus.Done].includes(customStatus)) {
+                    uni.$emit('incoming_message_callback', {
+                        ...newServerMsg,
+                        customStatus
                     });
-                    this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
-                    console.log(token);
-                    this.appearLoadingCall(newServerMsg);
-                } catch (err) {
-                    console.log(err);
-                    uni.$u.toast('聊天已过期');
+                    uni.$u.toast('聊天结束。。。');
+                } else if ([AudioVideoStatus.Cancel].includes(customStatus)) {
+                    uni.$emit('incoming_message_callback', {
+                        ...newServerMsg,
+                        customStatus
+                    });
+                    uni.$u.toast('对方取消');
+                } else if ([AudioVideoStatus.Reject].includes(customStatus)) {
+                    uni.$emit('incoming_message_callback', {
+                        ...newServerMsg,
+                        customStatus
+                    });
+                    uni.$u.toast('对方拒绝。。。');
+                } else if ([AudioVideoStatus.NotAnswered].includes(customStatus)) {
+                    uni.$emit('incoming_message_callback', {
+                        ...newServerMsg,
+                        customStatus
+                    });
+                    uni.$u.toast('对方未应答。。。');
+                } else if ([AudioVideoStatus.Busy].includes(customStatus)) {
+                    uni.$emit('incoming_message_callback', {
+                        ...newServerMsg,
+                        customStatus
+                    });
+                    uni.$u.toast('对方忙线中。。。');
                 }
-                // if (this.storeSelfInfo.userID !== newServerMsg.sendID) {
-                //     this.appearLoadingCall(newServerMsg);
-                // }
-                //  else {
-                //     this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', newServerMsg.token);
-                //     uni.navigateTo({url: `/pages/conversation/webrtc/index`});
-                // }
             }
         },
         inCurrentConversation (newServerMsg) {

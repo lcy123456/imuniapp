@@ -318,7 +318,7 @@
                     </div>
                 </div>
                 <div :class="['answer_panel', !isAnswer || isCallIng ? 'flex-center' : '']">
-                    <button class="danger_btn" @click="goOut">
+                    <button class="danger_btn" @click="goOut('')">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
                     <button v-if="isAnswer && isCallLoading" class="success_btn">
@@ -715,11 +715,12 @@
                     this.trackList = [];
                     this.room && this.room.disconnect();
                 },
-                goOut() {
+                goOut(type) {
                     this.disconnect();
                     uni.postMessage({
                         data: {
-                            isDanger: true
+                            isDanger: true,
+                            type
                         }
                     });
                     uni.navigateBack();
@@ -757,7 +758,10 @@
             },
         })
         function uniEvent(res) {
-            app.init(res);
+            app && app.init(res);
+        }
+        function disconnectRoom () {
+            app && app.goOut('done');
         }
     </script>
 </body>
