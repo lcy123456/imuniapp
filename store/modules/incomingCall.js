@@ -77,10 +77,11 @@ const actions = {
         let hasCamera = false;
 
         if (isIOS) {
-            const recordResult = judgeIosPermission('record');
-            const cameraResult = judgeIosPermission('camera');
-            hasRecord = recordResult === 1;
-            hasCamera = cameraResult;
+            // const recordResult = judgeIosPermission('record');
+            // const cameraResult = judgeIosPermission('camera');
+            // hasRecord = recordResult === 1;
+            // hasCamera = cameraResult;
+            return true;
         } else {
             const recordResult = await requestAndroidPermission('android.permission.RECORD_AUDIO');
             const cameraResult = await requestAndroidPermission('android.permission.CAMERA');
