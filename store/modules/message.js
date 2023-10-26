@@ -122,7 +122,9 @@ const actions = {
     },
     pushNewMessage ({ commit, state, rootState }, message) {
         let conversationID = rootState.conversation.currentConversation.conversationID;
-        if (!conversationID) return;
+        if (!conversationID) {
+            conversationID = idsGetConversationID(message);
+        }
         console.log('pushNewMessage', message);
         // commit('SET_HISTORY_MESSAGE_MAP', {
         //     conversationID,
@@ -148,7 +150,6 @@ const actions = {
     }) {
         console.log('updateOneMessage', message);
         let conversationID = rootState.conversation.currentConversation.conversationID;
-        if (!conversationID) return;
         const obj = state.historyMessageMap[conversationID];
         const tmpList = obj?.messageList || [];
 
