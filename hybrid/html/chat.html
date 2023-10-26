@@ -546,7 +546,8 @@
 
                 // 断线删除成员
                 async removeMember({ parentDom }) {
-                    this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
+                    this.room && this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
+                        if (!this.room) return;
                         this.removeElment({
                             participant,
                             parentDom
@@ -555,7 +556,8 @@
                 },
                 // 加入新进成员
                 async addJoinMember({ parentDom }) {
-                    this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                    this.room && this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+                        if (!this.room) return;
                         this.addElement({
                             parentDom,
                             track,
@@ -745,7 +747,6 @@
                     this.room && this.room.disconnect();
                 },
                 goOut(m) {
-                    if (!this.room) return;
                     const map = m || {};
                     this.disconnect();
                     uni.postMessage({

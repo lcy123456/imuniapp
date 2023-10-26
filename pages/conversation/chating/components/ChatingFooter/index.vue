@@ -352,8 +352,10 @@ export default {
                 if (errCode === 1302) {
                     console.log('被拉黑了');
                     this.isShowNotification = true;
-                    return false;
+                } else {
+                    uni.$u.toast('网络异常，请稍后重试');
                 }
+                return false;
             }
         },
         async sendTextMessage () {
