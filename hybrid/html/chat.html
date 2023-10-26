@@ -64,6 +64,17 @@
         color: #FFFFFF;
         font-size: 24px;
     }
+    .alone-me-avatar-box {
+        position: relative;
+        width: 100%!important;
+        height: 100%!important;
+        background-color: #5496EB;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #FFFFFF;
+        font-size: 24px;
+    }
 
     .video-box .video, .video-box .audio {
         width: 100% !important;
@@ -80,19 +91,19 @@
 
     .video-box.my .video-box {
         position: fixed;
-        z-index: 2;
+        z-index: 3;
     }
 
     .video-box.other .video-box {
         position: fixed;
-        z-index: 3!important;
+        z-index: 4!important;
     }
 
     .video-box.other .video-box {
         position: fixed;
         top: 50px !important;
         right: 20px !important;
-        width: 40% !important;
+        width: 30% !important;
         height: 25% !important;
         overflow: hidden;
         z-index: 2;
@@ -107,11 +118,11 @@
         z-index: 999999;
     }
 
-    .z-index-minus-1 {
-        z-index: -1 !important;
+    .opacity_0 {
+        opacity: 0;
     }
-    .z-index-100 {
-        z-index: 100;
+    .opacity_1 {
+        opacity: 1;
     }
 
     .text-inverse {
@@ -297,8 +308,8 @@
                 <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
             </div>
             <div v-if="isAlone" class="avatar_panel">
-                <image class="avatar" :src="faceURLHandle" v-if="callUserInfo.faceURL"></image>
-                <div class="avatar" v-else>{{ nicknameHandle }}</div>
+                <image class="avatar" :src="faceURLHandle(false)" v-if="callUserInfo.faceURL"></image>
+                <div class="avatar" v-else>{{ nicknameHandle(false) }}</div>
                 <p class="nick_name">{{ callUserInfo.nickname }}</p>
             </div>
             <div v-if="isAlone && !isCallIng" class="tips_text">等待对方接受邀请</div>
@@ -333,6 +344,7 @@
     </div>
 
     <script type="text/javascript">
+
         const {
             // Participant,
             // RemoteParticipant,
@@ -365,6 +377,10 @@
                     faceURL: '',
                     nickname: '未知',
                 },
+                selfUserInfo: {
+                    faceURL: '',
+                    nickname: '未知',
+                },
                 baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
                 room: null,
                 micImage: 'images/incoming_call_handle_mic_2.png',
@@ -384,13 +400,17 @@
                     return this.baseMap.message.sessionType !== 3;
                 },
                 faceURLHandle() {
-                    const faceURL = this.callUserInfo?.faceURL;
-                    const hasHttpURL = RegExp(/['http', 'https']/).exec(faceURL);
-                    return hasHttpURL ? faceURL : `defaultAvatars/${faceURL}.png`;
+                    return function (isSelf = true) {
+                        const faceURL = isSelf ? this.selfUserInfo?.faceURL : this.callUserInfo?.faceURL;
+                        const hasHttpURL = RegExp(/['http', 'https']/).exec(faceURL);
+                        return hasHttpURL ? faceURL : `defaultAvatars/${faceURL}.png`;
+                    }
                 },
                 nicknameHandle () {
-                    const nickname = this.callUserInfo?.nickname;
-                    return nickname ? nickname.slice(nickname.length > 1 ? -2 : -1) : '未知';
+                    return function (isSelf = true) {
+                        const nickname = isSelf ? this.selfUserInfo?.nickname : this.callUserInfo?.nickname;
+                        return nickname ? nickname.slice(nickname.length > 1 ? -2 : -1) : '未知';
+                    }
                 },
             },
             methods: {
@@ -413,6 +433,7 @@
                             isCallIng,
                             isAnswer,
                             callUserInfo,
+                            selfUserInfo,
                             message,
                             token
                         } = data
@@ -420,6 +441,7 @@
                         this.isCallIng = isCallIng;
                         this.isAnswer = isAnswer;
                         this.callUserInfo = callUserInfo;
+                        this.selfUserInfo = selfUserInfo;
                         this.token = token;
 
                         if(this.isCallIng) this.timerFn();
@@ -471,19 +493,16 @@
                         myDom = this.getDom('my-box');
                     }
 
-                    if(this.isGroup) {
-                        const myAvatarDom = this.getDom('myVideo-avatar')
-                        if(!enabled) myAvatarDom.classList.remove('z-index-100')
-                        else myAvatarDom.classList.add('z-index-100')
+                    if(enabled) {
+                        myDom.classList.add('opacity_0')
+                        myDom.classList.remove('opacity_1')
                     } else {
-                        const backDom = this.getDom('pageMainBack')
-                        if(!enabled) backDom.classList.add('z-index-minus-1')
-                        else backDom.classList.remove('z-index-minus-1')
+                        myDom.classList.add('opacity_1')
+                        myDom.classList.remove('opacity_0')
                     }
 
-
                     console.log(myDom)
-                    console.log('enabled====', enabled)
+                    console.log('摄像头开启/关闭，false开启 true关闭====', enabled)
                     !enabled &&  this.addSelf({ parentDom: myDom, type: '' });
                 },
                 setInitVideoImg() {
@@ -646,7 +665,6 @@
                     //     const dom = this.getDom(type);
                     //     parentDom.removeChild(dom);
                     // }
-                    console.log(publication, 'publicationpublicationpublicationpublication');
                     const dom = this.getDom(`${identity}-box`);
                     const avatar = this.getDom(`${identity}-avatar`);
                     const div = dom || document.createElement('div');

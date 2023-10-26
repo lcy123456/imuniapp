@@ -39,6 +39,7 @@ export default {
             "storeIsIncomingCallIng",
             "storeIsAnswer",
             "storeIncomingCallUserInfo",
+            "storeSelfInfo",
             "storeIncomingCallToken"
         ]),
         src () {
@@ -64,12 +65,17 @@ export default {
     onShow () {
         console.log('onshow', this.time, this.storeIncomingCallCallTime);
         if (this.time !== this.storeIncomingCallCallTime) {
+            const selfUserInfo = {
+                faceURL: this.storeSelfInfo.faceURL,
+                nickname: this.storeSelfInfo.nickname,
+            }
             const map = {
                 message: this.storeIncomingCallMessage,
                 isCallLoading: this.storeIsIncomingCallLoading,
                 isCallIng: this.storeIsIncomingCallIng,
                 isAnswer: this.storeIsAnswer,
                 callUserInfo: this.storeIncomingCallUserInfo,
+                selfUserInfo: selfUserInfo,
                 token: this.storeIncomingCallToken
             }
             console.log('evalJs()=====发送参数给webview', map)
