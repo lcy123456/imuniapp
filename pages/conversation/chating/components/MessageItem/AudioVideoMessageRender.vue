@@ -83,7 +83,7 @@ export default {
             } else if (res.status === AudioVideoStatus.Done) {
                 text = `[通话时间长]`;
             } else {
-                text = this.isVideo ? `[发起视频]` : `[发起通话]`;
+                text = this.isVideo ? `[发起视频通话]` : `[发起语音通话]`;
             }
             return text;
         },

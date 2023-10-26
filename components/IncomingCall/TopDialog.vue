@@ -52,7 +52,8 @@ import MyAvatar from '@/components/MyAvatar/index.vue';
 import incomingCallIcon from '@/static/images/incoming_call_icon.png';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import IMSDK, {
-    IMMethods
+    IMMethods,
+    SessionType
 } from 'openim-uniapp-polyfill';
 import { offlinePushInfo } from '@/util/imCommon';
 export default {
@@ -104,7 +105,7 @@ export default {
     },
     methods: {
         ...mapActions('incomingCall', ['onSmall', 'onDangerCall', 'onSuccessCall', 'onThrowCall']),
-
+        ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         // 手指落下时触发
         onTouchstart (event) {
             const [touches] = event.touches;
@@ -151,11 +152,22 @@ export default {
                     description: ''
                 }
             );
+            const { sendID, groupID } = this.storeIncomingCallMessage;
+            this.pushNewMessage({
+                ...message,
+                recvID: sendID,
+                groupID,
+                sessionType: sendID ? SessionType.Single : SessionType.WorkingGroup
+            });
             const data = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                recvID: this.storeIncomingCallMessage.sendID,
-                groupID: this.storeIncomingCallMessage.groupID,
+                recvID: sendID,
+                groupID: groupID,
                 message,
                 offlinePushInfo,
+            });
+            this.updateOneMessage({
+                message: data,
+                isSuccess: true,
             });
             
             console.log('this.storeIncomingCallMessagethis.storeIncomingCallMessage', this.storeIncomingCallMessage);

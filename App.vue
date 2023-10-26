@@ -5,11 +5,13 @@ import IMSDK, {
     MessageType,
     SessionType,
 } from "openim-uniapp-polyfill";
+import { idsGetConversationID } from '@/util/imCommon';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import config from "./common/config";
 import { getDbDir, toastWithCallback } from "@/util/common.js";
 import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
+import { videoGetToken } from '@/api/incoming';
 
 export default {
     onLaunch: function () {
@@ -46,7 +48,8 @@ export default {
             "storeIsSyncing",
             "storeHasMoreAfterMessage",
             "storeIsShowSetEnd",
-            "conversationUnread"
+            "conversationUnread",
+            "storeUserID"
         ]),
         contactBadgeRely () {
             return {
@@ -491,7 +494,7 @@ export default {
                 && [AudioVideoStatus.Send].includes(data.status);
         },
 
-        handleNewMessage (newServerMsg) {
+        async handleNewMessage (newServerMsg) {
             this.innerAudioContext.play();
             if (this.inCurrentConversation(newServerMsg)) {
                 if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
@@ -514,6 +517,11 @@ export default {
             }
             if (this.isAudioVideoSend(newServerMsg)) {
                 console.log(newServerMsg, 'newServerMsgnewServerMsg');
+                const { token } = await videoGetToken({
+                    sendID: this.storeUserID,
+                    conversationID: idsGetConversationID(newServerMsg)
+                });
+                this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
                 this.appearLoadingCall(newServerMsg);
                 // if (this.storeSelfInfo.userID !== newServerMsg.sendID) {
                 //     this.appearLoadingCall(newServerMsg);
