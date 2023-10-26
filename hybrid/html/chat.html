@@ -712,15 +712,16 @@
                     this.trackList = [];
                     this.room && this.room.disconnect();
                 },
-                goOut(type) {
+                goOut(m) {
+                    const map = m || {};
                     this.disconnect();
                     uni.postMessage({
                         data: {
                             isDanger: true,
-                            type
+                            customStatus: map && map.customStatus
                         }
                     });
-                    uni.navigateBack();
+                    (map.isInWebrtc || !m) && uni.navigateBack();
                 },
                 beforeDestroy() {
                     this.room && this.room.disconnect();
@@ -758,7 +759,7 @@
             app && app.init(res);
         }
         function disconnectRoom () {
-            app && app.goOut('done');
+            app && app.goOut(res);
         }
     </script>
 </body>
