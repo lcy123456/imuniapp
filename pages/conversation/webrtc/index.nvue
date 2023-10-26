@@ -158,10 +158,10 @@ export default {
                 this.$refs.webviewRef.evalJs(`disconnectRoom()`);
             }
         },
-        async reject (data) {
+        async reject (map) {
 			console.log('双方等待接听，拨打方挂断电话，通话已取消');
             console.log('通话中，主动挂断电话，通话已完成');
-            if(this.storeIsIncomingCallIng || data.type === 'done') return;
+            if(this.storeIsIncomingCallIng || m.type === 'done') return;
 
             const message = await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,
