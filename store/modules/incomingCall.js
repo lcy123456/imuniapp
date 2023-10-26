@@ -134,7 +134,21 @@ const actions = {
         commit
     }, message) {
         try {
-            if (message.sessionType !== 3) {
+            const isGroupMessage = message.sessionType === 3;
+            if (isGroupMessage) {
+                // 群聊
+                const { groupID } = message;
+                const groupInfo = await IMSDK.asyncApi(IMMethods.GetSpecifiedGroupsInfo, IMSDK.uuid(),
+                    [groupID]
+                );
+                if (groupInfo?.data) {
+                    const [uData] = groupInfo.data;
+                    const { faceURL, groupName } = uData;
+                    commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname: groupName });
+                    console.log('等待接听电话，群信息', { faceURL, nickname: groupName });
+                }
+            } else {
+                // 单聊
                 const { sendID } = message;
                 const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
                     [sendID]
@@ -153,7 +167,7 @@ const actions = {
             commit('SET_IS_ANSWER', true);
             commit('SET_CALL_TIME', +new Date());
         } catch (e) {
-            console.log(e, '接听电话失败');
+            console.log(e, '出现电话，等待接听，失败');
         }
     },
 

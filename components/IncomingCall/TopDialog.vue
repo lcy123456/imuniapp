@@ -11,15 +11,23 @@
             <MyAvatar
                 :src="faceURL"
                 :desc="nickname"
+                :is-group="isGroupMessage"
                 size="80rpx"
             />
             <view class="flex ml-16 flex-column">
                 <text class="fz-28 text-inverse ff-bold">
                     {{ nickname }}
                 </text>
-                <text class="fz-28 text-grey">
-                    邀请你{{ isVideo ? '视频通话' : '语音通话' }}
-                </text>
+                <template v-if="isGroupMessage">
+                    <text class="fz-28 text-grey">
+                        邀请你加入群聊
+                    </text>
+                </template>
+                <template v-else>
+                    <text class="fz-28 text-grey">
+                        邀请你{{ isVideo ? '视频通话' : '语音通话' }}
+                    </text>
+                </template>
             </view>
         </view>
         <view class="call_icon_panel">
@@ -90,6 +98,9 @@ export default {
             const { data } = this.storeIncomingCallMessage.customElem;
             const res = JSON.parse(data); 
             return res.type === AudioVideoType.Video;
+        },
+        isGroupMessage () {
+            return this.storeIncomingCallMessage.sessionType === 3;
         }
     },
     watch: {
