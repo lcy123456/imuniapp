@@ -180,9 +180,9 @@ export default {
         },
         async goWebrtc () {
             const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
-            const type = this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio;
+            const type = this.isVideo ? 'video' : 'audio';
             if (hasPermission) {
-                store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', {
+                this.$store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', {
                     ...this.storeIncomingCallMessage,
                     type
                 });
