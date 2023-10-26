@@ -217,7 +217,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentConversation', 'storeHasMoreAfterMessage']),
+        ...mapGetters([
+            'storeCurrentConversation',
+            'storeHasMoreAfterMessage',
+            'storeIsIncomingCallLoading',
+            'storeIsIncomingCallIng',
+        ]),
         hasContent () {
             return html2Text(this.inputHtml) !== '';
         },
@@ -581,6 +586,10 @@ export default {
             }
         },
         async initWebrtc (type) {
+            if (this.storeIsIncomingCallLoading || this.storeIsIncomingCallIng) {
+                return uni.$u.toast('通话正在进行中');
+            }
+          
             console.log('initWebrtc----initWebrtc');
             const hasPermission  = await this.reviewPermission();
             if (hasPermission) {
