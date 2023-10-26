@@ -144,12 +144,12 @@ export default {
             const pages = getCurrentPages();
             const currentPage = pages[pages.length - 1];
             const url = currentPage.route;
-            const isInWebrtc = url === `/pages/conversation/webrtc/index`;
+            const isInWebrtc = url === `pages/conversation/webrtc/index`;
             const map = {
                 isInWebrtc,
                 customStatus
             }
-            console.log('isInWebrtcisInWebrtc', isInWebrtc);
+            console.log('isInWebrtcisInWebrtc', url);
             if ([AudioVideoStatus.Done].includes(customStatus)) {
                 console.log('聊天结束。。。');
                 this.$refs.webviewRef.evalJs(`disconnectRoom(${JSON.stringify(map)})`);
