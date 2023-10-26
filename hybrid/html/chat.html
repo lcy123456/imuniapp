@@ -352,7 +352,6 @@
             RemoteTrack,
             Room,
             RoomEvent,
-            DataPacket_Kind,
         } = window.LivekitClient;
         const defaultBaseMap = {
             message: {
@@ -507,13 +506,6 @@
                     console.log(myDom)
                     console.log('摄像头开启/关闭，false开启 true关闭====', enabled)
                     !enabled &&  this.addSelf({ parentDom: myDom, type: '' });
-
-                    const strData = JSON.stringify({some: "哈哈哈哈"})
-                    const encoder = new TextEncoder()
-                    // const decoder = new TextDecoder()
-                    const data = encoder.encode(strData);
-                    alert(data)
-                    this.room.localParticipant.publishData(data, DataPacket_Kind.LOSSY)
                 },
                 setInitVideoImg() {
                     const enabled = this.room?.localParticipant.isCameraEnabled;
@@ -550,7 +542,6 @@
                             myDom = this.getDom('my-box');
                             otherDom = this.getDom('other-box');
                         }
-                        this.metadataChanged();
                         this.removeMember({ parentDom: otherDom });
                         this.addInitMember({ parentDom: otherDom });
                         this.addJoinMember({ parentDom: otherDom });
@@ -558,23 +549,6 @@
                     } catch (err) {
                         console.log('fail -----connected to room----', err);
                     }
-                },
-                // 远程参与者开启摄像头轨道
-                // metadataChanged() {
-                //     this.room.on(RoomEvent.TrackStreamStateChanged, (participant) => {
-                //         alert(JSON.stringify(participant))
-                //     });
-                // },
-                // 有人离开房间
-                // metadataChanged() {
-                //     this.room.on(RoomEvent.TrackUnpublished, (participant) => {
-                //         alert(JSON.stringify(participant))
-                //     });
-                // },
-                metadataChanged() {
-                    this.room.on(RoomEvent.DataReceived, (payload, participant) => {
-                        alert(payload)
-                    });
                 },
 
                 // 断线删除成员
