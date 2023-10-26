@@ -1,6 +1,6 @@
 <template>
     <view
-        v-if="shouldShow"
+        v-if="storeIsIncomingCallSmall"
         class="small_popup_container"
         :style="style"
         @touchstart="onTouchstart($event)"
@@ -8,8 +8,14 @@
         @touchend="onTouchend($event)"
         @click="openPhone"
     >
-        <image :src="storeIncomingIsHangup ? incomingCallSmallNIcon : incomingCallSmallSIcon" />
-        <text class="fz-26 text_time">
+        <image
+            :src="storeIncomingIsHangup ? incomingCallSmallNIcon : incomingCallSmallSIcon"
+            :class="[storeIncomingIsHangup && 'hang_up_icon']"
+        />
+        <text
+            class="fz-26 text_time"
+            :class="[storeIncomingIsHangup && 'hang_up_time']"
+        >
             {{ timeText }}
         </text>
     </view>
@@ -70,18 +76,13 @@ export default {
             'storeIncomingCallStartTime',
             'storeIncomingIsHangup',
         ]),
-
-        // 悬浮缩小
-        shouldShow () {
-            return this.storeIsIncomingCallSmall;
-        }
     },
     methods: {
         // 计时器
         interval (func, delay) {
             const _this = this;
             const interFunc = function () {
-                if (_this.timer && !_this.storeIsIncomingCallIng) {
+                if (_this.timer && (!_this.storeIsIncomingCallIng || _this.storeIncomingIsHangup)) {
                     _this.timer = null;
                     clearTimeout(_this.timer);
                     console.log('&&&&&&清空通话中计时器&&&&&&');
@@ -186,6 +187,14 @@ export default {
   }
   .text_time {
     color: #58BE6B;
+  }
+  .hang_up_icon {
+    height: 20rpx;
+    width: 50rpx;
+    margin: 38rpx 0 28rpx;
+  }
+  .hang_up_time {
+    color: #F45955;
   }
 }
 </style>

@@ -13,7 +13,7 @@ const state = {
     isAnswer: false, // true拨打电话 false接听电话
     isIncomingCallIng: false, // 正在通话中
     isIncomingCallLoading: false, // 双方等待接通电话
-    isHangup: false, // 刚刚挂断
+    isHangup: true, // 刚刚挂断
     incomingCallMessage: {},
     incomingCallUserInfo: {
         faceURL: '',
@@ -160,6 +160,7 @@ const actions = {
     async onSmall ({
         commit
     }) {
+        console.log('手动缩小操作');
         commit('SET_IS_INCOMING_CALL_SMALL', true);
     },
 
@@ -167,16 +168,24 @@ const actions = {
     async onDangerCall ({ commit, state }) {
         if (state.isIncomingCallIng) {
             // 正在通话中，挂断代表已完成
+            console.log('双方通话中，挂断电话', state.isIncomingCallSmall);
+            commit('SET_IS_INCOMING_CALL_SMALL', true);
             commit('SET_IS_HANGUP', true);
             setTimeout(()=> {
+                console.log('双方通话中，挂断电话，setTimeout（3000）');
                 commit('SET_IS_HANGUP', false);
+                commit('SET_IS_INCOMING_CALL_SMALL', false);
+                commit('SET_INCOMING_CALL_TOP', false);
+                commit('SET_IS_INCOMING_CALL_ING', false);
+                commit('SET_IS_INCOMING_CALL_LOADING', false);
             }, 3000);
+        } else {
+            // 已取消、已拒绝
+            commit('SET_IS_INCOMING_CALL_SMALL', false);
+            commit('SET_INCOMING_CALL_TOP', false);
+            commit('SET_IS_INCOMING_CALL_ING', false);
+            commit('SET_IS_INCOMING_CALL_LOADING', false);
         }
-        
-        commit('SET_IS_INCOMING_CALL_SMALL', false);
-        commit('SET_INCOMING_CALL_TOP', false);
-        commit('SET_IS_INCOMING_CALL_ING', false);
-        commit('SET_IS_INCOMING_CALL_LOADING', false);
     },
 
     // 接通电话

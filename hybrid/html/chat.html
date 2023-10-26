@@ -393,9 +393,6 @@
                     return nickname ? nickname.slice(nickname.length > 1 ? -2 : -1) : '未知';
                 },
             },
-            mounted() {
-                this.init();
-            },
             methods: {
                 checkDom () {
                     if (this.isGroup) {
@@ -641,7 +638,7 @@
                                 isSuccess: true
                             }
                         });
-                        this.isCallLoading = true;
+                        this.isCallLoading = false;
                         this.isCallIng = true;
                         this.timerFn();
                     }

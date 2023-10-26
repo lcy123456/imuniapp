@@ -158,9 +158,9 @@ export default {
                 this.$refs.webviewRef.evalJs(`disconnectRoom()`);
             }
         },
+        // 双方等待接听，拨打方挂断电话，状态已取消
+        // 双方通话中，任意方挂断电话，状态已完成
         async reject (data) {
-			console.log('双方等待接听，拨打方挂断电话，通话已取消');
-            console.log('通话中，主动挂断电话，通话已完成');
             if(this.storeIsIncomingCallIng || data.type === 'done') return;
 
             const message = await IMSDK.asyncApi(
