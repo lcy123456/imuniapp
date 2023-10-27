@@ -12,6 +12,7 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
+// import { getLiveWsUrl } from "@/common/config";
 import {
     PageEvents
 } from '@/constant';
@@ -57,6 +58,7 @@ export default {
     },
     onLoad () {
         uni.$on('incoming_message_callback', this.incomingMessageCallback);
+        // this.postMessage(`initUrl(${JSON.stringify({url: getLiveWsUrl()})})`);
         console.log('onLoad-onLoad');
     },
     onReady () {
@@ -79,7 +81,7 @@ export default {
                 selfUserInfo: selfUserInfo,
                 token: this.storeIncomingCallToken
             }
-            console.log('evalJs()=====发送参数给webview', map)
+            console.log('evalJs()=====发送参数给发送参数给发送参数给发送参数给webview', map)
             this.postMessage(`uniEvent(${JSON.stringify(map)})`);
         }
         this.time = this.storeIncomingCallCallTime;

@@ -361,6 +361,7 @@
         const app = new Vue({
             el: '#app',
             data: {
+                wsURL: '',
                 type: '',
                 token: '',
                 device: '',
@@ -450,6 +451,9 @@
                     this.disconnect();
                     this.openRoom();
                 },
+                initUrl (url) {
+                    this.wsURL = url;
+                },
                 getLocationKeyValue(key) {
                     const reg = new RegExp(`${key}=([^&]*)`);
                     const href = location.href;
@@ -466,9 +470,6 @@
                     dom.className = map.className;
                     dom.style.width = width;
                     dom.style.height = height;
-                },
-                updateData() {
-                    this.openRoom();
                 },
                 async toggleAudio() {
                     if (!this.room) return;
@@ -839,6 +840,9 @@
         }
         function disconnectRoom (res) {
             app && app.goOut(res);
+        }
+        function initUrl (url) {
+            app && app.initUrl(url);
         }
     </script>
 </body>
