@@ -746,6 +746,8 @@
                     groupDom && (groupDom.innerHTML = '');
                     this.myVideo = null;
                     this.trackList = [];
+                    this.room?.localParticipant?.setCameraEnabled(false);
+                    this.room?.localParticipant?.setMicrophoneEnabled(false);
                     this.room && this.room.disconnect();
                 },
                 goOut(m) {
