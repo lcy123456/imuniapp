@@ -67,7 +67,7 @@ export default {
         hasGroupCalling () {
             return this.count > 0;
         },
-        isVideo () {
+        isVideoCall () {
             const { data } = this.storeIncomingCallMessage.customElem;
             const res = JSON.parse(data);
             return res.type === AudioVideoType.Video;
@@ -114,7 +114,7 @@ export default {
         },
         async goWebrtc () {
             const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
-            const type = this.isVideo ? 'video' : 'audio';
+            const type = this.isVideoCall ? 'video' : 'audio';
             if (hasPermission) {
                 this.$store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', {
                     ...this.storeIncomingCallMessage,

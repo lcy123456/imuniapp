@@ -186,13 +186,13 @@ const actions = {
             console.log('双方通话中，挂断电话', state.isIncomingCallSmall);
             commit('SET_IS_INCOMING_CALL_SMALL', true);
             commit('SET_IS_HANGUP', true);
+            commit('SET_INCOMING_CALL_TOP', false);
+            commit('SET_IS_INCOMING_CALL_ING', false);
+            commit('SET_IS_INCOMING_CALL_LOADING', false);
             setTimeout(()=> {
-                console.log('双方通话中，挂断电话，setTimeout（3000）');
-                commit('SET_IS_HANGUP', false);
+                console.log('双方通话中，挂断电话，setTimeout（1000）');
                 commit('SET_IS_INCOMING_CALL_SMALL', false);
-                commit('SET_INCOMING_CALL_TOP', false);
-                commit('SET_IS_INCOMING_CALL_ING', false);
-                commit('SET_IS_INCOMING_CALL_LOADING', false);
+                commit('SET_IS_HANGUP', false);
             }, 1000);
         } else {
             // 已取消、已拒绝
@@ -211,6 +211,7 @@ const actions = {
         commit('SET_IS_INCOMING_CALL_ING', true);
         commit('SET_IS_INCOMING_CALL_LOADING', false);
         commit('SET_START_TIME', dayjs());
+        commit('SET_CALL_TIME', +new Date());
     }
 };
 

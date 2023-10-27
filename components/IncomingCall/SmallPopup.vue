@@ -6,7 +6,7 @@
         @touchstart="onTouchstart($event)"
         @touchmove="onTouchmove($event)"
         @touchend="onTouchend($event)"
-        @click="openPhone"
+        @click="onOpenPhone"
     >
         <image
             :src="storeIncomingIsHangup ? incomingCallSmallNIcon : smallSIcon"
@@ -25,7 +25,7 @@
 import incomingCallSmallSIcon from '@/static/images/incoming_call_small_s_icon.png';
 import incomingCallSmallSVideoIcon from '@/static/images/incoming_call_small_s_video_icon.png';
 import incomingCallSmallNIcon from '@/static/images/incoming_call_small_n_icon.png';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import store from "@/store";
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
@@ -90,6 +90,8 @@ export default {
         }
     },
     methods: {
+        ...mapActions('incomingCall', ['onSuccessCall']),
+
         // 计时器
         interval (func, delay) {
             const _this = this;
@@ -164,12 +166,21 @@ export default {
         // 手指抬起时
         onTouchend () {
         },
-        openPhone () {
-            store.commit('incomingCall/SET_IS_INCOMING_CALL_SMALL', false);
-            uni.navigateTo({
-                url: '/pages/conversation/webrtc/index',
-            });
-        }
+        async onOpenPhone () {
+            await this.onSuccessCall();
+            await this.goWebrtc();
+        },
+        async goWebrtc () {
+            const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
+            const type = this.isVideoCall ? 'video' : 'audio';
+            if (hasPermission) {
+                this.$store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', {
+                    ...this.storeIncomingCallMessage,
+                    type
+                });
+                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+            }
+        },
     }
 };
 </script>

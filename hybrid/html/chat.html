@@ -42,7 +42,7 @@
         flex-wrap: wrap;
         position: fixed;
         z-index: 3;
-        top: 10vh;
+        top: 100px;
     }
 
     .chat-group-css .video-box {
@@ -494,6 +494,7 @@
                         // 开启摄像头
                         myVideoDom.classList.add('opacity_1')
                         myVideoDom.classList.remove('opacity_0')
+                        alert(JSON.stringify(myVideoDom.classList))
                     }
 
                     console.log(myDom)
@@ -615,8 +616,7 @@
                                 });
                                 if (!myAvatarDom) {
                                     let avatarDom = ''
-                                    const hasFaceURL = false
-                                    if(hasFaceURL) {
+                                    if(this.selfUserInfo.faceURL) {
                                         avatarDom = document.createElement('img');
                                         avatarDom.src = this.selfUserInfo.newFaceURL
                                     } else {
