@@ -79,7 +79,8 @@ export default {
                 callUserInfo: this.storeIncomingCallUserInfo,
                 selfUserInfo: selfUserInfo,
                 token: this.storeIncomingCallToken,
-                url: getLiveWsUrl()
+                url: getLiveWsUrl(),
+                isInWebrtc: this.getIsInWebrtc()
             }
             console.log('evalJs()=====发送参数给发送参数给发送参数给发送参数给webview', map)
             this.postMessage(`uniEvent(${JSON.stringify(map)})`);
@@ -157,7 +158,7 @@ export default {
             const pages = getCurrentPages();
             const currentPage = pages[pages.length - 1];
             const url = currentPage.route;
-            return isInWebrtc = url === `pages/conversation/webrtc/index`;
+            return url === `pages/conversation/webrtc/index`;
         },
         async incomingMessageCallback (data) {
             console.log('incomingMessageCallback--incomingMessageCallback--incomingMessageCallback', data);

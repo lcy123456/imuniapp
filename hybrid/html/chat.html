@@ -422,8 +422,10 @@
                             selfUserInfo,
                             message,
                             token,
-                            url
+                            url,
+                            isInWebrtc
                         } = data;
+                        if (!isInWebrtc) return;
                         this.isCallLoading = isCallLoading;
                         this.isCallIng = isCallIng;
                         this.isAnswer = isAnswer;
