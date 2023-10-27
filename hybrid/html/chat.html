@@ -320,9 +320,9 @@
                     <button class="danger_btn" @click="goOut('')">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
-                    <button v-if="isAnswer && isCallLoading" class="success_btn">
+                    <!--<button v-if="isAnswer && isCallLoading" class="success_btn">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
-                    </button>
+                    </button>-->
                     <image class="overturn_small" src="images/incoming_call_handle_overturn_2.png" v-if="isCallIng"
                         @click="toggleVideoInput">
                     </image>
@@ -538,7 +538,7 @@
                         this.addInitMember({ parentDom: otherDom });
                         this.addJoinMember({ parentDom: otherDom });
                         this.addSelf({ parentDom: myDom, type: 'init' });
-                        this.room.on(RoomEvent.Disconnected, this.goOut);
+                        // this.room.on(RoomEvent.Disconnected, this.goOut);
                         this.room.on(RoomEvent.TrackPublished, (track) => {
                             console.log('-------1122--22--2-2-2-2-22--2-2', track);
                         });
