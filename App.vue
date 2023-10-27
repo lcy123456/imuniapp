@@ -13,6 +13,13 @@ import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
 import { videoGetToken } from '@/api/incoming';
 
+const customStatusTextMap = {
+    [AudioVideoStatus.Done]: '通话结束',
+    [AudioVideoStatus.Cancel]: '对方已取消',
+    [AudioVideoStatus.Reject]: '对方已拒绝',
+    [AudioVideoStatus.NotAnswered]: '对方未应答',
+    [AudioVideoStatus.Busy]: '对方忙线中'
+};
 export default {
     onLaunch: function () {
         this.$store.dispatch("user/getAppConfig");
@@ -487,7 +494,6 @@ export default {
             try {
                 data = JSON.parse(customElemData);
             } catch (err) {
-                console.log(err);
                 return false;
             }
             return AudioVideoRenderTypes.includes(message.contentType)
@@ -517,7 +523,21 @@ export default {
                     setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
                 }
             }
+            console.log(newServerMsg, 'newServerMsgnewServerMsg');
             const customStatus = this.isAudioVideoSend(newServerMsg);
+            if (newServerMsg.contentType === 1703) {
+                try {
+                    const data = JSON.parse(newServerMsg.notificationElem.detail);
+                    if (idsGetConversationID(newServerMsg) !== idsGetConversationID(this.storeIncomingCallMessage)) return;
+                    uni.$emit('incoming_message_callback', {
+                        ...newServerMsg,
+                        customStatus: data.status
+                    });
+                    uni.$u.toast(customStatusTextMap[data.status]);
+                } catch (err) {
+                    return false;
+                }
+            }
             if (customStatus) {
                 if ([AudioVideoStatus.Send].includes(customStatus)) {
                     console.log(newServerMsg, 'newServerMsgnewServerMsg');
@@ -552,11 +572,7 @@ export default {
                         ...newServerMsg,
                         customStatus
                     });
-                    // uni.$u.toast('聊天结束。。。');
-                    // uni.$u.toast('对方取消');
-                    // uni.$u.toast('对方拒绝。。。');
-                    // uni.$u.toast('对方未应答。。。');
-                    // uni.$u.toast('对方忙线中。。。');
+                    uni.$u.toast(customStatusTextMap[customStatus]);
                 }
             }
         },

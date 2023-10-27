@@ -178,6 +178,13 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
             : user.nickname;
     };
     switch (pmsg.contentType) {
+    case 1703:
+        try {
+            const groupVideoAudioDetail = JSON.parse(pmsg.notificationElem.detail);
+            return `群聊${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话已结束`;
+        } catch (err) {
+            return `通话已结束`;
+        }
     case MessageType.TextMessage:
         return DecryptoAES(pmsg.textElem.content);
     case MessageType.AtTextMessage:
