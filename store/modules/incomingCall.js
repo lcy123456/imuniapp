@@ -193,7 +193,7 @@ const actions = {
                 commit('SET_INCOMING_CALL_TOP', false);
                 commit('SET_IS_INCOMING_CALL_ING', false);
                 commit('SET_IS_INCOMING_CALL_LOADING', false);
-            }, 2000);
+            }, 1000);
         } else {
             // 已取消、已拒绝
             commit('SET_IS_INCOMING_CALL_SMALL', false);

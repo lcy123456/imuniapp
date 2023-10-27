@@ -1,4 +1,4 @@
-import store from '@/store';
+// import store from '@/store';
 // https+域名形式   nginx配置可参考(https://doc.rentsoft.cn/#/v2/server_deploy/easy_deploy_new?id=%e4%ba%94%e3%80%81nginx%e9%85%8d%e7%bd%ae%e5%8f%82%e8%80%83)
 // const registerUrl = 'https://web.rentsoft.cn/chat'
 // const configUrl = 'https://web.rentsoft.cn/complete_admin'
@@ -11,7 +11,7 @@ function getUrl () {
     let wsUrl = 'ws://192.168.2.244:10001';
     let liveWsUrl = 'ws://192.168.2.20:7880';
     
-    if (store.getters.storeIsProd) {
+    if (process.env.NODE_ENV === 'production') {
         registerUrl = 'https://imlogic.qncjkeusoge.cfd';
         configUrl = 'https://imcms.qncjkeusoge.cfd';
         apiUrl = 'https://imapi.qncjkeusoge.cfd';
