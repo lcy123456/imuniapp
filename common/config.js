@@ -9,6 +9,7 @@ function getUrl () {
     let configUrl = 'http://192.168.2.244:10009';
     let apiUrl = 'http://192.168.2.244:10002';
     let wsUrl = 'ws://192.168.2.244:10001';
+    let liveWsUrl = 'ws://192.168.2.20:7880';
     
     if (store.getters.storeIsProd) {
         registerUrl = 'https://imlogic.qncjkeusoge.cfd';
@@ -21,16 +22,19 @@ function getUrl () {
         configUrl,
         apiUrl,
         wsUrl,
+        liveWsUrl,
     };
 }
 const getRegisterUrl = () => getUrl().registerUrl;
 const getConfigUrl = () => getUrl().configUrl;
 const getApiUrl = () => getUrl().apiUrl;
 const getWsUrl = () => getUrl().wsUrl;
+const getLiveWsUrl = () => getUrl().liveWsUrl;
 
 module.exports = {
     getRegisterUrl,
     getConfigUrl,
     getApiUrl,
     getWsUrl,
+    getLiveWsUrl
 };
