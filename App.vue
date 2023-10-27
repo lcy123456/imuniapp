@@ -552,11 +552,14 @@ export default {
                         ...newServerMsg,
                         customStatus
                     });
-                    // uni.$u.toast('聊天结束。。。');
-                    // uni.$u.toast('对方取消');
-                    // uni.$u.toast('对方拒绝。。。');
-                    // uni.$u.toast('对方未应答。。。');
-                    // uni.$u.toast('对方忙线中。。。');
+                    const map = {
+                        [AudioVideoStatus.Done]: '通话结束',
+                        [AudioVideoStatus.Cancel]: '对方已取消',
+                        [AudioVideoStatus.Reject]: '对方已拒绝',
+                        [AudioVideoStatus.NotAnswered]: '对方未应答',
+                        [AudioVideoStatus.Busy]: '对方忙线中'
+                    };
+                    uni.$u.toast(map[customStatus]);
                 }
             }
         },

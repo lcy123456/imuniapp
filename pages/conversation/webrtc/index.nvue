@@ -188,14 +188,15 @@ export default {
         // 双方通话中，任意方挂断电话，状态已完成
         async reject (map) {
             if(this.storeIsIncomingCallIng || map.customStatus) return;
-            const { recvID, groupID, sessionType } = this.storeIncomingCallMessage;
+            const { recvID, groupID, sessionType, customElem } = this.storeIncomingCallMessage;
             if (sessionType === 3) return;
+            const res = JSON.parse(customElem.data);
             const message = await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,
                 IMSDK.uuid(),
                 {
                     data: JSON.stringify({
-                        type: this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio,
+                        type: res.type,
                         status: this.storeIsAnswer ? AudioVideoStatus.Reject : AudioVideoStatus.Cancel
                     }),
                     extension: '',
