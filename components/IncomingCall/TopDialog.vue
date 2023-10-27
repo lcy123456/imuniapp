@@ -84,7 +84,8 @@ export default {
         ...mapGetters([
             'storeIsIncomingCallTop',
             'storeIncomingCallUserInfo',
-            'storeIncomingCallMessage'
+            'storeIncomingCallMessage',
+            'storeIsIncomingConversation'
         ]),
         faceURL () {
             const {faceURL} = this.storeIncomingCallUserInfo;
@@ -167,12 +168,14 @@ export default {
                 }
             );
             const { sendID, groupID } = this.storeIncomingCallMessage;
-            this.pushNewMessage({
-                ...message,
-                recvID: sendID,
-                groupID,
-                sessionType: sendID ? SessionType.Single : SessionType.WorkingGroup
-            });
+            if (this.storeIsIncomingConversation) {
+                this.pushNewMessage({
+                    ...message,
+                    recvID: sendID,
+                    groupID,
+                    sessionType: sendID ? SessionType.Single : SessionType.WorkingGroup
+                });
+            }
             const data = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                 recvID: sendID,
                 groupID: groupID,

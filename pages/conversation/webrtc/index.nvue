@@ -40,7 +40,8 @@ export default {
             "storeIsAnswer",
             "storeIncomingCallUserInfo",
             "storeSelfInfo",
-            "storeIncomingCallToken"
+            "storeIncomingCallToken",
+            "storeIsIncomingConversation"
         ]),
         src () {
             return `/hybrid/html/chat.html`;
@@ -197,12 +198,14 @@ export default {
                     description: ''
                 }
             );
-            this.pushNewMessage({
-                ...message,
-                recvID: this.storeIsAnswer ? this.storeUserID : recvID,
-                groupID,
-                sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
-            });
+            if (this.storeIsIncomingConversation) {
+                this.pushNewMessage({
+                    ...message,
+                    recvID: this.storeIsAnswer ? this.storeUserID : recvID,
+                    groupID,
+                    sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
+                });
+            }
             console.log('this.storeIncomingCallMessage');
             const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                 recvID: recvID,

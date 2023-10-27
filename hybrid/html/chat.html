@@ -539,6 +539,7 @@
                         this.addInitMember({ parentDom: otherDom });
                         this.addJoinMember({ parentDom: otherDom });
                         this.addSelf({ parentDom: myDom, type: 'init' });
+                        this.room.on(RoomEvent.Disconnected, this.goOut);
                     } catch (err) {
                         console.log('fail -----connected to room----', err);
                     }

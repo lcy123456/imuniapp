@@ -1,3 +1,4 @@
+import { idsGetConversationID } from '@/util/imCommon';
 export default {
     storeConversationList: (state) => state.conversation.conversationList,
     storeConversationMediaList: (state) => state.conversation.conversationMediaList,
@@ -67,6 +68,16 @@ export default {
         const { currentConversation } = conversation;
         const hasAfterMore = historyMessageMap[currentConversation.conversationID]?.hasAfterMore ?? true;
         return hasAfterMore;
+    },
+    storeIsIncomingConversation: (state) => {
+        const { conversation, incomingCall } = state;
+        const { incomingCallMessage, isAnswer } = incomingCall;
+        const { currentConversation } = conversation;
+        let conversationID = '';
+        if (isAnswer) {
+            conversationID = idsGetConversationID(incomingCallMessage);
+        }
+        return !isAnswer || currentConversation.conversationID === conversationID;
     },
     storeClientID: (state) => state.user.clientID,
     storeAuthData: (state) => state.user.authData,
