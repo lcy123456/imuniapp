@@ -521,7 +521,8 @@ export default {
                 if ([AudioVideoStatus.Send].includes(customStatus)) {
                     console.log(newServerMsg, 'newServerMsgnewServerMsg');
                     if (this.storeIsIncomingCallLoading || this.storeIsIncomingCallIng) {
-                        return uni.$u.toast('占线占线');
+                        uni.$u.toast('占线占线');
+                        return false;
                     }
                     try {
                         const { token } = await videoGetToken({
@@ -533,7 +534,8 @@ export default {
                         this.appearLoadingCall(newServerMsg);
                     } catch (err) {
                         console.log(err);
-                        // uni.$u.toast('聊天已过期');
+                        uni.$u.toast('聊天已过期');
+                        return false;
                     }
                 } else if ([AudioVideoStatus.Done].includes(customStatus)) {
                     uni.$emit('incoming_message_callback', {
