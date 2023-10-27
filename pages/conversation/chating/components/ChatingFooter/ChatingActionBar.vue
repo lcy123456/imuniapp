@@ -10,7 +10,9 @@
             <view
                 class="action_item_sub"
             >
-                <image :src="item.icon" />
+                <view class="icon_nav">
+                    <image :src="item.icon" />
+                </view>
                 <text class="action_item_title">
                     {{ item.title }}
                 </text>
@@ -97,15 +99,24 @@ export default {
             @include centerBox();
             flex-direction: column;
 
-            image {
-                width: 96rpx;
-                height: 96rpx;
+            .icon_nav {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 124rpx;
+              height: 124rpx;
+              background-color: #F6F7F9;
+              border-radius: 30rpx;
+              image {
+                width: 46rpx;
+                height: 46rpx;
+              }
             }
 
-            &_title {
+            .action_item_title {
                 font-size: 24rpx;
-                color: $uni-bg-color-grey;
-                margin-top: 6rpx;
+                color: $uni-text-color-grey;
+                margin-top: 10rpx;
             }
         }
     }

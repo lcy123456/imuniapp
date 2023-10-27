@@ -1,7 +1,7 @@
 <template>
     <view
         v-if="storeIsIncomingCallTop"
-        :class="['top_dialog_container', 
+        :class="['top_dialog_container',
                  shouldFadeIn && 'top_dialog_in',
                  shouldFadeOut && 'top_dialog_out']"
         @touchstart="onTouchstart($event)"
@@ -108,10 +108,10 @@ export default {
             handler (val) {
                 if (val) {
                     this.shouldFadeOut = false;
-
-                    setTimeout(()=> {
-                        this.shouldFadeIn = true;
-                    }, 0);
+                    this.shouldFadeIn = true;
+                } else {
+                    this.shouldFadeOut = false;
+                    this.shouldFadeIn = true;
                 }
             },
             immediate: true

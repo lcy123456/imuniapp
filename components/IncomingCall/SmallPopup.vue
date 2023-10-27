@@ -9,7 +9,7 @@
         @click="openPhone"
     >
         <image
-            :src="storeIncomingIsHangup ? incomingCallSmallNIcon : incomingCallSmallSIcon"
+            :src="storeIncomingIsHangup ? incomingCallSmallNIcon : smallSIcon"
             :class="[storeIncomingIsHangup && 'hang_up_icon']"
         />
         <text
@@ -23,17 +23,20 @@
 
 <script>
 import incomingCallSmallSIcon from '@/static/images/incoming_call_small_s_icon.png';
+import incomingCallSmallSVideoIcon from '@/static/images/incoming_call_small_s_video_icon.png';
 import incomingCallSmallNIcon from '@/static/images/incoming_call_small_n_icon.png';
 import { mapGetters } from 'vuex';
 import store from "@/store";
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import {AudioVideoType} from "@/enum";
 dayjs.extend(duration);
 export default {
     name: "SmallPopup",
     data () {
         return {
             incomingCallSmallSIcon,
+            incomingCallSmallSVideoIcon,
             incomingCallSmallNIcon,
             containerRect: {
                 width: 0,
@@ -75,7 +78,16 @@ export default {
             'storeIncomingCallSmallStyle',
             'storeIncomingCallStartTime',
             'storeIncomingIsHangup',
+            'storeIncomingCallMessage',
         ]),
+        isVideoCall () {
+            const { data } = this.storeIncomingCallMessage.customElem;
+            const res = JSON.parse(data);
+            return res.type === AudioVideoType.Video;
+        },
+        smallSIcon () {
+            return this.isVideoCall ? incomingCallSmallSVideoIcon : incomingCallSmallSIcon;
+        }
     },
     methods: {
         // 计时器

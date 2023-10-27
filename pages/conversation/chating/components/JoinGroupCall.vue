@@ -1,6 +1,6 @@
 <template>
     <view
-        v-if="hasGroupCalling"
+        v-if="shouldShow"
         class="join_group_call"
     >
         <view class="avatar_panel">
@@ -19,7 +19,10 @@
                 </text>
             </view>
         </view>
-        <u-button @click="onJoin">
+        <u-button
+            v-if="!storeIsIncomingCallLoading && !storeIsIncomingCallIng"
+            @click="onJoin"
+        >
             加入
         </u-button>
     </view>
@@ -27,8 +30,9 @@
 
 <script>
 import MyAvatar from '@/components/MyAvatar/index.vue';
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import { videoGetRoomMember } from '@/api/incoming';
+import {AudioVideoType} from "@/enum";
 export default {
     name: "JoinGroupCall",
     components: {
@@ -41,21 +45,49 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentConversation', 'storeSelfInfo']),
+        ...mapGetters([
+            'storeCurrentConversation',
+            'storeSelfInfo',
+            'storeIncomingCallMessage',
+            'storeIsIncomingCallLoading',
+            'storeIsIncomingCallIng'
+        ]),
 
         faceURL () {
             return this.storeCurrentConversation.faceURL;
         },
+        // 群聊对话 && 有人数正在通话中
+        shouldShow () {
+            return this.isGroupConversation && this.hasGroupCalling;
+        },
+        // 群聊对话
+        isGroupConversation () {
+            return this.storeCurrentConversation.conversationType === 3;
+        },
         hasGroupCalling () {
             return this.count > 0;
+        },
+        isVideo () {
+            const { data } = this.storeIncomingCallMessage.customElem;
+            const res = JSON.parse(data);
+            return res.type === AudioVideoType.Video;
+        },
+    },
+    watch: {
+        storeIncomingCallMessage: {
+            handler () {
+                const isGroupMessage = this.storeIncomingCallMessage.sessionType === 3;
+                if (isGroupMessage) this.init();
+            },
+            deep: true
         }
     },
-    mounted () {
-        setTimeout(()=> {
-            this.init();
-        }, 10000);
+    created () {
+        this.init();
     },
     methods: {
+        ...mapActions('incomingCall', ['onSuccessCall']),
+
         async init () {
             const {userID} = this.storeSelfInfo;
             const {  conversationID } = this.storeCurrentConversation;
@@ -65,10 +97,32 @@ export default {
             });
             this.count = count;
             this.token = token;
+
+            this.loopInit();
         },
-        onJoin () {
-            // this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', this.token);
-        }
+        loopInit () {
+            if (!this.hasGroupCalling) return;
+            setTimeout(()=> {
+                console.log('每8秒更新一次群聊中的通话人数', '_+++++++++++++++++++++++++++++++++++++++++++++++++++++++');
+                this.init();
+            }, 8000);
+        },
+        async onJoin () {
+            this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', this.token);
+            await this.onSuccessCall();
+            await this.goWebrtc();
+        },
+        async goWebrtc () {
+            const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
+            const type = this.isVideo ? 'video' : 'audio';
+            if (hasPermission) {
+                this.$store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', {
+                    ...this.storeIncomingCallMessage,
+                    type
+                });
+                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+            }
+        },
     }
 };
 </script>

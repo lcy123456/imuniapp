@@ -114,7 +114,7 @@ const actions = {
                 );
                 if (usersInfo?.data) {
                     const [uData] = usersInfo.data;
-                    const { faceURL, nickname } = uData.friendInfo;
+                    const { faceURL, nickname } = uData.publicInfo;
                     commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
                     console.log('拨打电话，对方用户信息', { faceURL, nickname });
                 }
