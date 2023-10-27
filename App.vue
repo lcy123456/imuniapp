@@ -487,7 +487,6 @@ export default {
             try {
                 data = JSON.parse(customElemData);
             } catch (err) {
-                console.log(err);
                 return false;
             }
             return AudioVideoRenderTypes.includes(message.contentType)
@@ -517,7 +516,28 @@ export default {
                     setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
                 }
             }
+            console.log(newServerMsg, 'newServerMsgnewServerMsg');
             const customStatus = this.isAudioVideoSend(newServerMsg);
+            if (newServerMsg.contentType === 1703) {
+                try {
+                    const data = JSON.parse(newServerMsg.notificationElem.detail);
+                    if (idsGetConversationID(newServerMsg) !== idsGetConversationID(this.storeIncomingCallMessage)) return;
+                    uni.$emit('incoming_message_callback', {
+                        ...newServerMsg,
+                        customStatus: data.status
+                    });
+                    const map = {
+                        [AudioVideoStatus.Done]: '通话结束',
+                        [AudioVideoStatus.Cancel]: '对方已取消',
+                        [AudioVideoStatus.Reject]: '对方已拒绝',
+                        [AudioVideoStatus.NotAnswered]: '对方未应答',
+                        [AudioVideoStatus.Busy]: '对方忙线中'
+                    };
+                    uni.$u.toast(map[data.status]);
+                } catch (err) {
+                    return false;
+                }
+            }
             if (customStatus) {
                 if ([AudioVideoStatus.Send].includes(customStatus)) {
                     console.log(newServerMsg, 'newServerMsgnewServerMsg');
