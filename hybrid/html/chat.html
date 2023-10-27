@@ -64,17 +64,6 @@
         color: #FFFFFF;
         font-size: 24px;
     }
-    .alone-me-avatar-box {
-        position: relative;
-        width: 100%!important;
-        height: 100%!important;
-        background-color: #5496EB;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #FFFFFF;
-        font-size: 24px;
-    }
 
     .video-box .video, .video-box .audio {
         width: 100% !important;
@@ -101,7 +90,7 @@
 
     .video-box.other .video-box {
         position: fixed;
-        top: 50px !important;
+        top: 70px !important;
         right: 20px !important;
         width: 30% !important;
         height: 25% !important;
@@ -162,7 +151,7 @@
 
     .incoming_call_main .header_panel {
         position: relative;
-        margin-top: 5vh;
+        margin-top: 70px;
         height: 22px;
         line-height: 22px;
         text-align: center;
@@ -307,7 +296,7 @@
                 <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
             </div>
             <div v-if="isAlone" class="avatar_panel">
-                <image class="avatar" :src="callUserInfo.newFeacURL" v-if="callUserInfo.faceURL"></image>
+                <image class="avatar" :src="callUserInfo.newFaceURL" v-if="callUserInfo.faceURL"></image>
                 <div class="avatar" v-else>{{ callUserInfo.newNickname }}</div>
                 <p class="nick_name">{{ callUserInfo.newNickname }}</p>
             </div>
@@ -375,13 +364,13 @@
                 callUserInfo: {
                     faceURL: '',
                     nickname: '未知',
-                    newFeacURL: '',
+                    newFaceURL: '',
                     newNickname: '未知',
                 },
                 selfUserInfo: {
                     faceURL: '',
                     nickname: '未知',
-                    newFeacURL: '',
+                    newFaceURL: '',
                     newNickname: '未知',
                 },
                 baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
@@ -405,7 +394,7 @@
             },
             methods: {
                 faceURLHandle(faceURL) {
-                    const hasHttpURL = RegExp(/['http', 'https']/).exec(faceURL);
+                    const hasHttpURL = RegExp('http').test(faceURL);
                     return hasHttpURL ? faceURL : `defaultAvatars/${faceURL}.png`;
                 },
                 nicknameHandle (nickname) {
@@ -441,9 +430,9 @@
                         this.selfUserInfo = selfUserInfo;
                         this.token = token;
 
-                        this.callUserInfo.newFeacURL = this.faceURLHandle(callUserInfo.feacURL);
+                        this.callUserInfo.newFaceURL = this.faceURLHandle(callUserInfo.faceURL);
                         this.callUserInfo.newNickname = this.nicknameHandle(callUserInfo.nickname);
-                        this.selfUserInfo.newFeacURL = this.faceURLHandle(selfUserInfo.feacURL);
+                        this.selfUserInfo.newFaceURL = this.faceURLHandle(selfUserInfo.faceURL);
                         this.selfUserInfo.newNickname = this.nicknameHandle(selfUserInfo.nickname);
 
                         if(this.isCallIng) this.timerFn();
@@ -628,7 +617,7 @@
                                     const hasFaceURL = false
                                     if(hasFaceURL) {
                                         avatarDom = document.createElement('img');
-                                        avatarDom.src = this.selfUserInfo.newFeacURL
+                                        avatarDom.src = this.selfUserInfo.newFaceURL
                                     } else {
                                         avatarDom = document.createElement('div');
                                         avatarDom.innerHTML = this.selfUserInfo.newNickname
@@ -815,10 +804,14 @@
                         callUserInfo: {
                             faceURL: '',
                             nickname: '未知',
+                            newFaceURL: '',
+                            newNickname: '未知',
                         },
                         selfUserInfo: {
                             faceURL: '',
                             nickname: '未知',
+                            newFaceURL: '',
+                            newNickname: '未知',
                         },
                         baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
                         room: null,

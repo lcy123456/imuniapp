@@ -136,8 +136,8 @@ export default {
         },
         // 群聊场景，用户刚加入群聊
         async userJoinCalling(joinUserID) {
-            console.log(joinUserID, ' 群聊场景，用户刚加入群聊()=======')
             if(!joinUserID) return;
+            console.log(joinUserID, ' 群聊场景，用户刚加入群聊()=======')
 
             const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
                 [joinUserID]
