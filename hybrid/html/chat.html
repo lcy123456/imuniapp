@@ -485,6 +485,8 @@
                         myDom = this.getDom('my-box');
                     }
 
+                    !enabled &&  this.addSelf({ parentDom: myDom, type: '' });
+
                     const myVideoDom = this.getDom('myVideo-video');
                     if(enabled) {
                         // 关闭摄像头
@@ -495,10 +497,6 @@
                         myVideoDom.classList.add('opacity_1')
                         myVideoDom.classList.remove('opacity_0')
                     }
-
-                    console.log(myDom)
-                    console.log('摄像头开启/关闭，false开启 true关闭====', enabled)
-                    !enabled &&  this.addSelf({ parentDom: myDom, type: '' });
                 },
                 setInitVideoImg() {
                     const enabled = this.room?.localParticipant.isCameraEnabled;
@@ -600,6 +598,7 @@
                             const myVideo = track?.track?.attach();
                             console.log(track, 'track?.track');
                             if (myVideo) {
+                                // alert(JSON.stringify(myVideo))
                                 const dom = this.getDom(`myVideo`);
                                 const div = dom || document.createElement('div');
                                 this.setDomAttr({

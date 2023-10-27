@@ -41,7 +41,8 @@ export default {
     data () {
         return {
             count: 0,
-            token: ''
+            token: '',
+            callType: '', // AudioVideoType.Video  131视频通话 130语音通话
         };
     },
     computed: {
@@ -67,11 +68,6 @@ export default {
         hasGroupCalling () {
             return this.count > 0;
         },
-        isVideoCall () {
-            const { data } = this.storeIncomingCallMessage.customElem;
-            const res = JSON.parse(data);
-            return res.type === AudioVideoType.Video;
-        },
     },
     watch: {
         storeIncomingCallMessage: {
@@ -90,13 +86,17 @@ export default {
 
         async init () {
             const {userID} = this.storeSelfInfo;
-            const {  conversationID } = this.storeCurrentConversation;
-            const { token, count } = await videoGetRoomMember({
+            const {  conversationID, conversationType } = this.storeCurrentConversation;
+            const isGroupCurrent = conversationType === 3;
+            if (!isGroupCurrent) return;
+
+            const { token, count, type } = await videoGetRoomMember({
                 recvID: userID,
                 conversationID,
             });
             this.count = count;
             this.token = token;
+            this.callType = type;
 
             this.loopInit();
         },
@@ -109,16 +109,28 @@ export default {
         },
         async onJoin () {
             this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', this.token);
+            this.$store.commit('incomingCall/SET_CALL_TIME', +new Date());
             await this.onSuccessCall();
             await this.goWebrtc();
         },
         async goWebrtc () {
             const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
-            const type = this.isVideoCall ? 'video' : 'audio';
+            const customElem = {
+                data: JSON.stringify({
+                    type: this.callType
+                })
+            };
+            const message = {
+                contentType: 110,
+                customElem: customElem,
+                groupID: this.storeCurrentConversation.groupID,
+                recvID: this.storeSelfInfo.userID,
+                sessionType: 3, // 3群聊 1单聊
+                type: this.callType === AudioVideoType.Video ? 'video' : 'audio'
+            };
             if (hasPermission) {
                 this.$store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', {
-                    ...this.storeIncomingCallMessage,
-                    type
+                    ...message
                 });
                 uni.navigateTo({url: `/pages/conversation/webrtc/index`});
             }

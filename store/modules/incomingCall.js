@@ -14,6 +14,7 @@ const state = {
     isIncomingCallIng: false, // 正在通话中
     isIncomingCallLoading: false, // 双方等待接通电话
     isHangup: false, // 刚刚挂断
+
     incomingCallMessage: {},
     incomingCallUserInfo: {
         faceURL: '',
@@ -208,7 +209,6 @@ const actions = {
         commit('SET_IS_INCOMING_CALL_ING', true);
         commit('SET_IS_INCOMING_CALL_LOADING', false);
         commit('SET_START_TIME', dayjs());
-        commit('SET_CALL_TIME', +new Date());
     }
 };
 

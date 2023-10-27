@@ -167,8 +167,12 @@ export default {
         onTouchend () {
         },
         async onOpenPhone () {
-            await this.onSuccessCall();
-            await this.goWebrtc();
+            if (this.storeIsIncomingCallIng) {
+                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+            } else {
+                await this.onSuccessCall();
+                await this.goWebrtc();
+            }
         },
         async goWebrtc () {
             const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
