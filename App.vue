@@ -13,6 +13,13 @@ import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
 import { videoGetToken } from '@/api/incoming';
 
+const customStatusTextMap = {
+    [AudioVideoStatus.Done]: '通话结束',
+    [AudioVideoStatus.Cancel]: '对方已取消',
+    [AudioVideoStatus.Reject]: '对方已拒绝',
+    [AudioVideoStatus.NotAnswered]: '对方未应答',
+    [AudioVideoStatus.Busy]: '对方忙线中'
+};
 export default {
     onLaunch: function () {
         this.$store.dispatch("user/getAppConfig");
@@ -526,14 +533,7 @@ export default {
                         ...newServerMsg,
                         customStatus: data.status
                     });
-                    const map = {
-                        [AudioVideoStatus.Done]: '通话结束',
-                        [AudioVideoStatus.Cancel]: '对方已取消',
-                        [AudioVideoStatus.Reject]: '对方已拒绝',
-                        [AudioVideoStatus.NotAnswered]: '对方未应答',
-                        [AudioVideoStatus.Busy]: '对方忙线中'
-                    };
-                    uni.$u.toast(map[data.status]);
+                    uni.$u.toast(customStatusTextMap[data.status]);
                 } catch (err) {
                     return false;
                 }
@@ -572,14 +572,7 @@ export default {
                         ...newServerMsg,
                         customStatus
                     });
-                    const map = {
-                        [AudioVideoStatus.Done]: '通话结束',
-                        [AudioVideoStatus.Cancel]: '对方已取消',
-                        [AudioVideoStatus.Reject]: '对方已拒绝',
-                        [AudioVideoStatus.NotAnswered]: '对方未应答',
-                        [AudioVideoStatus.Busy]: '对方忙线中'
-                    };
-                    uni.$u.toast(map[customStatus]);
+                    uni.$u.toast(customStatusTextMap[customStatus]);
                 }
             }
         },
