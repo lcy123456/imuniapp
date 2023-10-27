@@ -162,7 +162,7 @@
 
     .incoming_call_main .header_panel {
         position: relative;
-        margin-top: 3vh;
+        margin-top: 5vh;
         height: 22px;
         line-height: 22px;
         text-align: center;
@@ -307,9 +307,9 @@
                 <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
             </div>
             <div v-if="isAlone" class="avatar_panel">
-                <image class="avatar" :src="faceURLHandle(callUserInfo.faceURL)" v-if="callUserInfo.faceURL"></image>
-                <div class="avatar" v-else>{{ nicknameHandle(callUserInfo.nickname) }}</div>
-                <p class="nick_name">{{ callUserInfo.nickname }}</p>
+                <image class="avatar" :src="callUserInfo.newFeacURL" v-if="callUserInfo.faceURL"></image>
+                <div class="avatar" v-else>{{ callUserInfo.newNickname }}</div>
+                <p class="nick_name">{{ callUserInfo.newNickname }}</p>
             </div>
             <div v-if="isAlone && !isCallIng" class="tips_text">等待对方接受邀请</div>
             <div class="btn_nav">
@@ -374,10 +374,14 @@
                 callUserInfo: {
                     faceURL: '',
                     nickname: '未知',
+                    newFeacURL: '',
+                    newNickname: '未知',
                 },
                 selfUserInfo: {
                     faceURL: '',
                     nickname: '未知',
+                    newFeacURL: '',
+                    newNickname: '未知',
                 },
                 baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
                 room: null,
@@ -435,6 +439,11 @@
                         this.callUserInfo = callUserInfo;
                         this.selfUserInfo = selfUserInfo;
                         this.token = token;
+
+                        this.callUserInfo.newFeacURL = this.faceURLHandle(callUserInfo.feacURL);
+                        this.callUserInfo.newNickname = this.nicknameHandle(callUserInfo.nickname);
+                        this.selfUserInfo.newFeacURL = this.faceURLHandle(selfUserInfo.feacURL);
+                        this.selfUserInfo.newNickname = this.nicknameHandle(selfUserInfo.nickname);
 
                         if(this.isCallIng) this.timerFn();
                     }
@@ -618,10 +627,10 @@
                                     const hasFaceURL = false
                                     if(hasFaceURL) {
                                         avatarDom = document.createElement('img');
-                                        avatarDom.src = this.faceURLHandle(this.selfUserInfo.faceURL)
+                                        avatarDom.src = this.selfUserInfo.newFeacURL
                                     } else {
                                         avatarDom = document.createElement('div');
-                                        avatarDom.innerHTML = this.nicknameHandle(this.selfUserInfo.nickname)
+                                        avatarDom.innerHTML = this.selfUserInfo.newNickname
                                     }
                                     this.setDomAttr({
                                         dom: avatarDom,
@@ -820,13 +829,12 @@
             },
         })
         function uniEvent(res) {
-            if(app) {
-                const { isGroupUserJoin, faceURL, nickname, userID } = res
-                if(isGroupUserJoin) {
-                    app.setGroupJoinUserInfo({faceURL, nickname, userID})
-                } else {
-                    app.init(res);
-                }
+            app && app.init(res);
+        }
+        function uniGroupUserJoinEvent(res) {
+            const { isGroupUserJoin, faceURL, nickname, userID } = res
+            if(isGroupUserJoin) {
+                app.setGroupJoinUserInfo({faceURL, nickname, userID})
             }
         }
         function disconnectRoom (res) {
