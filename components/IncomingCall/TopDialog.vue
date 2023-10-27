@@ -155,6 +155,9 @@ export default {
         },
         async dangerClick () {
             this.visibleHandle();
+            this.onDangerCall();
+            const { sendID, groupID, sessionType } = this.storeIncomingCallMessage;
+            if (sessionType === 3) return;
             const message = await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,
                 IMSDK.uuid(),
@@ -167,7 +170,6 @@ export default {
                     description: ''
                 }
             );
-            const { sendID, groupID } = this.storeIncomingCallMessage;
             if (this.storeIsIncomingConversation) {
                 this.pushNewMessage({
                     ...message,

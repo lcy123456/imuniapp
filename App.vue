@@ -21,7 +21,6 @@ export default {
         this.handleAudioManager();
         this.handleUniPush();
         uni.preloadPage({url: "/pages/conversation/webrtc/index"});
-        uni.setStorageSync('liveWsUrl', config.getLiveWsUrl());
     },
     onShow: function () {
         plus.runtime.setBadgeNumber(0);
@@ -52,7 +51,8 @@ export default {
             "conversationUnread",
             "storeUserID",
             "storeIsIncomingCallIng",
-            "storeIsIncomingCallLoading"
+            "storeIsIncomingCallLoading",
+            "storeIncomingCallMessage"
         ]),
         contactBadgeRely () {
             return {
@@ -538,36 +538,25 @@ export default {
                         uni.$u.toast('聊天已过期');
                         return false;
                     }
-                } else if ([AudioVideoStatus.Done].includes(customStatus)) {
+                } else if (
+                    [
+                        AudioVideoStatus.Done,
+                        AudioVideoStatus.Cancel,
+                        AudioVideoStatus.Reject,
+                        AudioVideoStatus.NotAnswered,
+                        AudioVideoStatus.Busy
+                    ].includes(customStatus)
+                ) {
+                    if (idsGetConversationID(newServerMsg) !== idsGetConversationID(this.storeIncomingCallMessage)) return;
                     uni.$emit('incoming_message_callback', {
                         ...newServerMsg,
                         customStatus
                     });
-                    uni.$u.toast('聊天结束。。。');
-                } else if ([AudioVideoStatus.Cancel].includes(customStatus)) {
-                    uni.$emit('incoming_message_callback', {
-                        ...newServerMsg,
-                        customStatus
-                    });
-                    uni.$u.toast('对方取消');
-                } else if ([AudioVideoStatus.Reject].includes(customStatus)) {
-                    uni.$emit('incoming_message_callback', {
-                        ...newServerMsg,
-                        customStatus
-                    });
-                    uni.$u.toast('对方拒绝。。。');
-                } else if ([AudioVideoStatus.NotAnswered].includes(customStatus)) {
-                    uni.$emit('incoming_message_callback', {
-                        ...newServerMsg,
-                        customStatus
-                    });
-                    uni.$u.toast('对方未应答。。。');
-                } else if ([AudioVideoStatus.Busy].includes(customStatus)) {
-                    uni.$emit('incoming_message_callback', {
-                        ...newServerMsg,
-                        customStatus
-                    });
-                    uni.$u.toast('对方忙线中。。。');
+                    // uni.$u.toast('聊天结束。。。');
+                    // uni.$u.toast('对方取消');
+                    // uni.$u.toast('对方拒绝。。。');
+                    // uni.$u.toast('对方未应答。。。');
+                    // uni.$u.toast('对方忙线中。。。');
                 }
             }
         },
