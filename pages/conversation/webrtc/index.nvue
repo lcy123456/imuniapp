@@ -12,7 +12,7 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
-// import { getLiveWsUrl } from "@/common/config";
+import { getLiveWsUrl } from "@/common/config";
 import {
     PageEvents
 } from '@/constant';
@@ -57,12 +57,11 @@ export default {
 		}
     },
     onLoad () {
-        uni.$on('incoming_message_callback', this.incomingMessageCallback);
-        // this.postMessage(`initUrl(${JSON.stringify({url: getLiveWsUrl()})})`);
         console.log('onLoad-onLoad');
     },
     onReady () {
         uni.preloadPage({url: "/pages/conversation/webrtc/index"});
+        uni.$on('incoming_message_callback', this.incomingMessageCallback);
         console.log('onReady-onReady');
     },
     onShow () {
@@ -79,7 +78,9 @@ export default {
                 isAnswer: this.storeIsAnswer,
                 callUserInfo: this.storeIncomingCallUserInfo,
                 selfUserInfo: selfUserInfo,
-                token: this.storeIncomingCallToken
+                token: this.storeIncomingCallToken,
+                url: getLiveWsUrl(),
+                isInWebrtc: this.getIsInWebrtc()
             }
             console.log('evalJs()=====发送参数给发送参数给发送参数给发送参数给webview', map)
             this.postMessage(`uniEvent(${JSON.stringify(map)})`);
@@ -153,18 +154,19 @@ export default {
         postMessage (str) {
             this.$refs.webviewRef && this.$refs.webviewRef.evalJs(str);
         },
-        async incomingMessageCallback (data) {
-            console.log('incomingMessageCallback--incomingMessageCallback--incomingMessageCallback', data);
-            const { customStatus } = data;
+        getIsInWebrtc () {
             const pages = getCurrentPages();
             const currentPage = pages[pages.length - 1];
             const url = currentPage.route;
-            const isInWebrtc = url === `pages/conversation/webrtc/index`;
+            return url === `pages/conversation/webrtc/index`;
+        },
+        async incomingMessageCallback (data) {
+            console.log('incomingMessageCallback--incomingMessageCallback--incomingMessageCallback', data);
+            const { customStatus } = data;
             const map = {
-                isInWebrtc,
+                isInWebrtc: this.getIsInWebrtc(),
                 customStatus
             }
-            console.log('isInWebrtcisInWebrtc', url);
             if ([AudioVideoStatus.Done].includes(customStatus)) {
                 console.log('聊天结束。。。');
                 this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);

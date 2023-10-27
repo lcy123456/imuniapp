@@ -421,14 +421,18 @@
                             callUserInfo,
                             selfUserInfo,
                             message,
-                            token
-                        } = data
+                            token,
+                            url,
+                            isInWebrtc
+                        } = data;
+                        if (!isInWebrtc) return;
                         this.isCallLoading = isCallLoading;
                         this.isCallIng = isCallIng;
                         this.isAnswer = isAnswer;
                         this.callUserInfo = callUserInfo;
                         this.selfUserInfo = selfUserInfo;
                         this.token = token;
+                        this.wsURL = url;
 
                         this.callUserInfo.newFaceURL = this.faceURLHandle(callUserInfo.faceURL);
                         this.callUserInfo.newNickname = this.nicknameHandle(callUserInfo.nickname);
@@ -439,9 +443,6 @@
                     }
                     this.disconnect();
                     this.openRoom();
-                },
-                initUrl (url) {
-                    this.wsURL = url;
                 },
                 getLocationKeyValue(key) {
                     const reg = new RegExp(`${key}=([^&]*)`);
@@ -516,7 +517,7 @@
                     this.device && await this.room.switchActiveDevice('videoinput', this.device.deviceId);
                 },
                 async openRoom() {
-                    const wsURL = `ws://192.168.2.20:7880`;
+                    const wsURL = this.wsURL || `ws://192.168.2.20:7880`;
                     const token = this.token || localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
                     console.log('tokentokentoken', token);
                     this.room = new Room();
@@ -833,9 +834,6 @@
         }
         function disconnectRoom (res) {
             app && app.goOut(res);
-        }
-        function initUrl (url) {
-            app && app.initUrl(url);
         }
     </script>
 </body>
