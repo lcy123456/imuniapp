@@ -42,7 +42,7 @@
         flex-wrap: wrap;
         position: fixed;
         z-index: 3;
-        top: 100px;
+        top: 10vh;
     }
 
     .chat-group-css .video-box {
@@ -151,7 +151,7 @@
 
     .incoming_call_main .header_panel {
         position: relative;
-        margin-top: 70px;
+        margin-top: 8vh;
         height: 22px;
         line-height: 22px;
         text-align: center;
@@ -202,7 +202,12 @@
         height: 24px;
         line-height: 24px;
         text-align: center;
-        margin-top: 80px;
+        position: fixed;
+        bottom: 40vh;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        z-index: 2;
     }
 
     .btn_nav {
@@ -282,6 +287,7 @@
 
 <body>
     <div id="app">
+
         <div class="chat-single-css">
             <div id="other-box" class="video-box other" @click="changeBox('other')"></div>
             <div id="my-box" class="video-box my" @click="changeBox('my')"></div>
@@ -498,17 +504,19 @@
                     }
 
                     const myVideoDom = this.getDom('myVideo-video');
-                    if(enabled) {
-                        // 关闭摄像头
-                        myVideoDom.classList.add('opacity_0')
-                        myVideoDom.classList.remove('opacity_1')
-                    } else {
-                        // 开启摄像头
-                        myVideoDom.classList.add('opacity_1')
-                        myVideoDom.classList.remove('opacity_0')
+                    if(myVideoDom) {
+                        if(enabled) {
+                            // 关闭摄像头
+                            myVideoDom.classList.add('opacity_0')
+                            myVideoDom.classList.remove('opacity_1')
+                        } else {
+                            // 开启摄像头
+                            myVideoDom.classList.add('opacity_1')
+                            myVideoDom.classList.remove('opacity_0')
+                        }
                     }
 
-                    !enabled &&  this.addSelf({ parentDom: myDom, type: '' });
+                    !enabled && this.addSelf({ parentDom: myDom, type: '' });
                 },
                 setInitVideoImg() {
                     const enabled = this.room?.localParticipant.isCameraEnabled;
@@ -545,17 +553,50 @@
                             myDom = this.getDom('my-box');
                             otherDom = this.getDom('other-box');
                         }
+                        this.remoteCameraChanged();
                         this.removeMember({ parentDom: otherDom });
                         this.addInitMember({ parentDom: otherDom });
                         this.addJoinMember({ parentDom: otherDom });
                         this.addSelf({ parentDom: myDom, type: 'init' });
                         // this.room.on(RoomEvent.Disconnected, this.goOut);
-                        this.room.on(RoomEvent.TrackPublished, (track) => {
-                            console.log('-------1122--22--2-2-2-2-22--2-2', track);
-                        });
                     } catch (err) {
                         console.log('fail -----connected to room----', err);
                     }
+                },
+
+                // 远程参与者开启、关闭摄像头
+                remoteCameraChanged() {
+                    // 轨道流状态已更改，远程参与者开启摄像头：TrackStreamStateChanged
+                    // 轨道静音，远程参与者麦克风关闭、摄像头关闭：TrackMuted
+                    if(!this.room) return;
+
+                    this.room.on(RoomEvent.TrackMuted, (trackPublication, participant) => {
+                            const userID = participant.identity
+                            // kind = video | audio
+                            const kind = trackPublication?.track?.kind
+                            const isVideo = kind === 'video'
+
+                            const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
+                            if(elementTrack && isVideo) {
+                                // 远程参与者，摄像头关闭
+                                elementTrack.classList.add('opacity_0')
+                                elementTrack.classList.remove('opacity_1')
+                            }
+                    });
+
+                   this.room.on(RoomEvent.TrackStreamStateChanged, (remoteTrackPublication, streamState, participant) => {
+                        // streamState = 'active' | 'paused' | 'unknown'
+                        const userID = participant.identity
+                        // kind = video | audio
+                        const kind = remoteTrackPublication?.track?.kind
+                        const isVideo = kind === 'video'
+                        const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
+                        if(elementTrack && isVideo) {
+                            // 远程参与者，摄像头打开
+                            elementTrack.classList.add('opacity_1')
+                            elementTrack.classList.remove('opacity_0')
+                        }
+                    });
                 },
 
                 // 断线删除成员
@@ -656,7 +697,7 @@
                 addElement({ parentDom, track, participant, publication = {} }) {
                     const joinUserID = participant.identity
                     const { identity } = participant;
-                    const element = track.attach();
+                    const elementTrack = track.attach();
                     const type = `${identity}-box`;
 
                     if(joinUserID) {
@@ -686,8 +727,8 @@
                         className: `video-box`
                     });
                     this.setDomAttr({
-                        dom: element,
-                        id: '',
+                        dom: elementTrack,
+                        id: `${identity}-${track.kind}-element-track`,
                         className: `${track.kind}`
                     });
                     if (!avatar) {
@@ -707,7 +748,7 @@
                         });
                         div.appendChild(avatarDom);
                     }
-                    div.appendChild(element);
+                    div.appendChild(elementTrack);
                     !dom && parentDom.appendChild(div);
                     this.trackList.push(type);
                     this.checkDom();

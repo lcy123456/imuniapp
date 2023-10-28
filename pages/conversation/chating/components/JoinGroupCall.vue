@@ -32,7 +32,7 @@
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { mapGetters, mapActions } from "vuex";
 import { videoGetRoomMember } from '@/api/incoming';
-import {AudioVideoType} from "@/enum";
+import {AudioVideoStatus, AudioVideoType} from "@/enum";
 export default {
     name: "JoinGroupCall",
     components: {
@@ -117,7 +117,8 @@ export default {
             const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
             const customElem = {
                 data: JSON.stringify({
-                    type: this.callType
+                    type: this.callType,
+                    status: AudioVideoStatus.Send,
                 })
             };
             const message = {
