@@ -79,8 +79,7 @@ export default {
                 callUserInfo: this.storeIncomingCallUserInfo,
                 selfUserInfo: selfUserInfo,
                 token: this.storeIncomingCallToken,
-                url: getLiveWsUrl(),
-                isInWebrtc: this.getIsInWebrtc()
+                url: getLiveWsUrl()
             }
             console.log('evalJs()=====发送参数给发送参数给发送参数给发送参数给webview', map)
             this.postMessage(`uniEvent(${JSON.stringify(map)})`);
