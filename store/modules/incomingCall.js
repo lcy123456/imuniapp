@@ -117,14 +117,14 @@ const actions = {
                     console.log('拨打电话，对方用户信息', { faceURL, nickname });
                 }
             }
-
-            commit('SET_IS_INCOMING_CALL_MESSAGE', message);
-            commit('SET_IS_INCOMING_CALL_LOADING', true);
-            commit('SET_IS_ANSWER', false);
-            commit('SET_CALL_TIME', +new Date());
         } catch (e) {
-            console.log(e, '拨打电话失败');
+            console.log(e, '拨打电话失败，获取对方用户信息失败');
         }
+
+        commit('SET_IS_INCOMING_CALL_MESSAGE', message);
+        commit('SET_IS_INCOMING_CALL_LOADING', true);
+        commit('SET_IS_ANSWER', false);
+        commit('SET_CALL_TIME', +new Date());
     },
 
     // 出现电话，等待接听
