@@ -340,7 +340,7 @@ export default {
                 }
             } catch (err) {
                 const { errCode } = err;
-                if (errCode === 1702) {
+                if (errCode === 1655) {
                     const { userID, groupID, conversationID } = this.storeCurrentConversation;
                     console.log('userID, groupID, conversationID ', userID, groupID, conversationID, message.sendID);
                     uni.$u.toast('对方占线');
