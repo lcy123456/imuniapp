@@ -303,10 +303,15 @@
                 <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
                 <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
             </div>
-            <div v-if="isAlone" class="avatar_panel">
+            <div v-if="isAlone && !shouldMyMaster" class="avatar_panel">
                 <image class="avatar" :src="callUserInfo.newFaceURL" v-if="callUserInfo.faceURL"></image>
                 <div class="avatar" v-else>{{ callUserInfo.newNickname }}</div>
                 <p class="nick_name">{{ callUserInfo.newNickname }}</p>
+            </div>
+            <div v-else-if="isAlone && shouldMyMaster" class="avatar_panel">
+                <image class="avatar" :src="selfUserInfo.newFaceURL" v-if="selfUserInfo.faceURL"></image>
+                <div class="avatar" v-else>{{ selfUserInfo.newNickname }}</div>
+                <p class="nick_name">{{ selfUserInfo.newNickname }}</p>
             </div>
             <div v-if="isAlone && !isCallIng" class="tips_text">等待对方接受邀请</div>
             <div class="btn_nav">
@@ -383,6 +388,7 @@
                 },
                 baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
                 room: null,
+                shouldMyMaster: false, // true我应该在主屏幕  false我应该在右上角
                 micImage: 'images/incoming_call_handle_mic_2.png',
                 micText: '麦克风已关',
                 camImage: 'images/incoming_call_handle_cam_2.png',
@@ -603,8 +609,8 @@
                         [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
                             const track = p.getTrack(source);
                             const myVideoTrack = track?.track?.attach();
+                            // alert(JSON.stringify(myVideoTrack))
                             if (myVideoTrack) {
-                                // alert(JSON.stringify(myVideo))
                                 const dom = this.getDom(`myVideo`);
                                 const div = dom || document.createElement('div');
                                 this.setDomAttr({
@@ -618,6 +624,7 @@
                                     className: source === 'camera' ? 'video' : 'audio'
                                 });
                                 if (!myAvatarDom) {
+                                    // 添加自己头像dom节点
                                     let avatarDom = ''
                                     if(this.selfUserInfo.faceURL) {
                                         avatarDom = document.createElement('img');
@@ -686,7 +693,15 @@
                         className: `${track.kind}`
                     });
                     if (!avatar) {
-                        const avatarDom = document.createElement('div');
+                        // 添加对方头像dom节点
+                        let avatarDom = ''
+                        if(this.selfUserInfo.faceURL) {
+                            avatarDom = document.createElement('img');
+                            avatarDom.src = this.selfUserInfo.newFaceURL
+                        } else {
+                            avatarDom = document.createElement('div');
+                            avatarDom.innerHTML = this.selfUserInfo.newNickname
+                        }
                         this.setDomAttr({
                             dom: avatarDom,
                             id: `${identity}-avatar`,
@@ -722,16 +737,17 @@
                     const myBoxDom = this.getDom('my-box');
 
                     if (type === 'other' && otherDom.className === `video-box other`) {
+                        // 我在右上角
                         otherDom.className = `video-box my`;
                         myBoxDom.className = `video-box other`;
+                        this.shouldMyMaster = false
                     }
                     if (type === 'my' && otherDom.className === `video-box my`) {
+                        // 我在主屏幕
                         otherDom.className = `video-box other`;
                         myBoxDom.className = `video-box my`;
+                        this.shouldMyMaster = true
                     }
-
-                    // alert(myBoxDom.innerHTML + '==============' + otherDom.innerHTML)
-
                 },
                 removeElment({ parentDom, participant }) {
                     const { identity } = participant;
