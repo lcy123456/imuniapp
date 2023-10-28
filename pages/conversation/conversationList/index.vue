@@ -6,7 +6,7 @@
         >
             <chat-header ref="chatHeaderRef" />
             <view
-                class="px-20 pb-20 pt-10 bg-grey"
+                class="px-20 pt-10 pb-20 bg-grey"
                 @click="handleToSearch"
             >
                 <uni-search-bar
@@ -54,12 +54,15 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import store from "@/store";
+import { idsGetConversationID } from '@/util/imCommon';
 import ChatHeader from './components/ChatHeader.vue';
 import ConversationItem from './components/ConversationItem.vue';
 import { prepareConversationState } from '@/util/imCommon';
 import { PageEvents } from "@/constant";
+import { videoGetToken, videoGetOfflineInfo } from '@/api/incoming';
+import { AudioVideoType, AudioVideoStatus } from '@/enum';
 
 export default {
     components: {
@@ -77,6 +80,7 @@ export default {
         ...mapGetters([
             'storeConversationList',
             'storeIsSyncing',
+            "storeSelfInfo",
         ]),
         showConversationList () {
             return this.storeConversationList.filter(v => {
@@ -95,12 +99,48 @@ export default {
         }
     },
     onLoad () {
+        this.getCall();
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
     onUnload () {
         uni.$off(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
     methods: {
+        ...mapActions('incomingCall', ['appearLoadingCall']),
+        async getCall () {
+            try {
+                const { sendID, room, type } = await videoGetOfflineInfo({
+                    recvID: this.storeSelfInfo.userID
+                });
+                if (!room) {
+                    console.log('-------------------------没人请求通话');
+                    return;
+                }
+                const newServerMsg = {
+                    contentType: 110,
+                    customElem: {
+                        data: JSON.stringify({
+                            type,
+                            status: AudioVideoStatus.Send
+                        })
+                    },
+                    groupID: '',
+                    sendID,
+                    recvID: this.storeSelfInfo.userID,
+                    sessionType: 1,
+                    type: type === AudioVideoType.Video ? 'video' : 'audio'
+                };
+                const { token } = await videoGetToken({
+                    recvID: this.storeSelfInfo.userID,
+                    conversationID: room
+                });
+                this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
+                console.log(token);
+                this.appearLoadingCall(newServerMsg);
+            } catch (err) {
+                console.log('-------11', err);
+            }
+        },
         handleToSearch () {
             uni.$u.route('/pages/common/searchRecord/index');
         },

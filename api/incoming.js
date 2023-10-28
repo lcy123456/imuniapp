@@ -33,3 +33,15 @@ export const videoGetRoomMember = (params) => uni.$u?.http.post('/video/get_room
         token: store.getters.storeBusinessToken,
     }
 });
+
+// 群通话人数与自己的token
+export const videoGetOfflineInfo = (params) => uni.$u?.http.post('/video/get_offline_info', JSON.stringify({
+    ...params,
+}), {
+    custom: {
+        isIMApi: true,
+    },
+    header: {
+        token: store.getters.storeBusinessToken,
+    }
+});
