@@ -42,7 +42,7 @@
         flex-wrap: wrap;
         position: fixed;
         z-index: 3;
-        top: 10vh;
+        top: 12vh;
     }
 
     .chat-group-css .video-box {
@@ -882,6 +882,7 @@
                         },
                         baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
                         room: null,
+                        shouldMyMaster: false, // true我应该在主屏幕  false我应该在右上角
                     }
                     for (let key in defaultData){
                         this[key] = defaultData[key]

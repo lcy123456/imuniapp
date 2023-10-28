@@ -204,7 +204,7 @@ const actions = {
     // 接通电话
     async onSuccessCall ({ commit }) {
         console.log('onSuccessCall()双方接通电话');
-        commit('SET_IS_INCOMING_CALL_SMALL', false);
+        commit('SET_IS_INCOMING_CALL_SMALL', true);
         commit('SET_INCOMING_CALL_TOP', false);
         commit('SET_IS_INCOMING_CALL_ING', true);
         commit('SET_IS_INCOMING_CALL_LOADING', false);

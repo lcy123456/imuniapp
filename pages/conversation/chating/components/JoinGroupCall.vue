@@ -73,7 +73,13 @@ export default {
         storeIncomingCallMessage: {
             handler () {
                 const isGroupMessage = this.storeIncomingCallMessage.sessionType === 3;
-                if (isGroupMessage) this.init();
+                if (isGroupMessage) {
+                    setTimeout(()=> {
+                        // 调用太快，接口可能会查不到count
+                        this.init();
+                    }, 1000);
+                }
+              
             },
             deep: true
         }
@@ -86,9 +92,8 @@ export default {
 
         async init () {
             const {userID} = this.storeSelfInfo;
-            const {  conversationID, conversationType } = this.storeCurrentConversation;
-            const isGroupCurrent = conversationType === 3;
-            if (!isGroupCurrent) return;
+            const {  conversationID } = this.storeCurrentConversation;
+            if (!this.isGroupConversation) return;
 
             const { token, count, type } = await videoGetRoomMember({
                 recvID: userID,
@@ -97,15 +102,15 @@ export default {
             this.count = count;
             this.token = token;
             this.callType = type;
-
+            
             this.loopInit();
         },
         loopInit () {
-            if (!this.hasGroupCalling) return;
-            setTimeout(()=> {
-                console.log('每8秒更新一次群聊中的通话人数', '_+++++++++++++++++++++++++++++++++++++++++++++++++++++++');
-                this.init();
-            }, 8000);
+            if (this.hasGroupCalling) {
+                setTimeout(()=> {
+                    this.init();
+                }, 6000);
+            }
         },
         async onJoin () {
             this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', this.token);
