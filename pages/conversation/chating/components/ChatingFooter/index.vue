@@ -351,37 +351,6 @@ export default {
                 return false;
             }
             return this.sendMessage(message);
-            // try {
-            //     this.pushNewMessage({
-            //         ...message,
-            //         recvID: userID,
-            //         groupID,
-            //         sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
-            //     });
-
-            //     const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-            //         recvID: userID,
-            //         groupID,
-            //         message,
-            //         offlinePushInfo,
-            //     });
-                
-            //     this.updateOneMessage({
-            //         message: data,
-            //         isSuccess: true,
-            //     });
-            //     uni.$emit(PageEvents.ScrollToBottom);
-            //     return data;
-            // } catch ({ data, errCode }) {
-            //     console.log('发送失败', data, errCode);
-            //     if (errCode === 1302) {
-            //         console.log('被拉黑了');
-            //         this.isShowNotification = true;
-            //     } else {
-            //         uni.$u.toast('网络异常，请稍后重试');
-            //     }
-            //     return false;
-            // }
         },
         async sendTextMessage () {
             const message = await this.createTextMessage();
