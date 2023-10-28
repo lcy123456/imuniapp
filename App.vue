@@ -533,7 +533,7 @@ export default {
                         ...newServerMsg,
                         customStatus: data.status
                     });
-                    uni.$u.toast(customStatusTextMap[data.status]);
+                    // uni.$u.toast(customStatusTextMap[data.status]);
                 } catch (err) {
                     return false;
                 }
