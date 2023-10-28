@@ -564,7 +564,7 @@ export default {
                         AudioVideoStatus.Cancel,
                         AudioVideoStatus.Reject,
                         AudioVideoStatus.NotAnswered,
-                        AudioVideoStatus.Busy
+                        // AudioVideoStatus.Busy
                     ].includes(customStatus)
                 ) {
                     if (idsGetConversationID(newServerMsg) !== idsGetConversationID(this.storeIncomingCallMessage)) return;

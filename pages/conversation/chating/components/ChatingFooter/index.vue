@@ -302,6 +302,7 @@ export default {
             return message;
         },
         async sendCustomMessage (type) {
+            this.isLoadingCreateRoom = true;
             const message = await this.createCustomMessage({
                 data: JSON.stringify({
                     type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio,
@@ -312,51 +313,44 @@ export default {
             });
             return this.sendAudioVideoMessage(message, type);
         },
+        async sendBusyMessage (type) {
+            const message = await this.createCustomMessage({
+                data: JSON.stringify({
+                    type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio,
+                    status: AudioVideoStatus.Busy
+                }),
+                extension: '',
+                description: ''
+            });
+            return this.sendMessage(message, type);
+        },
         async sendAudioVideoMessage (message, type) {
-            const { userID, groupID, conversationID } = this.storeCurrentConversation;
             try {
-                try {
-                    const { token } = await videoCreateRoomAndGetToken({
-                        sendID: message.sendID,
-                        conversationID,
-                        type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio
-                    });
-                    console.log('tokenDatatokenDatatokenDatatokenDatatokenData', token);
+                const { userID, groupID, conversationID } = this.storeCurrentConversation;
+                const { token } = await videoCreateRoomAndGetToken({
+                    sendID: message.sendID,
+                    conversationID,
+                    recvID: userID,
+                    groupID,
+                    type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio
+                });
+                console.log('tokenDatatokenDatatokenDatatokenDatatokenData', token);
+                if (token) {
                     this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
-                } catch (err) {
-                    uni.$u.toast('网络异常，请稍后重试');
-                    return false;
                 }
-                this.pushNewMessage({
-                    ...message,
-                    recvID: userID,
-                    groupID,
-                    sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
-                });
-
-                const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                    recvID: userID,
-                    groupID,
-                    message,
-                    offlinePushInfo,
-                });
-                console.log('发起音视频消息成功', data);
-                this.updateOneMessage({
-                    message: data,
-                    isSuccess: true,
-                });
-                uni.$emit(PageEvents.ScrollToBottom);
-                return data;
-            } catch ({ data, errCode }) {
-                console.log('发送失败', data, errCode);
-                if (errCode === 1302) {
-                    console.log('被拉黑了');
-                    this.isShowNotification = true;
+            } catch (err) {
+                const { errCode } = err;
+                if (errCode === 1655) {
+                    const { userID, groupID, conversationID } = this.storeCurrentConversation;
+                    console.log('userID, groupID, conversationID ', userID, groupID, conversationID, message.sendID);
+                    uni.$u.toast('对方占线');
+                    this.sendBusyMessage(type);
                 } else {
                     uni.$u.toast('网络异常，请稍后重试');
                 }
                 return false;
             }
+            return this.sendMessage(message);
         },
         async sendTextMessage () {
             const message = await this.createTextMessage();
@@ -394,6 +388,8 @@ export default {
                     message: data,
                     isSuccess: true,
                 });
+                this.isLoadingCreateRoom = false;
+                return data;
             } catch ({ data, errCode }) {
                 console.log('发送失败', data, errCode);
                 if (errCode === 1302) {
@@ -414,6 +410,7 @@ export default {
                         },
                     ],
                 });
+                this.isLoadingCreateRoom = false;
             }
         },
 
@@ -592,8 +589,6 @@ export default {
             if (this.storeIsIncomingCallLoading || this.storeIsIncomingCallIng) {
                 return uni.$u.toast('通话正在进行中');
             }
-          
-            console.log('initWebrtc----initWebrtc');
             const hasPermission  = await this.reviewPermission();
             if (hasPermission) {
                 try {
@@ -601,7 +596,7 @@ export default {
                     const data = await this.sendCustomMessage(type);
                     console.log(data, '======sendCustomMessagesendCustomMessagesendCustomMessage');
                     if (typeof data === 'boolean' && !data) {
-                        uni.$u.toast('网络异常，请稍后重试');
+                        // uni.$u.toast('网络异常，请稍后重试');
                         return;
                     }
                     await this.onThrowCall({
