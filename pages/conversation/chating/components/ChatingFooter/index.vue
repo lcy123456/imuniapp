@@ -326,6 +326,7 @@ export default {
         },
         async sendAudioVideoMessage (message, type) {
             try {
+                // 创建聊天获取token
                 const { userID, groupID, conversationID } = this.storeCurrentConversation;
                 const { token } = await videoCreateRoomAndGetToken({
                     sendID: message.sendID,
@@ -341,6 +342,7 @@ export default {
             } catch (err) {
                 const { errCode } = err;
                 if (errCode === 1655) {
+                    // 占线发送占线消息
                     const { userID, groupID, conversationID } = this.storeCurrentConversation;
                     console.log('userID, groupID, conversationID ', userID, groupID, conversationID, message.sendID);
                     uni.$u.toast('对方占线');
