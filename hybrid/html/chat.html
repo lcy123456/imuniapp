@@ -649,7 +649,6 @@
                         [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
                             const track = p.getTrack(source);
                             const myVideoTrack = track?.track?.attach();
-                            // alert(JSON.stringify(myVideoTrack))
                             if (myVideoTrack) {
                                 const dom = this.getDom(`myVideo`);
                                 const div = dom || document.createElement('div');
@@ -681,7 +680,9 @@
                                     div.appendChild(avatarDom);
                                 }
                                 if (!this.getDom(`myVideo-${source === 'camera' ? 'video' : 'audio'}`)) {
-                                    div.appendChild(myVideoTrack);
+                                    if (source !== RemoteTrack.Source.Microphone) {
+                                        div.appendChild(myVideoTrack);
+                                    }
                                 }
                                 !dom && parentDom.appendChild(div);
                             }

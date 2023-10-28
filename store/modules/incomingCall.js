@@ -62,8 +62,6 @@ const mutations = {
     },
     SET_IS_INCOMING_CALL_MESSAGE (state, value) {
         state.incomingCallMessage = value;
-        console.log('state.incomingCallMessagestate.incomingCallMessage', state.incomingCallMessage);
-        console.log('value.value.value', value);
     },
 };
 

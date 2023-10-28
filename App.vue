@@ -13,13 +13,13 @@ import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
 import { videoGetToken } from '@/api/incoming';
 
-const customStatusTextMap = {
-    [AudioVideoStatus.Done]: '通话结束',
-    [AudioVideoStatus.Cancel]: '对方已取消',
-    [AudioVideoStatus.Reject]: '对方已拒绝',
-    [AudioVideoStatus.NotAnswered]: '对方未应答',
-    [AudioVideoStatus.Busy]: '对方忙线中'
-};
+// const customStatusTextMap = {
+//     [AudioVideoStatus.Done]: '通话结束',
+//     [AudioVideoStatus.Cancel]: '对方已取消',
+//     [AudioVideoStatus.Reject]: '对方已拒绝',
+//     [AudioVideoStatus.NotAnswered]: '对方未应答',
+//     [AudioVideoStatus.Busy]: '对方忙线中'
+// };
 export default {
     onLaunch: function () {
         this.$store.dispatch("user/getAppConfig");
@@ -194,6 +194,7 @@ export default {
                 if (this.storeIsSyncing) {
                     return;
                 }
+                !this.storeIsIncomingCallIng && this.innerAudioContext.play();
                 data.forEach(this.handleNewMessage);
             };
             const c2cReadReceiptHandler = ({ data: receiptList }) => {
@@ -503,7 +504,6 @@ export default {
         },
 
         async handleNewMessage (newServerMsg) {
-            this.innerAudioContext.play();
             if (this.inCurrentConversation(newServerMsg)) {
                 if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
                     if (this.storeHasMoreAfterMessage) {
@@ -523,7 +523,6 @@ export default {
                     setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
                 }
             }
-            console.log(newServerMsg, 'newServerMsgnewServerMsg');
             const customStatus = this.isAudioVideoSend(newServerMsg);
             if (newServerMsg.contentType === 1703) {
                 try {
