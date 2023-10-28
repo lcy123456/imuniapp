@@ -647,7 +647,6 @@
                         await p.setCameraEnabled(type ? (this.baseMap?.message?.type === 'video') : true);
                         await p.setMicrophoneEnabled(true);
                         [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
-                            if (source === RemoteTrack.Source.Microphone) return;
                             const track = p.getTrack(source);
                             const myVideoTrack = track?.track?.attach();
                             if (myVideoTrack) {
@@ -681,7 +680,9 @@
                                     div.appendChild(avatarDom);
                                 }
                                 if (!this.getDom(`myVideo-${source === 'camera' ? 'video' : 'audio'}`)) {
-                                    div.appendChild(myVideoTrack);
+                                    if (source !== RemoteTrack.Source.Microphone) {
+                                        div.appendChild(myVideoTrack);
+                                    }
                                 }
                                 !dom && parentDom.appendChild(div);
                             }
