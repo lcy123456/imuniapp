@@ -285,6 +285,14 @@
         <div class="chat-single-css">
             <div id="other-box" class="video-box other" @click="changeBox('other')"></div>
             <div id="my-box" class="video-box my" @click="changeBox('my')"></div>
+
+            <!-- 单聊>语音通话：“我”的dom结构 -->
+            <!--<div id="my-box" class="video-box my" @click="changeBox('my')">
+                <div id="myVideo" class="video-box">
+                    <img id="myVideo-avatars"  class="avatar-box" src="" />
+                    <audo id="myVideo-audio" class="audio"></audo>
+                </div>
+            </div>-->
         </div>
         <div id="chat-group-css" class="chat-group-css">
         </div>
@@ -485,8 +493,6 @@
                         myDom = this.getDom('my-box');
                     }
 
-                    !enabled &&  this.addSelf({ parentDom: myDom, type: '' });
-
                     const myVideoDom = this.getDom('myVideo-video');
                     if(enabled) {
                         // 关闭摄像头
@@ -497,6 +503,8 @@
                         myVideoDom.classList.add('opacity_1')
                         myVideoDom.classList.remove('opacity_0')
                     }
+
+                    !enabled &&  this.addSelf({ parentDom: myDom, type: '' });
                 },
                 setInitVideoImg() {
                     const enabled = this.room?.localParticipant.isCameraEnabled;
@@ -593,11 +601,9 @@
                         await p.setCameraEnabled(type ? (this.baseMap?.message?.type === 'video') : true);
                         await p.setMicrophoneEnabled(true);
                         [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
-                            console.log(source, 'sourcesource');
                             const track = p.getTrack(source);
-                            const myVideo = track?.track?.attach();
-                            console.log(track, 'track?.track');
-                            if (myVideo) {
+                            const myVideoTrack = track?.track?.attach();
+                            if (myVideoTrack) {
                                 // alert(JSON.stringify(myVideo))
                                 const dom = this.getDom(`myVideo`);
                                 const div = dom || document.createElement('div');
@@ -607,8 +613,7 @@
                                     className: 'video-box'
                                 });
                                 this.setDomAttr({
-                                    dom: myVideo,
-                                    // id: `myVideo-${source === 'camera' ? 'video' : 'audio'}`,
+                                    dom: myVideoTrack,
                                     id: source === 'camera' ? 'myVideo-video' : 'myVideo-audio',
                                     className: source === 'camera' ? 'video' : 'audio'
                                 });
@@ -629,7 +634,7 @@
                                     div.appendChild(avatarDom);
                                 }
                                 if (!this.getDom(`myVideo-${source === 'camera' ? 'video' : 'audio'}`)) {
-                                    div.appendChild(myVideo);
+                                    div.appendChild(myVideoTrack);
                                 }
                                 !dom && parentDom.appendChild(div);
                             }
@@ -663,10 +668,6 @@
                         this.timerFn();
                     }
 
-                    if(this.isAlone && joinUserID) {
-                        // 双方接通电话，对方显示在主屏幕
-                        this.changeBox('other')
-                    }
                     // if (this.trackList.includes(type)) {
                     //     const dom = this.getDom(type);
                     //     parentDom.removeChild(dom);
@@ -697,6 +698,12 @@
                     !dom && parentDom.appendChild(div);
                     this.trackList.push(type);
                     this.checkDom();
+
+
+                    if(this.isAlone && joinUserID) {
+                        // 双方接通电话，自己显示右上角
+                        this.changeBox('other')
+                    }
                 },
                 // 设置加入群聊的用户头像、名称
                 setGroupJoinUserInfo({faceURL, nickname, userID}){
@@ -704,16 +711,16 @@
                     // joinUserAvatarDom.style.zIndex = '99999'
                     if(faceURL) {
                         const _faceURL = this.faceURLHandle(faceURL)
-                        joinUserAvatarDom.innerHTML = `<img class="avatar-box" src="${_faceURL}">`
+                        joinUserAvatarDom.innerHTML = `<img class="avatar-box" src="${_faceURL}" />`
                     } else {
                         const _nickname = this.nicknameHandle(nickname)
                         joinUserAvatarDom.innerText = _nickname
                     }
                 },
                 changeBox(type) {
-                    console.log('换');
                     const otherDom = this.getDom('other-box');
                     const myBoxDom = this.getDom('my-box');
+
                     if (type === 'other' && otherDom.className === `video-box other`) {
                         otherDom.className = `video-box my`;
                         myBoxDom.className = `video-box other`;
@@ -722,6 +729,9 @@
                         otherDom.className = `video-box other`;
                         myBoxDom.className = `video-box my`;
                     }
+
+                    // alert(myBoxDom.innerHTML + '==============' + otherDom.innerHTML)
+
                 },
                 removeElment({ parentDom, participant }) {
                     const { identity } = participant;
