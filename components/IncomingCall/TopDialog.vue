@@ -1,6 +1,6 @@
 <template>
     <view
-        v-if="storeIsIncomingCallTop"
+        v-if="shouldShow"
         :class="['top_dialog_container',
                  shouldFadeIn && 'top_dialog_in',
                  shouldFadeOut && 'top_dialog_out']"
@@ -75,6 +75,7 @@ export default {
     data () {
         return {
             incomingCallIcon,
+            shouldShow: false,
             shouldFadeIn: false,
             shouldFadeOut: false,
             startPageY: 0,
@@ -108,14 +109,24 @@ export default {
         storeIsIncomingCallTop: {
             handler (val) {
                 if (val) {
+                    this.shouldShow = true;
                     this.shouldFadeOut = false;
                     this.shouldFadeIn = true;
                 } else {
-                    this.shouldFadeOut = false;
-                    this.shouldFadeIn = true;
+                    setTimeout(()=> {
+                        this.shouldShow = false;
+                    }, 400);
+                    this.shouldFadeOut = true;
+                    this.shouldFadeIn = false;
                 }
-            },
-            immediate: true
+            }
+        }
+    },
+    mounted () {
+        if (this.storeIsIncomingCallTop) {
+            this.shouldShow = true;
+            this.shouldFadeOut = false;
+            this.shouldFadeIn = false;
         }
     },
     methods: {
@@ -189,8 +200,6 @@ export default {
                 isSuccess: true,
             });
             uni.$emit(PageEvents.ScrollToBottom);
-            console.log('this.storeIncomingCallMessagethis.storeIncomingCallMessage', this.storeIncomingCallMessage);
-            console.log('rejectDatarejectDatarejectData', data);
         },
         async successClick () {
             this.visibleHandle();
@@ -219,7 +228,7 @@ export default {
   left: 0;
   right: 0;
   width: 94%;
-  padding: 70rpx 0;
+  height: 210rpx;
   margin: 0 auto;
   border-radius: 20rpx;
   background-image: linear-gradient(to right, #484C58, #3F3939);
