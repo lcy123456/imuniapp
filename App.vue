@@ -4,6 +4,7 @@ import IMSDK, {
     IMMethods,
     MessageType,
     SessionType,
+    MessageReceiveOptType
 } from "openim-uniapp-polyfill";
 import { idsGetConversationID } from '@/util/imCommon';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
@@ -194,7 +195,15 @@ export default {
                 if (this.storeIsSyncing) {
                     return;
                 }
-                if (!this.storeIsIncomingCallLoading && !this.storeIsIncomingCallIng) {
+                const conversationID = data && data[0] ? idsGetConversationID(data[0]) : '';
+                let isMute = false;
+                this.storeConversationList.forEach(conversation => {
+                    if (conversation.conversationID === conversationID && conversation.recvMsgOpt !== MessageReceiveOptType.Nomal) {
+                        isMute = true;
+                    }
+                });
+                console.log(this.storeConversationList, conversationID);
+                if (!this.storeIsIncomingCallLoading && !this.storeIsIncomingCallIng && !isMute) {
                     this.innerAudioContext.play();
                 }
                 data.forEach(this.handleNewMessage);
