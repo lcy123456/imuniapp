@@ -67,7 +67,7 @@ export default {
                 conversationID: this.storeCurrentConversation.conversationID,
                 userID: "",
                 groupID: "",
-                count: 20,
+                count: 40,
                 startClientMsgID: this.storeHistoryMessageList[0]?.clientMsgID ?? "",
                 lastMinSeq: 0,
             };

@@ -160,14 +160,14 @@ export default {
                         ...options,
                         positionMsgID: this.positionMsgID,
                         isInit: true,
-                        count: this.positionMsgID ? 10 : 20
+                        count: this.positionMsgID ? 20 : 40
                     });
                     if (this.positionMsgID) {
                         let positionMsgID = this.storeHistoryMessageList[this.storeHistoryMessageList.length - 1].clientMsgID;
                         await this[isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                             ...options,
                             positionMsgID: positionMsgID,
-                            count: 10
+                            count: 20
                         });
                         this.scrollToAnchor(`auchor${positionMsgID}`, false);
                     } else {
