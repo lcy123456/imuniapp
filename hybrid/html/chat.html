@@ -207,7 +207,7 @@
         left: 0;
         right: 0;
         margin: 0 auto;
-        z-index: 2;
+        z-index: 5;
     }
 
     .btn_nav {
@@ -746,7 +746,7 @@
                         this.setDomAttr({
                             dom: avatarDom,
                             id: `${identity}-avatar`,
-                            className: `avatar-box`
+                            className: `avatar-box isAloneChangeAvatar` // isAloneChangeAvatar单聊，切换主副屏幕使用
                         });
                         div.appendChild(avatarDom);
                     }
@@ -782,12 +782,24 @@
                         otherDom.className = `video-box my`;
                         myBoxDom.className = `video-box other`;
                         this.shouldMyMaster = false
+
+                        // 展示我的头像
+                        const imgAvatarArr = document.getElementsByClassName('isAloneChangeAvatar')
+                        if(imgAvatarArr.length > 0){
+                            imgAvatarArr[0].src = this.selfUserInfo.newFaceURL
+                        }
                     }
                     if (type === 'my' && otherDom.className === `video-box my`) {
                         // 我在主屏幕
                         otherDom.className = `video-box other`;
                         myBoxDom.className = `video-box my`;
                         this.shouldMyMaster = true
+
+                        // 展示远程参与者的头像
+                        const imgAvatarArr =  document.getElementsByClassName('isAloneChangeAvatar')
+                        if(imgAvatarArr.length > 0){
+                            imgAvatarArr[0].src = this.callUserInfo.newFaceURL
+                        }
                     }
                 },
                 removeElment({ parentDom, participant }) {
