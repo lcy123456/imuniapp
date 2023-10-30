@@ -109,7 +109,8 @@ export default {
                 const customElemData = this.message.customElem.data;
                 data = JSON.parse(customElemData);
             } catch (err) {
-                console.log('err---err', this.message);
+                // console.log('err---err', this.message);
+                return false;
             }
             return AudioVideoRenderTypes.includes(this.message.contentType) && data.type && [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type);
         },
