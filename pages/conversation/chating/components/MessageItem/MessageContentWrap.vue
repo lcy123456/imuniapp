@@ -104,12 +104,12 @@ export default {
     },
     computed: {
         showAudioVideoRender () {
-            const customElemData = this.message.customElem.data;
             let data = {};
             try {
+                const customElemData = this.message.customElem.data;
                 data = JSON.parse(customElemData);
             } catch (err) {
-                console.log(err);
+                console.log('err---err', this.message);
             }
             return AudioVideoRenderTypes.includes(this.message.contentType) && data.type && [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type);
         },

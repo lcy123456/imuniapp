@@ -524,7 +524,7 @@ export default {
                 }
             }
             const customStatus = this.isAudioVideoSend(newServerMsg);
-            if (newServerMsg.contentType === 1703) {
+            if (newServerMsg.contentType === AudioVideoStatus.groupDone) {
                 try {
                     const data = JSON.parse(newServerMsg.notificationElem.detail);
                     if (idsGetConversationID(newServerMsg) !== idsGetConversationID(this.storeIncomingCallMessage)) return;

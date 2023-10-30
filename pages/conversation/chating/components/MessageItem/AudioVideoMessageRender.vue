@@ -72,7 +72,7 @@ export default {
             const { data } = this.message.customElem;
             const res = JSON.parse(data); 
             if (res.status === AudioVideoStatus.Reject) {
-                text = `[已拒绝]`;
+                text = `[对方已拒绝]`;
             } else if (res.status === AudioVideoStatus.Cancel) {
                 text = `[已取消]`;
             } else if (res.status === AudioVideoStatus.NotAnswered) {

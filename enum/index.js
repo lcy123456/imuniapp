@@ -17,7 +17,9 @@ export const AudioVideoStatus = {
     Cancel: 1652,
     NotAnswered: 1653,
     Busy: 1655,
-    Done: 1669
+    Done: 1669,
+    groupStart: 1704,
+    groupDone: 1703
 };
 export const AudioVideoType = {
     Video: 131,

@@ -32,13 +32,23 @@ export default {
         const list = historyMessageMap[currentConversation.conversationID]?.messageList || [];
         const pinList = base?.pinList.map(v => v.clientMsgID);
         const l = JSON.parse(JSON.stringify(list));
-        l.map(v => {
-            let index = pinList.indexOf(v.clientMsgID);
+        l.map((msg, i) => {
+            let index = pinList.indexOf(msg.clientMsgID);
             if (index > -1) {
-                v.pinMap = base?.pinList[index];
+                msg.pinMap = base?.pinList[index];
+            }
+            try {
+                if (msg.contentType === 110) {
+                    const data = JSON.parse(msg.customElem.data);
+                    if (data.status === 1650) {
+                        l[i] = null;
+                    }
+                }
+            } catch (err) {
+                //
             }
         });
-        return l;
+        return l.filter(v => v);
     },
     storeHistoryMessageListReverse: (state) => {
         const { message, conversation, base } = state;
@@ -47,13 +57,23 @@ export default {
         const list = historyMessageMap[currentConversation.conversationID]?.messageList || [];
         const pinList = base?.pinList.map(v => v.clientMsgID);
         const l = JSON.parse(JSON.stringify(list));
-        l.map(v => {
-            let index = pinList.indexOf(v.clientMsgID);
+        l.map((msg, i) => {
+            let index = pinList.indexOf(msg.clientMsgID);
             if (index > -1) {
-                v.pinMap = base?.pinList[index];
+                msg.pinMap = base?.pinList[index];
+            }
+            try {
+                if (msg.contentType === 110) {
+                    const data = JSON.parse(msg.customElem.data);
+                    if (data.status === 1650) {
+                        l[i] = null;
+                    }
+                }
+            } catch (err) {
+                //
             }
         });
-        return l.reverse();
+        return l.filter(v => v).reverse();
     },
     storeHasMoreMessage: (state) => {
         const { message, conversation } = state;

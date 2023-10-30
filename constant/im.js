@@ -1,4 +1,5 @@
 import { MessageType } from "openim-uniapp-polyfill";
+import { AudioVideoStatus } from '@/enum';
 
 export const CryptoKey = 'e314af8638ce3473';
 
@@ -32,7 +33,7 @@ export const noticeMessageTypes = [
     MessageType.GroupMemberCancelMuted,
     MessageType.GroupNameUpdated,
     MessageType.BurnMessageChange,
-    1703
+    AudioVideoStatus.groupDone
 ];
 
 export const TextRenderTypes = [

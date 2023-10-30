@@ -42,7 +42,8 @@ export default {
             "storeIncomingCallUserInfo",
             "storeSelfInfo",
             "storeIncomingCallToken",
-            "storeIsIncomingConversation"
+            "storeIsIncomingConversation",
+            "storeBusinessToken"
         ]),
         src () {
             return `/hybrid/html/chat.html`;
@@ -159,6 +160,23 @@ export default {
             const url = currentPage.route;
             return url === `pages/conversation/webrtc/index`;
         },
+        idsGetConversationID (message) {
+            const { sessionType, sendID, recvID, groupID } = message;
+            const min = Math.min(sendID, recvID);
+            const max = Math.max(sendID, recvID);
+            switch (sessionType) {
+            case SessionType.Single:
+                if (sendID && recvID) {
+                    return `si_${min}_${max}`;
+                }
+                return new Error('单聊缺少sendID或recvID，无法组成conversationID');
+            case SessionType.WorkingGroup:
+                if (groupID) {
+                    return `sg_${groupID}`;
+                }
+                return new Error('工作群缺少groupID，无法组成conversationID');
+            }
+        },
         async incomingMessageCallback (data) {
             console.log('incomingMessageCallback--incomingMessageCallback--incomingMessageCallback', data);
             const { customStatus } = data;
@@ -187,8 +205,25 @@ export default {
         // 双方通话中，任意方挂断电话，状态已完成
         async reject (map) {
             if(this.storeIsIncomingCallIng || map.customStatus) return;
-            const { recvID, groupID, sessionType, customElem } = this.storeIncomingCallMessage;
+            const { recvID, sendID, groupID, sessionType, customElem } = this.storeIncomingCallMessage;
+            console.log('recvID, sendIDrecvID, sendIDrecvID, sendID', recvID, sendID);
             if (sessionType === 3) return;
+            if (this.storeIsAnswer) {
+                // 拒绝
+                uni.$u?.http.post('/video/single_chat_refused', JSON.stringify({
+                    sendID,
+                    conversationID: this.idsGetConversationID(this.storeIncomingCallMessage)
+                }), {
+                    custom: {
+                        isIMApi: true,
+                    },
+                    header: {
+                        token: this.storeBusinessToken,
+                    }
+                });
+                return;
+            }
+            // 取消
             const res = JSON.parse(customElem.data);
             const message = await IMSDK.asyncApi(
                 IMMethods.CreateCustomMessage,
@@ -196,7 +231,7 @@ export default {
                 {
                     data: JSON.stringify({
                         type: res.type,
-                        status: this.storeIsAnswer ? AudioVideoStatus.Reject : AudioVideoStatus.Cancel
+                        status: AudioVideoStatus.Cancel
                     }),
                     extension: '',
                     description: ''
@@ -205,7 +240,7 @@ export default {
             if (this.storeIsIncomingConversation) {
                 this.pushNewMessage({
                     ...message,
-                    recvID: this.storeIsAnswer ? this.storeUserID : recvID,
+                    recvID: recvID,
                     groupID,
                     sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
                 });

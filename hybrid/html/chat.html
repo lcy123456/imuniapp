@@ -377,6 +377,7 @@
             el: '#app',
             data: {
                 wsURL: '',
+                isGoout: false,
                 type: '',
                 token: '',
                 device: '',
@@ -466,6 +467,7 @@
 
                         if(this.isCallIng) this.timerFn();
                     }
+                    this.isGoout = false;
                     this.disconnect();
                     this.openRoom();
                 },
@@ -483,8 +485,8 @@
                     if (!dom) return;
                     dom.id = id;
                     dom.className = map.className;
-                    dom.style.width = width;
-                    dom.style.height = height;
+                    dom.style && (dom.style.width = width);
+                    dom.style && (dom.style.height = height);
                 },
                 async toggleAudio() {
                     if (!this.room) return;
@@ -715,9 +717,9 @@
                         await p.setCameraEnabled(type ? (this.baseMap?.message?.type === 'video') : true);
                         await p.setMicrophoneEnabled(true);
                         [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
+                            // if (source === RemoteTrack.Source.Microphone) return;
                             const track = p.getTrack(source);
-                            const myVideoTrack = track?.track?.attach();
-                            // alert(JSON.stringify(myVideoTrack))
+                            const myVideoTrack = source === RemoteTrack.Source.Microphone ? {} : track?.track?.attach();
                             if (myVideoTrack) {
                                 const dom = this.getDom(`myVideo`);
                                 const div = dom || document.createElement('div');
@@ -920,7 +922,9 @@
                     this.room?.localParticipant?.setMicrophoneEnabled(false);
                     this.room && this.room.disconnect();
                 },
-                goOut(m) {
+                goOut (m) {
+                    if (this.isGoout) return;
+                    this.isGoout = true;
                     const map = m || {};
                     this.disconnect();
                     uni.postMessage({
