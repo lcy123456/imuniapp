@@ -62,6 +62,14 @@
         left: 8px;
         z-index: 999;
     }
+    .chat-group-css .incoming_call_speaking_icon {
+        width: 27px;
+        height: 27px;
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        z-index: 999;
+    }
 
     .avatar-box {
         position: relative;
@@ -563,7 +571,7 @@
                             myDom = this.getDom('my-box');
                             otherDom = this.getDom('other-box');
                         }
-                        // this.activeSpeakersChanged()
+                        this.activeSpeakersChanged()
                         this.remoteCameraChanged();
                         this.removeMember({ parentDom: otherDom });
                         this.addInitMember({ parentDom: otherDom });
@@ -579,20 +587,27 @@
                 // 活跃发言者
                 activeSpeakersChanged() {
                     if(!this.room) return;
+
                     this.room.on(RoomEvent.ActiveSpeakersChanged, (participantArr) => {
-                        const identityArr = []
+                        // 只能监测到远程参与者，本地不会被监测
                         participantArr.forEach(participant=> {
-                            const {identity, audioLevel} = participant
-                            const notFind = speakingArr.findIndex(identity) === -1
-                            if(audioLevel > 0 && notFind) {
-                                identityArr.push(identity)
-                            }
-                            // participant.on(ParticipantEvent.IsSpeakingChanged, (isSpeaking) => {
-                            //     alert(`${participant.identity} ==== ${isSpeaking} speaking. audio level: ${participant.audioLevel}`)
-                            // })
+                            participant.on(ParticipantEvent.IsSpeakingChanged, (isSpeaking) => {
+                                const {identity} = participant
+                                const speakingIcon = this.getDom(`${identity}-incoming-call-speaking-icon`)
+                                if(speakingIcon) {
+                                    if(isSpeaking) {
+                                        // 本地 | 远程参与者，正在发言
+                                        speakingIcon.classList.add('opacity_1')
+                                        speakingIcon.classList.remove('opacity_0')
+                                    } else {
+                                        // 没有人发言
+                                        speakingIcon.classList.add('opacity_0')
+                                        speakingIcon.classList.remove('opacity_1')
+                                    }
+                                }
+                            })
                         })
 
-                        alert(JSON.stringify(identityArr))
                     })
                 },
 
@@ -670,20 +685,6 @@
                             }
                         }
                     });
-
-                    // this.room.on(RoomEvent.TrackStreamStateChanged, (remoteTrackPublication, streamState, participant) => {
-                    //     // streamState = 'active' | 'paused' | 'unknown'
-                    //     const userID = participant.identity
-                    //     // kind = video | audio
-                    //     const kind = remoteTrackPublication?.track?.kind
-                    //     const isVideo = kind === 'video'
-                    //     const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
-                    //     if(elementTrack && isVideo) {
-                    //         // 远程参与者，摄像头打开
-                    //         elementTrack.classList.add('opacity_1')
-                    //         elementTrack.classList.remove('opacity_0')
-                    //     }
-                    // });
                 },
 
                 // 断线删除成员
@@ -777,6 +778,13 @@
                                     microphoneMutedIcon.className = 'microphone_muted_icon opacity_0'
                                     microphoneMutedIcon.id = `my-microphone-muted-icon`
                                     div.appendChild(microphoneMutedIcon);
+
+                                    // 添加活跃发言图标
+                                    const speakingIcon = document.createElement('img');
+                                    speakingIcon.src = 'images/incoming_call_speaking.png'
+                                    speakingIcon.className = 'incoming_call_speaking_icon opacity_0'
+                                    speakingIcon.id = `${this.selfUserInfo.userID}-incoming-call-speaking-icon`
+                                    div.appendChild(speakingIcon);
                                 }
 
                                 if (!this.getDom(`myVideo-${source === 'camera' ? 'video' : 'audio'}`)) {
@@ -859,6 +867,13 @@
                         microphoneMutedIcon.className = 'microphone_muted_icon opacity_0'
                         microphoneMutedIcon.id = `${identity}-microphone-muted-icon`
                         div.appendChild(microphoneMutedIcon);
+
+                        // 添加活跃发言图标
+                        const speakingIcon = document.createElement('img');
+                        speakingIcon.src = 'images/incoming_call_speaking.png'
+                        speakingIcon.className = 'incoming_call_speaking_icon opacity_0'
+                        speakingIcon.id = `${identity}-incoming-call-speaking-icon`
+                        div.appendChild(speakingIcon);
                     }
 
                     div.appendChild(elementTrack);

@@ -171,7 +171,6 @@ const actions = {
     async onSmall ({
         commit
     }) {
-        console.log('手动缩小操作');
         commit('SET_IS_INCOMING_CALL_SMALL', true);
     },
 

@@ -55,8 +55,10 @@ export default {
                 this.timer = null;
                 clearTimeout(this.timer);
 
-                if (val) this.intervalHandle(); 
-                else this.timeText = '等待接听';
+                setTimeout(()=> {
+                    if (val) this.intervalHandle();
+                    else this.timeText = '等待接听';
+                }, 1000);
             },
             immediate: true
         },
@@ -81,9 +83,15 @@ export default {
             'storeIncomingCallMessage',
         ]),
         isVideoCall () {
-            const { data } = this.storeIncomingCallMessage.customElem;
-            const res = JSON.parse(data);
-            return res.type === AudioVideoType.Video;
+            let result = false;
+            try {
+                const { data } = this.storeIncomingCallMessage.customElem;
+                const res = JSON.parse(data);
+                result = res.type === AudioVideoType.Video;
+            } catch (err) {
+                console.log(err);
+            }
+            return result;
         },
         smallSIcon () {
             return this.isVideoCall ? incomingCallSmallSVideoIcon : incomingCallSmallSIcon;
@@ -108,13 +116,20 @@ export default {
             interFunc();
         },
         intervalHandle () {
-            const timeStart = this.storeIncomingCallStartTime;
-            const oneHour = 3600;
-            this.interval(()=> {
-                const secondsDiff = dayjs().diff(timeStart, 'second');
-                const format = secondsDiff > oneHour ? 'HH:mm:ss' : 'mm:ss';
-                this.timeText = dayjs.duration(secondsDiff, 'seconds').format(format);
-            }, 1000);
+            try {
+                if (this.timer) return;
+
+                const timeStart = this.storeIncomingCallStartTime;
+                const oneHour = 3600;
+                this.interval(()=> {
+                    const secondsDiff = dayjs().diff(timeStart, 'second');
+                    const format = secondsDiff > oneHour ? 'HH:mm:ss' : 'mm:ss';
+                    this.timeText = dayjs.duration(secondsDiff, 'seconds').format(format);
+                }, 1000);
+            } catch (err) {
+                console.log('调用倒计时方法intervalHandle()异常+++++++++++++++++++++++++++++');
+                console.log(err);
+            }
         },
         // 初始化页面宽高度、dom元素宽高度
         initContainerHeight () {
