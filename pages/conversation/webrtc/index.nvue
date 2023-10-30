@@ -144,7 +144,7 @@ export default {
             );
             if (usersInfo?.data) {
                 const [uData] = usersInfo.data;
-                const { faceURL, nickname, userID } = uData.friendInfo;
+                const { faceURL, nickname, userID } = uData.publicInfo;
                 const map = { faceURL, nickname, userID, isGroupUserJoin: true }
                 this.postMessage(`uniGroupUserJoinEvent(${JSON.stringify(map)})`);
                 console.log('加入群聊的用户，用户信息', uData);

@@ -24,6 +24,7 @@
     html {
         overflow: hidden;
     }
+
     .chat-single-css .my .avatar-box {
         /* 隐藏动态添加的头像，page_main_back背景与avatar_panel头像会展示 */
         display: none;
@@ -52,6 +53,16 @@
         position: relative;
         overflow: hidden;
     }
+
+    .chat-group-css .microphone_muted_icon {
+        width: 27px;
+        height: 27px;
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        z-index: 999;
+    }
+
     .avatar-box {
         position: relative;
         width: 100%!important;
@@ -98,10 +109,6 @@
         z-index: 2;
     }
 
-    .audio-box {
-        position: fixed;
-        z-index: -1 !important;
-    }
 
     #back {
         z-index: 999999;
@@ -486,9 +493,9 @@
                     this.setInitAudioImg();
                 },
                 setInitAudioImg() {
-                    const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
-                    this.micImage = !enabled ? 'images/incoming_call_handle_mic_2.png' : 'images/incoming_call_handle_mic_1.png';
-                    this.micText = !enabled ? '麦克风已关' : '麦克风已开';
+                    const isEnabled = this.room?.localParticipant?.isMicrophoneEnabled;
+                    this.micImage = isEnabled ? 'images/incoming_call_handle_mic_1.png' : 'images/incoming_call_handle_mic_2.png';
+                    this.micText = isEnabled ? '麦克风已开' : '麦克风已关';
                 },
 
                 async toggleVideo() {
@@ -519,9 +526,9 @@
                     !enabled && this.addSelf({ parentDom: myDom, type: '' });
                 },
                 setInitVideoImg() {
-                    const enabled = this.room?.localParticipant.isCameraEnabled;
-                    this.camImage = !enabled ? 'images/incoming_call_handle_cam_2.png' : 'images/incoming_call_handle_cam_1.png';
-                    this.camText = !enabled ? '摄像头已关' : '摄像头已开';
+                    const isEnabled = this.room?.localParticipant.isCameraEnabled;
+                    this.camImage = isEnabled ? 'images/incoming_call_handle_cam_1.png' : 'images/incoming_call_handle_cam_2.png';
+                    this.camText = isEnabled ? '摄像头已开' : '摄像头已关';
                 },
 
                 async toggleVideoInput() {
@@ -567,8 +574,8 @@
 
                 // 远程参与者开启、关闭摄像头
                 remoteCameraChanged() {
-                    // 轨道流状态已更改，远程参与者开启摄像头：TrackStreamStateChanged
                     // 轨道静音，远程参与者麦克风关闭、摄像头关闭：TrackMuted
+                    // 轨道取消静音，远程参与者麦克风开启、摄像头开启：TrackUnmuted
                     if(!this.room) return;
 
                     this.room.on(RoomEvent.TrackMuted, (trackPublication, participant) => {
@@ -576,28 +583,89 @@
                             // kind = video | audio
                             const kind = trackPublication?.track?.kind
                             const isVideo = kind === 'video'
+                            const isAudio = kind === 'audio'
+                            // true开启 false关闭
+                            const isCameraEnabled = participant.isCameraEnabled
+                            // true开启 false关闭
+                            const isMicrophoneEnabled = participant.isMicrophoneEnabled
 
                             const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
-                            if(elementTrack && isVideo) {
-                                // 远程参与者，摄像头关闭
+                            if(elementTrack && isVideo && !isCameraEnabled) {
+                                // 远程参与者，摄像头开启
                                 elementTrack.classList.add('opacity_0')
                                 elementTrack.classList.remove('opacity_1')
                             }
+
+                            if(this.isGroup && isAudio && !isMicrophoneEnabled) {
+                                const trackMutedIcon = this.getDom(`${userID}-microphone-muted-icon`)
+                                const myTrackMutedIcon = this.getDom(`my-microphone-muted-icon`)
+                                if(trackMutedIcon) {
+                                    // 远程参与者，麦克风关闭
+                                    trackMutedIcon.classList.add('opacity_1')
+                                    trackMutedIcon.classList.remove('opacity_0')
+                                } else if(myTrackMutedIcon) {
+                                    // 本地，麦克风关闭
+                                    myTrackMutedIcon.classList.add('opacity_1')
+                                    myTrackMutedIcon.classList.remove('opacity_0')
+                                }
+                            }
                     });
 
-                   this.room.on(RoomEvent.TrackStreamStateChanged, (remoteTrackPublication, streamState, participant) => {
-                        // streamState = 'active' | 'paused' | 'unknown'
+                    this.room.on(RoomEvent.TrackUnmuted, (trackPublication, participant) => {
                         const userID = participant.identity
                         // kind = video | audio
-                        const kind = remoteTrackPublication?.track?.kind
+                        const kind = trackPublication?.track?.kind
                         const isVideo = kind === 'video'
+                        const isAudio = kind === 'audio'
+                        // true开启 false关闭
+                        const isCameraEnabled = participant.isCameraEnabled
+                        // true开启 false关闭
+                        // 摄像头开启时RoomEvent.TrackUnmuted会执行两次，isMicrophoneEnabled会变成true，原因不明
+                        const isMicrophoneEnabled = participant.isMicrophoneEnabled
+
                         const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
-                        if(elementTrack && isVideo) {
-                            // 远程参与者，摄像头打开
+                        const myVideoTrack = this.getDom('myVideo-video');
+                        if(elementTrack && isVideo && isCameraEnabled) {
+                            // 远程参与者，摄像头开启
                             elementTrack.classList.add('opacity_1')
                             elementTrack.classList.remove('opacity_0')
+                        } else if(myVideoTrack && isVideo && isCameraEnabled) {
+                            // 本地，摄像头开启
+                            myVideoTrack.classList.add('opacity_1')
+                            myVideoTrack.classList.remove('opacity_0')
+                            setTimeout(()=> {
+                                this.setInitAudioImg()
+                            }, 500)
+                        }
+
+                        if(isAudio && isMicrophoneEnabled && this.isGroup) {
+                            const trackMutedIcon = this.getDom(`${userID}-microphone-muted-icon`)
+                            const myTrackMutedIcon = this.getDom(`my-microphone-muted-icon`)
+                            if(trackMutedIcon) {
+                                // 远程参与者，麦克风开启
+                                trackMutedIcon.classList.add('opacity_0')
+                                trackMutedIcon.classList.remove('opacity_1')
+                            } else if(myTrackMutedIcon) {
+                                // 本地，麦克风开启
+                                myTrackMutedIcon.classList.add('opacity_0')
+                                myTrackMutedIcon.classList.remove('opacity_1')
+                            }
                         }
                     });
+
+                    // this.room.on(RoomEvent.TrackStreamStateChanged, (remoteTrackPublication, streamState, participant) => {
+                    //     // streamState = 'active' | 'paused' | 'unknown'
+                    //     const userID = participant.identity
+                    //     // kind = video | audio
+                    //     const kind = remoteTrackPublication?.track?.kind
+                    //     const isVideo = kind === 'video'
+                    //     const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
+                    //     if(elementTrack && isVideo) {
+                    //         // 远程参与者，摄像头打开
+                    //         elementTrack.classList.add('opacity_1')
+                    //         elementTrack.classList.remove('opacity_0')
+                    //     }
+                    // });
                 },
 
                 // 断线删除成员
@@ -649,6 +717,7 @@
                         [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
                             const track = p.getTrack(source);
                             const myVideoTrack = track?.track?.attach();
+                            // alert(JSON.stringify(myVideoTrack))
                             if (myVideoTrack) {
                                 const dom = this.getDom(`myVideo`);
                                 const div = dom || document.createElement('div');
@@ -679,6 +748,16 @@
                                     });
                                     div.appendChild(avatarDom);
                                 }
+
+                                if(this.isGroup) {
+                                    // 添加麦克风静音图标
+                                    const microphoneMutedIcon = document.createElement('img');
+                                    microphoneMutedIcon.src = 'images/incoming_call_microphone_muted.png'
+                                    microphoneMutedIcon.className = 'microphone_muted_icon opacity_0'
+                                    microphoneMutedIcon.id = `my-microphone-muted-icon`
+                                    div.appendChild(microphoneMutedIcon);
+                                }
+
                                 if (!this.getDom(`myVideo-${source === 'camera' ? 'video' : 'audio'}`)) {
                                     if (source !== RemoteTrack.Source.Microphone) {
                                         div.appendChild(myVideoTrack);
@@ -691,10 +770,13 @@
                         console.log('video，麦克风拒绝');
                     }
                     this.checkDom();
-                    setTimeout(() => {
-                        this.setInitVideoImg();
-                        this.setInitAudioImg();
-                    }, 0);
+
+                    if(type) {
+                        setTimeout(() => {
+                            this.setInitVideoImg();
+                            this.setInitAudioImg();
+                        }, 0);
+                    }
                 },
                 addElement({ parentDom, track, participant, publication = {} }) {
                     const joinUserID = participant.identity
@@ -734,7 +816,7 @@
                         className: `${track.kind}`
                     });
                     if (!avatar) {
-                        // 添加对方头像dom节点
+                        // 添加远程参与者头像dom节点
                         let avatarDom = ''
                         if(this.selfUserInfo.faceURL) {
                             avatarDom = document.createElement('img');
@@ -750,6 +832,16 @@
                         });
                         div.appendChild(avatarDom);
                     }
+
+                    if(this.isGroup) {
+                        // 添加麦克风静音图标
+                        const microphoneMutedIcon = document.createElement('img');
+                        microphoneMutedIcon.src = 'images/incoming_call_microphone_muted.png'
+                        microphoneMutedIcon.className = 'microphone_muted_icon opacity_0'
+                        microphoneMutedIcon.id = `${identity}-microphone-muted-icon`
+                        div.appendChild(microphoneMutedIcon);
+                    }
+
                     div.appendChild(elementTrack);
                     !dom && parentDom.appendChild(div);
                     this.trackList.push(type);
@@ -764,10 +856,9 @@
                 // 设置加入群聊的用户头像、名称
                 setGroupJoinUserInfo({faceURL, nickname, userID}){
                     const joinUserAvatarDom = this.getDom(`${userID}-avatar`)
-                    // joinUserAvatarDom.style.zIndex = '99999'
                     if(faceURL) {
                         const _faceURL = this.faceURLHandle(faceURL)
-                        joinUserAvatarDom.innerHTML = `<img class="avatar-box" src="${_faceURL}" />`
+                        joinUserAvatarDom.src = _faceURL
                     } else {
                         const _nickname = this.nicknameHandle(nickname)
                         joinUserAvatarDom.innerText = _nickname
