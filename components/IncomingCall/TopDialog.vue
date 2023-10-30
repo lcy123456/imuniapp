@@ -59,6 +59,8 @@ import store from "@/store";
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import incomingCallIcon from '@/static/images/incoming_call_icon.png';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
+import { videoSingleChatRefused } from '@/api/incoming';
+import { idsGetConversationID } from '@/util/imCommon';
 import IMSDK, {
     IMMethods,
     SessionType
@@ -167,38 +169,42 @@ export default {
         async dangerClick () {
             this.visibleHandle();
             this.onDangerCall();
-            const { sendID, groupID, sessionType } = this.storeIncomingCallMessage;
+            const { sendID, sessionType } = this.storeIncomingCallMessage;
             if (sessionType === 3) return;
-            const message = await IMSDK.asyncApi(
-                IMMethods.CreateCustomMessage,
-                IMSDK.uuid(),
-                {
-                    data: JSON.stringify({
-                        type: this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio,
-                        status: AudioVideoStatus.Reject
-                    }),
-                    extension: '',
-                    description: ''
-                }
-            );
-            if (this.storeIsIncomingConversation) {
-                this.pushNewMessage({
-                    ...message,
-                    recvID: sendID,
-                    groupID,
-                    sessionType: sendID ? SessionType.Single : SessionType.WorkingGroup
-                });
-            }
-            const data = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                recvID: sendID,
-                groupID: groupID,
-                message,
-                offlinePushInfo,
+            videoSingleChatRefused({
+                sendID,
+                conversationID: idsGetConversationID(this.storeIncomingCallMessage)
             });
-            this.updateOneMessage({
-                message: data,
-                isSuccess: true,
-            });
+            // const message = await IMSDK.asyncApi(
+            //     IMMethods.CreateCustomMessage,
+            //     IMSDK.uuid(),
+            //     {
+            //         data: JSON.stringify({
+            //             type: this.isVideo ? AudioVideoType.Video : AudioVideoType.Audio,
+            //             status: AudioVideoStatus.Reject
+            //         }),
+            //         extension: '',
+            //         description: ''
+            //     }
+            // );
+            // if (this.storeIsIncomingConversation) {
+            //     this.pushNewMessage({
+            //         ...message,
+            //         recvID: sendID,
+            //         groupID,
+            //         sessionType: sendID ? SessionType.Single : SessionType.WorkingGroup
+            //     });
+            // }
+            // const data = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+            //     recvID: sendID,
+            //     groupID: groupID,
+            //     message,
+            //     offlinePushInfo,
+            // });
+            // this.updateOneMessage({
+            //     message: data,
+            //     isSuccess: true,
+            // });
             uni.$emit(PageEvents.ScrollToBottom);
         },
         async successClick () {

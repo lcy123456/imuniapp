@@ -345,7 +345,7 @@ export default {
                     // 占线发送占线消息
                     const { userID, groupID, conversationID } = this.storeCurrentConversation;
                     console.log('userID, groupID, conversationID ', userID, groupID, conversationID, message.sendID);
-                    uni.$u.toast('对方占线');
+                    // uni.$u.toast('对方忙线中');
                     this.sendBusyMessage(type);
                 } else {
                     uni.$u.toast('网络异常，请稍后重试');
