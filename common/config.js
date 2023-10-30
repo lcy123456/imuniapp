@@ -16,6 +16,7 @@ function getUrl () {
         configUrl = 'https://imcms.qncjkeusoge.cfd';
         apiUrl = 'https://imapi.qncjkeusoge.cfd';
         wsUrl = 'wss://imws.qncjkeusoge.cfd';
+        liveWsUrl = 'wss://cms.qncjkeusoge.cfd';
     }
     return {
         registerUrl,
