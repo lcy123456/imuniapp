@@ -194,7 +194,9 @@ export default {
                 if (this.storeIsSyncing) {
                     return;
                 }
-                !this.storeIsIncomingCallIng && this.innerAudioContext.play();
+                if (!this.storeIsIncomingCallLoading && !this.storeIsIncomingCallIng) {
+                    this.innerAudioContext.play();
+                }
                 data.forEach(this.handleNewMessage);
             };
             const c2cReadReceiptHandler = ({ data: receiptList }) => {
