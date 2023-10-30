@@ -366,6 +366,7 @@
             RemoteTrack,
             Room,
             RoomEvent,
+            ParticipantEvent,
         } = window.LivekitClient;
         const defaultBaseMap = {
             message: {
@@ -562,6 +563,7 @@
                             myDom = this.getDom('my-box');
                             otherDom = this.getDom('other-box');
                         }
+                        // this.activeSpeakersChanged()
                         this.remoteCameraChanged();
                         this.removeMember({ parentDom: otherDom });
                         this.addInitMember({ parentDom: otherDom });
@@ -572,6 +574,26 @@
                         console.log('fail -----connected to room----', err);
                         this.goOut();
                     }
+                },
+
+                // 活跃发言者
+                activeSpeakersChanged() {
+                    if(!this.room) return;
+                    this.room.on(RoomEvent.ActiveSpeakersChanged, (participantArr) => {
+                        const identityArr = []
+                        participantArr.forEach(participant=> {
+                            const {identity, audioLevel} = participant
+                            const notFind = speakingArr.findIndex(identity) === -1
+                            if(audioLevel > 0 && notFind) {
+                                identityArr.push(identity)
+                            }
+                            // participant.on(ParticipantEvent.IsSpeakingChanged, (isSpeaking) => {
+                            //     alert(`${participant.identity} ==== ${isSpeaking} speaking. audio level: ${participant.audioLevel}`)
+                            // })
+                        })
+
+                        alert(JSON.stringify(identityArr))
+                    })
                 },
 
                 // 远程参与者开启、关闭摄像头
@@ -587,9 +609,7 @@
                             const isVideo = kind === 'video'
                             const isAudio = kind === 'audio'
                             // true开启 false关闭
-                            const isCameraEnabled = participant.isCameraEnabled
-                            // true开启 false关闭
-                            const isMicrophoneEnabled = participant.isMicrophoneEnabled
+                            const {isCameraEnabled, isMicrophoneEnabled} = participant
 
                             const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
                             if(elementTrack && isVideo && !isCameraEnabled) {
@@ -620,10 +640,8 @@
                         const isVideo = kind === 'video'
                         const isAudio = kind === 'audio'
                         // true开启 false关闭
-                        const isCameraEnabled = participant.isCameraEnabled
-                        // true开启 false关闭
                         // 摄像头开启时RoomEvent.TrackUnmuted会执行两次，isMicrophoneEnabled会变成true，原因不明
-                        const isMicrophoneEnabled = participant.isMicrophoneEnabled
+                        const {isCameraEnabled, isMicrophoneEnabled} = participant
 
                         const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
                         const myVideoTrack = this.getDom('myVideo-video');
@@ -635,9 +653,7 @@
                             // 本地，摄像头开启
                             myVideoTrack.classList.add('opacity_1')
                             myVideoTrack.classList.remove('opacity_0')
-                            setTimeout(()=> {
-                                this.setInitAudioImg()
-                            }, 500)
+                            this.setInitAudioImg()
                         }
 
                         if(isAudio && isMicrophoneEnabled && this.isGroup) {
@@ -716,10 +732,15 @@
                     try {
                         await p.setCameraEnabled(type ? (this.baseMap?.message?.type === 'video') : true);
                         await p.setMicrophoneEnabled(true);
+                        // 需要启用，媒体流才会有数据
+                        // await p.setCameraEnabled(true);
+                        // await p.setMicrophoneEnabled(true);
+
                         [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
                             // if (source === RemoteTrack.Source.Microphone) return;
                             const track = p.getTrack(source);
                             const myVideoTrack = source === RemoteTrack.Source.Microphone ? {} : track?.track?.attach();
+
                             if (myVideoTrack) {
                                 const dom = this.getDom(`myVideo`);
                                 const div = dom || document.createElement('div');
@@ -735,12 +756,10 @@
                                 });
                                 if (!myAvatarDom) {
                                     // 添加自己头像dom节点
-                                    let avatarDom = ''
+                                    let avatarDom = document.createElement('div');
                                     if(this.selfUserInfo.faceURL) {
-                                        avatarDom = document.createElement('img');
-                                        avatarDom.src = this.selfUserInfo.newFaceURL
+                                        avatarDom.innerHTML = `<img class="avatar-box" src="${this.selfUserInfo.newFaceURL}" />`
                                     } else {
-                                        avatarDom = document.createElement('div');
                                         avatarDom.innerHTML = this.selfUserInfo.newNickname
                                     }
                                     this.setDomAttr({
@@ -819,13 +838,11 @@
                     });
                     if (!avatar) {
                         // 添加远程参与者头像dom节点
-                        let avatarDom = ''
-                        if(this.selfUserInfo.faceURL) {
-                            avatarDom = document.createElement('img');
-                            avatarDom.src = this.selfUserInfo.newFaceURL
+                        let avatarDom = document.createElement('div');
+                        if(this.callUserInfo.faceURL) {
+                            avatarDom.innerHTML = `<img class="avatar-box" this.selfUserInfo.newFaceURL />`
                         } else {
-                            avatarDom = document.createElement('div');
-                            avatarDom.innerHTML = this.selfUserInfo.newNickname
+                            avatarDom.innerHTML = this.callUserInfo.newNickname
                         }
                         this.setDomAttr({
                             dom: avatarDom,
@@ -860,10 +877,10 @@
                     const joinUserAvatarDom = this.getDom(`${userID}-avatar`)
                     if(faceURL) {
                         const _faceURL = this.faceURLHandle(faceURL)
-                        joinUserAvatarDom.src = _faceURL
+                        joinUserAvatarDom.innerHTML = `<img class="avatar-box" src="${_faceURL}" />`
                     } else {
                         const _nickname = this.nicknameHandle(nickname)
-                        joinUserAvatarDom.innerText = _nickname
+                        joinUserAvatarDom.innerHTML = _nickname
                     }
                 },
                 changeBox(type) {
@@ -879,7 +896,11 @@
                         // 展示我的头像
                         const imgAvatarArr = document.getElementsByClassName('isAloneChangeAvatar')
                         if(imgAvatarArr.length > 0){
-                            imgAvatarArr[0].src = this.selfUserInfo.newFaceURL
+                            if(this.selfUserInfo.faceURL) {
+                                imgAvatarArr[0].innerHTML = `<img class="avatar-box" src="${this.selfUserInfo.newFaceURL}" />`
+                            } else {
+                                imgAvatarArr[0].innerHTML = this.selfUserInfo.newNickname
+                            }
                         }
                     }
                     if (type === 'my' && otherDom.className === `video-box my`) {
@@ -891,7 +912,11 @@
                         // 展示远程参与者的头像
                         const imgAvatarArr =  document.getElementsByClassName('isAloneChangeAvatar')
                         if(imgAvatarArr.length > 0){
-                            imgAvatarArr[0].src = this.callUserInfo.newFaceURL
+                            if(this.callUserInfo.faceURL) {
+                                imgAvatarArr[0].innerHTML = `<img class="avatar-box" src="${this.callUserInfo.newFaceURL}" />`
+                            } else {
+                                imgAvatarArr[0].innerHTML = this.callUserInfo.newNickname
+                            }
                         }
                     }
                 },
