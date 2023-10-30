@@ -183,7 +183,7 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
         case AudioVideoStatus.groupDone:
             try {
                 const groupVideoAudioDetail = JSON.parse(pmsg.notificationElem.detail);
-                return `群聊${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话已结束`;
+                return `${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话已结束`;
             } catch (err) {
                 return `通话已结束`;
             }
@@ -412,7 +412,7 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
         case AudioVideoStatus.groupDone:
             try {
                 const groupVideoAudioDetail = JSON.parse(msg.notificationElem.detail);
-                return `群聊${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话已结束`;
+                return `${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话已结束`;
             } catch (err) {
                 return `通话已结束`;
             }
