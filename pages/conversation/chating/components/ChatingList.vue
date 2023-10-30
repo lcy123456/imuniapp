@@ -237,7 +237,6 @@ export default {
             }
         },
         scrollToAnchor (auchor, isAnimation = true) {
-            console.log('滚动id', auchor);
             !isAnimation && this.closeScrollAnimation();
             this.$nextTick(() => {
                 setTimeout(() => {

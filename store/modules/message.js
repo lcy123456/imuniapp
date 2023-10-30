@@ -22,8 +22,6 @@ const mutations = {
         //     ...state.historyMessageList,
         //     [conversationID]: temp
         // };
-        console.log('state.historyMessageMapstate.historyMessageMap', obj);
-        console.log('state.historyMessageMapstate.historyMessageMap', state);
         state.historyMessageMap = obj;
     },
 };
