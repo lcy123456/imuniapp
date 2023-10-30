@@ -33,7 +33,8 @@ export const noticeMessageTypes = [
     MessageType.GroupMemberCancelMuted,
     MessageType.GroupNameUpdated,
     MessageType.BurnMessageChange,
-    AudioVideoStatus.groupDone
+    AudioVideoStatus.groupDone,
+    AudioVideoStatus.groupStart,
 ];
 
 export const TextRenderTypes = [

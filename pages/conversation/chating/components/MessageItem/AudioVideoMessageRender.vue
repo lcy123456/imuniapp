@@ -67,29 +67,27 @@ export default {
     },
     computed: {
         getContent () {
-            let text = '';
-            // const { contentType } = this.message;
             const { data } = this.message.customElem;
             const res = JSON.parse(data); 
-            if (res.status === AudioVideoStatus.Reject) {
-                text = `[对方已拒绝]`;
-            } else if (res.status === AudioVideoStatus.Cancel) {
-                text = `[已取消]`;
-            } else if (res.status === AudioVideoStatus.NotAnswered) {
-                text = `[未应答]`;
-            } else if (res.status === AudioVideoStatus.Busy) {
-                text = `[忙线中]`;
-            } else if (res.status === AudioVideoStatus.Done) {
+            switch (res.status) {
+            case AudioVideoStatus.Reject:
+                return this.isSender ? `[对方已拒绝]` : `[已拒绝]`;
+            case AudioVideoStatus.Cancel:
+                return `[已取消]`;
+            case AudioVideoStatus.NotAnswered:
+                return this.isSender ? `[对方未应答]` : `[未应答]`;
+            case AudioVideoStatus.Busy:
+                return this.isSender ? `[对方忙线中]` : `[忙线中]`;
+            case AudioVideoStatus.Done:
                 const t = +new Date(new Date().Format('yyyy-MM-dd') +  ' 00:00:00');
                 let time = new Date(t + res.duration).Format('hh:mm:ss');
                 if (time.slice(0, 2) === '00') {
                     time = time.slice(3);
                 }
-                text = `[通话时长]${time}`;
-            } else {
-                text = this.isVideo ? `[发起视频通话]` : `[发起语音通话]`;
+                return `[通话时长]${time}`;
+            default:
+                return this.isVideo ? `[发起视频通话]` : `[发起语音通话]`;
             }
-            return text;
         },
         isVideo () {
             const { data } = this.message.customElem;

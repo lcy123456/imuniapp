@@ -468,7 +468,7 @@
 
                         if(this.isCallIng) this.timerFn();
                     }
-                    this.isGoout = false;
+                    // this.isGoout = false;
                     this.disconnect();
                     this.openRoom();
                 },
@@ -572,7 +572,7 @@
                         // this.room.on(RoomEvent.Disconnected, this.goOut);
                     } catch (err) {
                         console.log('fail -----connected to room----', err);
-                        this.goOut();
+                        // this.goOut();
                     }
                 },
 
@@ -948,8 +948,8 @@
                     this.room && this.room.disconnect();
                 },
                 goOut (m) {
-                    if (this.isGoout) return;
-                    this.isGoout = true;
+                    // if (this.isGoout) return;
+                    // this.isGoout = true;
                     const map = m || {};
                     this.disconnect();
                     uni.postMessage({
