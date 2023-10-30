@@ -59,7 +59,7 @@ export default {
                 text = parseEmoji(DecryptoAES(textElem?.content));
             }
             if (contentType === MessageType.TextMessage) {
-                text = text.replace(/\n/g, '<br>');
+                // text = text.replace(/\n/g, '<br>');
             }
             if (this.showNickname) {
                 text = senderNickname + '：' + text;
