@@ -72,13 +72,13 @@ export default {
             const { data } = this.message.customElem;
             const res = JSON.parse(data); 
             if (res.status === AudioVideoStatus.Reject) {
-                text = `[对方已拒绝]`;
+                text = this.isSender ? `[对方已拒绝]` : `[已拒绝]`;
             } else if (res.status === AudioVideoStatus.Cancel) {
                 text = `[已取消]`;
             } else if (res.status === AudioVideoStatus.NotAnswered) {
-                text = `[未应答]`;
+                text = this.isSender ? `[对方未应答]` : `[未应答]`;
             } else if (res.status === AudioVideoStatus.Busy) {
-                text = `[忙线中]`;
+                text = this.isSender ? `[对方忙线中]` : `[忙线中]`;
             } else if (res.status === AudioVideoStatus.Done) {
                 const t = +new Date(new Date().Format('yyyy-MM-dd') +  ' 00:00:00');
                 let time = new Date(t + res.duration).Format('hh:mm:ss');
