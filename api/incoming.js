@@ -57,3 +57,16 @@ export const videoSingleChatRefused = (params) => uni.$u?.http.post('/video/sing
         token: store.getters.storeBusinessToken,
     }
 });
+
+// 获取 wsUrl
+export const videoGetLivekitUrl = (params) => uni.$u?.http.get('/video/get_livekit_url', {
+    data: {
+        ...params
+    },
+    custom: {
+        isIMApi: true,
+    },
+    header: {
+        token: store.getters.storeBusinessToken,
+    }
+});

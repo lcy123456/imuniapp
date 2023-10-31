@@ -554,6 +554,7 @@
                 },
                 async openRoom() {
                     const wsURL = this.wsURL || `ws://192.168.2.20:7880`;
+                    // const wsURL = this.wsURL || `ws://192.168.2.20:7880`;
                     const token = this.token || localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
                     console.log('tokentokentoken', token);
                     this.room = new Room();
