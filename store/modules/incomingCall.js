@@ -5,6 +5,7 @@ import IMSDK, {
 import dayjs from 'dayjs';
 
 const state = {
+    wsUrl: '',
     startTime: '',
     callTime: '',
     incomingCallToken: '',
@@ -27,6 +28,9 @@ const state = {
 };
 
 const mutations = {
+    SET_WSURL (state, url) {
+        state.wsUrl = url;
+    },
     SET_INCOMING_CALL_TOKEN (state, value) {
         state.incomingCallToken = value;
     },

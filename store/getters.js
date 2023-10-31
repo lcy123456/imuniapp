@@ -123,5 +123,6 @@ export default {
     storeIncomingCallMessage: (state) => state.incomingCall.incomingCallMessage,
     storeIncomingCallCallTime: (state) => state.incomingCall.callTime,
     storeIncomingCallStartTime: (state) => state.incomingCall.startTime,
+    storeIncomingCallWsUrl: (state) => state.incomingCall.wsUrl,
     storeIncomingCallSmallStyle: (state) => state.incomingCall.incomingCallSmallStyle,
 };

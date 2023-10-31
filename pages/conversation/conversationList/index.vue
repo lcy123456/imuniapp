@@ -61,7 +61,7 @@ import ChatHeader from './components/ChatHeader.vue';
 import ConversationItem from './components/ConversationItem.vue';
 import { prepareConversationState } from '@/util/imCommon';
 import { PageEvents } from "@/constant";
-import { videoGetToken, videoGetOfflineInfo } from '@/api/incoming';
+import { videoGetToken, videoGetOfflineInfo, videoGetLivekitUrl } from '@/api/incoming';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 
 export default {
@@ -99,6 +99,7 @@ export default {
         }
     },
     onLoad () {
+        this.videoGetLivekitUrl();
         this.getCall();
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
@@ -107,6 +108,15 @@ export default {
     },
     methods: {
         ...mapActions('incomingCall', ['appearLoadingCall']),
+        async videoGetLivekitUrl () {
+            try {
+                const { url } = await videoGetLivekitUrl();
+                console.log('urlurlurlurlurlurl', url);
+                this.$store.commit('incomingCall/SET_WSURL', url);
+            } catch (err) {
+                console.log('url---', err);
+            }
+        },
         async getCall () {
             try {
                 const { sendID, room, type } = await videoGetOfflineInfo({
