@@ -12,7 +12,6 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
-import { getLiveWsUrl } from "@/common/config";
 import {
     PageEvents
 } from '@/constant';
