@@ -84,6 +84,18 @@
         font-size: 24px;
     }
 
+    .avatar-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        background-color: #000000;
+    }
+
     .video-box .video, .video-box .audio {
         width: 100% !important;
         height: 100% !important;
@@ -308,9 +320,12 @@
             <div id="my-box" class="video-box my" @click="changeBox('my')"></div>
 
             <!-- 单聊>语音通话：“我”的dom结构 -->
-            <!--<div id="my-box" class="video-box my" @click="changeBox('my')">
+            <!--<div class="video-box other" @click="changeBox('my')">
                 <div id="myVideo" class="video-box">
-                    <img id="myVideo-avatars"  class="avatar-box" src="" />
+                    <div id="myVideo-avatars"  class="avatar-box">
+                        <img class="avatar-img" src="defaultAvatars/ic_avatar_01.png" />
+                        用户昵称
+                    </div>
                     <audo id="myVideo-audio" class="audio"></audo>
                 </div>
             </div>-->
@@ -759,7 +774,7 @@
                                     // 添加自己头像dom节点
                                     let avatarDom = document.createElement('div');
                                     if(this.selfUserInfo.faceURL) {
-                                        avatarDom.innerHTML = `<img class="avatar-box" src="${this.selfUserInfo.newFaceURL}" />`
+                                        avatarDom.innerHTML = `<img class="avatar-img" src="${this.selfUserInfo.newFaceURL}" />`
                                     } else {
                                         avatarDom.innerHTML = this.selfUserInfo.newNickname
                                     }
@@ -848,7 +863,7 @@
                         // 添加远程参与者头像dom节点
                         let avatarDom = document.createElement('div');
                         if(this.callUserInfo.faceURL) {
-                            avatarDom.innerHTML = `<img class="avatar-box" this.selfUserInfo.newFaceURL />`
+                            avatarDom.innerHTML = `<img class="avatar-img" this.selfUserInfo.newFaceURL />`
                         } else {
                             avatarDom.innerHTML = this.callUserInfo.newNickname
                         }
@@ -892,7 +907,7 @@
                     const joinUserAvatarDom = this.getDom(`${userID}-avatar`)
                     if(faceURL) {
                         const _faceURL = this.faceURLHandle(faceURL)
-                        joinUserAvatarDom.innerHTML = `<img class="avatar-box" src="${_faceURL}" />`
+                        joinUserAvatarDom.innerHTML = `<img class="avatar-img" src="${_faceURL}" />`
                     } else {
                         const _nickname = this.nicknameHandle(nickname)
                         joinUserAvatarDom.innerHTML = _nickname
@@ -912,7 +927,7 @@
                         const imgAvatarArr = document.getElementsByClassName('isAloneChangeAvatar')
                         if(imgAvatarArr.length > 0){
                             if(this.selfUserInfo.faceURL) {
-                                imgAvatarArr[0].innerHTML = `<img class="avatar-box" src="${this.selfUserInfo.newFaceURL}" />`
+                                imgAvatarArr[0].innerHTML = `<img class="avatar-img" src="${this.selfUserInfo.newFaceURL}" />`
                             } else {
                                 imgAvatarArr[0].innerHTML = this.selfUserInfo.newNickname
                             }
@@ -928,7 +943,7 @@
                         const imgAvatarArr =  document.getElementsByClassName('isAloneChangeAvatar')
                         if(imgAvatarArr.length > 0){
                             if(this.callUserInfo.faceURL) {
-                                imgAvatarArr[0].innerHTML = `<img class="avatar-box" src="${this.callUserInfo.newFaceURL}" />`
+                                imgAvatarArr[0].innerHTML = `<img class="avatar-img" src="${this.callUserInfo.newFaceURL}" />`
                             } else {
                                 imgAvatarArr[0].innerHTML = this.callUserInfo.newNickname
                             }
