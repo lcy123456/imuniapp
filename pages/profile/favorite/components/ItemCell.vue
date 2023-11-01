@@ -4,7 +4,7 @@
             <view
                 v-for="item in 3"
                 :key="item"
-                class="unit_cell mb-20"
+                class="mb-20 unit_cell"
             >
                 <text class="fz-26 text-grey">
                     用户名好上头
@@ -15,7 +15,7 @@
             </view>
         </template>
         <template v-if="source.idx == 2">
-            <text class="text_base mt-8 ellipsisWithLine2">
+            <text class="mt-8 text_base ellipsisWithLine2">
                 望门投止思张俭，忍死须臾待杜根。我自横刀向天笑，去留肝胆两昆仑
             </text>
         </template>
@@ -25,7 +25,7 @@
                     <text class="text_base ellipsisWithLine2">
                         望门投止思张俭，忍死须臾待杜根。我自横刀向天笑，去留肝胆两昆仑111
                     </text>
-                    <text class="fz-24 text-grey mt-10">
+                    <text class="mt-10 fz-24 text-grey">
                         PDF 24.MB
                     </text>
                 </view>
@@ -161,8 +161,8 @@ export default {
 .text_base {
   font-size: 32rpx;
   color: $uni-text-color;
-  -webkit-user-select: text;
-  user-select: text;
+//   -webkit-user-select: text;
+//   user-select: text;
 }
 
 .ellipsisWithLine1 {

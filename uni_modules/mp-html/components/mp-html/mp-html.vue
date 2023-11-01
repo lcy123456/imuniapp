@@ -492,7 +492,7 @@ export default {
 
 /* 长按复制 */
 ._select {
-  user-select: text;
+  /* user-select: text; */
 }
 /* #endif */
 </style>

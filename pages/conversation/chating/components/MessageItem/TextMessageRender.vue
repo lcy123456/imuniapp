@@ -78,7 +78,7 @@ export default {
     word-break: break-all;
     display: flex;
     align-items: flex-end;
-    // user-select: text;
-    // -webkit-user-select: text;
+    user-select: none;
+    -webkit-user-select: none;
 }
 </style>
