@@ -26,7 +26,7 @@
                     <view class="ul">
                         <u-swipe-action-item
                             v-for="item of storeUserList"
-                            v-if="storeSelfInfo.userID !== item.userID"
+                            v-if="storeUserID !== item.userID"
                             :key="item.userID"
                             :threshold="50"
                             :options="options"
@@ -107,6 +107,7 @@ export default {
             "storeRecvGroupApplications",
             "storeHistoryMessageList",
             "storeIsSyncing",
+            "storeUserID"
         ]),
         globalOptEnable () {
             return this.$store.getters.storeSelfInfo.globalRecvMsgOpt !== MessageReceiveOptType.Nomal;
@@ -121,22 +122,26 @@ export default {
             this.$store.commit('user/SET_DEL_USER_LIST', item);
         },
         async goLogin (type) {
-            // !type ? (this.addUserLoading = true) : (uni.showLoading({title: ''}));
             try {
-                // let data = await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
-                // !type ? (this.addUserLoading = false) : (uni.hideLoading());
-                // console.log('----IMSDK.IMMethods.Logout', data);
-                // this.$store.commit('user/SET_AUTH_DATA', {});
                 !type && (uni.$u.route('/pages/login/index'));
             } catch (err) {
                 console.log(err);
-                // !type ? (this.addUserLoading = false) : (uni.hideLoading());
                 uni.$u.toast('网络异常，请重试');
             }
         },
         async checkUser (requestMap) {
-            await this.goLogin('reset');
-            login(requestMap);
+            uni.showLoading({
+                mask: true
+            });
+            try {
+                await this.goLogin('reset');
+                let data = await login(requestMap);
+                if (!data) {
+                    uni.hideLoading();
+                }
+            } catch (err) {
+                uni.hideLoading();
+            }
         },
         toBlockList () {
             uni.navigateTo({

@@ -81,6 +81,7 @@ export default {
             'storeConversationList',
             'storeIsSyncing',
             "storeSelfInfo",
+            "storeUserID"
         ]),
         showConversationList () {
             return this.storeConversationList.filter(v => {
@@ -120,7 +121,7 @@ export default {
         async getCall () {
             try {
                 const { sendID, room, type } = await videoGetOfflineInfo({
-                    recvID: this.storeSelfInfo.userID
+                    recvID: this.storeUserID
                 });
                 if (!room) {
                     console.log('-------------------------没人请求通话');
@@ -136,12 +137,12 @@ export default {
                     },
                     groupID: '',
                     sendID,
-                    recvID: this.storeSelfInfo.userID,
+                    recvID: this.storeUserID,
                     sessionType: 1,
                     type: type === AudioVideoType.Video ? 'video' : 'audio'
                 };
                 const { token } = await videoGetToken({
-                    recvID: this.storeSelfInfo.userID,
+                    recvID: this.storeUserID,
                     conversationID: room
                 });
                 this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);

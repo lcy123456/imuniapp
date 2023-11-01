@@ -48,10 +48,10 @@ export default {
     computed: {
         ...mapGetters([
             'storeCurrentConversation',
-            'storeSelfInfo',
             'storeIncomingCallMessage',
             'storeIsIncomingCallLoading',
-            'storeIsIncomingCallIng'
+            'storeIsIncomingCallIng',
+            'storeUserID'
         ]),
 
         faceURL () {
@@ -91,12 +91,11 @@ export default {
         ...mapActions('incomingCall', ['onSuccessCall']),
 
         async init () {
-            const {userID} = this.storeSelfInfo;
-            const {  conversationID } = this.storeCurrentConversation;
+            const { conversationID } = this.storeCurrentConversation;
             if (!this.isGroupConversation) return;
 
             const { token, count, type } = await videoGetRoomMember({
-                recvID: userID,
+                recvID: this.storeUserID,
                 conversationID,
             });
             this.count = count;
@@ -130,7 +129,7 @@ export default {
                 contentType: 110,
                 customElem: customElem,
                 groupID: this.storeCurrentConversation.groupID,
-                recvID: this.storeSelfInfo.userID,
+                recvID: this.storeUserID,
                 sessionType: 3, // 3群聊 1单聊
                 type: this.callType === AudioVideoType.Video ? 'video' : 'audio'
             };

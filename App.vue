@@ -551,6 +551,7 @@ export default {
             if (customStatus) {
                 if ([AudioVideoStatus.Send].includes(customStatus)) {
                     console.log(newServerMsg, 'newServerMsgnewServerMsg');
+                    if (newServerMsg.sendID === this.storeUserID) return;
                     if (this.storeIsIncomingCallLoading || this.storeIsIncomingCallIng) {
                         // uni.$u.toast('占线占线');
                         return false;
