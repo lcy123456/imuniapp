@@ -75,6 +75,7 @@
                 >
                     登录
                 </u-button>
+                {{ storeClientID }}
             </view>
             <view class="agreement">
                 <u-checkbox-group v-model="checked">

@@ -617,7 +617,7 @@ export default {
             setTimeout(() => {
                 plus.push.getClientInfoAsync((info) => {
                     const cid = info["clientid"];
-                    console.log('clientid', cid);
+                    console.log('clientid', cid, info);
                     this.$store.commit('user/SET_CLIENT_ID', cid);
                 });
             }, 3000);
