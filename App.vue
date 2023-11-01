@@ -195,6 +195,8 @@ export default {
                 if (this.storeIsSyncing) {
                     return;
                 }
+                const d = data[0] || {};
+                const isMyMessage = d.sendID === this.storeUserID;
                 const conversationID = data && data[0] ? idsGetConversationID(data[0]) : '';
                 let isMute = false;
                 this.storeConversationList.forEach(conversation => {
@@ -203,7 +205,7 @@ export default {
                     }
                 });
                 console.log(this.storeConversationList, conversationID);
-                if (!this.storeIsIncomingCallLoading && !this.storeIsIncomingCallIng && !isMute) {
+                if (!this.storeIsIncomingCallLoading && !this.storeIsIncomingCallIng && !isMute && !isMyMessage) {
                     this.innerAudioContext.play();
                 }
                 data.forEach(this.handleNewMessage);
