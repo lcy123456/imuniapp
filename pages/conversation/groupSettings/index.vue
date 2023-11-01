@@ -175,6 +175,8 @@ export default {
     methods: {
         ...mapActions('conversation', ['getCurrentGroup']),
         async updateAvatar () {
+            const permissions = await this.$store.dispatch('base/hasCameraPermissions');
+            if (!permissions) return;
             const paths = await chooseImage();
             const url = await uploadFile(paths[0]);
             this.updateGroupInfo({ faceURL: url, });

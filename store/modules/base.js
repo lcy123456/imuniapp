@@ -1,4 +1,5 @@
 import { pinList } from '@/api/pinToTop';
+import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting } from '@/util/permission.js';
 const state = {
     pinList: []
 };
@@ -26,6 +27,29 @@ const actions = {
         } catch (e) {
             console.log(e, '获取置顶列表失败');
         }
+    },
+    async hasCameraPermissions () {
+        const isIOS = uni.$u.os() === 'ios';
+        let hasCamera = false;
+
+        if (isIOS) {
+            const cameraResult = judgeIosPermission('camera');
+            hasCamera = cameraResult;
+        } else {
+            const cameraResult = await requestAndroidPermission('android.permission.CAMERA');
+            hasCamera = cameraResult === 1;
+        }
+
+        if (!hasCamera) {
+            uni.showModal({
+                title: "使用摄像头",
+                content: '想访问您的摄像头',
+                success: res => {
+                    if (res.confirm) gotoAppPermissionSetting();
+                }
+            });
+        }
+        return hasCamera;
     }
 };
 
