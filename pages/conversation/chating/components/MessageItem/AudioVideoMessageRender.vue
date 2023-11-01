@@ -79,7 +79,7 @@ export default {
             case AudioVideoStatus.Busy:
                 return this.isSender ? `[对方忙线中]` : `[忙线中]`;
             case AudioVideoStatus.Done:
-                const t = +new Date(new Date().Format('yyyy-MM-dd') +  ' 00:00:00');
+                const t = new Date(new Date().Format('yyyy/MM/dd') +  ' 00:00:00').getTime();
                 let time = new Date(t + res.duration).Format('hh:mm:ss');
                 if (time.slice(0, 2) === '00') {
                     time = time.slice(3);

@@ -137,7 +137,9 @@ export default {
             this.checkedMemberList = [...list];
             setTimeout(this.complateCreate, 500);
         },
-        chooseImage () {
+        async chooseImage () {
+            const permissions = await this.$store.dispatch('base/hasCameraPermissions');
+            if (!permissions) return;
             uni.chooseImage({
                 count: 1,
                 sizeType: ['compressed'],

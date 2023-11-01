@@ -109,7 +109,7 @@ export default {
             if (this.hasGroupCalling) {
                 setTimeout(()=> {
                     this.init();
-                }, 6000);
+                }, 5000);
             }
         },
         async onJoin () {

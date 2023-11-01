@@ -155,7 +155,9 @@ export default {
                 },
             });
         },
-        updateAvatar () {
+        async updateAvatar () {
+            const permissions = await this.$store.dispatch('base/hasCameraPermissions');
+            if (!permissions) return;
             uni.chooseImage({
                 count: 1,
                 sizeType: ['compressed'],

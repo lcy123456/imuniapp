@@ -558,14 +558,18 @@ export default {
             console.log('xxx', path, message);
             this.sendMessage(message);
         },
-        selectClick ({ idx }) {
+        async selectClick ({ idx }) {
             const [{type}] = this.actionSheetMenu;
             if (idx === 0) {
                 if (type === ChatingFooterActionTypes.Album) {
+                    let permissions = await this.$store.dispatch('base/hasCameraPermissions');
+                    if (!permissions) return;
                     this.chooseOrShotImage(['album']).then((paths) =>
                         this.batchCreateImageMesage(paths)
                     );
                 } else if (type === ChatingFooterActionTypes.Camera) {
+                    let permissions = await this.$store.dispatch('base/hasCameraPermissions');
+                    if (!permissions) return;
                     this.chooseOrShotImage(['camera']).then((paths) =>
                         this.batchCreateImageMesage(paths)
                     );
@@ -615,6 +619,8 @@ export default {
         },
         chooseOrShotImage (sourceType) {
             return new Promise((resolve, reject) => {
+                const permissions = this.$store.dispatch('base/hasCameraPermissions');
+                if (!permissions) return;
                 uni.chooseImage({
                     count: 9,
                     sizeType: ['compressed'],
