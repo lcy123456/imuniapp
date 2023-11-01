@@ -120,11 +120,15 @@ export default {
         async handlePostMessage (event) {
             console.log('handlePostMessage()===', event)
             const [data] = event.detail.data
+            if(data.goOut) {
+                data.type === 'fail' && (uni.$u.toast('网络异常，请稍后重试'));
+                this.getIsInWebrtc() && uni.navigateBack();
+            }
             if(data.isSmall) {
                 // 缩小
                 this.onSmall()
             }
-            if(data.isDanger) {
+            if(data.isDanger === 'done') {
                 // 挂断
                 this.reject(data);
                 this.onDangerCall()

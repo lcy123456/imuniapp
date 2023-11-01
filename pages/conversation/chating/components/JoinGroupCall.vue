@@ -10,7 +10,7 @@
                 :shape="`circle`"
                 size="80rpx"
             />
-            <view class="flex flex-column ml-20">
+            <view class="flex ml-20 flex-column">
                 <text class="text-color fz-30">
                     群组语音通话中
                 </text>
@@ -102,7 +102,7 @@ export default {
             this.count = count;
             this.token = token;
             this.callType = type;
-            
+            this.$store.commit('incomingCall/SET_IS_GROUP_CHAT', !!this.shouldShow);
             this.loopInit();
         },
         loopInit () {

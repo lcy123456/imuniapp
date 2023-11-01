@@ -377,7 +377,7 @@
                     </div>
                 </div>
                 <div :class="['answer_panel', !isAnswer || isCallIng ? 'flex-center' : '']">
-                    <button class="danger_btn" @click="goOut('')">
+                    <button class="danger_btn" @click="goOut({type: 'hangUp'})">
                         <image src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
                     <!--<button v-if="isAnswer && isCallLoading" class="success_btn">
@@ -490,8 +490,8 @@
                         this.isCallLoading = isCallLoading;
                         this.isCallIng = isCallIng;
                         this.isAnswer = isAnswer;
-                        this.callUserInfo = callUserInfo;
-                        this.selfUserInfo = selfUserInfo;
+                        this.callUserInfo = callUserInfo || {};
+                        this.selfUserInfo = selfUserInfo || {};
                         this.token = token;
                         this.wsURL = url;
 
@@ -606,8 +606,10 @@
                         this.addSelf({ parentDom: myDom, type: 'init' });
                         // this.room.on(RoomEvent.Disconnected, this.goOut);
                     } catch (err) {
-                       alert('fail -----connected to room----' + err);
-                        // this.goOut();
+                        // alert('fail -----connected to room----' + err);
+                        if (!this.isHangUp) {
+                            this.goOut({type: 'fail'});
+                        }
                     }
                 },
 
@@ -1003,17 +1005,16 @@
                     this.room && this.room.disconnect();
                 },
                 goOut (m) {
-                    // if (this.isGoout) return;
-                    // this.isGoout = true;
                     const map = m || {};
                     this.disconnect();
+                    this.isHangUp = map.type === 'hangUp';
                     uni.postMessage({
                         data: {
-                            isDanger: true,
-                            customStatus: map && map.customStatus
+                            isDanger: m.type === 'fail' ? 'fail' : 'done',
+                            customStatus: map && map.customStatus,
+                            goOut: true
                         }
                     });
-                    (map.isInWebrtc || !m) && uni.navigateBack();
 
                     this.resetData()
                 },

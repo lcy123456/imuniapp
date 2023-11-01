@@ -124,5 +124,6 @@ export default {
     storeIncomingCallCallTime: (state) => state.incomingCall.callTime,
     storeIncomingCallStartTime: (state) => state.incomingCall.startTime,
     storeIncomingCallWsUrl: (state) => state.incomingCall.wsUrl,
+    storeIncomingIsGroupChat: (state) => state.incomingCall.isGroupChat,
     storeIncomingCallSmallStyle: (state) => state.incomingCall.incomingCallSmallStyle,
 };

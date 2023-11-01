@@ -222,6 +222,7 @@ export default {
             'storeHasMoreAfterMessage',
             'storeIsIncomingCallLoading',
             'storeIsIncomingCallIng',
+            'storeIncomingIsGroupChat'
         ]),
         hasContent () {
             return html2Text(this.inputHtml) !== '';
@@ -592,7 +593,15 @@ export default {
             }
         },
         async initWebrtc (type) {
+            uni.showLoading();
+            const { groupID } = this.storeCurrentConversation;
+            console.log('isGroupChatisGroupChatisGroupChat', this.storeIncomingIsGroupChat);
+            if (groupID && this.storeIncomingIsGroupChat) {
+                uni.hideLoading();
+                return uni.$u.toast('群通话正在进行中');
+            }
             if (this.storeIsIncomingCallLoading || this.storeIsIncomingCallIng) {
+                uni.hideLoading();
                 return uni.$u.toast('通话正在进行中');
             }
             const hasPermission  = await this.reviewPermission();
@@ -609,13 +618,15 @@ export default {
                         ...data,
                         type
                     });
-
+                    uni.hideLoading();
                     uni.navigateTo({url: `/pages/conversation/webrtc/index`});
                 } catch (err) {
                     uni.$u.toast('网络异常，请稍后重试');
+                    uni.hideLoading();
                     return;
                 }
             }
+            uni.hideLoading();
         },
         chooseOrShotImage (sourceType) {
             return new Promise((resolve, reject) => {

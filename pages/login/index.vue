@@ -46,6 +46,7 @@
                         v-model="loginInfo.phoneNumber"
                         class="login-input"
                         placeholder="请输入您的手机号码"
+                        type="number"
                         clearable
                     />
                 </u-form-item>
@@ -55,6 +56,7 @@
                         class="login-input"
                         placeholder="请输入您的登录密码"
                         :password="!eying"
+                        clearable
                     >
                         <u-icon
                             slot="suffix"

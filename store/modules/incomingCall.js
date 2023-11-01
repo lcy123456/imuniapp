@@ -8,6 +8,7 @@ const state = {
     wsUrl: '',
     startTime: '',
     callTime: '',
+    isGroupChat: false,
     incomingCallToken: '',
     isIncomingCallTop: false, // 顶部弹出
     isIncomingCallSmall: false, // 悬浮缩小
@@ -67,6 +68,9 @@ const mutations = {
     SET_IS_INCOMING_CALL_MESSAGE (state, value) {
         state.incomingCallMessage = value;
     },
+    SET_IS_GROUP_CHAT (state, value) {
+        state.isGroupChat = value;
+    }
 };
 
 const actions = {

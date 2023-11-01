@@ -200,44 +200,32 @@ export const checkLoginError = (error) => {
         return '操作失败';
     }
     switch (error.errCode) {
-    case 10003:
-        return '验证码发送失败';
-    case 20001:
-        return '账号已注册';
-    case 20002:
-        return '验证码的发送频率太快了！';
-    case 20003:
-        return '邀请码错误';
-    case 20004:
-    case 40003:
-    case 40004:
-        return 'IP已被限制';
-    case 30001:
-        return '验证码错误';
-    case 30002:
-        return '验证码已过期';
-    case 30003:
-        return '邀请码已被使用';
-    case 30004:
-        return '邀请码不存在';
-    case 40001:
-        return '账号未注册';
-    case 40002:
+    case 10001:
         return '密码错误';
-    case 40005:
-        return '账号已被封禁';
-    case 50001:
-        return 'token已过期';
-    case 50002:
-        return 'token格式错误';
-    case 50003:
-        return 'token不存在';
-    case 50004:
-        return '未知token错误';
-    case 50005:
-        return 'token创建失败';
+    case 10002:
+        return '用户不存在';
+    case 10003:
+        return '账号已注册';
+    case 10004:
+        return '账号已注册';
+    case 10005:
+        return '验证码的发送频率太快了！';
+    case 10006:
+        return '邀请码错误';
+    case 10007:
+        return '验证码已过期';
+    case 10008:
+        return '验证码失败次数过多';
+    case 10009:
+        return '验证码已被使用';
+    case 10010:
+        return '邀请码已被使用';
+    case 10011:
+        return '邀请码不存在';
+    case 10013:
+        return '拒绝添加好友';
     default:
-        return '操作失败';
+        return '网络异常，请稍后重试';
     }
 };
 

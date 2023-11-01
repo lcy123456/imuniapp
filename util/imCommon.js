@@ -8,6 +8,7 @@ import {
 import { getOnlineStateFromSvr } from "@/api/imApi";
 import { businessSearchUserInfo } from '@/api/login';
 import { AudioVideoStatus } from '@/enum';
+import { checkLoginError } from '@/util/common';
 import IMSDK, {
     IMMethods,
     GroupAtType,
@@ -576,13 +577,7 @@ export const login = async (requestMap) => {
         return await IMLogin();
     } catch (err) {
         console.log(err, err.errMsg);
-        if (err.errCode === 10002) {
-            uni.$u.toast('用户不存在');
-        } else if (err.errCode === 10001) {
-            uni.$u.toast('密码错误');
-        } else {
-            uni.$u.toast('网络异常，请稍后重试');
-        }
+        uni.$u.toast(checkLoginError(err));
         return null;
     }
 };

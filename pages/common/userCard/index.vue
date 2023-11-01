@@ -219,7 +219,7 @@ export default {
             if (this.sourceUserInfo.remark) {
                 suffix = `(${this.sourceUserInfo.remark})`;
             }
-            return this.sourceUserInfo.nickname + suffix;
+            return this.sourceUserInfo.nickname ? this.sourceUserInfo.nickname + suffix : '';
         },
         isBlacked () {
             return this.storeBlackList.some(black => black.userID === this.sourceID);
