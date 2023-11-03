@@ -121,17 +121,24 @@ export default {
             console.log('handlePostMessage()===', event)
             const [data] = event.detail.data
             if(data.goOut) {
-                data.type === 'fail' && (uni.$u.toast('网络异常，请稍后重试'));
+                if (data.isDanger === 'fail') {
+                    setTimeout(() => {
+                        uni.$emit('toast', '网络异常，请稍后重试');
+                    }, 1000);
+                }
                 this.getIsInWebrtc() && uni.navigateBack();
+            }
+            if (data.type === 'setTime') {
+                this.$store.commit('incomingCall/SET_TIME_TEXT', data.timeText);
             }
             if(data.isSmall) {
                 // 缩小
                 this.onSmall()
             }
-            if(data.isDanger === 'done') {
+            if(data.isDanger) {
                 // 挂断
                 this.reject(data);
-                this.onDangerCall()
+                this.onDangerCall();
             }
             if(data.isSuccess) {
                 // 接听

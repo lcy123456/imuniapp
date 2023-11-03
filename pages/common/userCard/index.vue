@@ -225,10 +225,11 @@ export default {
             return this.storeBlackList.some(black => black.userID === this.sourceID);
         },
         showSendMessage () {
-            const businessAllow =
-                this.storeAppConfig.allowSendMsgNotFriend ===
-                CommonIsAllow.Allow;
-            return businessAllow ? businessAllow : this.isFriend;
+            // const businessAllow =
+            //     this.storeAppConfig.allowSendMsgNotFriend ===
+            //     CommonIsAllow.Allow;
+            // return businessAllow ? businessAllow : this.isFriend;
+            return true;
         },
     },
     onLoad (options) {

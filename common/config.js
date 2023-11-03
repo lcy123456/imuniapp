@@ -12,17 +12,17 @@ function getUrl () {
     let liveWsUrl = 'ws://192.168.2.20:7880';
     
     if (store.getters.storeIsProd) {
-        // registerUrl = 'https://imlogic.muskim.com';
-        // configUrl = 'https://imcms.muskim.com';
-        // apiUrl = 'https://imapi.muskim.com';
-        // wsUrl = 'wss://imws.muskim.com';
-        // liveWsUrl = 'wss://cms.muskim.com';
+        registerUrl = 'https://imlogic.muskim.com';
+        configUrl = 'https://imcms.muskim.com';
+        apiUrl = 'https://imapi.muskim.com';
+        wsUrl = 'wss://imws.muskim.com';
+        liveWsUrl = 'wss://cms.muskim.com';
 
-        registerUrl = 'https://imlogic.qncjkeusoge.cfd';
-        configUrl = 'https://imcms.qncjkeusoge.cfd';
-        apiUrl = 'https://imapi.qncjkeusoge.cfd';
-        wsUrl = 'wss://imws.qncjkeusoge.cfd';
-        liveWsUrl = 'wss://cms.qncjkeusoge.cfd';
+        // registerUrl = 'https://imlogic.qncjkeusoge.cfd';
+        // configUrl = 'https://imcms.qncjkeusoge.cfd';
+        // apiUrl = 'https://imapi.qncjkeusoge.cfd';
+        // wsUrl = 'wss://imws.qncjkeusoge.cfd';
+        // liveWsUrl = 'wss://cms.qncjkeusoge.cfd';
 
     }
     return {

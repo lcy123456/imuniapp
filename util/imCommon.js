@@ -119,9 +119,7 @@ export const parseAt = (atel) => {
 export const parseEmoji = (msgStr) => {
     emojis.map((item) => {
         if (msgStr?.includes(item.context)) {
-            let imgStr = `
-			<img class="emoji_display" src="${item.src}"/>
-			`;
+            let imgStr = `<img class="emoji_display" src="${item.src}"/>`;
             imgStr = imgStr.replace("/static", "static");
             msgStr = msgStr.replace(item.reg, imgStr);
         }

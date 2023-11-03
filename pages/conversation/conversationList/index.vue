@@ -33,13 +33,17 @@
                     ref="swipeWrapperRef"
                     class="swipe_wrapper"
                 >
-                    <ConversationItem
+                    <view
                         v-for="item in showConversationList"
-                        :key="item.conversationID"
-                        :source="item"
-                        :is-disabled="isDisabledSwipe"
-                        @closeAllSwipe="closeAllSwipe"
-                    />
+                        :key="item && item.conversationID"
+                    >
+                        <ConversationItem
+                            v-if="item"
+                            :source="item"
+                            :is-disabled="isDisabledSwipe"
+                            @closeAllSwipe="closeAllSwipe"
+                        />
+                    </view>
                 </u-swipe-action>
             </z-paging>
 
@@ -85,7 +89,7 @@ export default {
         ]),
         showConversationList () {
             return this.storeConversationList.filter(v => {
-                return v.showName.includes(this.keyword);
+                return v && v.showName.includes(this.keyword);
             });
         },
     },

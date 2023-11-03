@@ -80,10 +80,7 @@ export default {
                 return this.isSender ? `[对方忙线中]` : `[忙线中]`;
             case AudioVideoStatus.Done:
                 const t = new Date(new Date().Format('yyyy/MM/dd') +  ' 00:00:00').getTime();
-                let time = new Date(t + res.duration).Format('hh:mm:ss');
-                if (time.slice(0, 2) === '00') {
-                    time = time.slice(3);
-                }
+                let time = new Date(t + res.duration).Format(res.duration >= 1000 * 60 * 60 ? 'hh:mm:ss' : 'mm:ss');
                 return `[通话时长]${time}`;
             default:
                 return this.isVideo ? `[发起视频通话]` : `[发起语音通话]`;

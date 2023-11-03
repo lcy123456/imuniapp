@@ -612,6 +612,7 @@ export default {
                     console.log(data, '======sendCustomMessagesendCustomMessagesendCustomMessage');
                     if (typeof data === 'boolean' && !data) {
                         // uni.$u.toast('网络异常，请稍后重试');
+                        uni.hideLoading();
                         return;
                     }
                     await this.onThrowCall({

@@ -8,13 +8,13 @@ export const html2Text = (html) => {
         .replace(/&nbsp;/g, ' ')
         .replace(/<br>/g, '\n')
         .replace(/<p>/g, '')
-        .replace(/<\/p>/g, '')
+        .replace(/<\/p>/g, '\n')
         .trim();
 };
 
-export const formatInputHtml = (html, type) => {
+export const formatInputHtml = (html) => {
     let atUserList = [];
-    let text = type ? html : html2Text(html);
+    let text = html2Text(html);
     const imgReg = new RegExp('(i?)(<img)([^>]+>)', 'gmi');
     const customDataReg = /data-custom=".+"/;
     text = text.replace(imgReg, (img) => {

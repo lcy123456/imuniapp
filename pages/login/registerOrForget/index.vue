@@ -39,6 +39,7 @@
                 </view>
                 <u-input
                     v-model="userInfo.phoneNumber"
+                    type="number"
                     class="login-input"
                     placeholder="请输入您的手机号码"
                     clearable

@@ -8,6 +8,7 @@ const state = {
     wsUrl: '',
     startTime: '',
     callTime: '',
+    timeText: '',
     isGroupChat: false,
     incomingCallToken: '',
     isIncomingCallTop: false, // 顶部弹出
@@ -31,6 +32,9 @@ const state = {
 const mutations = {
     SET_WSURL (state, url) {
         state.wsUrl = url;
+    },
+    SET_TIME_TEXT (state, val) {
+        state.timeText = val;
     },
     SET_INCOMING_CALL_TOKEN (state, value) {
         state.incomingCallToken = value;

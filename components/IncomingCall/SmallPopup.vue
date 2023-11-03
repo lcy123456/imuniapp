@@ -81,6 +81,7 @@ export default {
             'storeIncomingCallStartTime',
             'storeIncomingIsHangup',
             'storeIncomingCallMessage',
+            'storeIncomingTimeText'
         ]),
         isVideoCall () {
             let result = false;
@@ -117,14 +118,8 @@ export default {
         },
         intervalHandle () {
             try {
-                if (this.timer) return;
-
-                const timeStart = this.storeIncomingCallStartTime;
-                const oneHour = 3600;
                 this.interval(()=> {
-                    const secondsDiff = dayjs().diff(timeStart, 'second');
-                    const format = secondsDiff > oneHour ? 'HH:mm:ss' : 'mm:ss';
-                    this.timeText = dayjs.duration(secondsDiff, 'seconds').format(format);
+                    this.timeText = this.storeIncomingTimeText;
                 }, 1000);
             } catch (err) {
                 console.log('调用倒计时方法intervalHandle()异常+++++++++++++++++++++++++++++');

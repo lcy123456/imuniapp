@@ -29,6 +29,9 @@ export default {
         this.handleAudioManager();
         this.handleUniPush();
         uni.preloadPage({url: "/pages/conversation/webrtc/index"});
+        uni.$on('toast', (message) => {
+            uni.$u.toast(message);
+        });
     },
     onShow: function () {
         plus.runtime.setBadgeNumber(0);
