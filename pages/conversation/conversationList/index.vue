@@ -39,6 +39,7 @@
                     >
                         <ConversationItem
                             v-if="item"
+                            :key="item && item.conversationID"
                             :source="item"
                             :is-disabled="isDisabledSwipe"
                             @closeAllSwipe="closeAllSwipe"

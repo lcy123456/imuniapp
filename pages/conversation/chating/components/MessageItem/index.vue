@@ -37,6 +37,7 @@
                 </view>
                 <MessageContentWrap
                     :message="source"
+                    :is-multiple-msg="isMultipleMsg"
                     :is-success-message="isSuccessMessage"
                     :is-sender="isSender"
                     :show-sending="showSending"

@@ -57,6 +57,10 @@ export default {
             type: Boolean,
             default: false
         },
+        isMultipleMsg: {
+            type: Boolean,
+            default: false,
+        },
         isSuccessMessage: {
             type: Boolean,
             default: false
@@ -94,6 +98,7 @@ export default {
     },
     methods: {
         initWebrtc () {
+            if (this.isMultipleMsg) return;
             uni.$emit('initWebrtc', this.isVideo ? 'video' : 'audio');
         }
     },

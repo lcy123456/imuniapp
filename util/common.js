@@ -200,6 +200,8 @@ export const checkLoginError = (error) => {
         return '操作失败';
     }
     switch (error.errCode) {
+    case 1001:
+        return '输入信息有误';
     case 10001:
         return '密码错误';
     case 10002:

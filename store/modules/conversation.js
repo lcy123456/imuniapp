@@ -69,6 +69,7 @@ const actions = {
                     count: 999,
                 }
             );
+            console.log('SET_CONVERSATION_LISTSET_CONVERSATION_LISTSET_CONVERSATION_LIST', data);
             commit('SET_CONVERSATION_LIST', [
                 ...(isFirstPage ? [] : state.conversationList),
                 ...data,

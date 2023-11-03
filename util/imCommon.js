@@ -636,6 +636,9 @@ export const markConversationAsRead = (conversation, fromChating = false) => {
 };
 
 export const prepareConversationState = (conversation, back2Tab = false, clientMsgID = '') => {
+    uni.switchTab({
+        url: '/pages/conversation/conversationList/index',
+    });
     markConversationAsRead(conversation);
 
     if (conversation.conversationType === SessionType.WorkingGroup) {
@@ -652,6 +655,7 @@ export const prepareConversationState = (conversation, back2Tab = false, clientM
     if (conversation.conversationType === SessionType.Notification) {
         url = "/pages/conversation/notifyMessageList/index";
     }
+    console.log('back2Tabback2Tabback2Tabback2Tabback2Tab', back2Tab, url);
     uni.navigateTo({
         url,
     });

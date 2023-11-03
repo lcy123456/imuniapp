@@ -27,6 +27,7 @@
         <AudioVideoMessageRender
             v-else-if="showAudioVideoRender"
             :message="message"
+            :is-multiple-msg="isMultipleMsg"
             :is-success-message="isSuccessMessage"
             :is-sender="isSender"
         />
@@ -83,6 +84,10 @@ export default {
     },
 
     props: {
+        isMultipleMsg: {
+            type: Boolean,
+            default: false,
+        },
         message: {
             type: Object,
             default: () => ({})

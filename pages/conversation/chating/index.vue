@@ -337,14 +337,14 @@ export default {
         },
     },
     onBackPress () {
-        if (this.back2Tab) {
-            uni.switchTab({
-                url: '/pages/conversation/conversationList/index',
-            });
-            return true;
-        }
+        // if (this.back2Tab) {
+        uni.switchTab({
+            url: '/pages/conversation/conversationList/index',
+        });
+        return true;
+        // }
 
-        return false;
+        // return false;
     },
 };
 </script>

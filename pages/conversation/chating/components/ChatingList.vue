@@ -33,12 +33,14 @@
                     :class="{isrotate: isReverse}"
                 >
                     <BetweenTime
+                        :key="`auchor${item.clientMsgID}-BetweenTime`"
                         :msg-before="isReverse ? item : messageList[index - 1]"
                         :msg-after="isReverse ? messageList[index + 1]: item"
                         :is-reverse="isReverse"
                         :type="(!isReverse && index === 0) || (isReverse && index === messageList.length - 1) ? 'first' : ''"
                     />
                     <MessageItemRender
+                        :key="`auchor${item.clientMsgID}-MessageItemRender`"
                         :source="item"
                         :is-sender="item.sendID === storeCurrentUserID"
                         :is-show-menu-flag="isShowMenuFlag"
