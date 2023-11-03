@@ -56,6 +56,7 @@
             </view>
             <MyAvatar
                 v-else-if="isSingle"
+                class="header-avatar"
                 :src="storeCurrentConversation.faceURL"
                 :desc="storeCurrentConversation.showName"
                 size="60rpx"
@@ -180,6 +181,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .header-avatar {
+        /deep/ uni-text {
+            font-size: 24rpx!important;
+        }
+    }
 	.chating_header {
         padding: 0 30rpx;
 		.conversation_info {

@@ -159,20 +159,20 @@ export default {
 
             // sync
             const syncStartHandler = () => {
-                // uni.showLoading({
-                //     title: "同步中",
-                //     mask: true,
-                // });
+                uni.showLoading({
+                    title: "同步中",
+                    mask: true,
+                });
                 this.$store.commit("user/SET_IS_SYNCING", true);
             };
             const syncFinishHandler = () => {
-                // uni.hideLoading();
+                uni.hideLoading();
                 this.$store.dispatch("conversation/getConversationList");
                 this.$store.dispatch("conversation/getUnReadCount");
                 this.$store.commit("user/SET_IS_SYNCING", false);
             };
             const syncFailedHandler = () => {
-                // uni.hideLoading();
+                uni.hideLoading();
                 uni.$u.toast("同步消息失败");
                 this.$store.dispatch("conversation/getConversationList");
                 this.$store.dispatch("conversation/getUnReadCount");

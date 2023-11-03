@@ -1,6 +1,9 @@
 <template>
     <Page>
-        <view class="user_card_container">
+        <view
+            class="user_card_container"
+            @click="closeAll"
+        >
             <CustomNavBar
                 title=""
                 is-bg-color2
@@ -31,7 +34,7 @@
                         v-for="item in infoMenus"
                         :key="item.idx"
                         class="flex feat-item w-210 h-130 bg-color br-30 flex-column justify-evenly align-center"
-                        @click="infoMenusClick(item)"
+                        @click.stop="infoMenusClick(item)"
                     >
                         <view
                             class="w-50 h-54"
@@ -250,6 +253,9 @@ export default {
         this.disposeIMListener();
     },
     methods: {
+        closeAll () {
+            this.$refs.moreFeat[0].setMoreIndex(0);
+        },
         callBack (item) {
             if (item.id === 1) {
                 this.createGroup();

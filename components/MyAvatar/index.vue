@@ -37,7 +37,6 @@ export default {
             type: Boolean,
             default: false
         },
-
         desc: String
     },
     data () {
@@ -81,6 +80,5 @@ export default {
 };
 </script>
 
-<style>
-
+<style scoped>
 </style>

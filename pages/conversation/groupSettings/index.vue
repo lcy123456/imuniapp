@@ -1,6 +1,9 @@
 <template>
     <Page>
-        <view class="group_settings_container">
+        <view
+            class="group_settings_container"
+            @click="closeAll"
+        >
             <CustomNavBar
                 title=""
                 is-bg-color2
@@ -40,7 +43,7 @@
                 />
                 <view
                     class="flex justify-center more-box w-210 ml-30 bg-color br-30 flex-column align-center"
-                    @click="showMore"
+                    @click.stop="showMore"
                 >
                     <image
                         class="h-10 my-20 w-42"
@@ -174,6 +177,9 @@ export default {
     },
     methods: {
         ...mapActions('conversation', ['getCurrentGroup']),
+        closeAll () {
+            this.$refs.moreFeat.setMoreIndex(0);
+        },
         async updateAvatar () {
             const permissions = await this.$store.dispatch('base/hasCameraPermissions');
             if (!permissions) return;

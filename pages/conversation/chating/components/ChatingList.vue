@@ -2,7 +2,7 @@
     <scroll-view
         id="scroll_view"
         :class="{isrotate: isReverse}"
-        :scroll-with-animation="true"
+        :scroll-with-animation="animation"
         :scroll-top="scrollTop"
         :scroll-into-view="scrollIntoView"
         scroll-y
@@ -95,6 +95,7 @@ export default {
     },
     data () {
         return {
+            animation: false,
             isReverse: false,
             isInReverse: false,
             ua: uni.getSystemInfoSync().platform,
@@ -151,6 +152,7 @@ export default {
             };
             try {
                 if (isLoadMore) {
+                    this.animation = true;
                     await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse'](options);
                     // if (this.positionMsgID && this.positionMsgIDFlag) {
                     //     this.handlePositionMsgID();
@@ -179,6 +181,7 @@ export default {
                 }
             } catch (e) {
                 console.log(e);
+                this.animation = true;
             }
             setTimeout(() => {
                 this.messageLoadState.loading = false;
@@ -260,12 +263,18 @@ export default {
         },
         async scrollToBottom ({initPage = false} = {}) {
             initPage && this.$emit('initSuccess');
+            await this.$nextTick();
             setTimeout(() => {
                 uni.createSelectorQuery()
                     .in(this)
                     .select('#scroll_wrap')
                     .boundingClientRect((res) => {
                         this.scrollTop = this.isReverse ? 0 : res.height + Math.random();
+                        if (initPage) {
+                            setTimeout(() => {
+                                this.animation = true;
+                            }, 200);
+                        }
                     })
                     .exec();
             }, 200);

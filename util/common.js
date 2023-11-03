@@ -213,7 +213,7 @@ export const checkLoginError = (error) => {
     case 10005:
         return '验证码的发送频率太快了！';
     case 10006:
-        return '邀请码错误';
+        return '验证码错误';
     case 10007:
         return '验证码已过期';
     case 10008:
