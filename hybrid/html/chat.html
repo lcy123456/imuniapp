@@ -542,21 +542,22 @@
                         dom.style && (dom.style.height = height);
                     },
                     async toggleAudio() {
-                        if (!this.room) return;
-                        const enabled = this.room?.localParticipant?.isMicrophoneEnabled;
-                        await this.room?.localParticipant?.setMicrophoneEnabled(!enabled);
+                        if (!this.room || !this.room.localParticipant) return;
+                        const enabled = this.room.localParticipant.isMicrophoneEnabled;
+                        await this.room.localParticipant.setMicrophoneEnabled(!enabled);
                         this.setInitAudioImg();
                     },
                     setInitAudioImg() {
-                        const isEnabled = this.room?.localParticipant?.isMicrophoneEnabled;
+                        if (!this.room || !this.room.localParticipant) return;
+                        const isEnabled = this.room.localParticipant.isMicrophoneEnabled;
                         this.micImage = isEnabled ? 'images/incoming_call_handle_mic_1.png' : 'images/incoming_call_handle_mic_2.png';
                         this.micText = isEnabled ? '麦克风已开' : '麦克风已关';
                     },
 
                     async toggleVideo() {
-                        if (!this.room) return;
-                        const enabled = this.room?.localParticipant.isCameraEnabled;
-                        await this.room?.localParticipant.setCameraEnabled(!enabled);
+                        if (!this.room || !this.room.localParticipant) return;
+                        const enabled = this.room.localParticipant.isCameraEnabled;
+                        await this.room.localParticipant.setCameraEnabled(!enabled);
                         this.setInitVideoImg();
                         let myDom = null;
                         if (this.isGroup) {
@@ -581,7 +582,8 @@
                         !enabled && this.addSelf({ parentDom: myDom, type: '' });
                     },
                     setInitVideoImg() {
-                        const isEnabled = this.room?.localParticipant.isCameraEnabled;
+                        if (!this.room) return;
+                        const isEnabled = this.room.localParticipant.isCameraEnabled;
                         this.camImage = isEnabled ? 'images/incoming_call_handle_cam_1.png' : 'images/incoming_call_handle_cam_2.png';
                         this.camText = isEnabled ? '摄像头已开' : '摄像头已关';
                     },
@@ -667,7 +669,7 @@
                         this.room.on(RoomEvent.TrackMuted, (trackPublication, participant) => {
                                 const userID = participant.identity
                                 // kind = video | audio
-                                const kind = trackPublication?.track?.kind
+                                const kind = trackPublication.track.kind
                                 const isVideo = kind === 'video'
                                 const isAudio = kind === 'audio'
                                 // true开启 false关闭
@@ -698,7 +700,7 @@
                         this.room.on(RoomEvent.TrackUnmuted, (trackPublication, participant) => {
                             const userID = participant.identity
                             // kind = video | audio
-                            const kind = trackPublication?.track?.kind
+                            const kind = trackPublication.track.kind
                             const isVideo = kind === 'video'
                             const isAudio = kind === 'audio'
                             // true开启 false关闭
@@ -758,9 +760,9 @@
                     },
                     // 初始化已在成员
                     async addInitMember({ parentDom }) {
-                        console.log(this.room?.participants, 'this.room?.participantsthis.room?.participants');
-                        this.room?.participants?.forEach(participant => {
-                            participant?.tracks?.forEach(track => {
+                        if (!this.room || !this.room.participants) return;
+                        this.room.participants.forEach(participant => {
+                            participant.tracks && participant.tracks.forEach(track => {
                                 this.addElement({
                                     participant,
                                     publication: track,
@@ -778,7 +780,7 @@
                         if (myVideoDom && myAudioDom) return;
                         const p = this.room.localParticipant;
                         try {
-                            await p.setCameraEnabled(type ? (this.baseMap?.message?.type === 'video') : true);
+                            await p.setCameraEnabled(type && this.baseMap.message ? (this.baseMap.message.type === 'video') : true);
                             await p.setMicrophoneEnabled(true);
                             // 需要启用，媒体流才会有数据
                             // await p.setCameraEnabled(true);
@@ -787,7 +789,7 @@
                             [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
                                 // if (source === RemoteTrack.Source.Microphone) return;
                                 const track = p.getTrack(source);
-                                const myVideoTrack = source === RemoteTrack.Source.Microphone ? {} : track?.track?.attach();
+                                const myVideoTrack = source === RemoteTrack.Source.Microphone ? {} : (track && (track.track.attach()));
 
                                 if (myVideoTrack) {
                                     const dom = this.getDom(`myVideo`);
@@ -1021,8 +1023,8 @@
                         groupDom && (groupDom.innerHTML = '');
                         this.myVideo = null;
                         this.trackList = [];
-                        this.room?.localParticipant?.setCameraEnabled(false);
-                        this.room?.localParticipant?.setMicrophoneEnabled(false);
+                        this.room && this.room.localParticipant.setCameraEnabled(false);
+                        this.room && this.room.localParticipant.setMicrophoneEnabled(false);
                         this.room && this.room.disconnect();
                     },
                     goOut (m) {
