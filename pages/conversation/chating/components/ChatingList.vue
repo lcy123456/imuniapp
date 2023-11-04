@@ -95,8 +95,8 @@ export default {
     },
     data () {
         return {
-            animation: false,
-            isReverse: false,
+            animation: true,
+            isReverse: true,
             isInReverse: false,
             ua: uni.getSystemInfoSync().platform,
             scrollIntoView: '',
@@ -134,6 +134,7 @@ export default {
     },
     mounted () {
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
+        this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
         this.loadMessageList({});
     },
     beforeDestroy () {
@@ -144,40 +145,38 @@ export default {
         async loadMessageList ({isLoadMore = false, isReverse = false}) {
             this.messageLoadState.loading = true;
             // const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
+            const count = 40;
             const options = {
                 conversationID: this.storeCurrentConversation.conversationID,
                 userID: '',
                 groupID: '',
-                count: 40
+                count: count
             };
             try {
                 if (isLoadMore) {
                     this.animation = true;
                     await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse'](options);
-                    // if (this.positionMsgID && this.positionMsgIDFlag) {
-                    //     this.handlePositionMsgID();
-                    // } else {
-                    //     lastMsgID && this.scrollToAnchor(`auchor${lastMsgID}`, false);
-                    // }
                 } else {
+                    // this.isReverse = false;
                     await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                         ...options,
                         positionMsgID: this.positionMsgID,
                         isInit: true,
-                        count: this.positionMsgID ? 20 : 40
+                        count: this.positionMsgID ? parseInt(count / 2) : count
                     });
                     if (this.positionMsgID) {
+                        this.isReverse = false;
                         let positionMsgID = this.storeHistoryMessageList[this.storeHistoryMessageList.length - 1].clientMsgID;
                         await this[isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                             ...options,
                             positionMsgID: positionMsgID,
-                            count: 20
+                            count: parseInt(count / 2)
                         });
+                        this.animation = true;
                         this.scrollToAnchor(`auchor${positionMsgID}`, false);
                     } else {
                         this.scrollToBottom({ initPage: true });
                     }
-                    // this.positionMsgID && this.handlePositionMsgID();
                 }
             } catch (e) {
                 console.log(e);
@@ -314,9 +313,8 @@ export default {
 #scroll_view {
     flex: 1;
     overflow: hidden;
-
     #scroll_wrap {
-        min-height: 100%;
+        min-height: 100vh;
         overflow: hidden;
         // padding: 0 30rpx;
     }

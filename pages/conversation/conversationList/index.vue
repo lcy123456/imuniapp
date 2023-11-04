@@ -26,25 +26,20 @@
                 :show-loading-more-no-more-view="false"
                 :refresher-enabled="!storeIsSyncing"
                 @query="queryList"
-                @refresherTouchmove="refresherTouchmove"
-                @refresherTouchend="refresherTouchend"
             >
+                <!-- @refresherTouchmove="refresherTouchmove"
+                @refresherTouchend="refresherTouchend" -->
                 <u-swipe-action
                     ref="swipeWrapperRef"
                     class="swipe_wrapper"
                 >
-                    <view
+                    <ConversationItem
                         v-for="item in showConversationList"
-                        :key="item && item.conversationID"
-                    >
-                        <ConversationItem
-                            v-if="item"
-                            :key="item && item.conversationID"
-                            :source="item"
-                            :is-disabled="isDisabledSwipe"
-                            @closeAllSwipe="closeAllSwipe"
-                        />
-                    </view>
+                        :key="`${item.conversationID}-ConversationItem`"
+                        :source="item"
+                        :is-disabled="isDisabledSwipe"
+                        @closeAllSwipe="closeAllSwipe"
+                    />
                 </u-swipe-action>
             </z-paging>
 
@@ -89,9 +84,7 @@ export default {
             "storeUserID"
         ]),
         showConversationList () {
-            return this.storeConversationList.filter(v => {
-                return v && v.showName.includes(this.keyword);
-            });
+            return this.storeConversationList.filter(v => v);
         },
     },
     onReady () {

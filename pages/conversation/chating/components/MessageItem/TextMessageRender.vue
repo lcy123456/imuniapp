@@ -1,12 +1,13 @@
 <template>
     <view class="text_message_container bg_container">
-        <mp-html
+        <!-- <mp-html
             :selectable="true"
             :preview-img="false"
             :show-img-menu="false"
             :lazy-load="false"
             :content="getContent"
-        />
+        /> -->
+        <view v-html="getContent" />
         <MessageReadState
             :message="message"
             :is-sender="isSender"

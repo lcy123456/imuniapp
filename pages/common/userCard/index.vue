@@ -238,6 +238,12 @@ export default {
     onLoad (options) {
         const { sourceID, sourceInfo, from } = options;
         if (sourceID) {
+            try {
+                const info = JSON.parse(sourceInfo);
+                this.sourceUserInfo = info;
+            } catch (err) {
+                //
+            }
             this.sourceID = sourceID;
             this.handleGetUserInfo();
         } else {

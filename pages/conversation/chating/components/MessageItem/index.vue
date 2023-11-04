@@ -244,8 +244,12 @@ export default {
         },
         showInfo () {
             if (this.isSender) return;
+            const sourceInfo = {
+                nickname: this.source.senderNickname,
+                faceURL: this.source.senderFaceUrl
+            };
             uni.$u.route(
-                `/pages/common/userCard/index?sourceID=${this.source.sendID}`
+                `/pages/common/userCard/index?sourceID=${this.source.sendID}&sourceInfo=${JSON.stringify(sourceInfo)}`
             );
         },
         async handleLongPress () {
