@@ -239,12 +239,14 @@ export default {
         this.setKeyboardListener();
         uni.$on('quote_message', this.handleQuoteListener);
         uni.$on('initWebrtc', this.initWebrtc);
+        uni.$on('sendMessage', this.sendMessage);
     },
     beforeDestroy () {
         this.disposeSendMessageListener();
         this.disposeKeyboardListener();
         uni.$off('quote_message', this.handleQuoteListener);
         uni.$off('initWebrtc', this.initWebrtc);
+        uni.$off('sendMessage', this.sendMessage);
     },
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
@@ -326,9 +328,9 @@ export default {
             return this.sendMessage(message, type);
         },
         async sendAudioVideoMessage (message, type) {
+            const { userID, groupID, conversationID } = this.storeCurrentConversation;
             try {
                 // 创建聊天获取token
-                const { userID, groupID, conversationID } = this.storeCurrentConversation;
                 const { token } = await videoCreateRoomAndGetToken({
                     sendID: message.sendID,
                     conversationID,
@@ -353,7 +355,12 @@ export default {
                 }
                 return false;
             }
-            return this.sendMessage(message);
+            return {
+                ...message,
+                recvID: userID,
+                sessionType: groupID ? 3 : 1
+            };
+            // return this.sendMessage(message);
         },
         async sendTextMessage () {
             const message = await this.createTextMessage();

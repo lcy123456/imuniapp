@@ -131,6 +131,10 @@ export default {
             if (data.type === 'setTime') {
                 this.$store.commit('incomingCall/SET_TIME_TEXT', data.timeText);
             }
+            if (data.type === 'success') {
+                console.log('成功成功成功成功成功成功成功成功成功--------', this.storeIncomingCallMessage);
+                uni.$emit('sendMessage', this.storeIncomingCallMessage);
+            }
             if(data.isSmall) {
                 // 缩小
                 this.onSmall()
@@ -215,7 +219,7 @@ export default {
         // 双方等待接听，拨打方挂断电话，状态已取消
         // 双方通话中，任意方挂断电话，状态已完成
         async reject (map) {
-            if(this.storeIsIncomingCallIng || map.customStatus) return;
+            if(this.storeIsIncomingCallIng || map.customStatus || map.isDanger === 'fail') return;
             const { recvID, sendID, groupID, sessionType, customElem } = this.storeIncomingCallMessage;
             console.log('recvID, sendIDrecvID, sendIDrecvID, sendID', recvID, sendID);
             if (sessionType === 3) return;

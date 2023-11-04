@@ -606,6 +606,13 @@
                     try {
                         await this.room.connect(wsURL, token);
                         console.log('connected to room----', this.room.name);
+                        if (!this.isCallIng) {
+                            uni.postMessage({
+                                data: {
+                                    type: 'success'
+                                }
+                            });
+                        }
                         // await p.enableCameraAndMicrophone();
                         let myDom = null;
                         let otherDom = null;
