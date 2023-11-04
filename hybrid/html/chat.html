@@ -956,15 +956,15 @@
                     if (faceURL) {
                         const _faceURL = this.faceURLHandle(faceURL)
                         joinUserAvatarDom.innerHTML = `<img class="avatar-img" src="${_faceURL}" />`
+                        // 名称
+                        const nameText = document.createElement('span');
+                        nameText.className = 'incoming_call_name_text'
+                        nameText.innerHTML = this.nicknameHandle(nickname)
+                        boxDom.appendChild(nameText);
                     } else {
                         const _nickname = this.nicknameHandle(nickname)
                         joinUserAvatarDom.innerHTML = _nickname
                     }
-                    // 名称
-                    const nameText = document.createElement('span');
-                    nameText.className = 'incoming_call_name_text'
-                    nameText.innerHTML = this.nicknameHandle(nickname)
-                    boxDom.appendChild(nameText);
                 },
                 changeBox(type) {
                     const otherDom = this.getDom('other-box');

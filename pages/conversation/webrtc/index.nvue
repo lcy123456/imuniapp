@@ -118,7 +118,6 @@ export default {
             this.innerAudioContext = null;
         },
         async handlePostMessage (event) {
-            console.log('handlePostMessage()===', event)
             const [data] = event.detail.data
             if(data.goOut) {
                 if (data.isDanger === 'fail') {
@@ -133,7 +132,11 @@ export default {
             }
             if (data.type === 'success') {
                 console.log('成功成功成功成功成功成功成功成功成功--------', this.storeIncomingCallMessage);
-                uni.$emit('sendMessage', this.storeIncomingCallMessage);
+                uni.$emit('sendMessage', {
+                    ...this.storeIncomingCallMessage,
+                    createTime: +new Date() + 3000,
+                    sendTime: +new Date() + 3000
+                });
             }
             if(data.isSmall) {
                 // 缩小

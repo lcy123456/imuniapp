@@ -189,7 +189,7 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
         case AudioVideoStatus.groupStart:
             try {
                 const groupVideoAudioDetail = JSON.parse(pmsg.notificationElem.detail);
-                const groupVideoAudioName = `${groupVideoAudioDetail.revokerID === store.getters.storeCurrentUserID ? '你' : pmsg.senderNickname}`;
+                const groupVideoAudioName = `${pmsg.sendID === store.getters.storeCurrentUserID ? '你' : pmsg.senderNickname}`;
                 return `${groupVideoAudioName}发起${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话`;
             } catch (err) {
                 return `通话已开始`;
@@ -419,7 +419,7 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
         case AudioVideoStatus.groupStart:
             try {
                 const groupVideoAudioDetail = JSON.parse(msg.notificationElem.detail);
-                const groupVideoAudioName = `${groupVideoAudioDetail.revokerID === store.getters.storeCurrentUserID ? '你' : msg.senderNickname}`;
+                const groupVideoAudioName = `${msg.sendID === store.getters.storeCurrentUserID ? '你' : msg.senderNickname}`;
                 return `${groupVideoAudioName}发起${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话`;
             } catch (err) {
                 return `通话已开始`;
