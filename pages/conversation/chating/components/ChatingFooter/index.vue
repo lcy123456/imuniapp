@@ -358,6 +358,7 @@ export default {
             return {
                 ...message,
                 recvID: userID,
+                groupID: groupID,
                 sessionType: groupID ? 3 : 1
             };
             // return this.sendMessage(message);

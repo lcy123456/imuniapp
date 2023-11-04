@@ -370,17 +370,17 @@
                 <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
                 <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
             </div>
-            <div v-if="isAlone && !shouldMyMaster" class="avatar_panel">
+            <div v-if="!isGroup && !shouldMyMaster" class="avatar_panel">
                 <image class="avatar" :src="callUserInfo.newFaceURL" v-if="callUserInfo.faceURL"></image>
                 <div class="avatar" v-else>{{ callUserInfo.newNickname }}</div>
                 <p class="nick_name">{{ callUserInfo.newNickname }}</p>
             </div>
-            <div v-else-if="isAlone && shouldMyMaster" class="avatar_panel">
+            <div v-else-if="!isGroup && shouldMyMaster" class="avatar_panel">
                 <image class="avatar" :src="selfUserInfo.newFaceURL" v-if="selfUserInfo.faceURL"></image>
                 <div class="avatar" v-else>{{ selfUserInfo.newNickname }}</div>
                 <p class="nick_name">{{ selfUserInfo.newNickname }}</p>
             </div>
-            <div v-if="isAlone && !isCallIng" class="tips_text">等待对方接受邀请</div>
+            <div v-if="!isGroup && !isCallIng" class="tips_text">等待对方接受邀请</div>
             <div class="btn_nav">
                 <div class="handle_panel">
                     <div class="handle_cell" @click="toggleAudio">
@@ -465,11 +465,7 @@
                 // 群聊
                 isGroup() {
                     return this.baseMap.message.sessionType === 3;
-                },
-                // 个人聊天
-                isAlone() {
-                    return this.baseMap.message.sessionType !== 3;
-                },
+                }
             },
             methods: {
                 faceURLHandle(faceURL) {
@@ -516,7 +512,9 @@
                         this.selfUserInfo.newFaceURL = this.faceURLHandle(selfUserInfo.faceURL);
                         this.selfUserInfo.newNickname = this.nicknameHandle(selfUserInfo.nickname);
 
-                        if(this.isCallIng || this.isGroup) this.timerFn();
+                        if(this.isCallIng || this.isGroup) {
+                            this.timerFn();
+                        }
                     }
                     // this.isGoout = false;
                     this.disconnect();
@@ -884,9 +882,10 @@
                         });
                         this.isCallLoading = false;
                         this.isCallIng = true;
-                        if (!this.isGroup && !this.trackList.includes(type)) {
-                            this.timerFn();
-                        }
+                        this.timerFn();
+                        // if (!this.isGroup && !this.trackList.includes(type)) {
+                        //     this.timerFn();
+                        // }
                     }
 
                     // if (this.trackList.includes(type)) {
@@ -944,7 +943,7 @@
                     this.checkDom();
 
 
-                    if(this.isAlone && joinUserID) {
+                    if(!this.isGroup && joinUserID) {
                         // 双方接通电话，自己显示右上角
                         this.changeBox('other')
                     }
