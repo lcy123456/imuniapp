@@ -77,7 +77,7 @@ export default {
             case AudioVideoStatus.Reject:
                 return this.isSender ? `[对方已拒绝]` : `[已拒绝]`;
             case AudioVideoStatus.Cancel:
-                return `[已取消]`;
+                return this.isSender ? `[已取消]` : `[对方已取消]`;
             case AudioVideoStatus.NotAnswered:
                 return this.isSender ? `[对方未应答]` : `[未应答]`;
             case AudioVideoStatus.Busy:

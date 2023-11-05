@@ -247,6 +247,7 @@ export default {
         uni.$off('quote_message', this.handleQuoteListener);
         uni.$off('initWebrtc', this.initWebrtc);
         uni.$off('sendMessage', this.sendMessage);
+        uni.hideLoading();
     },
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
