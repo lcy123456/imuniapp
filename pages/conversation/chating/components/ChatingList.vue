@@ -317,7 +317,7 @@ export default {
     flex: 1;
     overflow: hidden;
     #scroll_wrap {
-        min-height: 100vh;
+        min-height: 100%;
         overflow: hidden;
         // padding: 0 30rpx;
     }
