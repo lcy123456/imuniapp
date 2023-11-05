@@ -23,11 +23,10 @@
                 :upper-threshold="0"
             >
                 <view
-                    v-for="(item, index) of list"
+                    v-for="item of list"
                     :id="`pin${item.id}`"
                     :key="item.id"
                     class="box"
-                    @click="setTop(item, index)"
                 >
                     <text
                         v-if="showTextRender(item)"
