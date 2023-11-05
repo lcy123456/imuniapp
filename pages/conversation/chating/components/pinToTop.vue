@@ -105,6 +105,11 @@ export default {
     },
     computed: {
     },
+    watch: {
+        list () {
+            this.init();
+        }
+    },
     mounted () {
         setTimeout(() => {
             this.init();
