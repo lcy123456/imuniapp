@@ -11,7 +11,9 @@
                 :style="{height: `calc(${100 / list.length * 0.7}rpx - 4rpx)`}"
             />
         </view>
-        <view class="content">
+        <view
+            class="content"
+        >
             <text>置顶消息</text>
             <scroll-view
                 class="scroll_view"
@@ -57,6 +59,10 @@
                     </view>
                 </view>
             </scroll-view>
+            <view
+                class="dialog"
+                @click="setTop"
+            />
         </view>
         <image
             class="close"
@@ -110,13 +116,17 @@ export default {
         init () {
             if (!this.list.length) return;
             this.active = this.list.length - 1;
-            this.scrollIntoView = 'pin' + this.list[this.list.length - 1].id;
+            const nextItem = this.list[this.active - 1] || this.list[this.list.length - 1];
+            this.scrollIntoView = 'pin' + nextItem.id;
         },
-        setTop (item, index) {
-            this.active = index !== 0 ? index - 1 : this.list.length - 1;
-            this.scrollIntoView = 'pin' + (this.list[index - 1] ? this.list[index - 1].id : this.list[this.list.length - 1].id);
-            console.log(this.scrollIntoView, 'this.scrollIntoViewthis.scrollIntoView', index);
-            console.log(this.list);
+        setTop () {
+            // this.active = index !== 0 ? index - 1 : this.list.length - 1;
+            // this.scrollIntoView = 'pin' + (this.list[index - 1] ? this.list[index - 1].id : this.list[this.list.length - 1].id);
+            // this.$emit('setPositionMsgID', item.clientMsgID);
+            this.active = this.active !== 0 ? this.active - 1 : this.list.length - 1;
+            const item = this.list[this.active] || this.list[this.list.length - 1];
+            const nextItem = this.list[this.active - 1] || this.list[this.list.length - 1];
+            this.scrollIntoView = 'pin' + nextItem.id;
             this.$emit('setPositionMsgID', item.clientMsgID);
         },
         showTextRender (item) {
@@ -160,9 +170,18 @@ export default {
         margin-left: 20rpx;
         flex: 1;
         margin-right: 40rpx;
+        position: relative;
         & > uni-text {
             font-size: 28rpx;
             margin-bottom: 10rpx;
+        }
+        .dialog {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
         }
     }
     .close {

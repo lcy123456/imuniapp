@@ -258,7 +258,7 @@ export default {
                     .in(this)
                     .select('#scroll_wrap')
                     .boundingClientRect((res) => {
-                        this.scrollTop = this.isReverse ? res.height + Math.random() : Math.random();
+                        this.scrollTop = this.isReverse ? res.height + Math.random() : (initPage ? 0 : Math.random());
                     })
                     .exec();
             }, 200);
@@ -271,7 +271,7 @@ export default {
                     .in(this)
                     .select('#scroll_wrap')
                     .boundingClientRect((res) => {
-                        this.scrollTop = this.isReverse ? Math.random() : res.height + Math.random();
+                        this.scrollTop = this.isReverse ? Math.random() : res.height + (initPage ? 0 : Math.random());
                         if (initPage) {
                             setTimeout(() => {
                                 this.animation = true;
