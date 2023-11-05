@@ -72,16 +72,7 @@ export default {
                     type: 1
                 }
             ],
-            actionSheetMenu: [
-                {
-                    name: '保存图片',
-                    type: 0
-                },
-                {
-                    name: '保存视频',
-                    type: 1
-                }
-            ],
+            actionSheetMenu: [],
             systemInfo: uni.getSystemInfoSync()
         };
     },
