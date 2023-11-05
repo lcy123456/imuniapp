@@ -537,10 +537,11 @@
                     dom.style && (dom.style.width = width);
                     dom.style && (dom.style.height = height);
                 },
-                async toggleAudio() {
+                async toggleAudio(status) {
                     if (!this.room || !this.room.localParticipant) return;
                     const enabled = this.room.localParticipant.isMicrophoneEnabled;
-                    await this.room.localParticipant.setMicrophoneEnabled(!enabled);
+                    // await this.room.localParticipant.setMicrophoneEnabled(false);
+                    await this.room.localParticipant.setMicrophoneEnabled(typeof status === 'boolean' ? status : !enabled);
                     this.setInitAudioImg();
                 },
                 setInitAudioImg() {
@@ -553,7 +554,11 @@
                 async toggleVideo() {
                     if (!this.room || !this.room.localParticipant) return;
                     const enabled = this.room.localParticipant.isCameraEnabled;
+                    const phoneEnabled = this.room.localParticipant.isMicrophoneEnabled;
                     await this.room.localParticipant.setCameraEnabled(!enabled);
+                    setTimeout(() => {
+                        this.toggleAudio(phoneEnabled);
+                    }, 500);
                     this.setInitVideoImg();
                     let myDom = null;
                     if (this.isGroup) {
@@ -956,15 +961,15 @@
                     if (faceURL) {
                         const _faceURL = this.faceURLHandle(faceURL)
                         joinUserAvatarDom.innerHTML = `<img class="avatar-img" src="${_faceURL}" />`
-                        // 名称
-                        const nameText = document.createElement('span');
-                        nameText.className = 'incoming_call_name_text'
-                        nameText.innerHTML = this.nicknameHandle(nickname)
-                        boxDom.appendChild(nameText);
                     } else {
                         const _nickname = this.nicknameHandle(nickname)
                         joinUserAvatarDom.innerHTML = _nickname
                     }
+                    // 名称
+                    const nameText = document.createElement('span');
+                    nameText.className = 'incoming_call_name_text'
+                    nameText.innerHTML = this.nicknameHandle(nickname)
+                    boxDom.appendChild(nameText);
                 },
                 changeBox(type) {
                     const otherDom = this.getDom('other-box');
