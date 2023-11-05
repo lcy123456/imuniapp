@@ -82,6 +82,7 @@ import { MessageMenuTypes } from '@/constant';
 import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
 import PinToTop from './components/pinToTop.vue';
 import JoinGroupCall from './components/JoinGroupCall.vue';
+import { PageEvents } from "@/constant";
 import {
     MediaRenderTypes,
 } from '@/constant';
@@ -182,7 +183,12 @@ export default {
         },
         getPositionMsgID (positionMsgID) {
             this.positionMsgID = positionMsgID;
-            this.updateChatKey = +new Date();
+            if (!this.storeHasMoreAfterMessage && !this.positionMsgID) {
+                uni.$emit(PageEvents.ScrollToBottom);
+            } else {
+                this.updateChatKey = +new Date();
+            }
+            // this.$refs.chatingListRef.init();
         },
         updatePin (map) {
             this.notificationText = map.text;

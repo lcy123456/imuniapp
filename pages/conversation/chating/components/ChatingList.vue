@@ -134,14 +134,17 @@ export default {
     },
     mounted () {
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
-        this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
-        this.loadMessageList({});
+        this.init();
     },
     beforeDestroy () {
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
     },
     methods: {
         ...mapActions('message', ['getHistoryMesageList', 'getHistoryMesageListReverse']),
+        init () {
+            this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
+            this.loadMessageList({});
+        },
         async loadMessageList ({isLoadMore = false, isReverse = false}) {
             this.messageLoadState.loading = true;
             // const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
@@ -255,7 +258,7 @@ export default {
                     .in(this)
                     .select('#scroll_wrap')
                     .boundingClientRect((res) => {
-                        this.scrollTop = this.isReverse ? res.height + Math.random() : 0;
+                        this.scrollTop = this.isReverse ? res.height + Math.random() : Math.random();
                     })
                     .exec();
             }, 200);
@@ -268,7 +271,7 @@ export default {
                     .in(this)
                     .select('#scroll_wrap')
                     .boundingClientRect((res) => {
-                        this.scrollTop = this.isReverse ? 0 : res.height + Math.random();
+                        this.scrollTop = this.isReverse ? Math.random() : res.height + Math.random();
                         if (initPage) {
                             setTimeout(() => {
                                 this.animation = true;
