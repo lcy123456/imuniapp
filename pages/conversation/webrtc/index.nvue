@@ -3,7 +3,7 @@
         <web-view
             ref="webviewRef"
             @onPostMessage="handlePostMessage"
-            :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
+            :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight}"
             :src="src"
         />
     </view>

@@ -43,6 +43,8 @@
     body,
     html {
         overflow: hidden;
+        width: 100%;
+        height: 100%;
     }
 
     .chat-single-css .my .avatar-box {
@@ -365,18 +367,18 @@
         </div>
 
         <div class="incoming_call_main">
-            <image id="pageMainBack" class="page_main_back" src="images/incoming_call_main_back.png"></image>
+            <img id="pageMainBack" class="page_main_back" src="images/incoming_call_main_back.png" />
             <div class="header_panel">
-                <image id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png"></image>
+                <img id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png" />
                 <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
             </div>
             <div v-if="!isGroup && !shouldMyMaster" class="avatar_panel">
-                <image class="avatar" :src="callUserInfo.newFaceURL" v-if="callUserInfo.faceURL"></image>
+                <img class="avatar" :src="callUserInfo.newFaceURL" v-if="callUserInfo.faceURL" />
                 <div class="avatar" v-else>{{ callUserInfo.newNickname }}</div>
                 <p class="nick_name">{{ callUserInfo.newNickname }}</p>
             </div>
             <div v-else-if="!isGroup && shouldMyMaster" class="avatar_panel">
-                <image class="avatar" :src="selfUserInfo.newFaceURL" v-if="selfUserInfo.faceURL"></image>
+                <img class="avatar" :src="selfUserInfo.newFaceURL" v-if="selfUserInfo.faceURL" />
                 <div class="avatar" v-else>{{ selfUserInfo.newNickname }}</div>
                 <p class="nick_name">{{ selfUserInfo.newNickname }}</p>
             </div>
@@ -384,28 +386,27 @@
             <div class="btn_nav">
                 <div class="handle_panel">
                     <div class="handle_cell" @click="toggleAudio">
-                        <image class="handle_icon" :src="micImage"></image>
+                        <img class="handle_icon" :src="micImage" />
                         <p class="mt-10 fz-14 text-inverse">{{ micText }}</p>
                     </div>
                     <!-- <div class="handle_cell">
-                            <image class="handle_icon" :src="speakImage"></image>
+                            <img class="handle_icon" :src="speakImage" />
                             <p class="mt-10 fz-14 text-inverse">{{ speakText }}</p>
                         </div> -->
                     <div class="handle_cell" @click="toggleVideo">
-                        <image class="handle_icon" :src="camImage"></image>
+                        <img class="handle_icon" :src="camImage" />
                         <p class="mt-10 fz-14 text-inverse">{{ camText }}</p>
                     </div>
                 </div>
                 <div :class="['answer_panel', !isAnswer || isCallIng ? 'flex-center' : '']">
                     <button class="danger_btn" @click="goOut({type: 'hangUp'})">
-                        <image src="images/incoming_call_icon.png" class="call_icon" />
+                        <img src="images/incoming_call_icon.png" class="call_icon" />
                     </button>
                     <!--<button v-if="isAnswer && isCallLoading" class="success_btn">
-                        <image src="images/incoming_call_icon.png" class="call_icon" />
+                        <img src="images/incoming_call_icon.png" class="call_icon" />
                     </button>-->
-                    <image class="overturn_small" src="images/incoming_call_handle_overturn_2.png" v-if="isCallIng"
-                        @click="toggleVideoInput">
-                    </image>
+                    <img class="overturn_small" src="images/incoming_call_handle_overturn_2.png" v-if="isCallIng"
+                        @click="toggleVideoInput" />
                 </div>
             </div>
         </div>
