@@ -1,5 +1,13 @@
 {
 	"pages": [
+		{
+			"path": "pages/conversation/conversationList/index",
+			"style": {
+				"app-plus": {
+					"bounce": "none"
+				}
+			}
+		},
         {
             "path": "pages/conversation/chating/index",
             "style": {
@@ -39,14 +47,6 @@
 		},
 		{
 			"path": "pages/login/verifyCode/index"
-		},
-		{
-			"path": "pages/conversation/conversationList/index",
-			"style": {
-				"app-plus": {
-					"bounce": "none"
-				}
-			}
 		},
 		{
 			"path": "pages/contact/index/index"
