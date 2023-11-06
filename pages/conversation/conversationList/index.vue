@@ -35,7 +35,7 @@
                 >
                     <ConversationItem
                         v-for="item in showConversationList"
-                        :key="`${item.conversationID}-ConversationItem`"
+                        :key="`${(item.key || item.conversationID)}-ConversationItem`"
                         :source="item"
                         :is-disabled="isDisabledSwipe"
                         @closeAllSwipe="closeAllSwipe"
@@ -55,8 +55,6 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import store from "@/store";
-import { idsGetConversationID } from '@/util/imCommon';
 import ChatHeader from './components/ChatHeader.vue';
 import ConversationItem from './components/ConversationItem.vue';
 import { prepareConversationState } from '@/util/imCommon';

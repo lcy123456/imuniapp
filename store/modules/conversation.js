@@ -20,6 +20,12 @@ const mutations = {
         state.isScrollWay = boo;
     },
     SET_CONVERSATION_LIST (state, list) {
+        list = list.map(item => {
+            return {
+                ...item,
+                key: `${item.conversationID}-${+new Date()}`
+            };
+        });
         state.conversationList = [...list];
     },
     SET_CONVERSATION (state, list) {

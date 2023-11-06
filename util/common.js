@@ -197,7 +197,7 @@ export const toastWithCallback = (message, callBack, duration = 1000) => {
 
 export const checkLoginError = (error) => {
     if (!error?.errCode) {
-        return '操作失败';
+        return '网络异常，请稍后重试';
     }
     switch (error.errCode) {
     case 1001:
