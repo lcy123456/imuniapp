@@ -197,16 +197,21 @@ export default {
         width: 100%;
         height: 60rpx;
         .box {
+            display: flex;
             height: 60rpx;
             margin: 10rpx 0;
             & > .text {
+                flex: 1;
                 display: flex;
                 align-items: center;
                 font-size: 32rpx;
                 height: 60rpx;
-                width: 100%;
                 color: #222222;
                 margin: 10rpx 0;
+                @include ellipsisWithLine(1);
+                // white-space: nowrap;
+                // text-overflow: ellipsis;
+                // overflow: hidden;
             }
             .img-box {
                 display: flex;

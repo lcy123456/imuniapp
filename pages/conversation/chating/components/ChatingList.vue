@@ -243,13 +243,12 @@ export default {
                 }
             }
         },
-        scrollToAnchor (auchor, isAnimation = true) {
+        async scrollToAnchor (auchor, isAnimation = true) {
             !isAnimation && this.closeScrollAnimation();
-            this.$nextTick(() => {
-                setTimeout(() => {
-                    this.scrollIntoView = auchor;
-                }, 100);
-            });
+            await this.$nextTick();
+            setTimeout(() => {
+                this.scrollIntoView = auchor;
+            }, 200);
         },
         async scrollToTop ({initPage = false} = {}) {
             initPage && this.$emit('initSuccess');

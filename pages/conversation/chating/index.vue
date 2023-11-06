@@ -162,6 +162,7 @@ export default {
         this.resetMessageState();
         uni.$off('multiple_message', this.handleMultipleMessage);
         uni.$off('forward_finish', this.hideMultipleMsg);
+        this.$store.commit('base/SET_PIN_LIST', []);
     },
     methods: {
         ...mapActions('message', ['resetMessageState', 'deleteMessages']),

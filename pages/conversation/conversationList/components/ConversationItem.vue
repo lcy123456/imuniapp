@@ -148,10 +148,11 @@ export default {
             return this.source.conversationType === SessionType.Notification;
         },
         getSwipeActions () {
+            const notAccept = this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
             let actions = [
                 {
-                    text: `${this.notAccept ? '打开' : '关闭'}通知`,
-                    icon: `/static/images/conversation_${this.notAccept ? 'accept' : 'not_accept_white' }.png`,
+                    text: `${notAccept ? '打开' : '关闭'}通知`,
+                    icon: `/static/images/conversation_${notAccept ? 'accept' : 'not_accept_white' }.png`,
                     style: {
                         backgroundColor: '#e39f4e',
                     },

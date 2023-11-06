@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { html2Text } from '@/util/common';
 import { parseAt, parseEmoji } from "@/util/imCommon";
 import { mapGetters, mapActions } from 'vuex';
 import { MessageMenuTypes } from '@/constant';
@@ -43,6 +44,9 @@ const canCopyTypes = [
     MessageType.TextMessage,
     MessageType.AtTextMessage,
     MessageType.QuoteMessage,
+];
+const notPinTypes = [
+    MessageType.CustomMessage,
 ];
 
 export default {
@@ -94,13 +98,13 @@ export default {
                     type: MessageMenuTypes.Pin,
                     title: '置顶',
                     icon: '/static/images/pin.png',
-                    visible: !this.message.pinMap,
+                    visible: !this.message.pinMap && !notPinTypes.includes(this.message.contentType),
                 },
                 {
                     type: MessageMenuTypes.PinCancel,
                     title: '取消置顶',
                     icon: '/static/images/cancel-pin.png',
-                    visible: this.message.pinMap,
+                    visible: this.message.pinMap && !notPinTypes.includes(this.message.contentType),
                 },
                 {
                     type: MessageMenuTypes.Reply,
@@ -177,20 +181,14 @@ export default {
         },
         getContent () {
             let text = '';
-            const { contentType, quoteElem, atTextElem, textElem, senderNickname } = this.message;
+            const { contentType, quoteElem, atTextElem, textElem } = this.message;
             // TODO：解密文本
             if (contentType === MessageType.QuoteMessage) {
-                text = parseEmoji(DecryptoAES(quoteElem?.text));
+                text = DecryptoAES(quoteElem?.text);
             } else if (contentType === MessageType.AtTextMessage) {
-                text = parseEmoji(parseAt(atTextElem));
+                text = parseAt(atTextElem);
             } else {
-                text = parseEmoji(DecryptoAES(textElem?.content));
-            }
-            if (contentType === MessageType.TextMessage) {
-                text = text.replace(/\n/g, '<br>');
-            }
-            if (this.showNickname) {
-                text = senderNickname + '：' + text;
+                text = DecryptoAES(textElem?.content);
             }
             return text;
         },
@@ -200,7 +198,7 @@ export default {
                 const { pictureElem, videoElem, fileElem, contentType } = this.message;
                 let content = '';
                 if (this.showTextRender) {
-                    content = this.getContent();
+                    content = html2Text(this.getContent());
                 } else if (this.showMediaRender) {
                     content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePicture.url;
                 } else if (this.showFileRender) {

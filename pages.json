@@ -5,7 +5,8 @@
             "style": {
                 "app-plus": {
                     "softinputMode": "adjustResize",
-                    "bounce": "none"
+                    "bounce": "none",
+                    "softinputNavBar": "none"
                 }
             }
         },
