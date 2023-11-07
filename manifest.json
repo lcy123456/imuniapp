@@ -144,7 +144,7 @@
                     "platforms" : "Android,iOS",
                     "url" : "https://ext.dcloud.net.cn/plugin?id=6577",
                     "android_package_name" : "online.tbas.muskim02",
-                    "ios_bundle_id" : "online.tbas.muskim",
+                    "ios_bundle_id" : "online.tbas.muskim02",
                     "isCloud" : true,
                     "bought" : 1,
                     "pid" : "6577",
