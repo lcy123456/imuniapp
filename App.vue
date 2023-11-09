@@ -34,8 +34,12 @@ export default {
         });
     },
     onShow: function () {
-        plus.runtime.setBadgeNumber(0);
-        IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
+        try {
+            plus.runtime.setBadgeNumber(0);
+            IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
+        } catch (err) {
+            //
+        }
     },
     onHide: function () {
         IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), true);
