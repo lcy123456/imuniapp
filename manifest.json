@@ -61,13 +61,13 @@
             "ios" : {
                 "dSYMs" : false,
                 "privacyDescription" : {
-                    "NSPhotoLibraryUsageDescription" : "请求获取读取相册权限",
+                    "NSPhotoLibraryUsageDescription" : "请求获取读取相册权限，用于上传头像图片服务",
                     "NSPhotoLibraryAddUsageDescription" : "请求获取存入相册权限",
-                    "NSCameraUsageDescription" : "请求获取摄像头权限",
-                    "NSMicrophoneUsageDescription" : "请求获取麦克风权限",
-                    "NSLocationWhenInUseUsageDescription" : "请求获取位置权限",
-                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "请求获取位置权限",
-                    "NSLocationAlwaysUsageDescription" : "请求获取位置权限",
+                    "NSCameraUsageDescription" : "请求获取摄像头权限，用于视频通话服务",
+                    "NSMicrophoneUsageDescription" : "请求获取麦克风权限，用于语音通话服务",
+                    "NSLocationWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
+                    "NSLocationAlwaysUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
                     "NSBluetoothAlwaysUsageDescription" : "请求获取蓝牙权限"
                 },
                 "UIBackgroundModes" : "audio"
