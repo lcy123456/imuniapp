@@ -2,7 +2,7 @@
     <web-view
         ref="webviewRef"
         @onPostMessage="handlePostMessage"
-        :style="{width: systemInfo.screenWidth, height: systemInfo.screenHeight}"
+        :style="{flex: 1}"
         :src="src"
     />
 </template>
@@ -23,7 +23,6 @@ export default {
         return {
             time: '',
             updateKey: '',
-            systemInfo: uni.getSystemInfoSync(),
             innerAudioContext: null,
         }
     },
