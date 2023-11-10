@@ -49,6 +49,12 @@
 			"path": "pages/login/verifyCode/index"
 		},
 		{
+			"path": "pages/login/servicePolicy/index"
+		},
+		{
+			"path": "pages/login/privacyPolicy/index"
+		},
+		{
 			"path": "pages/contact/index/index"
 		},
 		{

@@ -88,11 +88,17 @@
                         :name="true"
                     />
                 </u-checkbox-group>
-                <text class="detail">
+                <text
+                    class="detail"
+                    @click="handleGoToPolicy('/pages/login/servicePolicy/index')"
+                >
                     服务协议
                 </text>
                 <text>与</text>
-                <text class="detail">
+                <text
+                    class="detail"
+                    @click="handleGoToPolicy('/pages/login/privacyPolicy/index')"
+                >
                     隐私政策
                 </text>
             </view>
@@ -252,6 +258,10 @@ export default {
                 usedFor: val
             });
         },
+        handleGoToPolicy (url) {
+            console.log((url));
+            uni.$u.route(url);
+        }
     },
 };
 </script>
