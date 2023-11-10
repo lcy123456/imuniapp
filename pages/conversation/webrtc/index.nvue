@@ -1,12 +1,10 @@
 <template>
-    <view>
-        <web-view
-            ref="webviewRef"
-            @onPostMessage="handlePostMessage"
-            :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight}"
-            :src="src"
-        />
-    </view>
+    <web-view
+        ref="webviewRef"
+        @onPostMessage="handlePostMessage"
+        :style="{width: systemInfo.screenWidth, height: systemInfo.screenHeight}"
+        :src="src"
+    />
 </template>
 
 <script>
