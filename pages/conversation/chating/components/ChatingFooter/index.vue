@@ -24,7 +24,7 @@
             </view>
             <template v-else>
                 <view
-                    v-if="quoteMessageShow"
+                    v-if="activeMessageShow"
                     class="quote_box"
                 >
                     <view class="icon_box">
@@ -35,14 +35,14 @@
                     </view>
                     <view class="message_box">
                         <view class="primary title">
-                            回复 {{ quoteMessage.senderNickname }}
+                            {{ activeMessageType === "quote_message" ? `回复 ${activeMessage.senderNickname}` : "编辑消息" }}
                         </view>
-                        <ChatQuote :message="quoteMessage" />
+                        <ChatQuote :message="activeMessage" />
                     </view>
                     <image
                         src="/static/images/chating_footer_quote_close.png"
                         class="ml-40 w-30 h-30"
-                        @click="quoteMessageShow = false"
+                        @click="activeMessageShow = false"
                     />
                 </view>
                 <view class="send_box">
@@ -109,7 +109,7 @@
 import { mapGetters, mapActions } from 'vuex';
 import { base64ToPath } from 'image-tools';
 import { formatInputHtml, getPurePath, html2Text } from '@/util/common';
-import { offlinePushInfo } from '@/util/imCommon';
+import { offlinePushInfo, getMessageContent } from '@/util/imCommon';
 import { AudioVideoStatus, AudioVideoType } from '@/enum';
 import {
     ChatingFooterActionTypes,
@@ -117,7 +117,8 @@ import {
     ImageType,
     VideoType,
     MessageMenuTypes,
-    PageEvents
+    PageEvents,
+    TextRenderTypes
 } from '@/constant';
 import IMSDK, {
     IMMethods,
@@ -133,12 +134,6 @@ import ChatQuote from '@/components/ChatQuote';
 import { EncryptoAES } from '@/util/crypto';
 import { chooseFile } from '@/util/unisdk';
 import { videoCreateRoomAndGetToken } from '@/api/incoming';
-
-const needClearTypes = [
-    MessageType.TextMessage,
-    MessageType.AtTextMessage,
-    MessageType.QuoteMessage,
-];
 
 const albumChoose = [
     {
@@ -212,8 +207,9 @@ export default {
             actionSheetMenu: [],
             showActionSheet: false,
             snapFlag: null,
-            quoteMessageShow: false,
-            quoteMessage: null
+            activeMessageShow: false,
+            activeMessageType: false,
+            activeMessage: null
         };
     },
     computed: {
@@ -237,14 +233,14 @@ export default {
     mounted () {
         this.setSendMessageListener();
         this.setKeyboardListener();
-        uni.$on('quote_message', this.handleQuoteListener);
+        uni.$on('active_message', this.handleMessageListener);
         uni.$on('initWebrtc', this.initWebrtc);
         uni.$on('sendMessage', this.sendMessage);
     },
     beforeDestroy () {
         this.disposeSendMessageListener();
         this.disposeKeyboardListener();
-        uni.$off('quote_message', this.handleQuoteListener);
+        uni.$off('active_message', this.handleMessageListener);
         uni.$off('initWebrtc', this.initWebrtc);
         uni.$off('sendMessage', this.sendMessage);
         uni.hideLoading();
@@ -255,17 +251,36 @@ export default {
         async createTextMessage () {
             let message = '';
             const { text } = formatInputHtml(this.inputHtml, 1);
-            // TODO：加密文本
-            if (this.quoteMessageShow) {
-                message = await IMSDK.asyncApi(
-                    IMMethods.CreateQuoteMessage,
-                    IMSDK.uuid(),
-                    {
-                        text: EncryptoAES(text),
-                        message: this.quoteMessage
+            if (this.activeMessageShow) {
+                if (this.activeMessageType === "quote_message") {
+                    message = await IMSDK.asyncApi(
+                        IMMethods.CreateQuoteMessage,
+                        IMSDK.uuid(),
+                        {
+                            text: EncryptoAES(text),
+                            message: this.activeMessage
+                        }
+                    );
+                } else if (this.activeMessageType === "edit_message") {
+                    // TODO：编辑消息
+                    const { contentType, quoteElem, atTextElem, textElem, ex } = this.activeMessage;
+                    if (contentType === MessageType.QuoteMessage) {
+                        quoteElem.text = EncryptoAES(text);
+                    } else if (contentType === MessageType.AtTextMessage) {
+                        atTextElem.text = EncryptoAES(text);
+                    } else {
+                        textElem.content = EncryptoAES(text);
                     }
-                );
-                this.quoteMessageShow = false;
+                    const _ex = ex ? JSON.parse(ex) : {};
+                    message = {
+                        ...this.activeMessage,
+                        ex: JSON.stringify({
+                            ..._ex,
+                            isEdit: true
+                        })
+                    };
+                }
+                this.activeMessageShow = false;
             } else {
                 message = await IMSDK.asyncApi(
                     IMMethods.CreateTextMessage,
@@ -382,7 +397,7 @@ export default {
                 sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
             });
             uni.$emit(PageEvents.ScrollToBottom);
-            if (needClearTypes.includes(message.contentType)) {
+            if (TextRenderTypes.includes(message.contentType)) {
                 this.customEditorCtx.clear();
             }
             try {
@@ -393,9 +408,6 @@ export default {
                     offlinePushInfo,
                 });
                 console.log('消息发送成功', data);
-                if (data.quoteElem) {
-                    data.quoteElem.quoteMessage = this.quoteMessage;
-                }
                 this.updateOneMessage({
                     message: data,
                     isSuccess: true,
@@ -733,11 +745,13 @@ export default {
         disposeKeyboardListener () {
             uni.offKeyboardHeightChange(this.keyboardChangeHander);
         },
-        handleQuoteListener (val) {
-            console.log('引用', val);
-            this.$refs.customEditor.editorCtx.insertText({text: ''});
-            this.quoteMessage = val;
-            this.quoteMessageShow = true;
+        handleMessageListener (data) {
+            const { message, type } = data;
+            console.log('操作消息item', data);
+            this.$refs.customEditor.editorCtx.insertText({text: getMessageContent(message)});
+            this.activeMessage = message;
+            this.activeMessageShow = true;
+            this.activeMessageType = type;
         }
     },
 };

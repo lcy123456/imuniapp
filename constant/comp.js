@@ -22,7 +22,8 @@ export const MessageMenuTypes = {
     Init: 'init',
     Pin: 'pin',
     PinCancel: 'pinCancel',
-    Checked: 'checked'
+    Checked: 'checked',
+    Edit: 'edit',
 };
 
 export const ContactMenuTypes = {

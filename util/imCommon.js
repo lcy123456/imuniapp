@@ -806,3 +806,17 @@ export const idsGetConversationID = (message) => {
         return new Error('工作群缺少groupID，无法组成conversationID');
     }
 };
+
+export const getMessageContent = (message) => {
+    let text = '';
+    const { contentType, quoteElem, atTextElem, textElem } = message;
+    // TODO：解密文本
+    if (contentType === MessageType.QuoteMessage) {
+        text = DecryptoAES(quoteElem?.text);
+    } else if (contentType === MessageType.AtTextMessage) {
+        text = parseAt(atTextElem);
+    } else {
+        text = DecryptoAES(textElem?.content);
+    }
+    return text;
+};

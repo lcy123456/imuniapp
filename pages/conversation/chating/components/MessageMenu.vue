@@ -30,21 +30,16 @@
 import { html2Text } from '@/util/common';
 import { parseAt, parseEmoji } from "@/util/imCommon";
 import { mapGetters, mapActions } from 'vuex';
-import { MessageMenuTypes } from '@/constant';
 import { pin, pinCancel } from '@/api/pinToTop';
 import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
-
 import { DecryptoAES } from '@/util/crypto';
 import { 
+    MessageMenuTypes,
     TextRenderTypes,
     MediaRenderTypes,
     FileRenderTypes
 } from '@/constant';
-const canCopyTypes = [
-    MessageType.TextMessage,
-    MessageType.AtTextMessage,
-    MessageType.QuoteMessage,
-];
+
 const notPinTypes = [
     MessageType.CustomMessage,
 ];
@@ -113,10 +108,16 @@ export default {
                     visible: true,
                 },
                 {
+                    type: MessageMenuTypes.Edit,
+                    title: '编辑',
+                    icon: '/static/images/chating_message_reply.png',
+                    visible: TextRenderTypes.includes(this.message.contentType),
+                },
+                {
                     type: MessageMenuTypes.Copy,
                     title: '复制',
                     icon: '/static/images/chating_message_copy.png',
-                    visible: canCopyTypes.includes(this.message.contentType),
+                    visible: TextRenderTypes.includes(this.message.contentType),
                 },
                 {
                     type: MessageMenuTypes.Revoke,
@@ -162,7 +163,10 @@ export default {
                 this.handleForward();
                 break;
             case MessageMenuTypes.Reply:
-                await this.handleQuote();
+                uni.$emit('active_message', {
+                    message: this.message,
+                    type: "quote_message"
+                });
                 break;
             case MessageMenuTypes.Copy:
                 await this.handleCopy();
@@ -175,6 +179,12 @@ export default {
                 break;
             case MessageMenuTypes.Del:
                 await this.handleDel();
+                break;
+            case MessageMenuTypes.Edit:
+                uni.$emit('active_message', {
+                    message: this.message,
+                    type: "edit_message"
+                });
                 break;
             }
             this.$emit('close');
@@ -245,9 +255,6 @@ export default {
             uni.$u.route('/pages/common/msgForward/index', {
                 message: encodeURIComponent(JSON.stringify(message))
             });
-        },
-        handleQuote () {
-            uni.$emit('quote_message', this.message);
         },
         handleCopy () {
             return new Promise((resolve, reject) => {
