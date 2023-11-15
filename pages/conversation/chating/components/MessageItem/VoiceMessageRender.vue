@@ -65,6 +65,9 @@ export default {
     },
     beforeDestroy () {
         uni.$off("play_audio", this.handlePlaying);
+        if (this.playing) {
+            uni.$emit("stop_audio", this.soundElem.sourceUrl);
+        }
     },
 
     methods: {

@@ -33,6 +33,7 @@ export default {
             uni.$u.toast(message);
         });
         uni.$on('play_audio', this.handlePlayAudio);
+        uni.$on('stop_audio', this.handleStopAudio);
     },
     onShow: function () {
         try {
@@ -214,8 +215,7 @@ export default {
                 });
                 console.log(this.storeConversationList, conversationID);
                 if (!this.storeIsIncomingCallLoading && !this.storeIsIncomingCallIng && !isMute && !isMyMessage && this.innerAudioContext.paused) {
-                    this.innerAudioContext.src = '/static/audio/message_tip.mp3';
-                    this.innerAudioContext.play();
+                    this.handlePlayAudio('/static/audio/message_tip.mp3');
                 }
                 data.forEach(this.handleNewMessage);
             };
@@ -628,6 +628,11 @@ export default {
             this.innerAudioContext.src = src;
             this.innerAudioContext.seek(0);
             this.innerAudioContext.play();
+        },
+        handleStopAudio (src) {
+            if (this.innerAudioContext.src === src) {
+                this.innerAudioContext.stop();
+            }
         },
         handleUniPush () {
             setTimeout(() => {
