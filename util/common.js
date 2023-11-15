@@ -43,13 +43,10 @@ export const formatInputHtml = (html) => {
 export function getEl (el) {
     return new Promise((resolve) => {
         const query = uni.createSelectorQuery().in(this);
-        query
-            .select(el)
-            .boundingClientRect((data) => {
-                // 存在data，且存在宽和高，视为渲染完毕
-                resolve(data);
-            })
-            .exec();
+        query.select(el).boundingClientRect((data) => {
+            // 存在data，且存在宽和高，视为渲染完毕
+            resolve(data);
+        }).exec();
     });
 }
 

@@ -172,10 +172,11 @@ export default {
             if (!this.storeIsShowSetEnd) {
                 this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
             }
-            const res = await getEl.call(this, '.message_menu_container');
-            if (res) {
-                this.menuState.visible = false;
-            }
+            // const res = await getEl.call(this, '.message_menu_container');
+            // if (res) {
+            //     this.menuState.visible = false;
+            // }
+            this.menuState.visible = false;
         },
         async getPinList () {
             let conversationID = this.storeCurrentConversation.conversationID;

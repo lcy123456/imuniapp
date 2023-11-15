@@ -217,7 +217,7 @@ export default {
                 params
             );
             this.messageList = data.searchResultItems?.[0]?.messageList || [];
-            console.log('xxx', data);
+            // console.log('xxx', data);
         },
         throttleSearchRecord () {
             uni.$u.debounce(this.getSearchRecord, 300);

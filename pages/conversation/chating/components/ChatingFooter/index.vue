@@ -48,18 +48,36 @@
                 <view class="send_box">
                     <view class="flex align-center">
                         <image
-                            class="w-48 h-48 mr-20"
+                            class="w-48 h-48"
                             src="/static/images/chating_footer_emoji.png"
                             @click="updateEmojiBar"
                         />
                         <image
-                            class="w-48 h-48"
+                            class="w-48 h-48 mx-20"
                             src="/static/images/chating_footer_add.png"
                             @click.prevent="updateActionBar"
                         />
+                        <image
+                            class="w-48 h-48"
+                            :src="`/static/images/${recordVisible ? 
+                                'chating_footer_audio'
+                                :
+                                'chating_footer_audio_recording'}.png`"
+                            @click="updateRecordBar"
+                        />
                     </view>
                     <view class="input_content">
+                        <div
+                            v-if="recordVisible"
+                            class="record_btn"
+                            @longpress="handleRecorderStart"
+                            @touchend="handleRecorderEnd"
+                            @touchmove="handleRecordMove"
+                        >
+                            按住说话
+                        </div>
                         <CustomEditor
+                            v-else
                             ref="customEditor"
                             class="custom_editor"
                             @ready="editorReady"
@@ -69,7 +87,7 @@
                         />
                     </view>
                     <image
-                        v-show="hasContent"
+                        v-show="hasContent && !recordVisible"
                         src="/static/images/chating_footer_send.png"
                         class="ml-20 w-80 h-80"
                         @touchend.prevent="sendTextMessage"
@@ -88,6 +106,7 @@
             v-show="emojiBarVisible"
             @emojiClick="emojiClick"
         />
+        <ChatingRecordBar v-show="isRecordStart" />
         <u-action-sheet
             :safe-area-inset-bottom="true"
             round="12"
@@ -108,7 +127,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { base64ToPath } from 'image-tools';
-import { formatInputHtml, getPurePath, html2Text } from '@/util/common';
+import { formatInputHtml, getPurePath, html2Text, getEl } from '@/util/common';
 import { offlinePushInfo, getMessageContent } from '@/util/imCommon';
 import { AudioVideoStatus, AudioVideoType } from '@/enum';
 import {
@@ -130,9 +149,10 @@ import IMSDK, {
 import CustomEditor from './CustomEditor.vue';
 import ChatingActionBar from './ChatingActionBar.vue';
 import ChatingEmojiBar from './ChatingEmojiBar.vue';
+import ChatingRecordBar from './ChatingRecordBar.vue';
 import ChatQuote from '@/components/ChatQuote';
 import { EncryptoAES } from '@/util/crypto';
-import { chooseFile } from '@/util/unisdk';
+import { chooseFile, recordVoiceManager } from '@/util/unisdk';
 import { videoCreateRoomAndGetToken } from '@/api/incoming';
 
 const albumChoose = [
@@ -177,8 +197,8 @@ export default {
         CustomEditor,
         ChatingActionBar,
         ChatingEmojiBar,
+        ChatingRecordBar,
         ChatQuote,
-      
     },
     props: {
         footerOutsideFlag: {
@@ -203,13 +223,17 @@ export default {
             oldText: '',
             actionBarVisible: false,
             emojiBarVisible: false,
+            recordVisible: false,
             isInputFocus: false,
             actionSheetMenu: [],
             showActionSheet: false,
             snapFlag: null,
             activeMessageShow: false,
             activeMessageType: false,
-            activeMessage: null
+            activeMessage: null,
+            isRecordStart: false,
+            isRecordCancel: false,
+            recordCancelBtnInfo: {},
         };
     },
     computed: {
@@ -226,8 +250,8 @@ export default {
     },
     watch: {
         footerOutsideFlag () {
-            this.onClickActionBarOutside();
-            this.onClickEmojiBarOutside();
+            this.actionBarVisible = false;
+            this.emojiBarVisible = false;
         },
     },
     mounted () {
@@ -439,23 +463,15 @@ export default {
         },
 
         // action
-        onClickActionBarOutside () {
-            if (this.actionBarVisible) {
-                this.actionBarVisible = false;
-            }
-        },
-        onClickEmojiBarOutside () {
-            if (this.emojiBarVisible) {
-                this.emojiBarVisible = false;
-            }
-        },
         updateActionBar () {
-            this.onClickEmojiBarOutside();
             this.actionBarVisible = !this.actionBarVisible;
+            this.emojiBarVisible = false;
+            this.recordVisible = false;
         },
         updateEmojiBar () {
-            this.onClickActionBarOutside();
             this.emojiBarVisible = !this.emojiBarVisible;
+            this.actionBarVisible = false;
+            this.recordVisible = false;
         },
         editorReady (e) {
             this.customEditorCtx = e.context;
@@ -577,7 +593,17 @@ export default {
                     fileName: name
                 }
             );
-            console.log('xxx', path, message);
+            this.sendMessage(message);
+        },
+        async batchCreateSoundMesage ({ path, duration }) {
+            const message = await IMSDK.asyncApi(
+                IMMethods.CreateSoundMessageFromFullPath,
+                IMSDK.uuid(),
+                {
+                    soundPath: getPurePath(path),
+                    duration: duration
+                }
+            );
             this.sendMessage(message);
         },
         async selectClick ({ idx }) {
@@ -730,12 +756,8 @@ export default {
         keyboardChangeHander (data) {
             const { height } = data;
             if (height > 0) {
-                if (this.emojiBarVisible) {
-                    this.emojiBarVisible = false;
-                }
-                if (this.actionBarVisible) {
-                    this.actionBarVisible = false;
-                }
+                this.emojiBarVisible = false;
+                this.actionBarVisible = false;
             }
             uni.$emit('keyboardChange', data);
         },
@@ -752,6 +774,41 @@ export default {
             this.activeMessage = message;
             this.activeMessageShow = true;
             this.activeMessageType = type;
+        },
+        updateRecordBar () {
+            this.recordVisible = !this.recordVisible;
+            this.emojiBarVisible = false;
+            this.actionBarVisible = false;
+        },
+        async handleRecorderStart () {
+            const {start} = recordVoiceManager();
+            start();
+            this.isRecordStart = true;
+            await this.$nextTick();
+            this.recordCancelBtnInfo = await getEl.call(this, ".chating_record_cancel");
+        },
+        handleRecordMove (e) {
+            const { left, right, top, bottom } = this.recordCancelBtnInfo;
+            const {pageX, pageY} = e.touches[0];
+            this.isRecordCancel = pageX >= left && pageX <= right && pageY >= top && pageY <= bottom;
+        },
+        async handleRecorderEnd () {
+            const {getPath, stop} = recordVoiceManager();
+            if (this.isRecordCancel) {
+                stop();
+            } else {
+                const res = await getPath();
+                if (res.duration >= 2) {
+                    this.batchCreateSoundMesage({
+                        path: res.path,
+                        duration: res.duration
+                    });
+                } else {
+                    uni.$u.toast("语音时长不小于2s");
+                }
+            }
+            this.isRecordStart = false;
+            this.isRecordCancel = false;
         }
     },
 };
@@ -844,9 +901,10 @@ export default {
             overflow: hidden;
     
             .record_btn {
-                background-color: #3c9cff;
-                height: 30px;
-                font-size: 24rpx;
+                background-color: $uni-bg-color-grey;
+                height: 90rpx;
+                line-height: 90rpx;
+                text-align: center;
             }
         }
     }

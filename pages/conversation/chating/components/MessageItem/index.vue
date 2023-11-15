@@ -78,7 +78,7 @@ import IMSDK, {
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import ChatingList from '../ChatingList.vue';
 import MessageContentWrap from './MessageContentWrap.vue';
-import MessageReadState from './MessageReadState.vue';
+// import MessageReadState from './MessageReadState.vue';
 import { noticeMessageTypes, UpdateMessageTypes, MessageMenuTypes } from '@/constant';
 import { tipMessaggeFormat, offlinePushInfo } from '@/util/imCommon';
 
@@ -87,7 +87,7 @@ export default {
     components: {
         MyAvatar,
         MessageContentWrap,
-        MessageReadState,
+        // MessageReadState,
     },
     props: {
         source: {

@@ -31,6 +31,11 @@
             :is-success-message="isSuccessMessage"
             :is-sender="isSender"
         />
+        <VoiceMessageRender
+            v-else-if="message.contentType === MessageType.VoiceMessage"
+            :message="message" 
+            :is-sender="isSender"
+        />
         <ErrorMessageRender
             v-else
             :message="message"
@@ -58,6 +63,7 @@ import AudioVideoMessageRender from './AudioVideoMessageRender.vue';
 import MediaMessageRender from './MediaMessageRender.vue';
 import FileMessageRender from './FileMessageRender.vue';
 import MergeMessageRender from './MergeMessageRender.vue';
+import VoiceMessageRender from './VoiceMessageRender.vue';
 import ErrorMessageRender from './ErrorMessageRender.vue';
 import MessageReadState from './MessageReadState.vue';
 import ChatQuote from '@/components/ChatQuote';
@@ -79,6 +85,7 @@ export default {
         MediaMessageRender,
         FileMessageRender,
         MergeMessageRender,
+        VoiceMessageRender,
         ErrorMessageRender,
         ChatQuote,
     },
@@ -104,7 +111,7 @@ export default {
 
     data () {
         return {
-            
+            MessageType: Object.freeze(MessageType)
         };
     },
     computed: {

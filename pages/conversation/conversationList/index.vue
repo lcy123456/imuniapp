@@ -160,11 +160,11 @@ export default {
             }, 500);
         },
         async queryList (pageNo) {
-            const data = await this.$store.dispatch(
+            await this.$store.dispatch(
                 'conversation/getConversationList',
                 pageNo === 1
             );
-            console.log('xxx', data);
+            // console.log('xxx', data);
         },
         closeAllSwipe () {
             this.$refs.swipeWrapperRef.closeAll();
