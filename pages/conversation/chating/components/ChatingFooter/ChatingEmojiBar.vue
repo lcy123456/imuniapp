@@ -1,72 +1,160 @@
 <template>
-    <view class="chat_emoji_bar">
-        <u-row class="emoji_row">
-            <u-col
+    <swiper
+        class="swiper_wrap"
+        :style="{height: (gifsData.length > 0 && current === 1) ? '600rpx' : '300rpx'}"
+        :indicator-dots="true"
+        indicator-active-color="#007aff"
+        @change="handleSwiperChange"
+    >
+        <swiper-item class="chat_emoji_bar">
+            <!-- :id="`emoji${emoji.context}`" -->
+            <image
                 v-for="emoji in emojiList"
-                :id="`emoji${emoji.context}`"
                 :key="emoji.context"
-                span="2"
-                @click="clickEmoji(emoji)"
+                class="emoji_item"
+                :src="emoji.src"
+                mode="aspectFit"
+                @click="handleSendEmoji(emoji)"
+            />
+            <view
+                v-for="v in 10" 
+                :key="v"
+                class="emoji_item_temp"
+            />
+        </swiper-item>
+        <swiper-item class="chat_gifs_bar">
+            <uni-search-bar
+                v-model="keyword"
+                class="h-70"
+                placeholder="搜索"
+                @confirm="handleGetGifs(true)"
+                @cancel="handleSearchCancle"
+            />
+            <scroll-view
+                class="chat_gifs_container"
+                scroll-y
+                @scrolltolower="handleGetGifs(false)"
             >
-                <image
-                    class="emoji_item"
-                    :src="emoji.src"
-                    alt=""
+                <MyImage
+                    v-for="(v, i) in gifsData"
+                    :key="v.id + i"
+                    class="gif_item"
+                    :src="v.images.preview_gif.url"
+                    mode="aspectFit"
+                    @click="handleSendGif(v)"
                 />
-            </u-col>
-        </u-row>
-    </view>
+                <view
+                    v-for="v in 10" 
+                    :key="v"
+                    class="gif_item_temp"
+                />
+                <view :class="`w-full ${gifsData.length === 0 && 'absolute t-0'}`">
+                    <u-loading-icon v-show="gifLoading" />
+                </view>
+            </scroll-view>
+        </swiper-item>
+    </swiper>
 </template>
 
 <script>
+import { getGifsSearch } from "@/api/index.js";
 import emojis from "@/common/emojis.js";
+import MyImage from "@/components/MyImage";
+
+const limit = 25;
+
 export default {
     components: {
-
+        MyImage
     },
     data () {
         return {
-			
+            current: 0,
+            emojiList: Object.freeze(emojis),
+            keyword: "",
+            gifScrollEnd: false,
+            gifLoading: false,
+            gifsData: []
         };
     },
-    computed: {
-        emojiList () {
-            return emojis;
-        },
-    },
-    mounted () {
-
-    },
+    
     methods: {
-        clickEmoji (emoji) {
+        handleSwiperChange ({detail}) {
+            this.current = detail.current;
+        },
+        handleSendEmoji (emoji) {
             this.$emit('emojiClick', emoji);
         },
+        handleSearchCancle () {
+            this.gifsData = [];
+        },
+        async handleGetGifs (isInit) {
+            if (isInit) this.gifScrollEnd = false;
+            if (this.gifScrollEnd) return;
+            this.gifLoading = true;
+            const res = await getGifsSearch({
+                q: this.keyword,
+                offset: isInit ? 0 : this.gifsData.length,
+                limit
+            });
+            this.gifsData = isInit ? res.data : [...this.gifsData, ...res.data];
+            if (limit > res.data.length) {
+                this.gifScrollEnd = true;
+            }
+            // console.log('getGifs', res);
+            this.gifLoading = false;
+        },
+        handleSendGif (v) {
+            const original = v.images.original;
+            this.$emit('sendGif', original);
+        }
     }
 };
 </script>
 
 <style lang="scss" scoped>
-	.chat_emoji_bar {
-		padding: 24rpx 36rpx;
-		position: relative;
-        background-color: $uni-bg-color;
+.swiper_wrap {
+    background-color: $uni-bg-color;
+    padding: 0 36rpx;
+    .chat_emoji_bar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-content: flex-start;
+        .emoji_item {
+            width: 80rpx;
+            height: 80rpx;
+            margin-bottom: 24rpx;
+        }
+        .emoji_item_temp {
+            width: 80rpx;
+            height: 0;
+        }
 
-		.emoji_row {
-			flex-wrap: wrap;
-			margin-bottom: 24rpx;
-		}
-
-		.emoji_item {
-			@include centerBox();
-			margin-top: 24rpx;
-			width: 80rpx;
-			height: 60rpx;
-		}
-		
-		.backspace_icon {
-			position: absolute;
-			bottom: 48rpx;
-			right: 72rpx;
-		}
-	}
+    }
+    .chat_gifs_bar {
+        display: flex;
+        flex-direction: column;
+        .chat_gifs_container {
+            flex: 1;
+            overflow: hidden;
+            margin-top: 40rpx;
+            position: relative;
+            /deep/ .uni-scroll-view-content {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                .gif_item {
+                    flex: 0 0 150rpx;
+                    height: 150rpx;
+                    margin-bottom: 40rpx;
+                }
+                .gif_item_temp {
+                    flex: 0 0 150rpx;
+                    height: 0;
+                }
+            }
+        }
+    }
+}
 </style>

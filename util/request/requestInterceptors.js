@@ -16,6 +16,8 @@ module.exports = (vm) => {
                 config.baseURL = appConfig.getConfigUrl();
             } else if (config.custom.isPgyerApi) {
                 config.baseURL = "https://www.pgyer.com";
+            } else if (config.custom.isGiphy) {
+                config.baseURL = "https://api.giphy.com";
             } else {
                 config.baseURL = appConfig.getRegisterUrl();
             }

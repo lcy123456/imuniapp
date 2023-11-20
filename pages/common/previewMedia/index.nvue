@@ -133,7 +133,7 @@ export default {
             });
         },
         change (e) {
-            console.log(e);
+            // console.log(e);
             let current = e.detail.current;
             if (this.item.type === 'video') {
                 console.log(this.item);

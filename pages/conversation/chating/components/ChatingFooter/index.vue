@@ -105,6 +105,7 @@
         <ChatingEmojiBar
             v-show="emojiBarVisible"
             @emojiClick="emojiClick"
+            @sendGif="handleSendGif"
         />
         <ChatingRecordBar v-show="isRecordStart" />
         <u-action-sheet
@@ -256,14 +257,14 @@ export default {
     },
     mounted () {
         this.setSendMessageListener();
-        this.setKeyboardListener();
+        // this.setKeyboardListener();
         uni.$on('active_message', this.handleMessageListener);
         uni.$on('initWebrtc', this.initWebrtc);
         uni.$on('sendMessage', this.sendMessage);
     },
     beforeDestroy () {
         this.disposeSendMessageListener();
-        this.disposeKeyboardListener();
+        // this.disposeKeyboardListener();
         uni.$off('active_message', this.handleMessageListener);
         uni.$off('initWebrtc', this.initWebrtc);
         uni.$off('sendMessage', this.sendMessage);
@@ -487,6 +488,8 @@ export default {
             uni.$emit(PageEvents.ScrollToBottom);
             // #endif
             this.isInputFocus = true;
+            this.emojiBarVisible = false;
+            this.actionBarVisible = false;
         },
         editorBlur () {
             this.isInputFocus = false;
@@ -554,6 +557,21 @@ export default {
                 extClass: 'emoji_el',
             };
             this.$refs.customEditor.insertImage(options);
+        },
+        async handleSendGif (original) {
+            // console.log("sendGif", original);
+            this.$loading("加载中");
+            uni.downloadFile({
+                url: original.url, // webp
+                success: (res) => {
+                    if (res.statusCode === 200) {
+                        this.batchCreateImageMesage([res.tempFilePath]);
+                    }
+                },
+                complete: () => {
+                    this.$hideLoading();
+                }
+            });
         },
         batchCreateImageMesage (paths) {
             paths.forEach(async path => {
@@ -753,20 +771,20 @@ export default {
             );
         },
         // keyboard
-        keyboardChangeHander (data) {
-            const { height } = data;
-            if (height > 0) {
-                this.emojiBarVisible = false;
-                this.actionBarVisible = false;
-            }
-            uni.$emit('keyboardChange', data);
-        },
-        setKeyboardListener () {
-            uni.onKeyboardHeightChange(this.keyboardChangeHander);
-        },
-        disposeKeyboardListener () {
-            uni.offKeyboardHeightChange(this.keyboardChangeHander);
-        },
+        // keyboardChangeHander (data) {
+        //     const { height } = data;
+        //     if (height > 0) {
+        //         this.emojiBarVisible = false;
+        //         this.actionBarVisible = false;
+        //     }
+        //     uni.$emit('keyboardChange', data);
+        // },
+        // setKeyboardListener () {
+        //     uni.onKeyboardHeightChange(this.keyboardChangeHander);
+        // },
+        // disposeKeyboardListener () {
+        //     uni.offKeyboardHeightChange(this.keyboardChangeHander);
+        // },
         handleMessageListener (data) {
             const { message, type } = data;
             console.log('操作消息item', data);
