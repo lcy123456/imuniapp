@@ -15,7 +15,7 @@
                     size="190rpx"
                     @click="updateAvatar"
                 />
-                <view class="mt-30">
+                <view class="flex mt-30 flex-center">
                     <text class="nickname">
                         {{ currentGroup.groupName }}
                     </text>
@@ -328,6 +328,7 @@ export default {
         }
 
         .nickname {
+            display: block;
             @include nomalEllipsis();
             max-width: 400rpx;
             font-size: 50rpx;

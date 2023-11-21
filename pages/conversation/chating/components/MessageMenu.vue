@@ -60,6 +60,7 @@ export default {
         return {
             menuWidth: 200,
             menuItemHight: 40,
+            systemInfo: uni.getSystemInfoSync()
         };
     },
     computed: {
@@ -74,12 +75,19 @@ export default {
         },
         getTop () {
             const { top, bottom } = this.paterRect;
+            const { windowHeight } = uni.getSystemInfoSync();
             const menuHight = this.menuItemHight * this.menuList.length;
+            const minTop = 0;
+            const maxTop = windowHeight - menuHight - 100;
+            let t = 0;
             if (top - menuHight < 100) {
-                return bottom + 10;
+                t = bottom + 10;
             } else {
-                return top - menuHight - 10;
+                t = top - menuHight - 10;
             }
+            t = t > minTop ? t : minTop;
+            t = t < maxTop ? t : maxTop;
+            return t;
         },
         menuList () {
             return [

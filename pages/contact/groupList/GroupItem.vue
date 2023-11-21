@@ -53,7 +53,8 @@ export default {
 			margin-left: 24rpx;
 
 			.group_name {
-				@include nomalEllipsis() max-width: 400rpx;
+				@include nomalEllipsis();
+                max-width: 400rpx;
 			}
 
 			.group_details {

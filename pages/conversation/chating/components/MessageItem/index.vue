@@ -262,6 +262,7 @@ export default {
                 .in(this)
                 .select('.message_content_wrap')
                 .boundingClientRect((res) => {
+                    console.log('resresresres', res);
                     this.$emit('menuRect', {
                         ...res,
                         message: this.source
