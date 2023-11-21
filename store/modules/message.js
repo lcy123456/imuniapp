@@ -8,20 +8,7 @@ const state = {
 };
 
 const mutations = {
-    // SET_HISTORY_MESSAGE_LIST (state, list) {
-    //     state.historyMessageList = [...list];
-    // },
-    // SET_HAS_MORE_MESSAGE (state, hasMore) {
-    //     state.hasMoreMessage = hasMore;
-    // },
     SET_HISTORY_MESSAGE_MAP (state, obj) {
-        // const { conversationID, key, value } = obj;
-        // const temp = state.historyMessageMap[conversationID] || {};
-        // temp[key] = value;
-        // state.historyMessageMap = {
-        //     ...state.historyMessageList,
-        //     [conversationID]: temp
-        // };
         state.historyMessageMap = obj;
     },
 };
@@ -36,7 +23,7 @@ const actions = {
             } = state.historyMessageMap[conversationID] || {};
             const startClientMsgID = positionMsgID || oldMessageList[0]?.clientMsgID || '';
 
-            console.log('startClientMsgIDstartClientMsgIDstartClientMsgID----', params);
+            console.log('--------11111111111----', new Date().Format('yyyy-MM-dd hh:mm:ss'));
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetAdvancedHistoryMessageList,
                 uuidv4(),
@@ -47,23 +34,8 @@ const actions = {
                     lastMinSeq: isInit ? 0 : oldLastMinSeq
                 }
             );
-            console.log('getHistoryMesageList----', data, positionMsgID, startClientMsgID);
+            console.log('--------222222222222222----', new Date().Format('yyyy-MM-dd hh:mm:ss'));
             const { messageList = [], isEnd, lastMinSeq } = data;
-            // commit('SET_HISTORY_MESSAGE_MAP', {
-            //     conversationID: conversationID,
-            //     key: 'messageList',
-            //     value: [...messageList.concat(isInit ? [] : oldMessageList)]
-            // });
-            // commit('SET_HISTORY_MESSAGE_MAP', {
-            //     conversationID: conversationID,
-            //     key: 'hasMore',
-            //     value: !isEnd && messageList.length === count,
-            // });
-            // commit('SET_HISTORY_MESSAGE_MAP', {
-            //     conversationID: conversationID,
-            //     key: 'lastMinSeq',
-            //     value: lastMinSeq,
-            // });
             const hasAfterMore = state.historyMessageMap[conversationID]?.hasAfterMore;
             commit('SET_HISTORY_MESSAGE_MAP', {
                 ...state.historyMessageMap, 
@@ -78,10 +50,6 @@ const actions = {
             return data;
         } catch (e) {
             console.log('eeeeeee-eeee', e);
-            // commit('SET_HISTORY_MESSAGE_MAP', {
-            //     ...state.historyMessageMap, 
-            //     [conversationID]: {},
-            // });
         }
     },
 
@@ -125,15 +93,6 @@ const actions = {
         if (!conversationID) {
             conversationID = idsGetConversationID(message);
         }
-        console.log('pushNewMessage', message);
-        // commit('SET_HISTORY_MESSAGE_MAP', {
-        //     conversationID,
-        //     key: 'messageList',
-        //     value: [
-        //         ...state.historyMessageMap[conversationID]?.messageList || [],
-        //         message,
-        //     ]
-        // });
         const obj = state.historyMessageMap[conversationID];
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
@@ -163,11 +122,6 @@ const actions = {
                 : [keyWords];
             updateFields.forEach(v => (tmpList[idx][v.key] = v.value));
         }
-        // commit('SET_HISTORY_MESSAGE_MAP', {
-        //     conversationID,
-        //     key: 'messageList',
-        //     value: [...tmpList]
-        // });
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
             [conversationID]: {
@@ -190,11 +144,6 @@ const actions = {
                 tmpList.splice(idx, 1);
             }
         });
-        // commit('SET_HISTORY_MESSAGE_MAP', {
-        //     conversationID,
-        //     key: 'messageList',
-        //     value: [...tmpList]
-        // });
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
             [conversationID]: {

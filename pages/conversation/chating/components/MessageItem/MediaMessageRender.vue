@@ -59,7 +59,7 @@ export default {
             imgList: [],
             imageWidth: '300px',
             imageHeight: 240,
-            imgUrl: '',
+            imgUrl: null,
             systemInfo: uni.getSystemInfoSync()
         };
     },
@@ -83,7 +83,6 @@ export default {
         if (this.isVideo) {
             filePath = videoElem?.snapshotPath;
         }
-        this.imgUrl = filePath;
         uni.getFileInfo({
             filePath,
             success: () => {

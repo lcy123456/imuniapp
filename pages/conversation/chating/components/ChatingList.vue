@@ -195,9 +195,10 @@ export default {
             } catch (e) {
                 this.animation = true;
             }
-            setTimeout(() => {
-                this.messageLoadState.loading = false;
-            }, 1000);
+            // setTimeout(() => {
+            //     this.messageLoadState.loading = false;
+            // }, 1000);
+            this.messageLoadState.loading = false;
         },
         handleTouchstart () {
             this.isShowMenuFlag = true;
@@ -242,6 +243,7 @@ export default {
         },
         scrolltolower () {
             if (this.isInReverse) return;
+            console.log('加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载', this.messageLoadState.loading);
             if (this.isReverse) {
                 if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
                     this.loadMessageList({ isLoadMore: true });
