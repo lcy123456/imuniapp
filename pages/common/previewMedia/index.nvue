@@ -3,18 +3,18 @@
         <swiper
             class="swiper_container"
             :current="current"
-            :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
+            :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
             @change="change"
         >
             <swiper-item
                 v-for="v in list"
                 :key="v.url"
-                :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
+                :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
             >
                 <image
                     v-if="v.type === 'image'"
                     :src="v.url"
-                    :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
+                    :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
                     @click="previewImage(v)"
                     @longpress="longpress(0)"
                     mode="aspectFit"
@@ -23,7 +23,7 @@
                     v-else-if="v.type === 'video'"
                     :id="v.url"
                     :src="v.url"
-                    :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
+                    :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
                     :poster="v.poster && v.poster[0]"
                     @longpress="longpress(1)"
                 />

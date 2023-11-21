@@ -227,7 +227,7 @@ export default {
                 if (isVideo) {
                     map = {
                         url: videoElem.videoUrl,
-                        poster: [videoElem?.snapshotUrl],
+                        poster: [videoElem?.snapshotUrl, videoElem?.snapshotPath],
                         type: 'video',
                     };
                 }

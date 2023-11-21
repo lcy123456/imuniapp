@@ -83,6 +83,7 @@ export default {
         if (this.isVideo) {
             filePath = videoElem?.snapshotPath;
         }
+        this.imgUrl = filePath;
         uni.getFileInfo({
             filePath,
             success: () => {
@@ -103,7 +104,9 @@ export default {
     methods: {
         async clickMediaItem () {
             await this.getSearchRecord();
-            const index = this.storeConversationMediaList.findIndex(item => item.poster.includes(this.imgUrl)) > -1 ? this.storeConversationMediaList.findIndex(item => item.poster.includes(this.imgUrl)) : 0;
+            console.log('this.imgUrlthis.imgUrl---', this.storeConversationMediaList, this.imgUrl);
+            const i = this.storeConversationMediaList.findIndex(item => item.poster.includes(this.imgUrl));
+            const index = i > -1 ? i : 0;
             uni.$u.route('/pages/common/previewMedia/index', {
                 list: encodeURIComponent(JSON.stringify(this.storeConversationMediaList)),
                 current: index,
