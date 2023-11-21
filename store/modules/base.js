@@ -1,12 +1,16 @@
 import { pinList } from '@/api/pinToTop';
 import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting } from '@/util/permission.js';
 const state = {
-    pinList: []
+    pinList: [],
+    connectingStatus: ''
 };
 
 const mutations = {
     SET_PIN_LIST (state, list) {
         state.pinList = list;
+    },
+    SET_CONNECTING_STATUS (state, value) {
+        state.connectingStatus = value;
     }
 };
 

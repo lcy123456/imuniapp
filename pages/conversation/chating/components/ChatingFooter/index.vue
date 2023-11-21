@@ -347,15 +347,20 @@ export default {
         },
         async sendCustomMessage (type) {
             this.isLoadingCreateRoom = true;
-            const message = await this.createCustomMessage({
-                data: JSON.stringify({
-                    type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio,
-                    status: AudioVideoStatus.Send
-                }),
-                extension: '',
-                description: ''
-            });
-            return this.sendAudioVideoMessage(message, type);
+            try {
+                const message = await this.createCustomMessage({
+                    data: JSON.stringify({
+                        type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio,
+                        status: AudioVideoStatus.Send
+                    }),
+                    extension: '',
+                    description: ''
+                });
+                return this.sendAudioVideoMessage(message, type);
+            } catch (err) {
+                uni.$u.toast('网络异常，请稍后重试');
+                return false;
+            }
         },
         async sendBusyMessage (type) {
             const message = await this.createCustomMessage({

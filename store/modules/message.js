@@ -36,6 +36,7 @@ const actions = {
             } = state.historyMessageMap[conversationID] || {};
             const startClientMsgID = positionMsgID || oldMessageList[0]?.clientMsgID || '';
 
+            console.log('startClientMsgIDstartClientMsgIDstartClientMsgID----', params);
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetAdvancedHistoryMessageList,
                 uuidv4(),
@@ -76,6 +77,7 @@ const actions = {
             });
             return data;
         } catch (e) {
+            console.log('eeeeeee-eeee', e);
             // commit('SET_HISTORY_MESSAGE_MAP', {
             //     ...state.historyMessageMap, 
             //     [conversationID]: {},
@@ -91,7 +93,6 @@ const actions = {
                 lastMinSeq: oldLastMinSeq = 0
             } = state.historyMessageMap[conversationID] || {};
             const startClientMsgID = positionMsgID || oldMessageList[oldMessageList.length - 1]?.clientMsgID || '';
-
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetAdvancedHistoryMessageListReverse,
                 uuidv4(),
@@ -116,6 +117,7 @@ const actions = {
             return data;
         } catch (e) {
             // 
+            console.log('pppp', e);
         }
     },
     pushNewMessage ({ commit, state, rootState }, message) {

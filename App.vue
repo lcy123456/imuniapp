@@ -36,6 +36,7 @@ export default {
         uni.$on('stop_audio', this.handleStopAudio);
     },
     onShow: function () {
+        this.num++;
         try {
             plus.runtime.setBadgeNumber(0);
             IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
@@ -48,6 +49,8 @@ export default {
     },
     data () {
         return {
+            num: 0,
+            payload: false,
             innerAudioContext: null
         };
     },
@@ -148,12 +151,15 @@ export default {
             };
             IMSDK.subscribe(IMSDK.IMEvents.OnConnectFailed, ({ errCode }) => {
                 console.log(errCode);
+                this.$store.commit('base/SET_CONNECTING_STATUS', '网络异常，请检查网络');
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnConnecting, (data) => {
                 console.log(data);
+                this.$store.commit('base/SET_CONNECTING_STATUS', '连接中...');
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnConnectSuccess, (data) => {
                 console.log(data);
+                this.$store.commit('base/SET_CONNECTING_STATUS', '');
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnKickedOffline, () => {
                 kickHander("您的账号在其他设备登录，请重新登陆！");
@@ -169,20 +175,27 @@ export default {
                 //     title: "同步中",
                 //     mask: true,
                 // });
+                // uni.$u.toast('同步');
                 this.$store.commit("user/SET_IS_SYNCING", true);
             };
-            const syncFinishHandler = () => {
+            const done = () => {
+                this.$store.commit("user/SET_IS_SYNCING", false);
+                const time = uni.getStorageSync('time');
+                if (time && +new Date() - time <= 5 * 1000) return;
+                uni.setStorageSync('time', +new Date());
                 // uni.hideLoading();
                 this.$store.dispatch("conversation/getConversationList");
                 this.$store.dispatch("conversation/getUnReadCount");
-                this.$store.commit("user/SET_IS_SYNCING", false);
+
+                uni.$emit(PageEvents.ClickPushMessage, this.payload.conversationID);
+                this.payload = false;
+            };
+            const syncFinishHandler = () => {
+                done();
             };
             const syncFailedHandler = () => {
-                // uni.hideLoading();
                 uni.$u.toast("同步消息失败");
-                this.$store.dispatch("conversation/getConversationList");
-                this.$store.dispatch("conversation/getUnReadCount");
-                this.$store.commit("user/SET_IS_SYNCING", false);
+                done();
             };
             IMSDK.subscribe(IMSDK.IMEvents.OnSyncServerStart, syncStartHandler);
             IMSDK.subscribe(IMSDK.IMEvents.OnSyncServerFinish, syncFinishHandler);
@@ -240,7 +253,6 @@ export default {
                 });
             };
             const groupReadReceiptHandler = ({ data: receiptList }) => {
-                console.log('receiptList------', receiptList);
                 receiptList.forEach((item) => {
                     item.msgIDList && item.msgIDList.forEach((msgID) => {
                         this.updateOneMessage({
@@ -621,6 +633,33 @@ export default {
                 this.storeCurrentConversation.conversationID
             );
         },
+        getAudio () {
+            this.innerAudioContext = plus.audio.createPlayer({ 
+                src: '/static/audio/message_tip.mp3'
+            });
+            /** * ambient模式在iOS端默认带有跟随系统铃声模式的行为，iOS端默认值为soloAmbient * iOS端默认情况下为soloAmbient，但偶现有打开playback，即出现了之前静音模式下也播放铃声的问题 * ambient支持多音频混合，故不会打断正在播放的音乐 */
+            this.innerAudioContext.setSessionCategory('ambient');
+            // 判断平台如果是Android
+            if (uni.$u.os() !== 'ios') { 
+                // 导入声音管理类（AudioManager提供对音量和铃声模式控制的访问）
+                let AudioManager = plus.android.importClass('android.media.AudioManager');
+                this.audioManager = new AudioManager();
+            }
+        },
+        play () {
+            // 播放的时候，iOS端可直接播放，因为ambient模式自带有跟随系统铃声模式的默认行为
+            // 但Android端需要判断系统的铃声模式来决定是否需要播放
+            if (uni.$u.os() !== 'ios') { 
+                /** * 获取当前手机的铃声模式 * 0. 林格模式，将沉默，不会振动。 （这会覆盖振动设置。） * 1. 林肯模式，将沉默，并会振动。 （这会导致电话铃声总是振动，但是如果设置，通知振动只会振动。） * 2. 铃声模式可能会发出声音并可能振动。 如果在更换此模式之前的音量可以听到，则会发出声音。 如果振动设置打开，它会振动。 */
+                let status = this.audioManager.getRingerMode();
+                if (status === 2) { 
+                    // 铃声模式下才播放音频
+                    this.innerAudioContext.play();
+                }
+                return;
+            }
+            this.innerAudioContext.play(); // iOS端直接播放
+        },
         handleAudioManager () {
             this.innerAudioContext = uni.createInnerAudioContext();
         },
@@ -633,6 +672,9 @@ export default {
             if (this.innerAudioContext.src === src) {
                 this.innerAudioContext.stop();
             }
+            // this.innerAudioContext = uni.createInnerAudioContext();
+            // this.innerAudioContext.src = '/static/audio/message_tip.mp3';
+            // this.getAudio();
         },
         handleUniPush () {
             setTimeout(() => {
@@ -645,10 +687,14 @@ export default {
             plus.push.addEventListener('click', this._handlePush);  
         },
         _handlePush (message) {
-            let payload = message.payload || {};
-            console.log('push', JSON.stringify(payload));
+            let payload = message && message.payload || {};
             if (!payload.conversationID) return;
-            uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
+            if (this.num === 1) {
+                this.payload = payload;
+            } else {
+                this.payload = false;
+                uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
+            }
         }
     },
 };

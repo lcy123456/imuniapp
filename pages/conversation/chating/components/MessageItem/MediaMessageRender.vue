@@ -1,15 +1,15 @@
 <template>
     <view
         class="media_message_container"
-        :style="{height: imageHeight + 'px'}"
+        :style="{height: imageHeight === 'auto' ? imageHeight : (imageHeight + 'px')}"
         @click="clickMediaItem"
     >
         <!-- <view :style="{height:wrapperHeight}" class="media_message_container"> -->
         <u--image
             :show-loading="true"
-            :width="loadingWidth"
+            :width="systemInfo.windowWidth * 0.5 + 'px'"
             :height="imageHeight"
-            mode="heightFix"
+            mode="widthFix"
             :src="imgUrl"
             @load="onLoaded"
             @click="clickMediaItem"
@@ -21,6 +21,7 @@
         <image
             v-if="isVideo"
             class="play_icon"
+            mode="widthFix"
             src="@/static/images/chating_message_video_play.png"
             alt=""
             srcset=""
@@ -56,9 +57,10 @@ export default {
     data () {
         return {
             imgList: [],
-            loadingWidth: '200px',
+            imageWidth: '300px',
             imageHeight: 240,
-            imgUrl: ''
+            imgUrl: '',
+            systemInfo: uni.getSystemInfoSync()
         };
     },
     computed: {
@@ -93,10 +95,10 @@ export default {
                 }
             }
         });
-        const imageHeight = (this.isVideo ? videoElem?.snapshotHeight : pictureElem?.sourcePicture.height) || 0;
-        if (imageHeight < this.imageHeight) {
-            this.imageHeight = imageHeight;
-        }
+        // const imageHeight = (this.isVideo ? videoElem?.snapshotHeight : pictureElem?.sourcePicture.height) || 0;
+        // if (imageHeight < this.imageHeight) {
+        //     this.imageHeight = imageHeight;
+        // }
     },
     methods: {
         async clickMediaItem () {
@@ -108,7 +110,7 @@ export default {
             });
         },
         onLoaded () {
-            this.loadingWidth = 'auto';
+            this.imageHeight = 'auto';
         }
     }
 };
@@ -122,6 +124,7 @@ export default {
 		.play_icon {
 			width: 48px;
 			height: 48px;
+            max-width: 20%;
 			position: absolute;
 			top: 50%;
 			left: 50%;

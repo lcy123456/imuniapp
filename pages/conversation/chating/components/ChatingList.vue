@@ -95,6 +95,7 @@ export default {
     },
     data () {
         return {
+            conversationID: '',
             animation: true,
             isReverse: true,
             isInReverse: false,
@@ -121,6 +122,7 @@ export default {
             'storeHasMoreAfterMessage',
             'storeIsShowSetEnd',
             'storeCurrentUserID',
+            'storeHistoryMessageMap'
         ]),
         loadMoreStatus () {
             if (!this.storeHasMoreMessage) {
@@ -133,10 +135,18 @@ export default {
         }
     },
     mounted () {
+        this.conversationID = this.storeCurrentConversation.conversationID;
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
         this.init();
     },
     beforeDestroy () {
+        this.$store.commit('message/SET_HISTORY_MESSAGE_MAP', {
+            ...this.storeHistoryMessageMap, 
+            [this.conversationID]: {
+                messageList: []
+            }
+        });
+        this.init();
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
     },
     methods: {
@@ -150,7 +160,7 @@ export default {
             // const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
             const count = 40;
             const options = {
-                conversationID: this.storeCurrentConversation.conversationID,
+                conversationID: this.conversationID,
                 userID: '',
                 groupID: '',
                 count: count
@@ -173,6 +183,7 @@ export default {
                         await this[isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                             ...options,
                             positionMsgID: positionMsgID,
+                            isInit: true,
                             count: parseInt(count / 2)
                         });
                         this.animation = true;
@@ -182,7 +193,6 @@ export default {
                     }
                 }
             } catch (e) {
-                console.log(e);
                 this.animation = true;
             }
             setTimeout(() => {
@@ -284,18 +294,6 @@ export default {
             this.withAnimation = false;
             setTimeout(() => (this.withAnimation = true), 500);
         },
-        // handlePositionMsgID () {
-        //     setTimeout(() => {
-        //         const ids = this.storeHistoryMessageList.map(v => v.clientMsgID);
-        //         if (ids.includes(this.positionMsgID)) {
-        //             this.scrollToAnchor(`auchor${this.positionMsgID}`);
-        //             this.positionMsgIDFlag = false;
-        //         } else {
-        //             this.messageLoadState.loading = false;
-        //             this.loadMessageList({ isLoadMore: true, positionMsgID: this.positionMsgID });
-        //         }
-        //     }, 300);
-        // },
         menuRect (res) {
             this.$emit('menuRect', res);
         }

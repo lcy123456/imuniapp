@@ -3,6 +3,7 @@
         <TextMessageRender
             v-if="showTextRender"
             :message="message"
+            :is-show-time="false"
             :show-nickname="showDetail"
         />
         <view

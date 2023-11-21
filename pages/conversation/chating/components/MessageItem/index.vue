@@ -36,6 +36,7 @@
                     <text>{{ source.senderNickname }}</text>
                 </view>
                 <MessageContentWrap
+                    :key="`auchor${source.clientMsgID}-MessageContentWrap`"
                     :message="source"
                     :is-multiple-msg="isMultipleMsg"
                     :is-success-message="isSuccessMessage"

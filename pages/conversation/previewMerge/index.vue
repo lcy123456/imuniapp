@@ -75,10 +75,10 @@ export default {
         .message_box {
             flex: 1;
             overflow: hidden;
+            padding: 0 0 30rpx;
             .message_sender {
                 margin-bottom: 10rpx;
             }
-            padding-bottom: 30rpx;
             border-bottom: 2rpx solid $uni-color-thinGrey;
             /deep/.message_content_wrap {
                 .merge_message_container {
@@ -87,6 +87,9 @@ export default {
                 .text_message_container {
                     padding: 0;
                 }
+            }
+            /deep/.read-content {
+                bottom: 0!important;
             }
         }
     }

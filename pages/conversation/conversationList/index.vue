@@ -35,7 +35,7 @@
                 >
                     <ConversationItem
                         v-for="item in showConversationList"
-                        :key="`${(item.key || item.conversationID)}-ConversationItem`"
+                        :key="`${(item.conversationID)}-ConversationItem`"
                         :source="item"
                         :is-disabled="isDisabledSwipe"
                         @closeAllSwipe="closeAllSwipe"
@@ -173,12 +173,12 @@ export default {
             console.log(PageEvents.ClickPushMessage, conversationID);
             const source = this.storeConversationList.find(v => v.conversationID === conversationID);
             if (!source) return;
-            uni.switchTab({
-                url: "/pages/conversation/conversationList/index",
-            });
-            setTimeout(() => {
-                prepareConversationState(source);
-            }, 300);
+            // uni.switchTab({
+            //     url: "/pages/conversation/conversationList/index",
+            // });
+            // setTimeout(() => {
+            //     prepareConversationState(source);
+            // }, 300);
         }
     },
 };

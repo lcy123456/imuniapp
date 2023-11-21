@@ -5,7 +5,14 @@
             bg-color="#eff1f4"
         >
             <template slot="center">
+                <text
+                    v-if="storeConnectingStatus"
+                    class="header-text"
+                >
+                    {{ storeConnectingStatus }}
+                </text>
                 <u--image
+                    v-else
                     src="/static/images/logo_name_blue.png"
                     width="200rpx"
                     height="28rpx"
@@ -95,7 +102,10 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeSelfInfo'])
+        ...mapGetters([
+            'storeSelfInfo',
+            'storeConnectingStatus'
+        ])
     },
     methods: {
         clickMenu ({
@@ -141,6 +151,9 @@ export default {
 <style lang="scss" scoped>
 	.chat_header {
 		padding: 0 20rpx;
+        .header-text {
+            font-size: 34rpx;
+        }
 
         .more_menu {
             position: absolute;
