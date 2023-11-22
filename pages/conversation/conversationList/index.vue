@@ -173,9 +173,9 @@ export default {
             console.log(PageEvents.ClickPushMessage, conversationID);
             const source = this.storeConversationList.find(v => v.conversationID === conversationID);
             if (!source) return;
-            // uni.switchTab({
-            //     url: "/pages/conversation/conversationList/index",
-            // });
+            uni.switchTab({
+                url: "/pages/conversation/conversationList/index",
+            });
             // setTimeout(() => {
             //     prepareConversationState(source);
             // }, 300);

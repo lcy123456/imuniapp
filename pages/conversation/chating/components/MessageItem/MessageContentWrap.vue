@@ -7,37 +7,37 @@
             :is-sender="isSender"
         />
         <MediaMessageRender
-            v-else-if="showMediaRender"
+            v-if="showMediaRender"
             :message="message"
             :is-success-message="isSuccessMessage"
             :is-sender="isSender"
         />
         <FileMessageRender
-            v-else-if="showFileRender"
+            v-if="showFileRender"
             :message="message"
             :is-success-message="isSuccessMessage"
             :is-sender="isSender"
         />
         <MergeMessageRender
-            v-else-if="showMergeRender"
+            v-if="showMergeRender"
             :message="message"
             :is-success-message="isSuccessMessage"
             :is-sender="isSender"
         />
         <AudioVideoMessageRender
-            v-else-if="showAudioVideoRender"
+            v-if="showAudioVideoRender"
             :message="message"
             :is-multiple-msg="isMultipleMsg"
             :is-success-message="isSuccessMessage"
             :is-sender="isSender"
         />
         <VoiceMessageRender
-            v-else-if="message.contentType === MessageType.VoiceMessage"
+            v-if="showVoiceMessageRender"
             :message="message" 
             :is-sender="isSender"
         />
         <ErrorMessageRender
-            v-else
+            v-if="showErrorRender"
             :message="message"
             :is-success-message="isSuccessMessage"
             :is-sender="isSender"
@@ -125,6 +125,17 @@ export default {
                 return false;
             }
             return AudioVideoRenderTypes.includes(this.message.contentType) && data.type && [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type);
+        },
+        showErrorRender () {
+            return !this.showTextRender &&
+                !this.showMediaRender &&
+                !this.showFileRender &&
+                !this.showMergeRender &&
+                !this.showAudioVideoRender &&
+                !this.showVoiceMessageRender;
+        },
+        showVoiceMessageRender () {
+            return this.message.contentType === MessageType.VoiceMessage;
         },
         showTextRender () {
             return TextRenderTypes.includes(this.message.contentType);

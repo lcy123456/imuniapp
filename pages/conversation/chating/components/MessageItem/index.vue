@@ -1,72 +1,74 @@
 <template>
-    <view
-        v-if="!isNoticeMessage"
-        :id="`auchor${source.clientMsgID}`"
-        class="message_item"
-        :class="{ message_item_self: isSender, positionActive: positionMsgID === source.clientMsgID }"
-        @click="handleMultiple"
-    >
+    <view>
         <view
-            v-show="isMultipleMsg"
-            class="check_wrap"
-            :class="{'check_wrap_active':isChecked}"
+            v-if="!isNoticeMessage"
+            :id="`auchor${source.clientMsgID}`"
+            class="message_item"
+            :class="{ message_item_self: isSender, positionActive: positionMsgID === source.clientMsgID }"
+            @click="handleMultiple"
         >
-            <u-icon
-                v-show="isChecked"
-                name="checkbox-mark"
-                size="12"
-                color="#fff"
-            />
-        </view>
-        <view class="item_right">
-            <MyAvatar
-                v-if="!(isSingle || isSender)"
-                size="80rpx"
-                :desc="source.senderNickname"
-                :src="source.senderFaceUrl"
-                shape="circle"
-                class="my_avatar"
-                @click="showInfo"
-            />
-            <view class="message_container">
-                <view 
+            <view
+                v-show="isMultipleMsg"
+                class="check_wrap"
+                :class="{'check_wrap_active':isChecked}"
+            >
+                <u-icon
+                    v-show="isChecked"
+                    name="checkbox-mark"
+                    size="12"
+                    color="#fff"
+                />
+            </view>
+            <view class="item_right">
+                <MyAvatar
                     v-if="!(isSingle || isSender)"
-                    class="message_sender"
-                >
-                    <text>{{ source.senderNickname }}</text>
+                    size="80rpx"
+                    :desc="source.senderNickname"
+                    :src="source.senderFaceUrl"
+                    shape="circle"
+                    class="my_avatar"
+                    @click="showInfo"
+                />
+                <view class="message_container">
+                    <view 
+                        v-if="!(isSingle || isSender)"
+                        class="message_sender"
+                    >
+                        <text>{{ source.senderNickname }}</text>
+                    </view>
+                    <MessageContentWrap
+                        :key="`auchor${source.clientMsgID}-MessageContentWrap`"
+                        :message="source"
+                        :is-multiple-msg="isMultipleMsg"
+                        :is-success-message="isSuccessMessage"
+                        :is-sender="isSender"
+                        :show-sending="showSending"
+                        :is-failed-message="isFailedMessage"
+                        @longpress.prevent.native="handleLongPress"
+                    />
+                    <!-- <MessageReadState
+                        v-if="isSender && isSuccessMessage"
+                        :message="source"
+                    /> -->
                 </view>
-                <MessageContentWrap
-                    :key="`auchor${source.clientMsgID}-MessageContentWrap`"
-                    :message="source"
-                    :is-multiple-msg="isMultipleMsg"
-                    :is-success-message="isSuccessMessage"
-                    :is-sender="isSender"
-                    :show-sending="showSending"
-                    :is-failed-message="isFailedMessage"
-                    @longpress.prevent.native="handleLongPress"
-                />
-                <!-- <MessageReadState
-                    v-if="isSender && isSuccessMessage"
-                    :message="source"
-                /> -->
-            </view>
-            <view class="message_send_state">
-                <!-- <u-loading-icon v-if="showSending" /> -->
-                <image
-                    v-if="isFailedMessage"
-                    src="@/static/images/chating_message_failed.png"
-                    @click="reSendMessage"
-                />
+                <view class="message_send_state">
+                    <!-- <u-loading-icon v-if="showSending" /> -->
+                    <image
+                        v-if="isFailedMessage"
+                        src="@/static/images/chating_message_failed.png"
+                        @click="reSendMessage"
+                    />
+                </view>
             </view>
         </view>
-    </view>
 
-    <view
-        v-else
-        :id="`auchor${source.clientMsgID}`"
-        class="notice_message_container"
-    >
-        <text>{{ getNoticeContent }}</text>
+        <view
+            v-if="isNoticeMessage"
+            :id="`auchor${source.clientMsgID}`"
+            class="notice_message_container"
+        >
+            <text>{{ getNoticeContent }}</text>
+        </view>
     </view>
 </template>
 

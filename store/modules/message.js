@@ -23,7 +23,12 @@ const actions = {
             } = state.historyMessageMap[conversationID] || {};
             const startClientMsgID = positionMsgID || oldMessageList[0]?.clientMsgID || '';
 
-            console.log('--------11111111111----', new Date().Format('yyyy-MM-dd hh:mm:ss'));
+            console.log('--------11111111111----', new Date().Format('yyyy-MM-dd hh:mm:ss'), {
+                ...params,
+                isInit: undefined,
+                startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
+                lastMinSeq: isInit ? 0 : oldLastMinSeq
+            });
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetAdvancedHistoryMessageList,
                 uuidv4(),
@@ -47,9 +52,10 @@ const actions = {
                     lastMinSeq: lastMinSeq
                 },
             });
-            return data;
+            return messageList;
         } catch (e) {
             console.log('eeeeeee-eeee', e);
+            return [];
         }
     },
 
@@ -82,10 +88,11 @@ const actions = {
                     lastMinSeq: lastMinSeq
                 },
             });
-            return data;
+            return messageList;
         } catch (e) {
             // 
             console.log('pppp', e);
+            return [];
         }
     },
     pushNewMessage ({ commit, state, rootState }, message) {

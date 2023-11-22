@@ -49,7 +49,7 @@
                     src="@/static/images/conversation_not_accept.png"
                 />
                 <u-badge
-                    v-else
+                    v-if="!notAccept"
                     max="99"
                     :value="source.unreadCount"
                 />
