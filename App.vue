@@ -13,6 +13,7 @@ import { getDbDir, toastWithCallback } from "@/util/common.js";
 import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
 import { videoGetToken } from '@/api/incoming';
+import { bindCid } from '@/api/index';
 
 // const customStatusTextMap = {
 //     [AudioVideoStatus.Done]: '通话结束',
@@ -678,9 +679,22 @@ export default {
         },
         handleUniPush () {
             setTimeout(() => {
-                plus.push.getClientInfoAsync((info) => {
+                plus.push.getClientInfoAsync(async (info) => {
                     const cid = info["clientid"];
-                    console.log('clientid', cid, info);
+                    if (!cid) {
+                        this.handleUniPush();
+                        return;
+                    }
+                    console.log('---=====bindcid', {
+                        platform: uni.$u.os() === "ios" ? 1 : 2,
+                        userID: this.storeUserID,
+                        cid
+                    });
+                    await bindCid({
+                        platform: uni.$u.os() === "ios" ? 1 : 2,
+                        userID: this.storeUserID,
+                        cid
+                    });
                     this.$store.commit('user/SET_CLIENT_ID', cid);
                 });
             }, 3000);
