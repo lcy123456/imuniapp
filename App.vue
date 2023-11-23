@@ -560,6 +560,9 @@ export default {
                     uni.$u.debounce(this.markConversationAsRead, 2000);
                     if (this.storeIsShowSetEnd) return;
                     setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
+                } else if ([MessageType.TypingMessage].includes(newServerMsg.contentType)) {
+                    // 正在输入..
+                    uni.$emit('setStatus', newServerMsg.typingElem?.msgTips);
                 }
             }
             const customStatus = this.isAudioVideoSend(newServerMsg);

@@ -268,6 +268,7 @@ export default {
         uni.$off('active_message', this.handleMessageListener);
         uni.$off('initWebrtc', this.initWebrtc);
         uni.$off('sendMessage', this.sendMessage);
+        clearInterval(this.timer);
         uni.hideLoading();
     },
     methods: {
@@ -515,16 +516,16 @@ export default {
             // }
             this.inputHtml = e.detail.html;
             this.oldText = newText;
-            this.sendTypingMessage();
+            this.sendTypingMessage('正在输入中...');
         },
-        async sendTypingMessage () {
+        async sendTypingMessage (msgTip) {
             const { userID } = this.storeCurrentConversation;
             const message = await IMSDK.asyncApi(
                 IMMethods.TypingStatusUpdate,
                 IMSDK.uuid(),
                 {
                     recvID: userID,
-                    msgTip: '正在输入中....'
+                    msgTip
                 }
             );
             return message;
@@ -823,6 +824,9 @@ export default {
             this.isRecordStart = true;
             await this.$nextTick();
             this.recordCancelBtnInfo = await getEl.call(this, ".chating_record_cancel");
+            this.timer = setInterval(() => {
+                this.sendTypingMessage('正在说话中...');
+            }, 5000);
         },
         handleRecordMove (e) {
             const { left, right, top, bottom } = this.recordCancelBtnInfo;
@@ -830,6 +834,7 @@ export default {
             this.isRecordCancel = pageX >= left && pageX <= right && pageY >= top && pageY <= bottom;
         },
         async handleRecorderEnd () {
+            clearInterval(this.timer);
             const {getPath, stop} = recordVoiceManager();
             if (this.isRecordCancel) {
                 stop();

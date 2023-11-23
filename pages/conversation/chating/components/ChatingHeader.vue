@@ -25,6 +25,12 @@
             >
                 <view class="title">
                     {{ storeCurrentConversation.showName }}
+                    <text
+                        v-if="typingText"
+                        class="typing-text"
+                    >
+                        {{ typingText }}
+                    </text>
                 </view>
                 <view
                     v-if="isSingle"
@@ -103,6 +109,7 @@ export default {
         return {
             isOnline: false,
             onlineStr: "离线",
+            typingText: ''
         };
     },
     computed: {
@@ -129,13 +136,25 @@ export default {
         },
     },
     created () {
+        uni.$on('setStatus', this.setStatus);
         this.setIMListener();
         this.getOnlineState();
         this.timer = setInterval(() => {
             this.getOnlineState();
         }, 3000);
     },
+    beforeDestroy () {
+        clearInterval(this.timer);
+        clearInterval(this.timer2);
+    },
     methods: {
+        setStatus (str) {
+            this.typingText = str;
+            clearTimeout(this.timer2);
+            this.timer2 = setTimeout(() => {
+                this.typingText = '';
+            }, 2000);
+        },
         async getOnlineState () {
             try {
                 const res = await getDesignatedUserOnlineState(this.userID);
@@ -173,9 +192,6 @@ export default {
                 show: false
             });
         }
-    },
-    beforeDestroy () {
-        clearInterval(this.timer);
     }
 };
 </script>
@@ -186,6 +202,9 @@ export default {
             font-size: 24rpx!important;
         }
     }
+    .typing-text {
+        margin-left: 20rpx;
+    }
 	.chating_header {
         padding: 0 30rpx;
 		.conversation_info {
@@ -193,7 +212,7 @@ export default {
 
 			.title {
 				@include nomalEllipsis();
-				max-width: 280rpx;
+				max-width: 380rpx;
 				font-size: 34rpx;
 				font-weight: 500;
 				font-family: MiSans-Medium;
