@@ -112,7 +112,10 @@ export default {
         },
         handlePlaying (src) {
             this.playing = false;
-            if (this.nextSrc === src) return;
+            if (this.nextSrc === src) {
+                this.nextSrc = '';
+                return;
+            }
             this.nextSrc = src;
             if (src === this.soundElem.sourceUrl) {
                 this.playing = !this.playing;
