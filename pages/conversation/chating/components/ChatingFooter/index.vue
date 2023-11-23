@@ -70,7 +70,7 @@
                         <div
                             v-if="recordVisible"
                             class="record_btn"
-                            @longpress="handleRecorderStart"
+                            @touchstart="handleRecorderStart"
                             @touchend="handleRecorderEnd"
                             @touchmove="handleRecordMove"
                         >
@@ -437,6 +437,7 @@ export default {
                     message,
                     offlinePushInfo,
                 });
+                uni.$emit('play_audio', '/static/audio/send_tip.mp3', 'ambient');
                 console.log('消息发送成功', data);
                 this.updateOneMessage({
                     message: data,
@@ -928,6 +929,9 @@ export default {
                 height: 90rpx;
                 line-height: 90rpx;
                 text-align: center;
+                &:active {
+                    box-shadow: inset 0 2px 23px 0 rgba(10,16,23,.4);
+                }
             }
         }
     }

@@ -101,18 +101,14 @@ export default {
         // 唤起铃声
         startMusic () {
             // 避免重复唤起铃声
-            if (this.innerAudioContext != null) return;
-
-            this.innerAudioContext = uni.createInnerAudioContext();
-            this.innerAudioContext.autoplay = true;
-            this.innerAudioContext.loop = true;
-            this.innerAudioContext.src = '/static/audio/incoming_call_music.mp3';
+            if (this.isStartMusic) return;
+            this.isStartMusic = true;
+            uni.$emit('play_audio', '/static/audio/incoming_call_music.mp3');
         },
         // 销毁铃声
         stopMusic () {
-            if (this.innerAudioContext == null) return;
-            this.innerAudioContext.destroy();
-            this.innerAudioContext = null;
+            this.isStartMusic = false;
+            uni.$emit('stop_audio', '/static/audio/incoming_call_music.mp3');
         },
         async handlePostMessage (event) {
             const [data] = event.detail.data

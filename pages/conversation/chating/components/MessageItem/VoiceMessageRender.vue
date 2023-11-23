@@ -1,21 +1,50 @@
 <template>
-    <div
-        class="voice_message_container bg_container"
+    <view
+        class="voice_message_container"
         @click="handlePlay"
     >
-        <div>
-            <div>语音时长：{{ durationText }} s</div>
-            <div>播放中：{{ playing }}</div>
+        <view
+            v-if="isSender"
+            class="voice-box"
+            :style="{width: voiceWidth}"
+        >
+            <!-- <view>语音时长：{{ durationText }} s</view> -->
+            <!-- <view>播放中：{{ playing }}</view> -->
+            <text>{{ durationText }}''</text>
             <image
-                class="w-48 h-48"
-                src="/static/images/chating_footer_recording.png"
+                v-if="!playing"
+                class="w-48 h-48 isrotate"
+                src="/static/images/audio_play_left.svg"
             />
-        </div>
+            <image
+                v-if="playing"
+                class="w-48 h-48 isrotate"
+                src="/static/images/voice.gif"
+            />
+        </view>
+        <view
+            v-if="!isSender"
+            class="voice-box left"
+            :style="{width: voiceWidth}"
+        >
+            <image
+                v-if="!playing"
+                class="w-48 h-48"
+                src="/static/images/audio_play_left.svg"
+            />
+            <image
+                v-if="playing"
+                class="w-48 h-48"
+                src="/static/images/voice.gif"
+            />
+            <text>{{ durationText }}''</text>
+        </view>
         <MessageReadState
+            :class="['message-read', !isSender ? 'left' : '']"
             :message="message"
             :is-sender="isSender"
         />
-    </div>
+    </view>
 </template>
 
 <script>
@@ -42,11 +71,16 @@ export default {
 
     data () {
         return {
-            playing: false
+            playing: false,
+            nextSrc: ''
         };
     },
 
     computed: {
+        voiceWidth () {
+            const w = 350 * (this.durationText / 60) + 50;
+            return (w > 400 ? 400 : w) + 'px';
+        },
         soundElem () {
             return this.message.soundElem || {};
         },
@@ -78,8 +112,10 @@ export default {
         },
         handlePlaying (src) {
             this.playing = false;
+            if (this.nextSrc === src) return;
+            this.nextSrc = src;
             if (src === this.soundElem.sourceUrl) {
-                this.playing = true;
+                this.playing = !this.playing;
                 timer = setTimeout(() => {
                     this.playing = false;
                 }, (this.soundElem.duration + 1) * 1000);
@@ -90,5 +126,44 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+    .isrotate {
+        transform-style: preserve-3d;
+        transform:rotateY(180deg);
+        -ms-transform:rotateY(180deg);
+        -moz-transform:rotateY(180deg);
+        -webkit-transform:rotateY(180deg);
+        -o-transform:rotateY(180deg);
+    }
+    .voice_message_container {
+        .voice-box {
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: right;
+            height: 80rpx;
+            border-radius: 5px;
+            padding: 20rpx;
+            uni-image {
+                width: 30rpx;
+                height: 30rpx;
+            }
+            uni-text {
+                margin: 0 5rpx;
+            }
+            &.left {
+                justify-content: left;
+            }
+            &:active {
+                box-shadow: inset 0 2px 13px 0 rgba(10,16,23,.1);
+            }
+        }
+        .message-read {
+            width: 100%;
+            display: flex;
+            justify-content: end;
+            &.left {
+                justify-content: left;
+            }
+        }
+    }
 </style>

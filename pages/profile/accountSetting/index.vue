@@ -20,6 +20,11 @@
                     show-switch
                     @switch="switchGlobalOpt"
                 />
+                <SettingItem
+                    title="消息提示音"
+                    show-arrow
+                    @click="checkoutVoice"
+                />
             </view>
             <view class="add-user">
                 <view slot="content">
@@ -64,6 +69,15 @@
                 </view>
             </view>
         </view>
+        <u-picker
+            :show="show"
+            :key-name="'label'"
+            :columns="columns"
+            :default-index="defaultIndex"
+            @confirm="confirm"
+            @change="changeHandler"
+            @cancel="show = false;"
+        />
     </Page>
 </template>
 
@@ -87,6 +101,30 @@ export default {
             loading: false,
             addUserLoading: false,
             checkUserLoading: false,
+            show: false,
+            defaultIndex: [],
+            columns: [[
+                {
+                    id: 1,
+                    label: '提示声一',
+                    value: '/static/audio/voice1.mp3'
+                },
+                {
+                    id: 2,
+                    label: '提示声二',
+                    value: '/static/audio/voice2.mp3'
+                },
+                {
+                    id: 3,
+                    label: '提示声三',
+                    value: '/static/audio/voice3.mp3'
+                },
+                {
+                    id: 4,
+                    label: '提示声四',
+                    value: '/static/audio/voice4.mp3'
+                },
+            ]],
             options: [{
                 icon: '/static/images/chating_message_del.png',
                 style: {
@@ -113,7 +151,37 @@ export default {
             return this.$store.getters.storeSelfInfo.globalRecvMsgOpt !== MessageReceiveOptType.Nomal;
         }
     },
+    created () {
+    },
     methods: {
+        setDefaultIndex () {
+            const index = this.columns[0].findIndex(item => item.value === uni.getStorageSync('voice'));
+            this.defaultIndex = index === -1 ? [0] : [index];
+        },
+        changeHandler (e) {
+            const {
+                value
+            } = e;
+            const item = value[0];
+            uni.$emit('play_audio', item.value);
+        },
+        confirm (e) {
+            const {
+                value
+            } = e;
+            const item = value[0];
+            uni.setStorageSync('voice', item.value);
+            this.show = false;
+            uni.$u.toast('设置成功');
+        },
+        checkoutVoice () {
+            this.setDefaultIndex();
+            this.show = true;
+            this.$nextTick(() => {
+                const item = this.columns[0][this.defaultIndex[0]];
+                uni.$emit('play_audio', item.value);
+            });
+        },
         getAvatarUrl (src) {
             return defaultAvatars[src] ?? src;
         },
@@ -174,7 +242,7 @@ export default {
             border-radius: 30rpx;
 		}
         .add-user {
-            margin: 20rpx;
+            margin: 20rpx 40rpx;
 			background-color: $uni-bg-color;
             border-radius: 30rpx;
             .ul {

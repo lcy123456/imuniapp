@@ -181,9 +181,9 @@ export default {
             };
             const done = () => {
                 this.$store.commit("user/SET_IS_SYNCING", false);
-                const time = uni.getStorageSync('time');
-                if (time && +new Date() - time <= 5 * 1000) return;
-                uni.setStorageSync('time', +new Date());
+                // const time = uni.getStorageSync('time');
+                // if (time && +new Date() - time <= 5 * 1000) return;
+                // uni.setStorageSync('time', +new Date());
                 // uni.hideLoading();
                 this.$store.dispatch("conversation/getConversationList");
                 this.$store.dispatch("conversation/getUnReadCount");
@@ -228,8 +228,12 @@ export default {
                     }
                 });
                 console.log(this.storeConversationList, conversationID);
-                if (!this.storeIsIncomingCallLoading && !this.storeIsIncomingCallIng && !isMute && !isMyMessage && this.innerAudioContext.paused) {
-                    this.handlePlayAudio('/static/audio/message_tip.mp3');
+                // && this.innerAudioContext.paused
+                if (!this.storeIsIncomingCallLoading && !this.storeIsIncomingCallIng && !isMute && !isMyMessage) {
+                    if (!this.innerAudioContext || this.innerAudioContext.isPaused()) {
+                        const tip = uni.getStorageSync('voice') || `/static/audio/voice1.mp3`;
+                        this.handlePlayAudio(tip, 'ambient');
+                    }
                 }
                 data.forEach(this.handleNewMessage);
             };
@@ -634,18 +638,22 @@ export default {
                 this.storeCurrentConversation.conversationID
             );
         },
-        getAudio () {
+        getAudio ({ src = '/static/audio/message_tip.mp3', sessionCategory = 'playback' }) {
+            this.audioSrc = src;
             this.innerAudioContext = plus.audio.createPlayer({ 
-                src: '/static/audio/message_tip.mp3'
+                src
             });
             /** * ambient模式在iOS端默认带有跟随系统铃声模式的行为，iOS端默认值为soloAmbient * iOS端默认情况下为soloAmbient，但偶现有打开playback，即出现了之前静音模式下也播放铃声的问题 * ambient支持多音频混合，故不会打断正在播放的音乐 */
-            this.innerAudioContext.setSessionCategory('ambient');
+            this.innerAudioContext.setSessionCategory(sessionCategory);
             // 判断平台如果是Android
             if (uni.$u.os() !== 'ios') { 
                 // 导入声音管理类（AudioManager提供对音量和铃声模式控制的访问）
                 let AudioManager = plus.android.importClass('android.media.AudioManager');
                 this.audioManager = new AudioManager();
             }
+            this.innerAudioContext.addEventListener('ended', () => {
+                this.audioSrc = '';
+            });
         },
         play () {
             // 播放的时候，iOS端可直接播放，因为ambient模式自带有跟随系统铃声模式的默认行为
@@ -659,23 +667,34 @@ export default {
                 }
                 return;
             }
-            this.innerAudioContext.play(); // iOS端直接播放
+            this.innerAudioContext.play();
+            // iOS端直接播放
         },
         handleAudioManager () {
-            this.innerAudioContext = uni.createInnerAudioContext();
+            // this.innerAudioContext = uni.createInnerAudioContext();
         },
-        handlePlayAudio (src) {
-            this.innerAudioContext.src = src;
-            this.innerAudioContext.seek(0);
-            this.innerAudioContext.play();
+        handlePlayAudio (src, sessionCategory) {
+            // this.innerAudioContext.src = src;
+            // if (this.innerAudioContext && !this.innerAudioContext.isPaused()) return;
+            console.log('this.audioSrcthis.audioSrc-', src, this.audioSrc);
+            if (this.audioSrc) {
+                this.innerAudioContext.close();
+                if (src === this.audioSrc) {
+                    this.audioSrc = '';
+                    return;
+                }
+            }
+            this.getAudio({
+                src,
+                sessionCategory
+            });
+            this.innerAudioContext.seekTo(0);
+            this.play();
         },
         handleStopAudio (src) {
-            if (this.innerAudioContext.src === src) {
-                this.innerAudioContext.stop();
+            if (this.innerAudioContext._Player_Param.src === src) {
+                this.innerAudioContext.close();
             }
-            // this.innerAudioContext = uni.createInnerAudioContext();
-            // this.innerAudioContext.src = '/static/audio/message_tip.mp3';
-            // this.getAudio();
         },
         handleUniPush () {
             setTimeout(() => {
@@ -690,11 +709,16 @@ export default {
                         userID: this.storeUserID,
                         cid
                     });
-                    await bindCid({
-                        platform: uni.$u.os() === "ios" ? 1 : 2,
-                        userID: this.storeUserID,
-                        cid
-                    });
+                    try {
+                        const d = await bindCid({
+                            platform: uni.$u.os() === "ios" ? 1 : 2,
+                            userID: this.storeUserID,
+                            cid
+                        });
+                        console.log('---32322', d);
+                    } catch (e) {
+                        console.log('ddd', e);
+                    }
                     this.$store.commit('user/SET_CLIENT_ID', cid);
                 });
             }, 3000);

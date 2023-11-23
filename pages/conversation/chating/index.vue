@@ -185,7 +185,7 @@ export default {
         },
         getPositionMsgID (positionMsgID) {
             this.positionMsgID = positionMsgID;
-            if (!this.storeHasMoreAfterMessage && !this.positionMsgID) {
+            if (!this.storeHasMoreAfterMessage && !this.positionMsgID && this.storeHistoryMessageList.length <= 120) {
                 uni.$emit(PageEvents.ScrollToBottom);
             } else {
                 this.updateChatKey = +new Date();
@@ -215,7 +215,6 @@ export default {
                 params
             );
             let imgList = data.searchResultItems?.[0]?.messageList || [];
-            console.log(imgList, 'imgListimgListimgList');
             this.imgList = imgList.map((v) => {
                 const { contentType, pictureElem, videoElem } = v;
                 const isVideo = contentType === MessageType.VideoMessage;
@@ -234,7 +233,6 @@ export default {
                 return map;
             });
             this.imgList.reverse();
-            console.log(this.imgList, '--------------------imgListimgListimgList');
             this.$store.commit('conversation/SET_CONVERSATION_MEDIA_LIST', this.imgList);
         },
         chatListClick () {
