@@ -154,7 +154,7 @@ export default {
             );
         },
         userStatusChangedHandler (data) {
-            console.log(data, '-----');
+            console.log('OnUserStatusChangedOnUserStatusChanged-----', data);
         },
         showInfo () {
             uni.$u.route(`/pages/common/userCard/index?sourceID=${this.userID}&from=chating`);

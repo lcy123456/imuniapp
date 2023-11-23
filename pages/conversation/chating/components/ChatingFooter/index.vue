@@ -500,7 +500,7 @@ export default {
         editorBlur () {
             this.isInputFocus = false;
         },
-        editorInput (e) {
+        async editorInput (e) {
             const newText = html2Text(e.detail.html);
             // if (
             //     this.$store.getters.storeCurrentConversation.groupID &&
@@ -515,6 +515,19 @@ export default {
             // }
             this.inputHtml = e.detail.html;
             this.oldText = newText;
+            this.sendTypingMessage();
+        },
+        async sendTypingMessage () {
+            const { userID } = this.storeCurrentConversation;
+            const message = await IMSDK.asyncApi(
+                IMMethods.TypingStatusUpdate,
+                IMSDK.uuid(),
+                {
+                    recvID: userID,
+                    msgTip: '正在输入中....'
+                }
+            );
+            return message;
         },
         prepareMediaMessage (type) {
             if (type === ChatingFooterActionTypes.Album) {

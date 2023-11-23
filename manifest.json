@@ -10,9 +10,9 @@
         "usingComponents" : true,
         "nvueStyleCompiler" : "uni-app",
         "compilerVersion" : 3,
-        "kernel": {  
-            "ios": "WKWebview",  
-            "recovery": "reload"  
+        "kernel" : {
+            "ios" : "WKWebview",
+            "recovery" : "reload"
         },
         "splashscreen" : {
             "alwaysShowBeforeRender" : false,
