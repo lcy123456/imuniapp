@@ -121,6 +121,7 @@ export default {
                 this.playing = !this.playing;
                 timer = setTimeout(() => {
                     this.playing = false;
+                    this.nextSrc = '';
                 }, (this.soundElem.duration + 1) * 1000);
             }
         }
