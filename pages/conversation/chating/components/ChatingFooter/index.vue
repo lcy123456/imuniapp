@@ -579,7 +579,6 @@ export default {
             this.$refs.customEditor.insertImage(options);
         },
         async handleSendGif (original) {
-            // console.log("sendGif", original);
             this.$loading("加载中");
             uni.downloadFile({
                 url: original.url, // webp
@@ -587,6 +586,9 @@ export default {
                     if (res.statusCode === 200) {
                         this.batchCreateImageMesage([res.tempFilePath]);
                     }
+                },
+                fail: () => {
+                    this.$hideLoading();
                 },
                 complete: () => {
                     this.$hideLoading();
@@ -826,7 +828,7 @@ export default {
             this.recordCancelBtnInfo = await getEl.call(this, ".chating_record_cancel");
             this.timer = setInterval(() => {
                 this.sendTypingMessage('正在说话中...');
-            }, 5000);
+            }, 1000);
         },
         handleRecordMove (e) {
             const { left, right, top, bottom } = this.recordCancelBtnInfo;

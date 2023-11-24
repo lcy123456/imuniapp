@@ -12,16 +12,9 @@
                     @cancel="handleCancel"
                 />
             </view>
-            <view
+            <Empty
                 v-if="!keyword || showList.length === 0"
-                key="empty"
-                class="flex justify-center flex-grow pt-186 bg-color"
-            >
-                <image
-                    src="/static/images/search_record_empty.png"
-                    class="empty_icon"
-                />
-            </view>
+            />
             <view
                 v-else
                 key="list"

@@ -92,6 +92,12 @@ export default {
         menuList () {
             return [
                 {
+                    type: MessageMenuTypes.AddEmoticons,
+                    title: '添加到表情',
+                    icon: '/static/images/chating_message_forward.png',
+                    visible: this.showMediaRender,
+                },
+                {
                     type: MessageMenuTypes.Forward,
                     title: '转发',
                     icon: '/static/images/chating_message_forward.png',
@@ -161,6 +167,9 @@ export default {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
         async menuClick ({ type }) {
             switch (type) {
+            case MessageMenuTypes.AddEmoticons:
+                this.addEmoticons();
+                break;
             case MessageMenuTypes.Pin:
                 await this.pin();
                 break;
@@ -196,6 +205,20 @@ export default {
                 break;
             }
             this.$emit('close');
+        },
+        addEmoticons () {
+            const { pictureElem, videoElem, contentType } = this.message;
+            const content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePicture.url;
+            let list = uni.getStorageSync('emoticonsList');
+            list = list ? JSON.parse(list) : [];
+            if (list.length >= 200) {
+                uni.$u.toast('表情添加上限，请删除后添加');
+                return;
+            }
+            list.push(content);
+            uni.setStorageSync('emoticonsList', JSON.stringify(list));
+            uni.$u.toast('添加成功');
+            uni.$emit('undateEmoticons');
         },
         getContent () {
             let text = '';

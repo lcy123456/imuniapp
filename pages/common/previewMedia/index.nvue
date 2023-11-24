@@ -7,13 +7,14 @@
             @change="change"
         >
             <swiper-item
-                v-for="v in list"
-                :key="v.url"
+                v-for="(v, i) in list"
+                :key="v.url + '-' + i"
                 :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
             >
                 <image
                     v-if="v.type === 'image'"
                     :src="v.url"
+                    :key="v.url + 'image'"
                     :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
                     @click="previewImage(v)"
                     @longpress="longpress(0)"

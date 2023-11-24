@@ -82,7 +82,7 @@ export default {
             "storeUserID"
         ]),
         showConversationList () {
-            return this.storeConversationList.filter(v => v);
+            return this.storeConversationList;
         },
     },
     onReady () {

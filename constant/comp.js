@@ -12,6 +12,7 @@ export const ChatingFooterActionTypes = {
 
 export const MessageMenuTypes = {
     Copy: 'Copy',
+    AddEmoticons: 'AddEmoticons',
     Del: 'Del',
     DelAll: 'DelAll',
     Forward: 'Forward',
