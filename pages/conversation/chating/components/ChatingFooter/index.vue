@@ -432,23 +432,12 @@ export default {
                 this.customEditorCtx.clear();
             }
             try {
-                const { data } = IMSDK.asyncApi(IMMethods.CreateTextAtMessage, IMSDK.uuid(), {
-                    text: "测试一下下",
-                    atUserIDList: ['8409257805'],
-                    atUsersInfo: [
-                        {
-                            atUserID: '8409257805',
-                            groupNickname: '主任2'
-                        }
-                    ],
-                    message
+                const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                    recvID: userID,
+                    groupID,
+                    message,
+                    offlinePushInfo,
                 });
-                // const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                //     recvID: userID,
-                //     groupID,
-                //     message,
-                //     offlinePushInfo,
-                // });
                 uni.$emit('play_audio', '/static/audio/send_tip.mp3', 'ambient');
                 console.log('消息发送成功', data);
                 this.updateOneMessage({
