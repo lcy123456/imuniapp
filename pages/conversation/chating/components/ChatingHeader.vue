@@ -157,9 +157,9 @@ export default {
         },
         async getOnlineState () {
             try {
-                const res = await getDesignatedUserOnlineState(this.userID);
-                this.isOnline = res !== "离线";
-                this.onlineStr = res;
+                const { onlineStr, status } = await getDesignatedUserOnlineState(this.userID);
+                this.isOnline = status === "online";
+                this.onlineStr = onlineStr;
             } catch (err) {
                 // console.log('获取状态失败失败失败失败失败失败失败', err);
                 this.isOnline = false;

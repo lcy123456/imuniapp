@@ -94,7 +94,7 @@ export default {
                 {
                     type: MessageMenuTypes.AddEmoticons,
                     title: '添加到表情',
-                    icon: '/static/images/chating_message_forward.png',
+                    icon: '/static/images/chating_message_gif.png',
                     visible: this.showMediaRender,
                 },
                 {
@@ -124,7 +124,7 @@ export default {
                 {
                     type: MessageMenuTypes.Edit,
                     title: '编辑',
-                    icon: '/static/images/chating_message_reply.png',
+                    icon: '/static/images/chating_message_edit.png',
                     visible: TextRenderTypes.includes(this.message.contentType),
                 },
                 {

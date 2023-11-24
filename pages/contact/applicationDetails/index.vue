@@ -122,9 +122,10 @@ export default {
     methods: {
         getOnlineState () {
             getDesignatedUserOnlineState(this.sourceID)
-                .then((str) => {
-                    this.isOnline = str !== "离线";
-                    this.onlineStr = str;
+                .then((res) => {
+                    const { onlineStr, status } = res;
+                    this.isOnline = status === "online";
+                    this.onlineStr = onlineStr;
                 })
                 .catch(() => (this.isOnline = false));
         },

@@ -32,6 +32,7 @@ const actions = {
                     lastMinSeq: isInit ? 0 : oldLastMinSeq
                 }
             );
+            console.log('getHistoryMesageList----', data);
             const { messageList = [], isEnd, lastMinSeq } = data;
             const hasAfterMore = state.historyMessageMap[conversationID]?.hasAfterMore;
             commit('SET_HISTORY_MESSAGE_MAP', {

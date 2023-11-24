@@ -595,7 +595,10 @@ export const getDesignatedUserOnlineState = (userID) => {
             statusObj.status,
             statusObj.detailPlatformStatus
         );
-        resolve(onlineStr);
+        resolve({
+            onlineStr,
+            status: statusObj.status
+        });
     });
 };
 
@@ -612,7 +615,7 @@ function switchOnline (oType, details) {
         });
         return `${str.slice(0, -1)} 在线`;
     default:
-        return "";
+        return oType;
     }
 }
 
