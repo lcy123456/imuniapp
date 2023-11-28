@@ -100,7 +100,9 @@ export default {
             if (this.notAccept && this.source.unreadCount > 0) {
                 prefix = `[${this.source.unreadCount}条] `;
             }
-
+            if (this.source.groupID === '8635312407') {
+                console.log('needActivePerfix-needActivePerfix', this.source, this.source.groupAtType, GroupAtType.AtNormal);
+            }
             if (this.needActivePerfix) {
                 switch (this.source.groupAtType) {
                 case GroupAtType.AtAll:

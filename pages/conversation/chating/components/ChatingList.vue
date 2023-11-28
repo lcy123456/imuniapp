@@ -157,7 +157,6 @@ export default {
         },
         async loadMessageList ({isLoadMore = false, isReverse = false}) {
             this.messageLoadState.loading = true;
-            // const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
             const count = 40;
             const options = {
                 conversationID: this.conversationID,
@@ -243,7 +242,6 @@ export default {
         },
         scrolltolower () {
             if (this.isInReverse) return;
-            console.log('加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载加载', this.messageLoadState.loading);
             if (this.isReverse) {
                 if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
                     this.loadMessageList({ isLoadMore: true });
@@ -288,9 +286,27 @@ export default {
                                 this.animation = true;
                             }, 200);
                         }
+                        // setTimeout(() => {
+                        //     this.setMessageMaxLength();
+                        // }, 200);
                     })
                     .exec();
             }, 200);
+        },
+        setMessageMaxLength () {
+            const {
+                messageList,
+            } = this.storeHistoryMessageMap[this.conversationID];
+            if (messageList.length > 120) {
+                this.$store.commit('message/SET_HISTORY_MESSAGE_MAP', {
+                    ...this.storeHistoryMessageMap, 
+                    [this.conversationID]: {
+                        messageList: messageList.slice(messageList.length - 120, messageList.length),
+                        hasMore: true
+                    }
+                });
+                console.log('setMessageMaxLengthsetMessageMaxLengthsetMessageMaxLengthsetMessageMaxLength-------');
+            }
         },
         closeScrollAnimation () {
             this.withAnimation = false;

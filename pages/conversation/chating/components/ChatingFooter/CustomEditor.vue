@@ -13,21 +13,25 @@
             @blur="editorBlur"
             @input="editorInput"
         />
-        <view class="canvas_container">
-            <text class="canvas_container_name">
+        <view
+            class="canvas_container"
+        >
+            <text :class="'canvas_container_name'">
                 {{ canvasData.title }}
             </text>
             <canvas
                 v-if="canvasData.show"
                 id="atCanvas"
-                canvas-id="atCanvas"
+                :canvas-id="'atCanvas'"
                 :style="{width:canvasData.width}"
+                class="atCanvas"
             />
         </view>
     </view>
-</template>>
+</template>
 
 <script>
+import { AllType } from '@/enum';
 export default {
     props: {
         placeholder: {
@@ -37,6 +41,7 @@ export default {
     },
     data () {
         return {
+            inputHtml: '',
             editorCtx: null,
             canvasData: {
                 width: 0,
@@ -46,6 +51,9 @@ export default {
             imageData: {},
             insertImageFlag: null,
         };
+    },
+    created () {
+        uni.$on('setAtMember', this.setAtMember);
     },
     methods: {
         editorReady () {
@@ -57,6 +65,56 @@ export default {
                     this.editorCtx = res.context;
                 })
                 .exec();
+        },
+        getAt () {
+            const list = [];
+            const customList = this.inputHtml.match(/data-custom="([^"]*)"/g);
+            customList && customList.forEach(item => {
+                const sendID = item.match(/sendID=([^&]*)/) && item.match(/sendID=([^&]*)/)[1];
+                const senderNickname = item.match(/senderNickname=([^"]*)/) && item.match(/senderNickname=([^"]*)/)[1];
+                if (sendID.includes(',')) { // 所有人
+                    const sendIDList = sendID.split(',');
+                    const groupNicknameList = senderNickname.split(',');
+                    sendIDList.forEach((item, index) => {
+                        list.push({
+                            atUserID: item,
+                            groupNickname: groupNicknameList[index]
+                        });
+                    });
+                    list.push({
+                        atUserID: AllType.Code,
+                        groupNickname: AllType.Text
+                    });
+                    return;
+                }
+                list.push({
+                    atUserID: sendID,
+                    groupNickname: senderNickname
+                });
+            });
+            return list;
+        },
+        setAtMember (source, status) {
+            const type = Object.prototype.toString.call(source).match(/ ([^\]]*)/)[1].toLocaleLowerCase();
+            if (type === 'array' && !status) {
+                if (source.length === 0) return;
+                this.editorCtx.undo();
+                this.createCanvasData(source[0].atUserID, source[0].groupNickname, source);
+                return;
+            } else if (status === 'all') { // 所有人
+                this.editorCtx.undo();
+                this.createCanvasData(source.map(v => v.atUserID).join(','), source.map(v => v.senderNickname).join(','), null, 'all');
+                return;
+            }
+            const map = this.getAt().find(item => item.atUserID === source.atUserID);
+            if (!map) {
+                this.createCanvasData(source.atUserID, source.groupNickname);
+            }
+        },
+        insertHtml (html) {
+            this.editorCtx.setContents({
+                html
+            });
         },
         insertImage (imageData) {
             this.imageData = imageData;
@@ -71,52 +129,64 @@ export default {
                 },
             });
         },
-        createCanvasData (sendID, senderNickname) {
-            this.canvasData.title = "@" + senderNickname;
-            this.$nextTick(() => {
+        createCanvasData (sendID, senderNickname, source, type) {
+            const canvas = this.canvasData;
+            canvas.title = !type ? "@" + senderNickname : "@所有人";
+            setTimeout(() => {
                 const query = uni.createSelectorQuery().in(this);
                 query
                     .select(".canvas_container_name")
                     .boundingClientRect((style) => {
-                        let width = parseInt(style.width) + 4;
-                        this.canvasData.width = width + "px";
-                        this.canvasData.show = true;
-                        this.$nextTick(() => {
+                        let width = parseInt(style.width) + 4 + 8;
+                        canvas.width = width + "px";
+                        canvas.show = true;
+                        setTimeout(() => {
                             const ctx = uni.createCanvasContext("atCanvas");
                             const fontSize = 16;
                             ctx.setFontSize(fontSize);
-                            ctx.setFillStyle("#3e44ff");
-                            let text = this.canvasData.title;
+                            ctx.setFillStyle("#008dff");
+                            let text = canvas.title;
                             if (width >= 300) {
                                 const measuredWidth = ctx.measureText(text);
                                 const scale = width / measuredWidth;
                                 ctx.scale(scale, 1);
-                                text = this.transformContent(ctx, this.canvasData.title, width / scale)[0];
+                                text = this.transformContent(ctx, canvas.title, width / scale)[0];
                             }
                             ctx.fillText(text, 0, 16);
                             ctx.draw();
-                            this.canvasToTempFilePath(sendID, senderNickname);
-                        });
+                            console.log('-11111222');
+                            this.canvasToTempFilePath(sendID, senderNickname, source);
+                        }, 50);
                     })
                     .exec();
-            });
+            }, 50);
         },
-        canvasToTempFilePath (sendID, senderNickname) {
+        canvasToTempFilePath (sendID, senderNickname, source) {
+            const canvas = this.canvasData;
             uni.canvasToTempFilePath({
                 canvasId: "atCanvas",
                 success: (res) => {
-                    this.insertImage({
+                    console.log('-000000000');
+                    this.editorCtx.insertImage({
                         src: res.tempFilePath,
-                        width: this.canvasData.width,
+                        width: canvas.width,
                         height: "20px",
                         data: {
                             sendID,
                             senderNickname
                         },
-                        extClass: 'at_el'
-
+                        extClass: 'at_el',
+                        complete: () => {
+                            if (source && source.length > 1) {
+                                source = source.slice(1, source.length);
+                                this.createCanvasData(source[0].atUserID, source[0].groupNickname, source);
+                            }
+                        }
                     });
                 },
+                fail: () => {
+                    console.log('失败失败失败失败失败失败失败失败失败失败');
+                }
             });
         },
         transformContent (ctx, text, contentWidth, lineNumber = 1) {
@@ -169,6 +239,7 @@ export default {
             this.$emit("blur");
         },
         editorInput (e) {
+            this.inputHtml = e.detail.html;
             this.$emit("input", e);
         },
     },
@@ -234,7 +305,7 @@ export default {
 			white-space: nowrap;
 		}
 
-		#atCanvas {
+		.atCanvas {
 			height: 20px;
 
 		}

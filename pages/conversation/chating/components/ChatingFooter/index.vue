@@ -3,6 +3,8 @@
     <view
         :snapFlag="snapFlag"
         :change:snapFlag="snap.getSnapFlagUpdate"
+        :blurTime="blurTime"
+        :change:blurTime="snap.editorBlur"
         :style="{ 'pointer-events': 'auto' }"
         class="bg-color"
     >
@@ -122,6 +124,10 @@
             v-model="isShowNotification"
             text="消息已发出，但对方拒收了！"
         />
+        <GoupMemberListPop
+            v-model="isShowAt"
+            @confirm="getMemberList"
+        />
     </view>
 </template>
 
@@ -151,6 +157,7 @@ import CustomEditor from './CustomEditor.vue';
 import ChatingActionBar from './ChatingActionBar.vue';
 import ChatingEmojiBar from './ChatingEmojiBar.vue';
 import ChatingRecordBar from './ChatingRecordBar.vue';
+import GoupMemberListPop from './GoupMemberListPop.vue';
 import ChatQuote from '@/components/ChatQuote';
 import { EncryptoAES } from '@/util/crypto';
 import { chooseFile, recordVoiceManager } from '@/util/unisdk';
@@ -199,6 +206,7 @@ export default {
         ChatingActionBar,
         ChatingEmojiBar,
         ChatingRecordBar,
+        GoupMemberListPop,
         ChatQuote,
     },
     props: {
@@ -219,6 +227,7 @@ export default {
         return {
             MessageMenuTypes: Object.freeze(MessageMenuTypes),
             customEditorCtx: null,
+            isShowAt: false,
             isShowNotification: false,
             inputHtml: '',
             oldText: '',
@@ -229,6 +238,7 @@ export default {
             actionSheetMenu: [],
             showActionSheet: false,
             snapFlag: null,
+            blurTime: null,
             activeMessageShow: false,
             activeMessageType: false,
             activeMessage: null,
@@ -246,7 +256,7 @@ export default {
             'storeIncomingIsGroupChat'
         ]),
         hasContent () {
-            return html2Text(this.inputHtml) !== '';
+            return html2Text(this.inputHtml, 1) !== '';
         },
     },
     watch: {
@@ -274,6 +284,13 @@ export default {
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         ...mapActions('incomingCall', ['onThrowCall', 'reviewPermission']),
+        getMemberList (list, status) {
+            this.isShowAt = false;
+            uni.$emit('setAtMember', list.map(item => ({
+                atUserID: item.userID,
+                groupNickname: item.nickname
+            })), status);
+        },
         async createTextMessage () {
             let message = '';
             const { text } = formatInputHtml(this.inputHtml, 1);
@@ -314,7 +331,16 @@ export default {
                     EncryptoAES(text)
                 );
             }
-            console.log(message, '-----messagemessagemessagemessagemessagemessage');
+            console.log(message, '-----messagemessagemessagemessagemessagemessage', this.$refs.customEditor?.getAt());
+            if (this.$refs.customEditor?.getAt()?.length) {
+                const atList = this.$refs.customEditor?.getAt();
+                return await IMSDK.asyncApi('createTextAtMessage', IMSDK.uuid(), {
+                    text: EncryptoAES(text),
+                    atUserIDList: atList.map(v => v.atUserID),
+                    atUsersInfo: atList,
+                    message: this.activeMessageType === 'quote_message' ? this.activeMessage : null
+                });
+            }
             return message;
         },
         async getGroupMemberList () {
@@ -503,17 +529,19 @@ export default {
         },
         async editorInput (e) {
             const newText = html2Text(e.detail.html);
-            // if (
-            //     this.$store.getters.storeCurrentConversation.groupID &&
-            //     this.oldText.length < newText.length &&
-            //     newText.endsWith('@')
-            // ) {
-            //     uni.$u.route('/pages/conversation/groupMemberList/index', {
-            //         type: GroupMemberListTypes.ChooseAt,
-            //         groupID:
-            //             this.$store.getters.storeCurrentConversation.groupID,
-            //     });
-            // }
+            if (
+                this.$store.getters.storeCurrentConversation.groupID &&
+                this.oldText.length < newText.length &&
+                newText.endsWith('@')
+            ) {
+                this.isShowAt = true;
+                this.blurTime = +new Date();
+                // uni.$u.route('/pages/conversation/groupMemberList/index', {
+                //     type: 'ChooseAt',
+                //     groupID:
+                //         this.$store.getters.storeCurrentConversation.groupID,
+                // });
+            }
             this.inputHtml = e.detail.html;
             this.oldText = newText;
             this.sendTypingMessage('正在输入中...');
@@ -899,6 +927,12 @@ export default {
 				});
 			});
 		},
+        editorBlur () {
+            if (this.$el) {
+                const dom = this.$el.querySelector('.ql-editor');
+                dom.blur();
+            }
+        },
 	},
 }
 </script>

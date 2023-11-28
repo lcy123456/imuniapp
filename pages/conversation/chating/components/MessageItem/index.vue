@@ -28,6 +28,7 @@
                     shape="circle"
                     class="my_avatar"
                     @click="showInfo"
+                    @longpress.prevent.native="avatarLongpress"
                 />
                 <view class="message_container">
                     <view 
@@ -157,6 +158,13 @@ export default {
             this.$store.getters.storeCurrentConversation.conversationID;
     },
     methods: {
+        avatarLongpress () {
+            const atUsersInfo = {
+                atUserID: this.source.sendID,
+                groupNickname: this.source.senderNickname
+            };
+            uni.$emit('setAtMember', atUsersInfo);
+        },
         reSendMessage () {
             this.$store.dispatch('message/updateOneMessage', {
                 message: this.source,

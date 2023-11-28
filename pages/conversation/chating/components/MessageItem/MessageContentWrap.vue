@@ -153,6 +153,9 @@ export default {
             if (this.message.contentType === MessageType.QuoteMessage) {
                 return this.message.quoteElem;
             }
+            if (this.message.contentType === MessageType.AtTextMessage) {
+                return this.message.atTextElem;
+            }
             return false;
         }
     },

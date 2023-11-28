@@ -106,8 +106,8 @@ export const parseAt = (atel) => {
             (user) => user.atUserID === match.slice(1, -1)
         );
         if (member) {
-            // mstr = mstr.replace(match, `<text class='parsed_at_el'> @${member.groupNickname}&nbsp;</text>`);
-            mstr = mstr.replace(match, `@${member.groupNickname} `);
+            mstr = mstr.replace(match, `<text style="color: #008dff;"> @${member.groupNickname}&nbsp;</text>`);
+            // mstr = mstr.replace(match, `@${member.groupNickname} `);
         }
     // else {
     // 	mstr = mstr.replace(match, `<text class='parsed_at_el'> ${match}</text>`);

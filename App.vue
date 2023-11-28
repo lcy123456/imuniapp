@@ -458,6 +458,7 @@ export default {
                 this.$store.commit("conversation/SET_UNREAD_COUNT", data);
             };
             const newConversationHandler = ({ data }) => {
+                console.log('newConversationHandlernewConversationHandler-newConversationHandler', data);
                 if (this.storeIsSyncing) {
                     return;
                 }
@@ -468,6 +469,7 @@ export default {
                 );
             };
             const conversationChangedHandler = ({ data }) => {
+                console.log('conversationChangedHandler-conversationChangedHandler-----', data);
                 if (this.storeIsSyncing) {
                     return;
                 }
@@ -707,18 +709,12 @@ export default {
                         this.handleUniPush();
                         return;
                     }
-                    console.log('---=====bindcid', {
-                        platform: uni.$u.os() === "ios" ? 1 : 2,
-                        userID: this.storeUserID,
-                        cid
-                    });
                     try {
-                        const d = await bindCid({
+                        await bindCid({
                             platform: uni.$u.os() === "ios" ? 1 : 2,
                             userID: this.storeUserID,
                             cid
                         });
-                        console.log('---32322', d);
                     } catch (e) {
                         console.log('ddd', e);
                     }

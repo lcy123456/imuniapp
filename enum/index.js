@@ -25,3 +25,8 @@ export const AudioVideoType = {
     Video: 131,
     Audio: 130
 };
+
+export const AllType = {
+    Code: '999999999',
+    Text: '所有人'
+};

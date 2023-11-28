@@ -12,7 +12,7 @@
                     {{ storeConnectingStatus }}
                 </text>
                 <u--image
-                    v-else
+                    v-if="!storeConnectingStatus"
                     src="/static/images/logo_name_blue.png"
                     width="200rpx"
                     height="28rpx"

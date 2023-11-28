@@ -1,20 +1,25 @@
 import PinYin from './pinyin';
+import { AllType } from '@/enum';
 
-export const html2Text = (html) => {
+export const html2Text = (html, type) => {
     if (!html) {
         return '';
     }
-    return html
+    let text = html
         .replace(/&nbsp;/g, ' ')
         .replace(/<br>/g, '\n')
         .replace(/<p>/g, '')
         .replace(/<\/p>/g, '\n')
         .trim();
+    if (!type) {
+        text = text.replace(/<([^>]*>)/g, '');
+    }
+    return text;
 };
 
 export const formatInputHtml = (html) => {
     let atUserList = [];
-    let text = html2Text(html);
+    let text = html2Text(html, 1);
     const imgReg = new RegExp('(i?)(<img)([^>]+>)', 'gmi');
     const customDataReg = /data-custom=".+"/;
     text = text.replace(imgReg, (img) => {
@@ -27,7 +32,7 @@ export const formatInputHtml = (html) => {
                 atUserID: atInfoArr[0].slice(7),
                 groupNickname: atInfoArr[1].slice(15),
             });
-            return `@${atInfoArr[0].slice(7)} `;
+            return `@${atInfoArr[0].slice(7).includes(',') ? AllType.Code : atInfoArr[0].slice(7)} `;
         }
         if (img.includes('class="emoji_el"')) {
             return img.match(customDataReg)[0].slice(23, -1);
