@@ -126,12 +126,12 @@ export default {
                     icon: '/static/images/chating_message_reply.png',
                     visible: true,
                 },
-                // {
-                //     type: MessageMenuTypes.Edit,
-                //     title: '编辑',
-                //     icon: '/static/images/chating_message_edit.png',
-                //     visible: TextRenderTypes.includes(this.message.contentType) && this.message.sendID === this.storeCurrentUserID,
-                // },
+                {
+                    type: MessageMenuTypes.Edit,
+                    title: '编辑',
+                    icon: '/static/images/chating_message_edit.png',
+                    visible: TextRenderTypes.includes(this.message.contentType) && this.message.sendID === this.storeCurrentUserID,
+                },
                 {
                     type: MessageMenuTypes.Copy,
                     title: '复制',
@@ -201,7 +201,7 @@ export default {
                 await this.handleMultiple();
                 break;
             case MessageMenuTypes.Del:
-                await this.handleDel();
+                await uni.$emit('deleteMsg', [this.message]);
                 break;
             case MessageMenuTypes.Edit:
                 uni.$emit('active_message', {
@@ -352,26 +352,6 @@ export default {
                 message: this.message,
                 type: MessageMenuTypes.Init
             });
-        },
-        // TODO: 可以移动到chating统一处理
-        async handleDel () {
-            try {
-                this.$loading('删除中');
-                await IMSDK.asyncApi(
-                    IMSDK.IMMethods.DeleteMessage,
-                    IMSDK.uuid(),
-                    {
-                        conversationID:
-                                this.$store.getters.storeCurrentConversation
-                                    .conversationID,
-                        clientMsgID: this.message.clientMsgID,
-                    }
-                );
-                uni.$u.toast('删除成功');
-                this.deleteMessages([this.message]);
-            } catch {
-                uni.$u.toast('删除失败');
-            }
         },
         getCopyText () {
             const { contentType, atTextElem, quoteElem, textElem } = this.message;

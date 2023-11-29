@@ -147,6 +147,7 @@ export default {
         this.positionMsgID = clientMsgID;
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
+        uni.$on('deleteMsg', this.handleMsgDel);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
         this.getSearchRecord();
         this.getPinList();
@@ -166,7 +167,7 @@ export default {
         this.$store.commit('base/SET_PIN_LIST', []);
     },
     methods: {
-        ...mapActions('message', ['resetMessageState', 'deleteMessages']),
+        ...mapActions('message', ['resetMessageState']),
         ...mapActions('conversation', ['resetConversationState']),
         ...mapActions('base', ['pinList']),
         async handleHideMenu () {
@@ -310,8 +311,9 @@ export default {
             }
         },
         async handleMsgDel (msgArr) {
+            console.log('msgArrmsgArr', msgArr);
             try {
-                this.$loading('删除中');
+                // this.$loading('删除中');
                 for (let i = 0; i < msgArr.length; i++) {
                     console.log(msgArr[i]);
                     const message = msgArr[i];
@@ -324,12 +326,11 @@ export default {
                             clientMsgID: message.clientMsgID,
                         }
                     );
-                    this.deleteMessages([message]);
                 }
-                uni.$u.toast('删除成功');
+                // uni.$u.toast('删除成功');
             } catch (err) {
                 console.log(err);
-                uni.$u.toast('删除失败');
+                // uni.$u.toast('删除失败');
             }
         },
         async handleForward (msg) {

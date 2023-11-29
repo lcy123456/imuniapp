@@ -111,6 +111,7 @@ export default {
     storeCurrentUserID: (state) => state.user.selfInfo.userID,
     storeAppConfig: (state) => state.user.appConfig,
     storeIsSyncing: (state) => state.user.isSyncing,
+    storeIsLoginStatus: (state) => state.user.isLoginStatus,
     storeIsProd: (state) => state.user.isProd,
     storePinList: (state) => state.base.pinList,
     storeKeyBoardHeight: (state) => state.base.keyBoardHeight,

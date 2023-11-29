@@ -21,6 +21,7 @@ const defaultConfig = {
 };
 
 const state = {
+    isLoginStatus: false,
     clientID: '',
     authData: {},
     selfInfo: {},
@@ -31,6 +32,9 @@ const state = {
 };
 
 const mutations = {
+    SET_LOGIN_STATUS (state, value) {
+        state.isLoginStatus = value;
+    },
     SET_CLIENT_ID (state, data) {
         state.clientID = data;
     },

@@ -92,11 +92,19 @@ const actions = {
             conversationID = idsGetConversationID(message);
         }
         const obj = state.historyMessageMap[conversationID];
+        let msgList = [];
+        if (!message.isEditClientMsgID) {
+            msgList = [...obj?.messageList || [], message];
+        } else {
+            const index = obj?.messageList.findIndex(item => item.clientMsgID === message.isEditClientMsgID);
+            console.log('----------index', index);
+            msgList = [...(obj?.messageList || []).slice(0, index), message, ...(obj?.messageList || []).slice(index)];
+        }
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
             [conversationID]: {
                 ...obj,
-                messageList: [...obj?.messageList || [], message],
+                messageList: msgList,
             },
         });
     },

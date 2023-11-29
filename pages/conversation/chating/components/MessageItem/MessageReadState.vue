@@ -6,6 +6,12 @@
             src="/static/images/pin2.png"
         />
         <text :class="['read_state', isSender ? 'isSender' : 'notisSender', message.pinMap ? 'isPin' : '']">
+            <text
+                v-if="isEdit"
+                class="edit"
+            >
+                {{ '已编辑 ' }}
+            </text>
             {{ new Date(message.createTime).Format('hh:mm') }}
         </text>
         <image
@@ -41,6 +47,9 @@ export default {
         };
     },
     computed: {
+        isEdit () {
+            return this.message.createTime !== this.message.sendTime;
+        },
         isGroupRead () {
             try {
                 return this.message.sessionType !== SessionType.Single && this.message.attachedInfoElem.groupHasReadInfo.hasReadCount;

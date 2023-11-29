@@ -4,7 +4,8 @@ import IMSDK, {
     IMMethods,
     MessageType,
     SessionType,
-    MessageReceiveOptType
+    MessageReceiveOptType,
+    GroupAtType
 } from "openim-uniapp-polyfill";
 import { idsGetConversationID } from '@/util/imCommon';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
@@ -23,7 +24,7 @@ import { bindCid } from '@/api/index';
 //     [AudioVideoStatus.Busy]: '对方忙线中'
 // };
 export default {
-    onLaunch: function () {
+    onLaunch () {
         this.$store.dispatch("user/getAppConfig");
         this.setGlobalIMlistener();
         this.tryLogin();
@@ -35,9 +36,23 @@ export default {
         });
         uni.$on('play_audio', this.handlePlayAudio);
         uni.$on('stop_audio', this.handleStopAudio);
+        console.log('onLaunch-onLaunch');
     },
-    onShow: function () {
+    async onShow () {
         this.num++;
+        console.log('onShow-onShow');
+        if (this.num > 1) {
+            uni.$u.toast(this.getPage());
+            if (this.getPage().includes('/login')) return;
+            uni.$u.toast('----------------1111==');
+            const status = await IMSDK.asyncApi(IMSDK.IMMethods.GetLoginStatus, IMSDK.uuid());
+            uni.$u.toast('----------------2222=status=' + status);
+            if ([1].includes(status) && this.storeIsLoginStatus) {
+                // await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+                uni.$u.toast('登录状态失效，重新登录');
+                this.tryLogin();
+            }
+        }
         try {
             plus.runtime.setBadgeNumber(0);
             IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
@@ -45,7 +60,7 @@ export default {
             //
         }
     },
-    onHide: function () {
+    onHide () {
         IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), true);
     },
     data () {
@@ -73,7 +88,8 @@ export default {
             "storeUserID",
             "storeIsIncomingCallIng",
             "storeIsIncomingCallLoading",
-            "storeIncomingCallMessage"
+            "storeIncomingCallMessage",
+            "storeIsLoginStatus"
         ]),
         contactBadgeRely () {
             return {
@@ -118,7 +134,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions("message", ["pushNewMessage", "updateOneMessage"]),
+        ...mapActions("message", ["pushNewMessage", "updateOneMessage", "deleteMessages"]),
         ...mapActions("conversation", ["updateCurrentMemberInGroup"]),
         ...mapActions("contact", [
             "updateFriendInfo",
@@ -137,6 +153,13 @@ export default {
             "updateSentGroupApplition",
         ]),
         ...mapActions('incomingCall', ['appearLoadingCall']),
+
+        getPage () {
+            const pages = getCurrentPages();
+            const currentPage = pages[pages.length - 1];
+            const url = currentPage.route;
+            return url;
+        },
       
         setGlobalIMlistener () {
             console.log("setGlobalIMlistener");
@@ -223,7 +246,9 @@ export default {
                 const conversationID = data && data[0] ? idsGetConversationID(data[0]) : '';
                 let isMute = false;
                 this.storeConversationList.forEach(conversation => {
-                    if (conversation.conversationID === conversationID && conversation.recvMsgOpt !== MessageReceiveOptType.Nomal) {
+                    if (conversation.conversationID === conversationID
+                        && conversation.recvMsgOpt !== MessageReceiveOptType.Nomal
+                        && conversation.groupAtType === GroupAtType.AtNormal) {
                         isMute = true;
                     }
                 });
@@ -425,6 +450,11 @@ export default {
                 }
             };
 
+            const msgDeletedHandller = ({ data }) => {
+                console.log('OnMsgDeleted------OnMsgDeleted', data);
+                this.deleteMessages([data]);
+            };
+
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnFriendApplicationAdded,
                 friendApplicationNumHandler
@@ -448,6 +478,10 @@ export default {
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnGroupApplicationRejected,
                 groupApplicationAccessHandler
+            );
+            IMSDK.subscribe(
+                IMSDK.IMEvents.OnMsgDeleted,
+                msgDeletedHandller
             );
 
             // conversation

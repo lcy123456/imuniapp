@@ -282,7 +282,7 @@ export default {
         uni.hideLoading();
     },
     methods: {
-        ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
+        ...mapActions('message', ['pushNewMessage', 'updateOneMessage', 'deleteMessage']),
         ...mapActions('incomingCall', ['onThrowCall', 'reviewPermission']),
         getMemberList (list, status) {
             this.isShowAt = false;
@@ -306,7 +306,7 @@ export default {
                     );
                 } else if (this.activeMessageType === "edit_message") {
                     // TODO：编辑消息
-                    const { contentType, quoteElem, atTextElem, textElem, ex } = this.activeMessage;
+                    const { contentType, quoteElem, atTextElem, textElem } = this.activeMessage;
                     if (contentType === MessageType.QuoteMessage) {
                         quoteElem.text = EncryptoAES(text);
                     } else if (contentType === MessageType.AtTextMessage) {
@@ -314,14 +314,26 @@ export default {
                     } else {
                         textElem.content = EncryptoAES(text);
                     }
-                    const _ex = ex ? JSON.parse(ex) : {};
+                    const newMessage = await IMSDK.asyncApi(
+                        IMMethods.CreateTextMessage,
+                        IMSDK.uuid(),
+                        EncryptoAES(text)
+                    );
+                    const { createTime, sendTime } = this.activeMessage;
+                    console.log('newMessagenewMessage', newMessage);
                     message = {
                         ...this.activeMessage,
-                        ex: JSON.stringify({
-                            ..._ex,
-                            isEdit: true
-                        })
+                        createTime: 0,
+                        sendTime: sendTime,
+                        serverMsgID: newMessage.serverMsgID,
+                        clientMsgID: newMessage.clientMsgID,
+                        seq: null,
+                        sendID: null,
+                        recvID: null,
+                        groupID: null,
+                        isEditClientMsgID: this.activeMessage.clientMsgID
                     };
+                    console.log('=------====-----newMessagenewMessage', message);
                 }
                 this.activeMessageShow = false;
             } else {
@@ -331,7 +343,6 @@ export default {
                     EncryptoAES(text)
                 );
             }
-            console.log(message, '-----messagemessagemessagemessagemessagemessage', this.$refs.customEditor?.getAt());
             if (this.$refs.customEditor?.getAt()?.length) {
                 const atList = this.$refs.customEditor?.getAt();
                 return await IMSDK.asyncApi('createTextAtMessage', IMSDK.uuid(), {
@@ -470,6 +481,10 @@ export default {
                     message: data,
                     isSuccess: true,
                 });
+                if (message.isEditClientMsgID) {
+                    uni.$emit('deleteMsg', [this.activeMessage]);
+                    message.isEditClientMsgID = null;
+                }
                 this.isLoadingCreateRoom = false;
                 return data;
             } catch ({ data, errCode }) {

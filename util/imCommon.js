@@ -546,6 +546,7 @@ export const IMLogin = async () => {
             userID: storeUserID,
             token: storeIMToken,
         });
+        store.commit('user/SET_LOGIN_STATUS', true);
         store.dispatch("user/getSelfInfo");
         store.dispatch("conversation/getConversationList");
         store.dispatch("conversation/getUnReadCount");

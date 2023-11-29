@@ -56,6 +56,9 @@ export default {
         return {};
     },
     computed: {
+        isEdit () {
+            return this.message.createTime !== this.message.sendTime;
+        },
         isGroupRead () {
             try {
                 return this.message.sessionType !== SessionType.Single && this.message.attachedInfoElem.groupHasReadInfo.hasReadCount;
@@ -73,6 +76,12 @@ export default {
                     src="/static/images/pin2.png"
                 />
                 <div class="text read_state ${this.isSender ? 'isSender' : 'notisSender'} ${this.message.pinMap ? 'isPin' : ''}">
+                    <text
+                        style="display: ${this.isEdit ? 'inline' : 'none'}"
+                        class="edit"
+                    >
+                        ${'已编辑 '}
+                    </text>
                     00:00
                 </div>
                 <img
