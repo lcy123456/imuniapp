@@ -267,7 +267,7 @@ export default {
     },
     mounted () {
         this.setSendMessageListener();
-        // this.setKeyboardListener();
+        this.setKeyboardListener();
         uni.$on('active_message', this.handleMessageListener);
         uni.$on('initWebrtc', this.initWebrtc);
         uni.$on('sendMessage', this.sendMessage);
@@ -821,24 +821,24 @@ export default {
             );
         },
         // keyboard
-        // keyboardChangeHander (data) {
-        //     const { height } = data;
-        //     if (height > 0) {
-        //         this.emojiBarVisible = false;
-        //         this.actionBarVisible = false;
-        //     }
-        //     uni.$emit('keyboardChange', data);
-        // },
-        // setKeyboardListener () {
-        //     uni.onKeyboardHeightChange(this.keyboardChangeHander);
-        // },
+        keyboardChangeHander (data) {
+            const { height } = data;
+            this.$store.commit('base/SET_KEYBOARD_HEIGHT', height);
+        },
+        setKeyboardListener () {
+            uni.onKeyboardHeightChange(this.keyboardChangeHander);
+        },
         // disposeKeyboardListener () {
         //     uni.offKeyboardHeightChange(this.keyboardChangeHander);
         // },
         handleMessageListener (data) {
             const { message, type } = data;
             console.log('操作消息item', data);
-            this.$refs.customEditor.editorCtx.insertText({text: getMessageContent(message)});
+            if (type === 'edit_message') {
+                this.$refs.customEditor.editorCtx.insertText({text: getMessageContent(message)});
+            } else {
+                this.$refs.customEditor.editorCtx.insertText({text: ''});
+            }
             this.activeMessage = message;
             this.activeMessageShow = true;
             this.activeMessageType = type;

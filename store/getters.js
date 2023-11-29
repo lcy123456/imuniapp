@@ -113,6 +113,7 @@ export default {
     storeIsSyncing: (state) => state.user.isSyncing,
     storeIsProd: (state) => state.user.isProd,
     storePinList: (state) => state.base.pinList,
+    storeKeyBoardHeight: (state) => state.base.keyBoardHeight,
     storeConnectingStatus: (state) => state.base.connectingStatus,
     storeIncomingCallUserInfo: (state) => state.incomingCall.incomingCallUserInfo,
     storeIsIncomingCallTop: (state) => state.incomingCall.isIncomingCallTop,

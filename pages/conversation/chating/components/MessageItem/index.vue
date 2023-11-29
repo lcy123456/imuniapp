@@ -28,7 +28,7 @@
                     shape="circle"
                     class="my_avatar"
                     @click="showInfo"
-                    @longpress.prevent.native="avatarLongpress"
+                    @longpress="avatarLongpress"
                 />
                 <view class="message_container">
                     <view 
@@ -121,6 +121,7 @@ export default {
     },
     data () {
         return {
+            islongPress: false,
             conversationID: '',
         };
     },
@@ -159,11 +160,15 @@ export default {
     },
     methods: {
         avatarLongpress () {
-            const atUsersInfo = {
-                atUserID: this.source.sendID,
-                groupNickname: this.source.senderNickname
-            };
-            uni.$emit('setAtMember', atUsersInfo);
+            // this.islongPress = true;
+            // console.log('this.sourcethis.sourcethis.source', this.source);
+            setTimeout(() => {
+                const atUsersInfo = {
+                    atUserID: this.source.sendID,
+                    groupNickname: this.source.senderNickname
+                };
+                uni.$emit('setAtMember', atUsersInfo);
+            }, 700);
         },
         reSendMessage () {
             this.$store.dispatch('message/updateOneMessage', {
@@ -254,6 +259,13 @@ export default {
                 );
         },
         showInfo () {
+            // console.log('this.islongPressthis.islongPressthis.islongPressthis.islongPressthis.islongPress', this.islongPress);
+            // if (this.islongPress) {
+            //     this.islongPress = false;
+            //     return;
+            // }
+            // this.islongPress = false;
+            // uni.hideKeyboard();
             if (this.isSender) return;
             const sourceInfo = {
                 nickname: this.source.senderNickname,

@@ -154,7 +154,6 @@ export default {
                             }
                             ctx.fillText(text, 0, 16);
                             ctx.draw();
-                            console.log('-11111222');
                             this.canvasToTempFilePath(sendID, senderNickname, source);
                         }, 50);
                     })
@@ -166,7 +165,6 @@ export default {
             uni.canvasToTempFilePath({
                 canvasId: "atCanvas",
                 success: (res) => {
-                    console.log('-000000000');
                     this.editorCtx.insertImage({
                         src: res.tempFilePath,
                         width: canvas.width,

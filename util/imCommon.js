@@ -16,7 +16,7 @@ import IMSDK, {
     SessionType,
 } from "openim-uniapp-polyfill";
 import emojis from "@/common/emojis";
-import { getPurePath } from '@/util/common';
+import { getPurePath, html2Text } from '@/util/common';
 import { DecryptoAES } from '@/util/crypto';
 
 import dayjs from "dayjs";
@@ -96,7 +96,7 @@ export const conversationSort = (conversationList) => {
     return filterArr;
 };
 
-export const parseAt = (atel) => {
+export const parseAt = (atel, type) => {
     let mstr = atel.text;
     const pattern = /@\S+\s/g;
     const arr = mstr.match(pattern);
@@ -106,8 +106,11 @@ export const parseAt = (atel) => {
             (user) => user.atUserID === match.slice(1, -1)
         );
         if (member) {
-            mstr = mstr.replace(match, `<text style="color: #008dff;"> @${member.groupNickname}&nbsp;</text>`);
-            // mstr = mstr.replace(match, `@${member.groupNickname} `);
+            if (!type) {
+                mstr = mstr.replace(match, `<text style="color: #008dff;"> @${member.groupNickname}&nbsp;</text>`);
+            } else {
+                mstr = mstr.replace(match, `@${member.groupNickname} `);
+            }
         }
     // else {
     // 	mstr = mstr.replace(match, `<text class='parsed_at_el'> ${match}</text>`);
@@ -817,7 +820,7 @@ export const getMessageContent = (message) => {
     if (contentType === MessageType.QuoteMessage) {
         text = DecryptoAES(quoteElem?.text);
     } else if (contentType === MessageType.AtTextMessage) {
-        text = parseAt(atTextElem);
+        text = parseAt(atTextElem, 1);
     } else {
         text = DecryptoAES(textElem?.content);
     }

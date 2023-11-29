@@ -64,7 +64,11 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentMemberInGroup', 'storeCurrentUserID']),
+        ...mapGetters([
+            'storeCurrentMemberInGroup',
+            'storeCurrentUserID',
+            'storeKeyBoardHeight'
+        ]),
         isSender () {
             return this.paterRect.right > uni.getWindowInfo().windowWidth - 30;
         },
@@ -76,9 +80,10 @@ export default {
         getTop () {
             const { top, bottom } = this.paterRect;
             const { windowHeight } = uni.getSystemInfoSync();
+            console.log('uni.getSystemInfoSync()uni.getSystemInfoSync()', uni.getSystemInfoSync(), this.storeKeyBoardHeight);
             const menuHight = this.menuItemHight * this.menuList.length;
             const minTop = 0;
-            const maxTop = windowHeight - menuHight - 100;
+            const maxTop = windowHeight - menuHight - 50 - this.storeKeyBoardHeight;
             let t = 0;
             if (top - menuHight < 100) {
                 t = bottom + 10;
@@ -121,12 +126,12 @@ export default {
                     icon: '/static/images/chating_message_reply.png',
                     visible: true,
                 },
-                {
-                    type: MessageMenuTypes.Edit,
-                    title: '编辑',
-                    icon: '/static/images/chating_message_edit.png',
-                    visible: TextRenderTypes.includes(this.message.contentType),
-                },
+                // {
+                //     type: MessageMenuTypes.Edit,
+                //     title: '编辑',
+                //     icon: '/static/images/chating_message_edit.png',
+                //     visible: TextRenderTypes.includes(this.message.contentType) && this.message.sendID === this.storeCurrentUserID,
+                // },
                 {
                     type: MessageMenuTypes.Copy,
                     title: '复制',
@@ -166,6 +171,7 @@ export default {
     methods: {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
         async menuClick ({ type }) {
+            console.log('typetypetypetypetypetypetype', type);
             switch (type) {
             case MessageMenuTypes.AddEmoticons:
                 this.addEmoticons();

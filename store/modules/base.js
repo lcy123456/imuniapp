@@ -2,7 +2,8 @@ import { pinList } from '@/api/pinToTop';
 import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting } from '@/util/permission.js';
 const state = {
     pinList: [],
-    connectingStatus: ''
+    connectingStatus: '',
+    keyBoardHeight: 0
 };
 
 const mutations = {
@@ -11,6 +12,9 @@ const mutations = {
     },
     SET_CONNECTING_STATUS (state, value) {
         state.connectingStatus = value;
+    },
+    SET_KEYBOARD_HEIGHT (state, value) {
+        state.keyBoardHeight = value;
     }
 };
 

@@ -22,7 +22,7 @@
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
             :position-msg-i-d="positionMsgID"
-            @scroll="handleHideMenu"
+            @scroll="scroll"
             @touchstart="chatListClick"
             @initSuccess="initSuccess"
             @menuRect="menuRect"
@@ -102,6 +102,7 @@ export default {
     },
     data () {
         return {
+            test: false,
             isShowNotification: false,
             notificationText: '',
             notificationIcon: '',
@@ -183,6 +184,10 @@ export default {
             this.pinList(conversationID);
             
         },
+        scroll () {
+            this.handleHideMenu();
+            // uni.hideKeyboard();
+        },
         getPositionMsgID (positionMsgID) {
             this.positionMsgID = positionMsgID;
             if (!this.storeHasMoreAfterMessage && !this.positionMsgID && this.storeHistoryMessageList.length <= 120) {
@@ -262,6 +267,7 @@ export default {
             };
             this.menuState.message = res.message;
             this.menuState.visible = true;
+            // uni.hideKeyboard();
         },
         async handleMultipleMessage ({ show, message, type = '' }) {
             // console.log('开启多选', show, message);
