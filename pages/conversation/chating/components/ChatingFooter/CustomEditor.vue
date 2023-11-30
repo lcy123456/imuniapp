@@ -72,6 +72,7 @@ export default {
             customList && customList.forEach(item => {
                 const sendID = item.match(/sendID=([^&]*)/) && item.match(/sendID=([^&]*)/)[1];
                 const senderNickname = item.match(/senderNickname=([^"]*)/) && item.match(/senderNickname=([^"]*)/)[1];
+                if (!sendID) return;
                 if (sendID.includes(',')) { // 所有人
                     const sendIDList = sendID.split(',');
                     const groupNicknameList = senderNickname.split(',');
