@@ -1,58 +1,60 @@
 <template>
     <view class="message_content_wrap">
-        <TextMessageRender
-            v-if="showTextRender"
-            :message="message"
-            :is-success-message="isSuccessMessage"
-            :is-sender="isSender"
-        />
-        <MediaMessageRender
-            v-if="showMediaRender"
-            :message="message"
-            :is-success-message="isSuccessMessage"
-            :is-sender="isSender"
-        />
-        <FileMessageRender
-            v-if="showFileRender"
-            :message="message"
-            :is-success-message="isSuccessMessage"
-            :is-sender="isSender"
-        />
-        <MergeMessageRender
-            v-if="showMergeRender"
-            :message="message"
-            :is-success-message="isSuccessMessage"
-            :is-sender="isSender"
-        />
-        <AudioVideoMessageRender
-            v-if="showAudioVideoRender"
-            :message="message"
-            :is-multiple-msg="isMultipleMsg"
-            :is-success-message="isSuccessMessage"
-            :is-sender="isSender"
-        />
-        <VoiceMessageRender
-            v-if="showVoiceMessageRender"
-            :message="message" 
-            :is-sender="isSender"
-        />
-        <ErrorMessageRender
-            v-if="showErrorRender"
-            :message="message"
-            :is-success-message="isSuccessMessage"
-            :is-sender="isSender"
-        />
-        <MessageReadState
-            v-if="showMediaRender || showFileRender || showMergeRender"
-            class="read-state"
-            :is-sender="isSender"
-            :message="message"
-        />
-        <ChatQuote
-            v-if="getQuoteElem && getQuoteElem.quoteMessage"
-            :message="getQuoteElem.quoteMessage"
-            show-detail
-        />
+        <view class="message_content_container">
+            <TextMessageRender
+                v-if="showTextRender"
+                :message="message"
+                :is-success-message="isSuccessMessage"
+                :is-sender="isSender"
+            />
+            <MediaMessageRender
+                v-if="showMediaRender"
+                :message="message"
+                :is-success-message="isSuccessMessage"
+                :is-sender="isSender"
+            />
+            <FileMessageRender
+                v-if="showFileRender"
+                :message="message"
+                :is-success-message="isSuccessMessage"
+                :is-sender="isSender"
+            />
+            <MergeMessageRender
+                v-if="showMergeRender"
+                :message="message"
+                :is-success-message="isSuccessMessage"
+                :is-sender="isSender"
+            />
+            <AudioVideoMessageRender
+                v-if="showAudioVideoRender"
+                :message="message"
+                :is-multiple-msg="isMultipleMsg"
+                :is-success-message="isSuccessMessage"
+                :is-sender="isSender"
+            />
+            <VoiceMessageRender
+                v-if="showVoiceMessageRender"
+                :message="message" 
+                :is-sender="isSender"
+            />
+            <ErrorMessageRender
+                v-if="showErrorRender"
+                :message="message"
+                :is-success-message="isSuccessMessage"
+                :is-sender="isSender"
+            />
+            <MessageReadState
+                v-if="showMediaRender || showFileRender || showMergeRender"
+                class="read-state"
+                :is-sender="isSender"
+                :message="message"
+            />
+            <ChatQuote
+                v-if="getQuoteElem && getQuoteElem.quoteMessage"
+                :message="getQuoteElem.quoteMessage"
+                show-detail
+            />
+        </view>
     </view>
 </template>
 
@@ -179,7 +181,9 @@ export default {
     max-width: 100%;
     border-radius: 16rpx;
     overflow: hidden;
-    position: relative;
+    .message_content_container {
+        position: relative;
+    }
     .read-state {
         position: absolute;
         right: 20rpx;
