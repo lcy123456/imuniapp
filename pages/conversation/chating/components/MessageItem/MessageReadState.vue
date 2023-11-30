@@ -48,7 +48,7 @@ export default {
     },
     computed: {
         isEdit () {
-            return this.message.createTime !== this.message.sendTime;
+            return this.message.createTime > this.message.sendTime;
         },
         isGroupRead () {
             try {

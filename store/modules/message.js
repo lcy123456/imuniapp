@@ -1,7 +1,18 @@
-import IMSDK from 'openim-uniapp-polyfill';
+import IMSDK, {
+    MessageStatus,
+} from 'openim-uniapp-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateMessageTypes } from '@/constant';
 import { idsGetConversationID } from '@/util/imCommon';
+
+function getInitLastMessage (messageList) {
+    for (let i = messageList.length - 1; i >= 0; i--) {
+        const item = messageList[i];
+        if ([MessageStatus.Succeed].includes(item.status)) {
+            return item;
+        }
+    }
+}
 
 const state = {
     historyMessageMap: {}
@@ -19,7 +30,8 @@ const actions = {
         try {
             const {
                 messageList: oldMessageList = [],
-                lastMinSeq: oldLastMinSeq = 0
+                lastMinSeq: oldLastMinSeq = 0,
+                initLastMessage
             } = state.historyMessageMap[conversationID] || {};
             const startClientMsgID = positionMsgID || oldMessageList[0]?.clientMsgID || '';
             const { data } = await IMSDK.asyncApi(
@@ -42,7 +54,8 @@ const actions = {
                     hasMore: !isEnd && messageList.length === count,
                     hasAfterMore: (isInit && !positionMsgID) ?
                         false : (typeof hasAfterMore === 'undefined' ? true : hasAfterMore),
-                    lastMinSeq: lastMinSeq
+                    lastMinSeq: lastMinSeq,
+                    initLastMessage: isInit && !positionMsgID ? getInitLastMessage(messageList) : (positionMsgID ? null : initLastMessage)
                 },
             });
             return messageList;
@@ -57,9 +70,10 @@ const actions = {
         try {
             const {
                 messageList: oldMessageList = [],
-                lastMinSeq: oldLastMinSeq = 0
+                lastMinSeq: oldLastMinSeq = 0,
+                initLastMessage
             } = state.historyMessageMap[conversationID] || {};
-            const startClientMsgID = positionMsgID || oldMessageList[oldMessageList.length - 1]?.clientMsgID || '';
+            const startClientMsgID = positionMsgID || initLastMessage?.clientMsgID || oldMessageList[oldMessageList.length - 1]?.clientMsgID || '';
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetAdvancedHistoryMessageListReverse,
                 uuidv4(),
@@ -78,7 +92,8 @@ const actions = {
                     messageList: [...oldMessageList.concat(messageList)],
                     hasMore: state.historyMessageMap[conversationID]?.hasMore,
                     hasAfterMore: !isEnd && messageList.length === count,
-                    lastMinSeq: lastMinSeq
+                    lastMinSeq: lastMinSeq,
+                    initLastMessage: isInit && !positionMsgID ? getInitLastMessage(messageList) : (positionMsgID ? null : initLastMessage)
                 },
             });
             return messageList;

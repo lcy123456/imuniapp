@@ -645,9 +645,14 @@ export const markConversationAsRead = (conversation, fromChating = false) => {
 };
 
 export const prepareConversationState = (conversation, back2Tab = false, clientMsgID = '') => {
-    uni.switchTab({
-        url: '/pages/conversation/conversationList/index',
-    });
+    const pages = getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    const page = currentPage.route;
+    if (page !== `pages/conversation/conversationList/index`) {
+        uni.switchTab({
+            url: '/pages/conversation/conversationList/index',
+        });
+    }
     markConversationAsRead(conversation);
 
     if (conversation.conversationType === SessionType.WorkingGroup) {

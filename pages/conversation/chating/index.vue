@@ -148,6 +148,7 @@ export default {
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
         uni.$on('deleteMsg', this.handleMsgDel);
+        uni.$on('reloadChatingList', this.reloadChatingList);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
         this.getSearchRecord();
         this.getPinList();
@@ -194,9 +195,17 @@ export default {
             if (!this.storeHasMoreAfterMessage && !this.positionMsgID && this.storeHistoryMessageList.length <= 120) {
                 uni.$emit(PageEvents.ScrollToBottom);
             } else {
-                this.updateChatKey = +new Date();
+                this.reloadChatingList();
             }
             // this.$refs.chatingListRef.init();
+        },
+        reloadChatingList () {
+            const pages = getCurrentPages();
+            const currentPage = pages[pages.length - 1];
+            const page = currentPage.route;
+            if (page === `pages/conversation/chating/index`) {
+                this.updateChatKey = +new Date();
+            }
         },
         updatePin (map) {
             this.notificationText = map.text;

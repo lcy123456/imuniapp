@@ -323,7 +323,8 @@ export default {
                     console.log('newMessagenewMessage', newMessage);
                     message = {
                         ...this.activeMessage,
-                        createTime: 0,
+                        // createTime: 0,
+                        createTime: createTime,
                         sendTime: sendTime,
                         serverMsgID: newMessage.serverMsgID,
                         clientMsgID: newMessage.clientMsgID,

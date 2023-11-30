@@ -137,15 +137,16 @@ export default {
     mounted () {
         this.conversationID = this.storeCurrentConversation.conversationID;
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
+        uni.$on('reloadMore', this.reloadMore);
         this.init();
     },
     beforeDestroy () {
-        this.$store.commit('message/SET_HISTORY_MESSAGE_MAP', {
-            ...this.storeHistoryMessageMap, 
-            [this.conversationID]: {
-                messageList: []
-            }
-        });
+        // this.$store.commit('message/SET_HISTORY_MESSAGE_MAP', {
+        //     ...this.storeHistoryMessageMap, 
+        //     [this.conversationID]: {
+        //         messageList: []
+        //     }
+        // });
         this.init();
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
     },
@@ -252,6 +253,9 @@ export default {
                     this.loadMessageList({ isLoadMore: true, isReverse: true });
                 }
             }
+        },
+        reloadMore () {
+            this.loadMessageList({ isLoadMore: true, isReverse: true });
         },
         async scrollToAnchor (auchor, isAnimation = true) {
             !isAnimation && this.closeScrollAnimation();

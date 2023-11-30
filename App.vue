@@ -36,23 +36,22 @@ export default {
         });
         uni.$on('play_audio', this.handlePlayAudio);
         uni.$on('stop_audio', this.handleStopAudio);
-        console.log('onLaunch-onLaunch');
     },
     async onShow () {
         this.num++;
-        console.log('onShow-onShow');
-        if (this.num > 1) {
-            uni.$u.toast(this.getPage());
-            if (this.getPage().includes('/login')) return;
-            uni.$u.toast('----------------1111==');
-            const status = await IMSDK.asyncApi(IMSDK.IMMethods.GetLoginStatus, IMSDK.uuid());
-            uni.$u.toast('----------------2222=status=' + status);
-            if ([1].includes(status) && this.storeIsLoginStatus) {
-                // await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
-                uni.$u.toast('登录状态失效，重新登录');
-                this.tryLogin();
-            }
-        }
+        // console.log('onShow-onShow');
+        // if (this.num > 1) {
+        //     uni.$u.toast(this.getPage());
+        //     if (this.getPage().includes('/login')) return;
+        //     uni.$u.toast('----------------1111==');
+        //     const status = await IMSDK.asyncApi(IMSDK.IMMethods.GetLoginStatus, IMSDK.uuid());
+        //     uni.$u.toast('----------------2222=status=' + status);
+        //     if ([1].includes(status) && this.storeIsLoginStatus) {
+        //         // await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+        //         uni.$u.toast('登录状态失效，重新登录');
+        //         this.tryLogin();
+        //     }
+        // }
         try {
             plus.runtime.setBadgeNumber(0);
             IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
@@ -153,13 +152,6 @@ export default {
             "updateSentGroupApplition",
         ]),
         ...mapActions('incomingCall', ['appearLoadingCall']),
-
-        getPage () {
-            const pages = getCurrentPages();
-            const currentPage = pages[pages.length - 1];
-            const url = currentPage.route;
-            return url;
-        },
       
         setGlobalIMlistener () {
             console.log("setGlobalIMlistener");
@@ -212,6 +204,7 @@ export default {
                 this.$store.dispatch("conversation/getUnReadCount");
 
                 uni.$emit(PageEvents.ClickPushMessage, this.payload.conversationID);
+                uni.$emit('reloadMore');
                 this.payload = false;
             };
             const syncFinishHandler = () => {
@@ -755,7 +748,7 @@ export default {
                     this.$store.commit('user/SET_CLIENT_ID', cid);
                 });
             }, 3000);
-            plus.push.addEventListener('click', this._handlePush);  
+            // plus.push.addEventListener('click', this._handlePush);  
         },
         _handlePush (message) {
             let payload = message && message.payload || {};
