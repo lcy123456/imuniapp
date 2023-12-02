@@ -550,7 +550,9 @@ export default {
                     uni.$u.toast("初始化IMSDK失败！");
                     return new Error('初始化IMSDK失败！');
                 }
-                await IMLogin();
+                setTimeout(async () => {
+                    await IMLogin();
+                }, 1000);
             } catch (err) {
                 console.log(err);
                 plus.navigator.closeSplashscreen();
@@ -571,6 +573,19 @@ export default {
                 && data.status;
         },
 
+        setEditMsg (msg) {
+            try {
+                const ex = JSON.parse(msg.ex) || {};
+                if (ex.type === 'edit') {
+                    msg.isEditClientMsgID = ex.clientMsgID;
+                    return msg;
+                }
+            } catch (err) {
+                console.log(err);
+            }
+            return '';
+        },
+
         async handleNewMessage (newServerMsg) {
             if (this.inCurrentConversation(newServerMsg)) {
                 if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
@@ -585,6 +600,7 @@ export default {
                         let conversationUnread = this.conversationUnread + 1;
                         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', conversationUnread);
                     }
+                    this.setEditMsg(newServerMsg);
                     this.pushNewMessage(newServerMsg);
                     uni.$u.debounce(this.markConversationAsRead, 2000);
                     if (this.storeIsShowSetEnd) return;

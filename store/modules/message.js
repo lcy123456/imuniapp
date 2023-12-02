@@ -111,9 +111,27 @@ const actions = {
         if (!message.isEditClientMsgID) {
             msgList = [...obj?.messageList || [], message];
         } else {
-            const index = obj?.messageList.findIndex(item => item.clientMsgID === message.isEditClientMsgID);
-            console.log('----------index', index);
-            msgList = [...(obj?.messageList || []).slice(0, index), message, ...(obj?.messageList || []).slice(index)];
+            // 编辑消息
+            let index = -1;
+            msgList = [
+                ...obj.messageList
+            ];
+            obj.messageList.forEach((item, i) => {
+                const preMsg = obj.messageList[i - 1] || {};
+                const nextMsg = obj.messageList[i + 1] || {};
+                const { sendTime } = message;
+                if (sendTime >= preMsg.sendTime && sendTime <= (nextMsg.sendTime || 99999999999999)) {
+                    console.log(sendTime, 'nextMsg.sendTime', preMsg.sendTime, nextMsg.sendTime);
+                    console.log(sendTime >= preMsg.sendTime, '======', sendTime <= (nextMsg.sendTime || 99999999999999));
+                    index = i;
+                }
+            });
+            console.log('----------index', index, obj.messageList.length);
+            if (index !== -1) {
+                msgList = [...(obj?.messageList || []).slice(0, index + 1), message, ...(obj?.messageList || []).slice(index + 1)];
+            }
+            console.log('----------msgList', msgList);
+            // msgList = [...(obj?.messageList || []).slice(0, index), message, ...(obj?.messageList || []).slice(index)];
         }
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,

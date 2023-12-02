@@ -54,6 +54,7 @@ export default {
     },
     created () {
         uni.$on('setAtMember', this.setAtMember);
+        uni.$on('createCanvasData', this.createCanvasData);
     },
     methods: {
         editorReady () {
@@ -239,6 +240,7 @@ export default {
         },
         editorInput (e) {
             this.inputHtml = e.detail.html;
+            console.log(this.inputHtml);
             this.$emit("input", e);
         },
     },

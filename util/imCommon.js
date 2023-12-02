@@ -824,11 +824,43 @@ export const getMessageContent = (message) => {
     const { contentType, quoteElem, atTextElem, textElem } = message;
     // TODO：解密文本
     if (contentType === MessageType.QuoteMessage) {
-        text = DecryptoAES(quoteElem?.text);
+        text = parseEmojiInsertImg(DecryptoAES(quoteElem?.text));
     } else if (contentType === MessageType.AtTextMessage) {
-        text = parseAt(atTextElem, 1);
+        text = parseEmojiInsertImg(parseAt(atTextElem, 1));
     } else {
-        text = DecryptoAES(textElem?.content);
+        text = parseEmojiInsertImg(DecryptoAES(textElem?.content));
     }
     return text;
 };
+
+
+export const parseEmojiInsertImg = (msgStr) => {
+    emojis.map((item) => {
+        if (msgStr?.includes(item.context)) {
+            let imgStr = `<img width="24px" height="18px" class="emoji_el" data-custom="emojiText=${item.context}" src="${item.src}" />`;
+            // imgStr = imgStr.replace("/static", "static");
+            msgStr = msgStr.replace(item.reg, imgStr);
+        }
+    });
+    return msgStr;
+};
+
+// export const parseAtInsertImg = (atel, type) => {
+//     let mstr = atel.text;
+//     const pattern = /@\S+\s/g;
+//     const arr = mstr.match(pattern);
+//     const atUserList = atel.atUsersInfo ?? [];
+//     arr?.map((match) => {
+//         const member = atUserList.find(
+//             (user) => user.atUserID === match.slice(1, -1)
+//         );
+//         if (member) {
+//             if (!type) {
+//                 mstr = mstr.replace(match, `<text style="color: #008dff;"> @${member.groupNickname}&nbsp;</text>`);
+//             } else {
+//                 mstr = mstr.replace(match, `@${member.groupNickname} `);
+//             }
+//         }
+//     });
+//     return mstr;
+// };

@@ -149,6 +149,7 @@ export default {
         uni.$on('forward_finish', this.hideMultipleMsg);
         uni.$on('deleteMsg', this.handleMsgDel);
         uni.$on('reloadChatingList', this.reloadChatingList);
+        uni.$on('getPositionMsgID', this.getPositionMsgID);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
         this.getSearchRecord();
         this.getPinList();
