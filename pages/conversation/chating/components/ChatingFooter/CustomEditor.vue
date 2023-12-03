@@ -240,7 +240,6 @@ export default {
         },
         editorInput (e) {
             this.inputHtml = e.detail.html;
-            console.log(this.inputHtml);
             this.$emit("input", e);
         },
     },

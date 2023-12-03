@@ -115,7 +115,6 @@ export default {
             if (this.showNickname) {
                 text = senderNickname + '：' + text;
             }
-            console.log('texttext', text);
             return `${text}${baseText}`;
         },
     },

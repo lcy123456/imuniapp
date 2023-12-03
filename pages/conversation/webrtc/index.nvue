@@ -79,7 +79,6 @@ export default {
                 token: this.storeIncomingCallToken,
                 url: this.storeIncomingCallWsUrl
             }
-            console.log('evalJs()=====发送参数给发送参数给发送参数给发送参数给webview', map)
             this.postMessage(`uniEvent(${JSON.stringify(map)})`);
         }
         this.time = this.storeIncomingCallCallTime;
@@ -124,7 +123,6 @@ export default {
                 this.$store.commit('incomingCall/SET_TIME_TEXT', data.timeText);
             }
             if (data.type === 'success') {
-                console.log('成功成功成功成功成功成功成功成功成功--------', this.storeIncomingCallMessage);
                 uni.$emit('sendMessage', {
                     ...this.storeIncomingCallMessage,
                     createTime: +new Date() + 3000,

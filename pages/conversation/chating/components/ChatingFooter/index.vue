@@ -340,7 +340,6 @@ export default {
                     EncryptoAES(text)
                 );
                 const { createTime, sendTime, clientMsgID, sessionType, seq } = this.activeMessage;
-                this.findMessageList([clientMsgID]);
                 // console.log('msgmsgmsgmsgmsgmsg------msgmsg', msg);
                 message = {
                     ...this.activeMessage,
@@ -363,19 +362,6 @@ export default {
                 console.log('编辑成。。。。。。消息。。。。', message);
             }
             return message;
-        },
-        async findMessageList (clientMsgIDList) {
-            console.log('clientMsgIDListclientMsgIDList', clientMsgIDList);
-            try {
-                const { conversationID } = this.storeCurrentConversation;
-                const data = await IMSDK.asyncApi(IMMethods.FindMessageList, IMSDK.uuid(), {
-                    conversationID: conversationID,
-                    clientMsgIDList: clientMsgIDList
-                });
-                console.log(data);
-            } catch (err) {
-                console.log('findMessageList', err);
-            }
         },
         async getGroupMemberList () {
             const { userID, groupID } = this.storeCurrentConversation;
@@ -577,10 +563,8 @@ export default {
             this.isInputFocus = false;
         },
         async editorInput (e) {
-            console.log('e.detaile.detail-e.detaile.detail', e.detail);
             const newText = html2Text(e.detail.html);
             const changeTextMap = getNewText(newText, this.oldText);
-            console.log('changeTextMapchangeTextMap', changeTextMap);
             if (
                 this.$store.getters.storeCurrentConversation.groupID &&
                 changeTextMap.type === 'add' &&
