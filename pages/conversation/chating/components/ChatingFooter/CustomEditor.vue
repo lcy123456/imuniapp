@@ -56,6 +56,10 @@ export default {
         uni.$on('setAtMember', this.setAtMember);
         uni.$on('createCanvasData', this.createCanvasData);
     },
+    beforeDestroy () {
+        uni.$off('setAtMember', this.setAtMember);
+        uni.$off('createCanvasData', this.createCanvasData);
+    },
     methods: {
         editorReady () {
             uni
@@ -131,9 +135,10 @@ export default {
                 },
             });
         },
-        createCanvasData (sendID, senderNickname, source, type) {
+        async createCanvasData (sendID, senderNickname, source, type, filePathMap) {
             const canvas = this.canvasData;
             canvas.title = !type ? "@" + senderNickname : "@所有人";
+            await this.$nextTick();
             setTimeout(() => {
                 const query = uni.createSelectorQuery().in(this);
                 query
@@ -156,18 +161,19 @@ export default {
                             }
                             ctx.fillText(text, 0, 16);
                             ctx.draw();
-                            this.canvasToTempFilePath(sendID, senderNickname, source);
+                            this.canvasToTempFilePath(sendID, senderNickname, source, filePathMap);
                         }, 50);
                     })
                     .exec();
-            }, 50);
+            }, 100);
         },
-        canvasToTempFilePath (sendID, senderNickname, source) {
+        canvasToTempFilePath (sendID, senderNickname, source, filePathMap) {
             const canvas = this.canvasData;
+            console.log('-------------------------------------');
             uni.canvasToTempFilePath({
                 canvasId: "atCanvas",
                 success: (res) => {
-                    this.editorCtx.insertImage({
+                    const m = {
                         src: res.tempFilePath,
                         width: canvas.width,
                         height: "20px",
@@ -175,7 +181,25 @@ export default {
                             sendID,
                             senderNickname
                         },
-                        extClass: 'at_el',
+                        extClass: 'at_el'
+                    };
+                    console.log('filePathList-filePathList-filePathList', filePathMap, source);
+                    if (filePathMap) {
+                        if (!filePathMap.list) {
+                            filePathMap.list = [];
+                        }
+                        filePathMap.list.push(m);
+                        if (source && source.length > 1) {
+                            source = source.slice(1, source.length);
+                            this.createCanvasData(source[0].atUserID, source[0].groupNickname, source, null, filePathMap);
+                        } else {
+                            typeof filePathMap.callback === 'function' && filePathMap.callback.call(null, [...filePathMap.list]);
+                            filePathMap = null;
+                        }
+                        return;
+                    }
+                    this.editorCtx.insertImage({
+                        ...m,
                         complete: () => {
                             if (source && source.length > 1) {
                                 source = source.slice(1, source.length);

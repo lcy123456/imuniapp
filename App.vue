@@ -15,6 +15,7 @@ import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
 import { videoGetToken } from '@/api/incoming';
 import { bindCid } from '@/api/index';
+import message from "./store/modules/message";
 
 // const customStatusTextMap = {
 //     [AudioVideoStatus.Done]: '通话结束',
@@ -583,7 +584,7 @@ export default {
             } catch (err) {
                 console.log(err);
             }
-            return '';
+            return 'myMsg';
         },
 
         async handleNewMessage (newServerMsg) {

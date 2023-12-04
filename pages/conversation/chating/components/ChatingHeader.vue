@@ -146,6 +146,7 @@ export default {
     beforeDestroy () {
         clearInterval(this.timer);
         clearInterval(this.timer2);
+        uni.$off('setStatus', this.setStatus);
     },
     methods: {
         setStatus (str) {

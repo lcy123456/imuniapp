@@ -135,7 +135,7 @@
 import { mapGetters, mapActions } from 'vuex';
 import { base64ToPath } from 'image-tools';
 import { formatInputHtml, getPurePath, html2Text, getEl, getNewText } from '@/util/common';
-import { offlinePushInfo, getMessageContent } from '@/util/imCommon';
+import { offlinePushInfo, getMessageContent, parseAtInsertImg, isEdit } from '@/util/imCommon';
 import { AudioVideoStatus, AudioVideoType } from '@/enum';
 import {
     ChatingFooterActionTypes,
@@ -471,7 +471,7 @@ export default {
                 await this.$emit('sendInit');
             }
             const { userID, groupID } = this.storeCurrentConversation;
-            !message.isEditClientMsgID && this.pushNewMessage({
+            this.pushNewMessage({
                 ...message,
                 recvID: userID,
                 groupID,
@@ -483,12 +483,11 @@ export default {
             }
             try {
                 let data = {};
-                if (message.isEditClientMsgID) {
+                if (isEdit(message)) {
                     const m = await updateMsg({
                         ...message
                     });
                     data = m.data;
-                    console.log('isEditClientMsgID-isEditClientMsgID', m);
                 } else {
                     const m = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                         recvID: userID,
@@ -870,11 +869,21 @@ export default {
         handleMessageListener (data) {
             const { message, type } = data;
             if (type === 'edit_message') {
-                // this.$refs.customEditor.editorCtx.insertText({text: getMessageContent(message)});
-                // console.log(' getMessageContent(message) getMessageContent(message)',  getMessageContent(message));
-                this.$refs.customEditor.editorCtx.setContents({html: getMessageContent(message) + '<i style="font-style: normal;"> </i>'});
-                this.$refs.customEditor.editorCtx.insertText({text: ''});
-                // this.$refs.customEditor.editorCtx.blur();
+                if (message.contentType === MessageType.AtTextMessage) {
+                    const source = message.atTextElem.atUsersInfo;
+                    console.log('1111111111');
+                    uni.$emit('createCanvasData', source[0].atUserID, source[0].groupNickname, source, null, {
+                        callback: (l) => {
+                            console.log('callback-callback-callback', l);
+                            this.$refs.customEditor.editorCtx.setContents({html: parseAtInsertImg({
+                                text: getMessageContent(message),
+                                atUsersInfo: l
+                            }) + '<i style="font-style: normal;"> </i>'});
+                        }
+                    });
+                } else {
+                    this.$refs.customEditor.editorCtx.setContents({html: getMessageContent(message) + '<i style="font-style: normal;"> </i>'});
+                }
             } else {
                 this.$refs.customEditor.editorCtx.insertText({text: ''});
             }

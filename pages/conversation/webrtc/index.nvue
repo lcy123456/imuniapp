@@ -86,6 +86,7 @@ export default {
     },
     onUnload () {
         console.log('onUnloadonUnload');
+        uni.$off('incoming_message_callback', this.incomingMessageCallback);
     },
     onHide () {
         console.log('onHideonHideonHide');

@@ -166,6 +166,9 @@ export default {
         this.resetMessageState();
         uni.$off('multiple_message', this.handleMultipleMessage);
         uni.$off('forward_finish', this.hideMultipleMsg);
+        uni.$off('deleteMsg', this.handleMsgDel);
+        uni.$off('reloadChatingList', this.reloadChatingList);
+        uni.$off('getPositionMsgID', this.getPositionMsgID);
         this.$store.commit('base/SET_PIN_LIST', []);
     },
     methods: {

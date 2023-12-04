@@ -96,6 +96,16 @@ export const conversationSort = (conversationList) => {
     return filterArr;
 };
 
+
+export const isEdit = (message) => {
+    try {
+        const ex = JSON.parse(message.ex);
+        return ex.type === 'edit';
+    } catch (err) {
+        return false;
+    }
+}
+
 export const parseAt = (atel, type) => {
     let mstr = atel.text;
     const pattern = /@\S+\s/g;
@@ -109,7 +119,7 @@ export const parseAt = (atel, type) => {
             if (!type) {
                 mstr = mstr.replace(match, `<text style="color: #008dff;"> @${member.groupNickname}&nbsp;</text>`);
             } else {
-                mstr = mstr.replace(match, `@${member.groupNickname} `);
+                mstr = mstr.replace(match, `@${member.atUserID} `);
             }
         }
     // else {
@@ -830,6 +840,7 @@ export const getMessageContent = (message) => {
     } else {
         text = parseEmojiInsertImg(DecryptoAES(textElem?.content));
     }
+    text = text.replace(/\n/g, '<br>');
     return text;
 };
 
@@ -845,22 +856,20 @@ export const parseEmojiInsertImg = (msgStr) => {
     return msgStr;
 };
 
-// export const parseAtInsertImg = (atel, type) => {
-//     let mstr = atel.text;
-//     const pattern = /@\S+\s/g;
-//     const arr = mstr.match(pattern);
-//     const atUserList = atel.atUsersInfo ?? [];
-//     arr?.map((match) => {
-//         const member = atUserList.find(
-//             (user) => user.atUserID === match.slice(1, -1)
-//         );
-//         if (member) {
-//             if (!type) {
-//                 mstr = mstr.replace(match, `<text style="color: #008dff;"> @${member.groupNickname}&nbsp;</text>`);
-//             } else {
-//                 mstr = mstr.replace(match, `@${member.groupNickname} `);
-//             }
-//         }
-//     });
-//     return mstr;
-// };
+export const parseAtInsertImg = (atel) => {
+    let mstr = atel.text;
+    const pattern = /@\S+\s/g;
+    const arr = mstr.match(pattern);
+    const atUserList = atel.atUsersInfo ?? [];
+    arr?.map((match) => {
+        const member = atUserList.find(
+            (user) => user.data.sendID === match.slice(1, -1)
+        );
+        if (member) {
+            let imgStr = `<img width="${member.width}" height="${member.height}" class="${member.extClass}" data-custom="sendID=${member.data.sendID}&amp;senderNickname=${member.data.senderNickname}" src="${member.src}" />`;
+            // imgStr = imgStr.replace("/static", "static");
+            mstr = mstr.replace(match, imgStr);
+        }
+    });
+    return mstr;
+};

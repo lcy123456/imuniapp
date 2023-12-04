@@ -3,7 +3,7 @@ import IMSDK, {
 } from 'openim-uniapp-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateMessageTypes } from '@/constant';
-import { idsGetConversationID } from '@/util/imCommon';
+import { idsGetConversationID, isEdit } from '@/util/imCommon';
 
 function getInitLastMessage (messageList) {
     for (let i = messageList.length - 1; i >= 0; i--) {
@@ -108,7 +108,7 @@ const actions = {
         }
         const obj = state.historyMessageMap[conversationID];
         let msgList = [];
-        if (!message.isEditClientMsgID) {
+        if (!isEdit(message)) {
             msgList = [...obj?.messageList || [], message];
         } else {
             // 编辑消息
@@ -116,28 +116,27 @@ const actions = {
             msgList = [
                 ...obj.messageList
             ];
-            obj.messageList.forEach((item, i) => {
-                const preMsg = obj.messageList[i - 1] || {};
-                const nextMsg = obj.messageList[i + 1] || {};
-                const { sendTime } = message;
-                if (sendTime >= preMsg.sendTime && sendTime <= (nextMsg.sendTime || 99999999999999)) {
-                    console.log(sendTime, 'nextMsg.sendTime', preMsg.sendTime, nextMsg.sendTime);
-                    console.log(sendTime >= preMsg.sendTime, '======', sendTime <= (nextMsg.sendTime || 99999999999999));
-                    index = i;
-                }
-            });
-            console.log('----------index', index, obj.messageList.length);
-            if (index !== -1) {
-                msgList = [...(obj?.messageList || []).slice(0, index + 1), message, ...(obj?.messageList || []).slice(index + 1)];
+            if (!msgList.map(v => v.clientMsgID).includes(message.clientMsgID)) {
+                obj.messageList.forEach((item, i) => {
+                    const preMsg = obj.messageList[i - 1] || {};
+                    const msg = obj.messageList[i] || {};
+                    const { sendTime } = message;
+                    if (sendTime >= preMsg.sendTime && sendTime <= msg.sendTime) {
+                        index = i;
+                    }
+                });
+                console.log('----------index', index, obj.messageList.length);
+                let i = index === - 1 ? obj.messageList.length : index;
+                msgList = [...(obj?.messageList || []).slice(0, i), message, ...(obj?.messageList || []).slice(i)];
+                console.log('----------msgList', msgList);
+                // msgList = [...(obj?.messageList || []).slice(0, index), message, ...(obj?.messageList || []).slice(index)];
             }
-            console.log('----------msgList', msgList);
-            // msgList = [...(obj?.messageList || []).slice(0, index), message, ...(obj?.messageList || []).slice(index)];
         }
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
             [conversationID]: {
                 ...obj,
-                messageList: msgList,
+                messageList: [...msgList],
             },
         });
     },
