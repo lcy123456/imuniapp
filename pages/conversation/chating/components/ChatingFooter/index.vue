@@ -886,7 +886,7 @@ export default {
                         this.$refs.customEditor.editorCtx.setContents({html: parseAtInsertImg({
                             text: getMessageContent(message),
                             atUsersInfo: l
-                        }) + '<i style="font-style: normal;"> </i>'});
+                        })});
                     };
                     if (message.atTextElem.atUserList.includes(AllType.Code)) {
                         uni.$emit('createCanvasData', source.map(v => v.atUserID).join(','), source.map(v => v.groupNickname).join(','), null, 'all', {
@@ -898,7 +898,7 @@ export default {
                         });
                     }
                 } else {
-                    this.$refs.customEditor.editorCtx.setContents({html: getMessageContent(message) + '<i style="font-style: normal;"> </i>'});
+                    this.$refs.customEditor.editorCtx.setContents({html: getMessageContent(message)});
                 }
             } else {
                 this.$refs.customEditor.editorCtx.insertText({text: ''});

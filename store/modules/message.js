@@ -20,6 +20,7 @@ const state = {
 
 const mutations = {
     SET_HISTORY_MESSAGE_MAP (state, obj) {
+        console.log('obj-------obj', JSON.parse(JSON.stringify(obj)));
         state.historyMessageMap = obj;
     },
 };
@@ -129,11 +130,13 @@ const actions = {
                 console.log('----------index', index, obj.messageList.length);
                 let i = index === - 1 ? obj.messageList.length : index;
                 msgList = [...(obj?.messageList || []).slice(0, i), message, ...(obj?.messageList || []).slice(i)];
-                // msgList = [...(obj?.messageList || []).slice(0, index), message, ...(obj?.messageList || []).slice(index)];
             } else {
                 const index = msgList.findIndex(item => item.clientMsgID === message.clientMsgID);
-                msgList[index] = message;
-                console.log('---index', index, message);
+                // msgList[index] = message;
+                // console.log('---index', index, message);
+                if (index !== -1) {
+                    console.log(index, '--msgList', msgList, message);
+                }
             }
             console.log('----------msgList', msgList);
         }
@@ -181,20 +184,23 @@ const actions = {
 
         const obj = state.historyMessageMap[conversationID];
         const tmpList = [...obj.messageList];
+        console.log('删除的------', messages);
         messages.forEach((v) => {
             const idx = tmpList.findIndex(j => j.clientMsgID === v.clientMsgID);
             if (idx !== -1) {
                 tmpList.splice(idx, 1);
             }
         });
-        console.log('tmpList------tmpList', tmpList);
-        commit('SET_HISTORY_MESSAGE_MAP', {
-            ...state.historyMessageMap,
-            [conversationID]: {
-                ...obj,
-                messageList: [...tmpList],
-            },
-        });
+        setTimeout(() => {
+            console.log('tmpList------tmpList', tmpList);
+            commit('SET_HISTORY_MESSAGE_MAP', {
+                ...state.historyMessageMap,
+                [conversationID]: {
+                    ...obj,
+                    messageList: [...tmpList],
+                },
+            });
+        }, 0);
     },
     resetMessageState ({ commit }) {
         // commit('SET_HISTORY_MESSAGE_LIST', []);

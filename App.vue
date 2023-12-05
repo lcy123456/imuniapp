@@ -687,7 +687,7 @@ export default {
                 this.storeCurrentConversation.conversationID
             );
         },
-        getAudio ({ src = '/static/audio/message_tip.mp3', sessionCategory = 'playback' }) {
+        getAudio ({ src = '/static/audio/voice1.mp3', sessionCategory = 'playback' }) {
             this.audioSrc = src;
             this.innerAudioContext = plus.audio.createPlayer({ 
                 src
