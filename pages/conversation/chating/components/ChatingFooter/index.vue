@@ -163,6 +163,7 @@ import { EncryptoAES } from '@/util/crypto';
 import { chooseFile, recordVoiceManager } from '@/util/unisdk';
 import { videoCreateRoomAndGetToken } from '@/api/incoming';
 import { updateMsg } from '@/api/message';
+import { AllType } from '@/enum';
 
 const albumChoose = [
     {
@@ -325,22 +326,27 @@ export default {
                 });
             }
             if (this.activeMessageType === 'edit_message') {
-                const { contentType, quoteElem, atTextElem, textElem } = this.activeMessage;
+                const { contentType, atTextElem } = this.activeMessage;
                 // TODO：编辑消息
                 if (contentType === MessageType.QuoteMessage) {
-                    quoteElem.text = isAtMsg ? quoteElem.text : EncryptoAES(text);
+                    message = message ? message : await IMSDK.asyncApi(
+                        IMMethods.CreateQuoteMessage,
+                        IMSDK.uuid(),
+                        {
+                            text: EncryptoAES(text),
+                            message: this.activeMessage.quoteElem.quoteMessage
+                        }
+                    );
                 } else if (contentType === MessageType.AtTextMessage) {
                     atTextElem.text = EncryptoAES(text);
                 } else {
-                    textElem.content = EncryptoAES(text);
+                    message = message ? message : await IMSDK.asyncApi(
+                        IMMethods.CreateTextMessage,
+                        IMSDK.uuid(),
+                        EncryptoAES(text)
+                    );
                 }
-                message = message ? message : await IMSDK.asyncApi(
-                    IMMethods.CreateTextMessage,
-                    IMSDK.uuid(),
-                    EncryptoAES(text)
-                );
                 const { createTime, sendTime, clientMsgID, sessionType, seq } = this.activeMessage;
-                // console.log('msgmsgmsgmsgmsgmsg------msgmsg', msg);
                 message = {
                     ...this.activeMessage,
                     ...message,
@@ -471,7 +477,7 @@ export default {
                 await this.$emit('sendInit');
             }
             const { userID, groupID } = this.storeCurrentConversation;
-            this.pushNewMessage({
+            !isEdit(message) && this.pushNewMessage({
                 ...message,
                 recvID: userID,
                 groupID,
@@ -488,6 +494,12 @@ export default {
                         ...message
                     });
                     data = m.data;
+                    this.pushNewMessage({
+                        ...message,
+                        recvID: userID,
+                        groupID,
+                        sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
+                    });
                 } else {
                     const m = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                         recvID: userID,
@@ -745,7 +757,6 @@ export default {
         async initWebrtc (type) {
             uni.showLoading();
             const { groupID } = this.storeCurrentConversation;
-            console.log('isGroupChatisGroupChatisGroupChat', this.storeIncomingIsGroupChat);
             if (groupID && this.storeIncomingIsGroupChat) {
                 uni.hideLoading();
                 return uni.$u.toast('群通话正在进行中');
@@ -759,7 +770,6 @@ export default {
                 try {
                     await this.getGroupMemberList();
                     const data = await this.sendCustomMessage(type);
-                    console.log(data, '======sendCustomMessagesendCustomMessagesendCustomMessage');
                     if (typeof data === 'boolean' && !data) {
                         // uni.$u.toast('网络异常，请稍后重试');
                         uni.hideLoading();
@@ -871,16 +881,22 @@ export default {
             if (type === 'edit_message') {
                 if (message.contentType === MessageType.AtTextMessage) {
                     const source = message.atTextElem.atUsersInfo;
-                    console.log('1111111111');
-                    uni.$emit('createCanvasData', source[0].atUserID, source[0].groupNickname, source, null, {
-                        callback: (l) => {
-                            console.log('callback-callback-callback', l);
-                            this.$refs.customEditor.editorCtx.setContents({html: parseAtInsertImg({
-                                text: getMessageContent(message),
-                                atUsersInfo: l
-                            }) + '<i style="font-style: normal;"> </i>'});
-                        }
-                    });
+                    const callback = (l) => {
+                        console.log('callback-callback-callback', l);
+                        this.$refs.customEditor.editorCtx.setContents({html: parseAtInsertImg({
+                            text: getMessageContent(message),
+                            atUsersInfo: l
+                        }) + '<i style="font-style: normal;"> </i>'});
+                    };
+                    if (message.atTextElem.atUserList.includes(AllType.Code)) {
+                        uni.$emit('createCanvasData', source.map(v => v.atUserID).join(','), source.map(v => v.groupNickname).join(','), null, 'all', {
+                            callback
+                        });
+                    } else {
+                        uni.$emit('createCanvasData', source[0].atUserID, source[0].groupNickname, source, null, {
+                            callback
+                        });
+                    }
                 } else {
                     this.$refs.customEditor.editorCtx.setContents({html: getMessageContent(message) + '<i style="font-style: normal;"> </i>'});
                 }

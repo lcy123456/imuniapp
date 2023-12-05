@@ -108,6 +108,7 @@ const actions = {
         }
         const obj = state.historyMessageMap[conversationID];
         let msgList = [];
+        console.log('add-------add', message, !isEdit(message));
         if (!isEdit(message)) {
             msgList = [...obj?.messageList || [], message];
         } else {
@@ -128,9 +129,13 @@ const actions = {
                 console.log('----------index', index, obj.messageList.length);
                 let i = index === - 1 ? obj.messageList.length : index;
                 msgList = [...(obj?.messageList || []).slice(0, i), message, ...(obj?.messageList || []).slice(i)];
-                console.log('----------msgList', msgList);
                 // msgList = [...(obj?.messageList || []).slice(0, index), message, ...(obj?.messageList || []).slice(index)];
+            } else {
+                const index = msgList.findIndex(item => item.clientMsgID === message.clientMsgID);
+                msgList[index] = message;
+                console.log('---index', index, message);
             }
+            console.log('----------msgList', msgList);
         }
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
@@ -175,13 +180,14 @@ const actions = {
         }
 
         const obj = state.historyMessageMap[conversationID];
-        const tmpList = obj.messageList;
+        const tmpList = [...obj.messageList];
         messages.forEach((v) => {
             const idx = tmpList.findIndex(j => j.clientMsgID === v.clientMsgID);
             if (idx !== -1) {
                 tmpList.splice(idx, 1);
             }
         });
+        console.log('tmpList------tmpList', tmpList);
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
             [conversationID]: {

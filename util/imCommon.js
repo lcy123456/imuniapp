@@ -108,7 +108,7 @@ export const isEdit = (message) => {
 
 export const parseAt = (atel, type) => {
     let mstr = atel.text;
-    const pattern = /@\S+\s/g;
+    const pattern = /@\d+\s/g;
     const arr = mstr.match(pattern);
     const atUserList = atel.atUsersInfo ?? [];
     arr?.map((match) => {
@@ -858,12 +858,12 @@ export const parseEmojiInsertImg = (msgStr) => {
 
 export const parseAtInsertImg = (atel) => {
     let mstr = atel.text;
-    const pattern = /@\S+\s/g;
+    const pattern = /@\d+\s/g;
     const arr = mstr.match(pattern);
     const atUserList = atel.atUsersInfo ?? [];
     arr?.map((match) => {
         const member = atUserList.find(
-            (user) => user.data.sendID === match.slice(1, -1)
+            (user) => user.data.sendID === match.slice(1, -1) || (user.data.sendID.includes(','))
         );
         if (member) {
             let imgStr = `<img width="${member.width}" height="${member.height}" class="${member.extClass}" data-custom="sendID=${member.data.sendID}&amp;senderNickname=${member.data.senderNickname}" src="${member.src}" />`;
