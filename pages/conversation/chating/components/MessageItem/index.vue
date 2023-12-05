@@ -340,9 +340,8 @@ export default {
             flex-direction: column;
             align-items: flex-start;
             max-width: 80%;
-            position: relative;
     
-            .message_content_wrap {
+            /deep/.message_content_wrap .message_content_container {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
@@ -378,11 +377,11 @@ export default {
             .message_container {
                 align-items: flex-end;
 
-                .message_content_wrap {
+                /deep/ .message_content_wrap .message_content_container{
                     align-items: flex-end;
-                    .bg_container {
-                        background-color: #c5e3ff !important;
-                    }
+                    // .bg_container {
+                    //     background-color: #c5e3ff !important;
+                    // }
                 }
             }
 

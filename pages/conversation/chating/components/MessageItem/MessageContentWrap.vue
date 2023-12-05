@@ -174,14 +174,15 @@ export default {
 
 <style lang="scss" scoped>
 .message_content_wrap {
-    // @include vCenterBox();
-    // @include ellipsisWithLine(10);
-    color: $uni-text-color;
-    width: fit-content;
     max-width: 100%;
-    border-radius: 16rpx;
-    overflow: hidden;
     .message_content_container {
+        // @include vCenterBox();
+        // @include ellipsisWithLine(10);
+        color: $uni-text-color;
+        width: fit-content;
+        max-width: 100%;
+        border-radius: 16rpx;
+        overflow: hidden;
         position: relative;
     }
     .read-state {

@@ -123,6 +123,7 @@ export default {
     }
 }
 .quote_detail {
+    width: fit-content;
     max-width: 100%;
     padding: 16rpx;
     margin-top: 10rpx;
