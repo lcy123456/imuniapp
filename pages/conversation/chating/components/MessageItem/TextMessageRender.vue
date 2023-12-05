@@ -57,7 +57,12 @@ export default {
     },
     computed: {
         isEdit () {
-            return this.message.createTime > this.message.sendTime;
+            try {
+                const ex = JSON.parse(this.message.ex);
+                return ex.type === 'edit';
+            } catch (err) {
+                return false;
+            }
         },
         isGroupRead () {
             try {
@@ -106,9 +111,7 @@ export default {
             } else {
                 text = parseEmoji(DecryptoAES(textElem?.content));
             }
-            if (contentType === MessageType.TextMessage) {
-                text = text.replace(/\n/g, '<br>');
-            }
+            text = text.replace(/\n/g, '<br>');
             if (this.showNickname) {
                 text = senderNickname + '：' + text;
             }

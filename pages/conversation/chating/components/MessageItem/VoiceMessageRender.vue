@@ -111,6 +111,7 @@ export default {
             uni.$emit("play_audio", this.soundElem.sourceUrl);
         },
         handlePlaying (src) {
+            if (!src) return;
             this.playing = false;
             if (this.nextSrc === src) {
                 this.nextSrc = '';

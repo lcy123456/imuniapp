@@ -31,7 +31,7 @@ import { html2Text } from '@/util/common';
 import { parseAt, parseEmoji } from "@/util/imCommon";
 import { mapGetters, mapActions } from 'vuex';
 import { pin, pinCancel } from '@/api/pinToTop';
-import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
+import IMSDK, { IMMethods, MessageType, SessionType } from 'openim-uniapp-polyfill';
 import { DecryptoAES } from '@/util/crypto';
 import { 
     MessageMenuTypes,
@@ -130,7 +130,7 @@ export default {
                     type: MessageMenuTypes.Edit,
                     title: '编辑',
                     icon: '/static/images/chating_message_edit.png',
-                    visible: TextRenderTypes.includes(this.message.contentType) && this.message.sendID === this.storeCurrentUserID,
+                    visible: TextRenderTypes.includes(this.message.contentType) && this.isMyMsg,
                 },
                 {
                     type: MessageMenuTypes.Copy,
@@ -154,7 +154,7 @@ export default {
                     type: MessageMenuTypes.Del,
                     title: '删除',
                     icon: '/static/images/chating_message_del.png',
-                    visible: true,
+                    visible: this.isMyMsg || this.isSingle,
                 },
             ].filter((v) => v.visible);
         },
@@ -167,6 +167,12 @@ export default {
         showFileRender () {
             return FileRenderTypes.includes(this.message.contentType);
         },
+        isMyMsg () {
+            return this.message.sendID === this.storeCurrentUserID;
+        },
+        isSingle () {
+            return this.message.sessionType === SessionType.Single;
+        }
     },
     methods: {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),

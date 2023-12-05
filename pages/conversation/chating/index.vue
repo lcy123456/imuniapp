@@ -149,6 +149,7 @@ export default {
         uni.$on('forward_finish', this.hideMultipleMsg);
         uni.$on('deleteMsg', this.handleMsgDel);
         uni.$on('reloadChatingList', this.reloadChatingList);
+        uni.$on('getPositionMsgID', this.getPositionMsgID);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
         this.getSearchRecord();
         this.getPinList();
@@ -165,6 +166,9 @@ export default {
         this.resetMessageState();
         uni.$off('multiple_message', this.handleMultipleMessage);
         uni.$off('forward_finish', this.hideMultipleMsg);
+        uni.$off('deleteMsg', this.handleMsgDel);
+        uni.$off('reloadChatingList', this.reloadChatingList);
+        uni.$off('getPositionMsgID', this.getPositionMsgID);
         this.$store.commit('base/SET_PIN_LIST', []);
     },
     methods: {

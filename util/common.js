@@ -238,3 +238,33 @@ export const lightTextStr = (str, key) => {
         return `<text class="primary">${text}</text>`;
     }, 'g');
 };
+
+
+export const getNewText = (newStr, oldStr) => {
+    let text = '';
+    let type = newStr.length > oldStr.length ? 'add' : 'remove';
+    let l1 = (type === 'add' ? newStr : oldStr).split('').filter(item => item !== '\n');
+    let l2 = (type === 'add' ? oldStr : newStr).split('').filter(item => item !== '\n');
+    let isN = false;
+    if (l2.length > l1.length) {
+        // 判断\n 的情况
+        isN = true;
+        let l = [...l2];
+        l2 = [...l1];
+        l1 = [...l];
+    }
+    l1.forEach((item, i) => {
+        if (text) return;
+        if (item !== l2[i]) {
+            text = item;
+        }
+    });
+    console.log({
+        type: isN ? 'add' : type,
+        text
+    });
+    return {
+        type: isN ? 'add' : type,
+        text
+    };
+};

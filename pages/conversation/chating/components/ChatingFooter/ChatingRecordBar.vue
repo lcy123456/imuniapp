@@ -1,7 +1,7 @@
 <template>
     <div class="chating_record_bar">
         <image
-            class="chating_record_cancel w-150 h-150"
+            class="w-150 h-150"
             src="/static/images/recording.gif"
         />
         <image

@@ -3,7 +3,7 @@ import IMSDK, {
 } from 'openim-uniapp-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateMessageTypes } from '@/constant';
-import { idsGetConversationID } from '@/util/imCommon';
+import { idsGetConversationID, isEdit } from '@/util/imCommon';
 
 function getInitLastMessage (messageList) {
     for (let i = messageList.length - 1; i >= 0; i--) {
@@ -20,6 +20,7 @@ const state = {
 
 const mutations = {
     SET_HISTORY_MESSAGE_MAP (state, obj) {
+        console.log('obj-------obj', JSON.parse(JSON.stringify(obj)));
         state.historyMessageMap = obj;
     },
 };
@@ -108,18 +109,42 @@ const actions = {
         }
         const obj = state.historyMessageMap[conversationID];
         let msgList = [];
-        if (!message.isEditClientMsgID) {
+        console.log('add-------add', message, !isEdit(message));
+        if (!isEdit(message)) {
             msgList = [...obj?.messageList || [], message];
         } else {
-            const index = obj?.messageList.findIndex(item => item.clientMsgID === message.isEditClientMsgID);
-            console.log('----------index', index);
-            msgList = [...(obj?.messageList || []).slice(0, index), message, ...(obj?.messageList || []).slice(index)];
+            // 编辑消息
+            let index = -1;
+            msgList = [
+                ...obj.messageList
+            ];
+            if (!msgList.map(v => v.clientMsgID).includes(message.clientMsgID)) {
+                obj.messageList.forEach((item, i) => {
+                    const preMsg = obj.messageList[i - 1] || {};
+                    const msg = obj.messageList[i] || {};
+                    const { sendTime } = message;
+                    if (sendTime >= preMsg.sendTime && sendTime <= msg.sendTime) {
+                        index = i;
+                    }
+                });
+                console.log('----------index', index, obj.messageList.length);
+                let i = index === - 1 ? obj.messageList.length : index;
+                msgList = [...(obj?.messageList || []).slice(0, i), message, ...(obj?.messageList || []).slice(i)];
+            } else {
+                const index = msgList.findIndex(item => item.clientMsgID === message.clientMsgID);
+                // msgList[index] = message;
+                // console.log('---index', index, message);
+                if (index !== -1) {
+                    console.log(index, '--msgList', msgList, message);
+                }
+            }
+            console.log('----------msgList', msgList);
         }
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
             [conversationID]: {
                 ...obj,
-                messageList: msgList,
+                messageList: [...msgList],
             },
         });
     },
@@ -158,20 +183,24 @@ const actions = {
         }
 
         const obj = state.historyMessageMap[conversationID];
-        const tmpList = obj.messageList;
+        const tmpList = [...obj.messageList];
+        console.log('删除的------', messages);
         messages.forEach((v) => {
             const idx = tmpList.findIndex(j => j.clientMsgID === v.clientMsgID);
             if (idx !== -1) {
                 tmpList.splice(idx, 1);
             }
         });
-        commit('SET_HISTORY_MESSAGE_MAP', {
-            ...state.historyMessageMap,
-            [conversationID]: {
-                ...obj,
-                messageList: [...tmpList],
-            },
-        });
+        setTimeout(() => {
+            console.log('tmpList------tmpList', tmpList);
+            commit('SET_HISTORY_MESSAGE_MAP', {
+                ...state.historyMessageMap,
+                [conversationID]: {
+                    ...obj,
+                    messageList: [...tmpList],
+                },
+            });
+        }, 0);
     },
     resetMessageState ({ commit }) {
         // commit('SET_HISTORY_MESSAGE_LIST', []);

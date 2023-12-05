@@ -126,7 +126,7 @@
         />
         <GoupMemberListPop
             v-model="isShowAt"
-            @confirm="getMemberList"
+            @confirm="setAtMember"
         />
     </view>
 </template>
@@ -134,8 +134,8 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { base64ToPath } from 'image-tools';
-import { formatInputHtml, getPurePath, html2Text, getEl } from '@/util/common';
-import { offlinePushInfo, getMessageContent } from '@/util/imCommon';
+import { formatInputHtml, getPurePath, html2Text, getEl, getNewText } from '@/util/common';
+import { offlinePushInfo, getMessageContent, parseAtInsertImg, isEdit } from '@/util/imCommon';
 import { AudioVideoStatus, AudioVideoType } from '@/enum';
 import {
     ChatingFooterActionTypes,
@@ -162,6 +162,8 @@ import ChatQuote from '@/components/ChatQuote';
 import { EncryptoAES } from '@/util/crypto';
 import { chooseFile, recordVoiceManager } from '@/util/unisdk';
 import { videoCreateRoomAndGetToken } from '@/api/incoming';
+import { updateMsg } from '@/api/message';
+import { AllType } from '@/enum';
 
 const albumChoose = [
     {
@@ -284,7 +286,7 @@ export default {
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage', 'deleteMessage']),
         ...mapActions('incomingCall', ['onThrowCall', 'reviewPermission']),
-        getMemberList (list, status) {
+        setAtMember (list, status) {
             this.isShowAt = false;
             uni.$emit('setAtMember', list.map(item => ({
                 atUserID: item.userID,
@@ -294,6 +296,7 @@ export default {
         async createTextMessage () {
             let message = '';
             const { text } = formatInputHtml(this.inputHtml, 1);
+            const isAtMsg = this.$refs.customEditor?.getAt()?.length;
             if (this.activeMessageShow) {
                 if (this.activeMessageType === "quote_message") {
                     message = await IMSDK.asyncApi(
@@ -304,39 +307,7 @@ export default {
                             message: this.activeMessage
                         }
                     );
-                } else if (this.activeMessageType === "edit_message") {
-                    // TODO：编辑消息
-                    const { contentType, quoteElem, atTextElem, textElem } = this.activeMessage;
-                    if (contentType === MessageType.QuoteMessage) {
-                        quoteElem.text = EncryptoAES(text);
-                    } else if (contentType === MessageType.AtTextMessage) {
-                        atTextElem.text = EncryptoAES(text);
-                    } else {
-                        textElem.content = EncryptoAES(text);
-                    }
-                    const newMessage = await IMSDK.asyncApi(
-                        IMMethods.CreateTextMessage,
-                        IMSDK.uuid(),
-                        EncryptoAES(text)
-                    );
-                    const { createTime, sendTime } = this.activeMessage;
-                    console.log('newMessagenewMessage', newMessage);
-                    message = {
-                        ...this.activeMessage,
-                        // createTime: 0,
-                        createTime: createTime,
-                        sendTime: sendTime,
-                        serverMsgID: newMessage.serverMsgID,
-                        clientMsgID: newMessage.clientMsgID,
-                        seq: null,
-                        sendID: null,
-                        recvID: null,
-                        groupID: null,
-                        isEditClientMsgID: this.activeMessage.clientMsgID
-                    };
-                    console.log('=------====-----newMessagenewMessage', message);
                 }
-                this.activeMessageShow = false;
             } else {
                 message = await IMSDK.asyncApi(
                     IMMethods.CreateTextMessage,
@@ -344,14 +315,57 @@ export default {
                     EncryptoAES(text)
                 );
             }
-            if (this.$refs.customEditor?.getAt()?.length) {
+            if (isAtMsg) {
                 const atList = this.$refs.customEditor?.getAt();
-                return await IMSDK.asyncApi('createTextAtMessage', IMSDK.uuid(), {
+                message = await IMSDK.asyncApi('createTextAtMessage', IMSDK.uuid(), {
                     text: EncryptoAES(text),
                     atUserIDList: atList.map(v => v.atUserID),
                     atUsersInfo: atList,
-                    message: this.activeMessageType === 'quote_message' ? this.activeMessage : null
+                    message: (this.activeMessageType === 'quote_message' || this.activeMessage?.contentType === MessageType.QuoteMessage) ?
+                        ((this.activeMessage?.contentType === MessageType.QuoteMessage && this.activeMessageType === 'edit_message') ? this.activeMessage?.quoteElem.quoteMessage : this.activeMessage) : null
                 });
+            }
+            if (this.activeMessageType === 'edit_message') {
+                const { contentType, atTextElem } = this.activeMessage;
+                // TODO：编辑消息
+                if (contentType === MessageType.QuoteMessage) {
+                    message = message ? message : await IMSDK.asyncApi(
+                        IMMethods.CreateQuoteMessage,
+                        IMSDK.uuid(),
+                        {
+                            text: EncryptoAES(text),
+                            message: this.activeMessage.quoteElem.quoteMessage
+                        }
+                    );
+                } else if (contentType === MessageType.AtTextMessage) {
+                    atTextElem.text = EncryptoAES(text);
+                } else {
+                    message = message ? message : await IMSDK.asyncApi(
+                        IMMethods.CreateTextMessage,
+                        IMSDK.uuid(),
+                        EncryptoAES(text)
+                    );
+                }
+                const { createTime, sendTime, clientMsgID, sessionType, seq } = this.activeMessage;
+                message = {
+                    ...this.activeMessage,
+                    ...message,
+                    status: MessageStatus.Succeed,
+                    sessionType,
+                    seq,
+                    createTime: createTime,
+                    sendTime: sendTime,
+                    isEditClientMsgID: this.activeMessage.clientMsgID,
+                    ex: JSON.stringify({
+                        type: 'edit',
+                        clientMsgID: clientMsgID
+                    })
+                };
+                if (isAtMsg) {
+                    delete message.textElem;
+                    delete message.quoteElem;
+                }
+                console.log('编辑成。。。。。。消息。。。。', message);
             }
             return message;
         },
@@ -450,6 +464,10 @@ export default {
         },
         async sendTextMessage () {
             const message = await this.createTextMessage();
+            uni.$emit('active_message', {
+                message: null,
+                type: null
+            });
             this.sendMessage(message);
         },
         async sendMessage (message) {
@@ -459,7 +477,7 @@ export default {
                 await this.$emit('sendInit');
             }
             const { userID, groupID } = this.storeCurrentConversation;
-            this.pushNewMessage({
+            !isEdit(message) && this.pushNewMessage({
                 ...message,
                 recvID: userID,
                 groupID,
@@ -470,26 +488,38 @@ export default {
                 this.customEditorCtx.clear();
             }
             try {
-                const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                    recvID: userID,
-                    groupID,
-                    message,
-                    offlinePushInfo,
-                });
-                uni.$emit('play_audio', '/static/audio/send_tip.mp3', 'ambient');
-                console.log('消息发送成功', data);
-                this.updateOneMessage({
-                    message: data,
-                    isSuccess: true,
-                });
-                if (message.isEditClientMsgID) {
-                    uni.$emit('deleteMsg', [this.activeMessage]);
-                    message.isEditClientMsgID = null;
+                let data = {};
+                if (isEdit(message)) {
+                    const m = await updateMsg({
+                        ...message
+                    });
+                    data = m.data;
+                    this.pushNewMessage({
+                        ...message,
+                        recvID: userID,
+                        groupID,
+                        sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
+                    });
+                } else {
+                    const m = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                        recvID: userID,
+                        groupID,
+                        message,
+                        offlinePushInfo,
+                    });
+                    data = m.data;
+                    uni.$emit('play_audio', '/static/audio/send_tip.mp3', 'ambient');
+                    this.updateOneMessage({
+                        message: data,
+                        isSuccess: true,
+                    });
                 }
+                console.log('消息发送成功', data);
                 this.isLoadingCreateRoom = false;
                 return data;
-            } catch ({ data, errCode }) {
-                console.log('发送失败', data, errCode);
+            } catch (err) {
+                const { data, errCode } = err;
+                console.log('发送失败', data, errCode, err);
                 if (errCode === 1302) {
                     console.log('被拉黑了');
                     this.isShowNotification = true;
@@ -545,10 +575,11 @@ export default {
         },
         async editorInput (e) {
             const newText = html2Text(e.detail.html);
+            const changeTextMap = getNewText(newText, this.oldText);
             if (
                 this.$store.getters.storeCurrentConversation.groupID &&
-                this.oldText.length < newText.length &&
-                newText.endsWith('@')
+                changeTextMap.type === 'add' &&
+                changeTextMap.text === '@'
             ) {
                 this.isShowAt = true;
                 this.blurTime = +new Date();
@@ -726,7 +757,6 @@ export default {
         async initWebrtc (type) {
             uni.showLoading();
             const { groupID } = this.storeCurrentConversation;
-            console.log('isGroupChatisGroupChatisGroupChat', this.storeIncomingIsGroupChat);
             if (groupID && this.storeIncomingIsGroupChat) {
                 uni.hideLoading();
                 return uni.$u.toast('群通话正在进行中');
@@ -740,7 +770,6 @@ export default {
                 try {
                     await this.getGroupMemberList();
                     const data = await this.sendCustomMessage(type);
-                    console.log(data, '======sendCustomMessagesendCustomMessagesendCustomMessage');
                     if (typeof data === 'boolean' && !data) {
                         // uni.$u.toast('网络异常，请稍后重试');
                         uni.hideLoading();
@@ -849,14 +878,33 @@ export default {
         // },
         handleMessageListener (data) {
             const { message, type } = data;
-            console.log('操作消息item', data);
             if (type === 'edit_message') {
-                this.$refs.customEditor.editorCtx.insertText({text: getMessageContent(message)});
+                if (message.contentType === MessageType.AtTextMessage) {
+                    const source = message.atTextElem.atUsersInfo;
+                    const callback = (l) => {
+                        console.log('callback-callback-callback', l);
+                        this.$refs.customEditor.editorCtx.setContents({html: parseAtInsertImg({
+                            text: getMessageContent(message),
+                            atUsersInfo: l
+                        })});
+                    };
+                    if (message.atTextElem.atUserList.includes(AllType.Code)) {
+                        uni.$emit('createCanvasData', source.map(v => v.atUserID).join(','), source.map(v => v.groupNickname).join(','), null, 'all', {
+                            callback
+                        });
+                    } else {
+                        uni.$emit('createCanvasData', source[0].atUserID, source[0].groupNickname, source, null, {
+                            callback
+                        });
+                    }
+                } else {
+                    this.$refs.customEditor.editorCtx.setContents({html: getMessageContent(message)});
+                }
             } else {
                 this.$refs.customEditor.editorCtx.insertText({text: ''});
             }
             this.activeMessage = message;
-            this.activeMessageShow = true;
+            this.activeMessageShow = !!message;
             this.activeMessageType = type;
         },
         updateRecordBar () {

@@ -48,7 +48,12 @@ export default {
     },
     computed: {
         isEdit () {
-            return this.message.createTime > this.message.sendTime;
+            try {
+                const ex = JSON.parse(this.message.ex);
+                return ex.type === 'edit';
+            } catch (err) {
+                return false;
+            }
         },
         isGroupRead () {
             try {

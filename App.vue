@@ -15,6 +15,7 @@ import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
 import { videoGetToken } from '@/api/incoming';
 import { bindCid } from '@/api/index';
+import message from "./store/modules/message";
 
 // const customStatusTextMap = {
 //     [AudioVideoStatus.Done]: '通话结束',
@@ -276,6 +277,7 @@ export default {
                 });
             };
             const groupReadReceiptHandler = ({ data: receiptList }) => {
+                console.log('receiptList----receiptList收到群聊', receiptList);
                 receiptList.forEach((item) => {
                     item.msgIDList && item.msgIDList.forEach((msgID) => {
                         this.updateOneMessage({
@@ -550,7 +552,9 @@ export default {
                     uni.$u.toast("初始化IMSDK失败！");
                     return new Error('初始化IMSDK失败！');
                 }
-                await IMLogin();
+                setTimeout(async () => {
+                    await IMLogin();
+                }, 1000);
             } catch (err) {
                 console.log(err);
                 plus.navigator.closeSplashscreen();
@@ -571,6 +575,19 @@ export default {
                 && data.status;
         },
 
+        setEditMsg (msg) {
+            try {
+                const ex = JSON.parse(msg.ex) || {};
+                if (ex.type === 'edit') {
+                    msg.isEditClientMsgID = ex.clientMsgID;
+                    return msg;
+                }
+            } catch (err) {
+                console.log(err);
+            }
+            return 'myMsg';
+        },
+
         async handleNewMessage (newServerMsg) {
             if (this.inCurrentConversation(newServerMsg)) {
                 if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
@@ -585,6 +602,7 @@ export default {
                         let conversationUnread = this.conversationUnread + 1;
                         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', conversationUnread);
                     }
+                    this.setEditMsg(newServerMsg);
                     this.pushNewMessage(newServerMsg);
                     uni.$u.debounce(this.markConversationAsRead, 2000);
                     if (this.storeIsShowSetEnd) return;
@@ -670,7 +688,7 @@ export default {
                 this.storeCurrentConversation.conversationID
             );
         },
-        getAudio ({ src = '/static/audio/message_tip.mp3', sessionCategory = 'playback' }) {
+        getAudio ({ src = '', sessionCategory = 'playback' }) {
             this.audioSrc = src;
             this.innerAudioContext = plus.audio.createPlayer({ 
                 src
@@ -706,8 +724,6 @@ export default {
             // this.innerAudioContext = uni.createInnerAudioContext();
         },
         handlePlayAudio (src, sessionCategory) {
-            // this.innerAudioContext.src = src;
-            // if (this.innerAudioContext && !this.innerAudioContext.isPaused()) return;
             console.log('this.audioSrcthis.audioSrc-', src, this.audioSrc);
             if (this.audioSrc) {
                 this.innerAudioContext.close();
@@ -716,6 +732,7 @@ export default {
                     return;
                 }
             }
+            if (!src) return;
             this.getAudio({
                 src,
                 sessionCategory

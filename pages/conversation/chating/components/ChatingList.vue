@@ -149,6 +149,7 @@ export default {
         // });
         this.init();
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
+        uni.$off('reloadMore', this.reloadMore);
     },
     methods: {
         ...mapActions('message', ['getHistoryMesageList', 'getHistoryMesageListReverse']),
