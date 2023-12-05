@@ -277,6 +277,7 @@ export default {
                 });
             };
             const groupReadReceiptHandler = ({ data: receiptList }) => {
+                console.log('receiptList----receiptList收到群聊', receiptList);
                 receiptList.forEach((item) => {
                     item.msgIDList && item.msgIDList.forEach((msgID) => {
                         this.updateOneMessage({
@@ -687,7 +688,7 @@ export default {
                 this.storeCurrentConversation.conversationID
             );
         },
-        getAudio ({ src = '/static/audio/voice1.mp3', sessionCategory = 'playback' }) {
+        getAudio ({ src = '', sessionCategory = 'playback' }) {
             this.audioSrc = src;
             this.innerAudioContext = plus.audio.createPlayer({ 
                 src
@@ -723,8 +724,6 @@ export default {
             // this.innerAudioContext = uni.createInnerAudioContext();
         },
         handlePlayAudio (src, sessionCategory) {
-            // this.innerAudioContext.src = src;
-            // if (this.innerAudioContext && !this.innerAudioContext.isPaused()) return;
             console.log('this.audioSrcthis.audioSrc-', src, this.audioSrc);
             if (this.audioSrc) {
                 this.innerAudioContext.close();
@@ -733,6 +732,7 @@ export default {
                     return;
                 }
             }
+            if (!src) return;
             this.getAudio({
                 src,
                 sessionCategory
