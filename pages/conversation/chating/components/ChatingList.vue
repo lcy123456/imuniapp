@@ -22,7 +22,7 @@
                     style="visibility: hidden; height: 12px"
                 />
                 <u-loadmore
-                    v-else
+                    v-if="!isReverse"
                     :class="{isrotate: isReverse}"
                     nomore-text=""
                     :status="loadMoreStatus"
@@ -57,7 +57,7 @@
                     style="visibility: hidden; height: 12px"
                 />
                 <u-loadmore
-                    v-else
+                    v-if="isReverse"
                     :class="{isrotate: isReverse}"
                     nomore-text=""
                     :status="loadMoreStatus"

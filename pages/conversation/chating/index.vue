@@ -239,13 +239,13 @@ export default {
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
                     url: pictureElem?.sourcePicture.url,
-                    poster: [pictureElem?.sourcePicture.url, pictureElem?.sourcePath],
+                    poster: [pictureElem?.sourcePicture.url, pictureElem?.sourcePath, v.localEx],
                     type: 'image',
                 };
                 if (isVideo) {
                     map = {
                         url: videoElem.videoUrl,
-                        poster: [videoElem?.snapshotUrl, videoElem?.snapshotPath],
+                        poster: [videoElem?.snapshotUrl, videoElem?.snapshotPath, v.localEx],
                         type: 'video',
                     };
                 }
@@ -361,17 +361,7 @@ export default {
         hideMultipleMsg () {
             this.isMultipleMsg = false;
         },
-    },
-    onBackPress () {
-        // if (this.back2Tab) {
-        uni.switchTab({
-            url: '/pages/conversation/conversationList/index',
-        });
-        return true;
-        // }
-
-        // return false;
-    },
+    }
 };
 </script>
 

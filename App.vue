@@ -246,9 +246,11 @@ export default {
                         isMute = true;
                     }
                 });
-                console.log(this.storeConversationList, conversationID);
-                // && this.innerAudioContext.paused
-                if (!this.storeIsIncomingCallLoading && !this.storeIsIncomingCallIng && !isMute && !isMyMessage) {
+                if (!this.storeIsIncomingCallLoading
+                    && !this.storeIsIncomingCallIng
+                    && !isMute
+                    && !isMyMessage
+                    && !data[0]?.typingElem?.msgTips) {
                     if (!this.innerAudioContext || this.innerAudioContext.isPaused()) {
                         const tip = uni.getStorageSync('voice') || `/static/audio/voice1.mp3`;
                         this.handlePlayAudio(tip, 'ambient');

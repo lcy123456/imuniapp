@@ -41,7 +41,7 @@ const actions = {
                 {
                     ...params,
                     isInit: undefined,
-                    startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
+                    startClientMsgID: isInit && !positionMsgID && initLastMessage?.clientMsgID ? '' : startClientMsgID,
                     lastMinSeq: isInit ? 0 : oldLastMinSeq
                 }
             );
@@ -52,7 +52,7 @@ const actions = {
                 ...state.historyMessageMap, 
                 [conversationID]: {
                     messageList: [...messageList.concat(isInit ? [] : oldMessageList)],
-                    hasMore: !isEnd && messageList.length === count,
+                    hasMore: !isEnd,
                     hasAfterMore: (isInit && !positionMsgID) ?
                         false : (typeof hasAfterMore === 'undefined' ? true : hasAfterMore),
                     lastMinSeq: lastMinSeq,
@@ -81,18 +81,23 @@ const actions = {
                 {
                     ...params,
                     isInit: undefined,
-                    startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
+                    startClientMsgID: isInit && !positionMsgID && initLastMessage?.clientMsgID ? '' : startClientMsgID,
                     lastMinSeq: isInit ? 0 : oldLastMinSeq
                 }
             );
-            console.log('getHistoryMesageListReverse----', data);
+            console.log('getHistoryMesageListReverse----', data, {
+                ...params,
+                isInit: undefined,
+                startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
+                lastMinSeq: isInit ? 0 : oldLastMinSeq
+            });
             const { messageList = [], isEnd, lastMinSeq } = data;
             commit('SET_HISTORY_MESSAGE_MAP', {
                 ...state.historyMessageMap, 
                 [conversationID]: {
                     messageList: [...oldMessageList.concat(messageList)],
                     hasMore: state.historyMessageMap[conversationID]?.hasMore,
-                    hasAfterMore: !isEnd && messageList.length === count,
+                    hasAfterMore: !isEnd,
                     lastMinSeq: lastMinSeq,
                     initLastMessage: isInit && !positionMsgID ? getInitLastMessage(messageList) : (positionMsgID ? null : initLastMessage)
                 },

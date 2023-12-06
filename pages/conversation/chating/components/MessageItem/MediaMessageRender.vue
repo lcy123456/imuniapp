@@ -39,7 +39,10 @@
 import {
     secFormat
 } from "@/util/imCommon";
-import { MessageType } from "openim-uniapp-polyfill";
+import {
+    getPurePath
+} from "@/util/common";
+import IMSDK, { MessageType } from "openim-uniapp-polyfill";
 import { mapGetters } from "vuex";
 export default {
     name: "",
@@ -50,6 +53,10 @@ export default {
             default: () => ({})
         },
         isSender: {
+            type: Boolean,
+            default: false
+        },
+        isQuote: {
             type: Boolean,
             default: false
         }
@@ -66,6 +73,7 @@ export default {
     computed: {
         ...mapGetters([
             "storeConversationMediaList",
+            "storeCurrentConversation"
         ]),
         isVideo () {
             return this.message.contentType === MessageType.VideoMessage;
@@ -78,10 +86,14 @@ export default {
         },
     },
     created () {
-        const { pictureElem, videoElem} = this.message;
+        const { pictureElem, videoElem, localEx } = this.message;
         let filePath = pictureElem?.sourcePath;
         if (this.isVideo) {
             filePath = videoElem?.snapshotPath;
+        }
+        if (localEx) {
+            filePath = localEx;
+            console.log('展示本地图片', filePath);
         }
         uni.getFileInfo({
             filePath,
@@ -103,7 +115,6 @@ export default {
     methods: {
         async clickMediaItem () {
             await this.getSearchRecord();
-            console.log('this.imgUrlthis.imgUrl---', this.storeConversationMediaList, this.imgUrl);
             const i = this.storeConversationMediaList.findIndex(item => item.poster.includes(this.imgUrl));
             const index = i > -1 ? i : 0;
             uni.$u.route('/pages/common/previewMedia/index', {
@@ -112,7 +123,28 @@ export default {
             });
         },
         onLoaded () {
+            const { conversationID } = this.storeCurrentConversation;
+            const { clientMsgID } = this.message;
             this.imageHeight = 'auto';
+            console.log('this.imgUrl--------------', this.imgUrl);
+            if (!this.imgUrl.includes('https://') && !this.imgUrl.includes('http://')) return;
+            if (this.isQuote) return;
+            uni.downloadFile({
+                url: this.imgUrl,
+                success: (res) => {
+                    if (res.statusCode === 200) {
+                        IMSDK.asyncApi(IMSDK.IMMethods.SetMessageLocalEx, IMSDK.uuid(), {
+                            conversationID,
+                            clientMsgID,
+                            localEx: getPurePath(res.tempFilePath)
+                        });
+                        console.log('下载到本地的图片地址。。。。', res.tempFilePath);
+                    }
+                },
+                fail: () => {
+                    console.log('下载失败下载失败下载失败下载失败下载失败下载失败v');
+                }
+            });
         }
     }
 };
