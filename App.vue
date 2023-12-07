@@ -698,22 +698,30 @@ export default {
             // 判断平台如果是Android
             if (uni.$u.os() !== 'ios') { 
                 // 导入声音管理类（AudioManager提供对音量和铃声模式控制的访问）
-                let AudioManager = plus.android.importClass('android.media.AudioManager');
-                this.audioManager = new AudioManager();
+                // let AudioManager = plus.android.importClass('android.media.AudioManager');
+                // this.audioManager = new AudioManager();
+                plus.android.importClass('android.media.AudioManager');
+                let main = plus.android.runtimeMainActivity(); // 获取应用主Activity实例对象
+                let Context = plus.android.importClass('android.content.Context'); // 全局上下文
+                this.audioManager = main.getSystemService(Context.AUDIO_SERVICE);
             }
             this.innerAudioContext.addEventListener('ended', () => {
                 this.audioSrc = '';
             });
+            this.innerAudioContext.seekTo(0);
+            this.play(sessionCategory);
         },
-        play () {
+        play (sessionCategory) {
             // 播放的时候，iOS端可直接播放，因为ambient模式自带有跟随系统铃声模式的默认行为
             // 但Android端需要判断系统的铃声模式来决定是否需要播放
             if (uni.$u.os() !== 'ios') { 
                 /** * 获取当前手机的铃声模式 * 0. 林格模式，将沉默，不会振动。 （这会覆盖振动设置。） * 1. 林肯模式，将沉默，并会振动。 （这会导致电话铃声总是振动，但是如果设置，通知振动只会振动。） * 2. 铃声模式可能会发出声音并可能振动。 如果在更换此模式之前的音量可以听到，则会发出声音。 如果振动设置打开，它会振动。 */
                 let status = this.audioManager.getRingerMode();
-                if (status === 2) { 
+                if (status === 2 || sessionCategory === "playback") { 
                     // 铃声模式下才播放音频
                     this.innerAudioContext.play();
+                } else {
+                    this.audioSrc = '';
                 }
                 return;
             }
@@ -737,8 +745,6 @@ export default {
                 src,
                 sessionCategory
             });
-            this.innerAudioContext.seekTo(0);
-            this.play();
         },
         handleStopAudio (src) {
             if (this.innerAudioContext._Player_Param.src === src) {
