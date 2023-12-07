@@ -124,9 +124,6 @@ export default {
             this.scrollIntoView = 'pin' + nextItem.id;
         },
         setTop () {
-            // this.active = index !== 0 ? index - 1 : this.list.length - 1;
-            // this.scrollIntoView = 'pin' + (this.list[index - 1] ? this.list[index - 1].id : this.list[this.list.length - 1].id);
-            // this.$emit('setPositionMsgID', item.clientMsgID);
             this.active = this.active !== 0 ? this.active - 1 : this.list.length - 1;
             const item = this.list[this.active] || this.list[this.list.length - 1];
             const nextItem = this.list[this.active - 1] || this.list[this.list.length - 1];
@@ -199,6 +196,7 @@ export default {
         .box {
             display: flex;
             height: 60rpx;
+            line-height: 60rpx;
             margin: 10rpx 0;
             & > .text {
                 flex: 1;
