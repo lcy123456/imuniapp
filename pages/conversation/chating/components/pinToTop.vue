@@ -199,8 +199,7 @@ export default {
         .box {
             display: flex;
             height: 60rpx;
-            line-height: 60rpx;
-            margin: 20rpx 0;
+            margin: 10rpx 0;
             & > .text {
                 flex: 1;
                 display: flex;

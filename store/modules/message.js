@@ -50,13 +50,17 @@ const actions = {
                 startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
                 lastMinSeq: isInit ? 0 : oldLastMinSeq
             });
-            const { messageList = [], isEnd, lastMinSeq } = data;
+            const { messageList = [], lastMinSeq } = data;
             const hasAfterMore = state.historyMessageMap[conversationID]?.hasAfterMore;
+            if (messageList[0]?.seq <= 1) {
+                console.log('历史数据加载完了。。。。。。');
+            }
+            console.log('seq----seq', messageList[0]?.seq);
             commit('SET_HISTORY_MESSAGE_MAP', {
                 ...state.historyMessageMap, 
                 [conversationID]: {
                     messageList: [...messageList.concat(isInit ? [] : oldMessageList)],
-                    hasMore: !isEnd,
+                    hasMore: messageList[0]?.seq > 1,
                     hasAfterMore: (isInit && !positionMsgID) ?
                         false : (typeof hasAfterMore === 'undefined' ? true : hasAfterMore),
                     lastMinSeq: lastMinSeq
@@ -69,7 +73,7 @@ const actions = {
         }
     },
 
-    async getHistoryMesageListReverse ({ commit, state }, params) {
+    async getHistoryMesageListReverse ({ commit, state, rootState }, params) {
         const { conversationID, isInit, positionMsgID, isSyncing } = params;
         if (state.historyMessageMap[conversationID]?.hasAfterMore && isSyncing) return; // 定位数据时同步信息不处理
         try {
@@ -94,15 +98,20 @@ const actions = {
                 startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
                 lastMinSeq: isInit ? 0 : oldLastMinSeq
             });
-            const { messageList = [], isEnd, lastMinSeq } = data;
+            const { messageList = [], lastMinSeq } = data;
             const clientMsgIDList = oldMessageList.map(item => item.clientMsgID);
             const filterMessageList = messageList.filter(item => !clientMsgIDList.includes(item.clientMsgID));
+            if (messageList.length !== 0) {
+                console.log('往下加载完了。。。。。。');
+            }
+            console.log('seq----seq', messageList.length !== 0);
+            console.log('seq----seq--', rootState.conversation);
             commit('SET_HISTORY_MESSAGE_MAP', {
                 ...state.historyMessageMap, 
                 [conversationID]: {
                     messageList: [...oldMessageList.concat(filterMessageList)],
                     hasMore: state.historyMessageMap[conversationID]?.hasMore,
-                    hasAfterMore: !isEnd,
+                    hasAfterMore: messageList.length !== 0,
                     lastMinSeq: lastMinSeq
                 },
             });
