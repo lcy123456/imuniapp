@@ -219,8 +219,9 @@ export default {
             this.$emit('close');
         },
         addEmoticons () {
-            const { pictureElem, videoElem, contentType } = this.message;
-            const content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePicture.url;
+            const { pictureElem, videoElem, contentType, localEx } = this.message;
+            let content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePicture.url;
+            content = localEx || content;
             let list = uni.getStorageSync('emoticonsList');
             list = list ? JSON.parse(list) : [];
             if (list.length >= 200) {

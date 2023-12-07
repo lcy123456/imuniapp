@@ -109,7 +109,7 @@ export default {
                 return;
             } else if (status === 'all') { // 所有人
                 this.editorCtx.undo();
-                this.createCanvasData(source.map(v => v.atUserID).join(','), source.map(v => v.senderNickname).join(','), null, 'all');
+                this.createCanvasData(source.map(v => v.atUserID).join(','), source.map(v => v.groupNickname).join(','), null, 'all');
                 return;
             }
             const map = this.getAt().find(item => item.atUserID === source.atUserID);

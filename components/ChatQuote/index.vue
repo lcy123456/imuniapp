@@ -4,6 +4,7 @@
             v-if="showTextRender"
             :message="message"
             :is-show-time="false"
+            :is-quote="true"
             :show-nickname="showDetail"
         />
         <view
@@ -18,10 +19,12 @@
             </view>
             <MediaMessageRender
                 v-if="showMediaRender"
+                :is-quote="true"
                 :message="message"
             />
             <FileMessageRender
                 v-else-if="showFileRender"
+                :is-quote="true"
                 :message="message"
             />
         </view>

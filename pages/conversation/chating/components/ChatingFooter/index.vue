@@ -319,11 +319,21 @@ export default {
                 const atList = this.$refs.customEditor?.getAt();
                 message = await IMSDK.asyncApi('createTextAtMessage', IMSDK.uuid(), {
                     text: EncryptoAES(text),
-                    atUserIDList: atList.map(v => v.atUserID),
-                    atUsersInfo: atList,
+                    atUserIDList: atList.slice(0, 10).map(v => v.atUserID),
+                    atUsersInfo: atList.slice(0, 10),
                     message: (this.activeMessageType === 'quote_message' || this.activeMessage?.contentType === MessageType.QuoteMessage) ?
                         ((this.activeMessage?.contentType === MessageType.QuoteMessage && this.activeMessageType === 'edit_message') ? this.activeMessage?.quoteElem.quoteMessage : this.activeMessage) : null
                 });
+                if (atList.length > 10) {
+                    message = {
+                        ...message,
+                        atTextElem: {
+                            ...message.atTextElem,
+                            atUserList: atList.map(v => v.atUserID),
+                            atUsersInfo: atList,
+                        }
+                    };
+                }
             }
             if (this.activeMessageType === 'edit_message') {
                 const { contentType, atTextElem } = this.activeMessage;
@@ -464,10 +474,12 @@ export default {
         },
         async sendTextMessage () {
             const message = await this.createTextMessage();
+            console.log('oooooooo', message);
             uni.$emit('active_message', {
                 message: null,
                 type: null
             });
+            if (!message) return;
             this.sendMessage(message);
         },
         async sendMessage (message) {
