@@ -91,10 +91,7 @@ export default {
         if (this.isVideo) {
             filePath = videoElem?.snapshotPath;
         }
-        if (localEx) {
-            filePath = localEx;
-            console.log('展示本地图片', filePath);
-        }
+        filePath = localEx || filePath;
         uni.getFileInfo({
             filePath,
             success: () => {
@@ -107,10 +104,6 @@ export default {
                 }
             }
         });
-        // const imageHeight = (this.isVideo ? videoElem?.snapshotHeight : pictureElem?.sourcePicture.height) || 0;
-        // if (imageHeight < this.imageHeight) {
-        //     this.imageHeight = imageHeight;
-        // }
     },
     methods: {
         async clickMediaItem () {
@@ -126,7 +119,6 @@ export default {
             const { conversationID } = this.storeCurrentConversation;
             const { clientMsgID } = this.message;
             this.imageHeight = 'auto';
-            console.log('this.imgUrl--------------', this.imgUrl);
             if (!this.imgUrl.includes('https://') && !this.imgUrl.includes('http://')) return;
             if (this.isQuote) return;
             uni.downloadFile({
@@ -138,7 +130,6 @@ export default {
                             clientMsgID,
                             localEx: getPurePath(res.tempFilePath)
                         });
-                        console.log('下载到本地的图片地址。。。。', res.tempFilePath);
                     }
                 },
                 fail: () => {

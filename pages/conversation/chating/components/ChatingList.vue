@@ -157,14 +157,15 @@ export default {
             this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
             this.loadMessageList({});
         },
-        async loadMessageList ({isLoadMore = false, isReverse = false}) {
+        async loadMessageList ({isLoadMore = false, isReverse = false, isSyncing = false}) {
             this.messageLoadState.loading = true;
             const count = 40;
             const options = {
                 conversationID: this.conversationID,
                 userID: '',
                 groupID: '',
-                count: count
+                count: count,
+                isSyncing
             };
             try {
                 if (isLoadMore) {
@@ -256,7 +257,7 @@ export default {
             }
         },
         reloadMore () {
-            this.loadMessageList({ isLoadMore: true, isReverse: true });
+            this.loadMessageList({ isLoadMore: false, isReverse: false, isSyncing: true });
         },
         async scrollToAnchor (auchor, isAnimation = true) {
             !isAnimation && this.closeScrollAnimation();

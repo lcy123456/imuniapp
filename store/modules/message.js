@@ -27,12 +27,11 @@ const mutations = {
 
 const actions = {
     async getHistoryMesageList ({ commit, state }, params) {
-        const { conversationID, count, isInit, positionMsgID } = params;
+        const { conversationID, isInit, positionMsgID } = params;
         try {
             const {
                 messageList: oldMessageList = [],
-                lastMinSeq: oldLastMinSeq = 0,
-                initLastMessage
+                lastMinSeq: oldLastMinSeq = 0
             } = state.historyMessageMap[conversationID] || {};
             const startClientMsgID = positionMsgID || oldMessageList[0]?.clientMsgID || '';
             const { data } = await IMSDK.asyncApi(
@@ -41,11 +40,16 @@ const actions = {
                 {
                     ...params,
                     isInit: undefined,
-                    startClientMsgID: isInit && !positionMsgID && initLastMessage?.clientMsgID ? '' : startClientMsgID,
+                    startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
                     lastMinSeq: isInit ? 0 : oldLastMinSeq
                 }
             );
-            console.log('getHistoryMesageList----', data);
+            console.log('getHistoryMesageList----', data, {
+                ...params,
+                isInit: undefined,
+                startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
+                lastMinSeq: isInit ? 0 : oldLastMinSeq
+            });
             const { messageList = [], isEnd, lastMinSeq } = data;
             const hasAfterMore = state.historyMessageMap[conversationID]?.hasAfterMore;
             commit('SET_HISTORY_MESSAGE_MAP', {
@@ -55,8 +59,7 @@ const actions = {
                     hasMore: !isEnd,
                     hasAfterMore: (isInit && !positionMsgID) ?
                         false : (typeof hasAfterMore === 'undefined' ? true : hasAfterMore),
-                    lastMinSeq: lastMinSeq,
-                    initLastMessage: isInit && !positionMsgID ? getInitLastMessage(messageList) : (positionMsgID ? null : initLastMessage)
+                    lastMinSeq: lastMinSeq
                 },
             });
             return messageList;
@@ -67,21 +70,21 @@ const actions = {
     },
 
     async getHistoryMesageListReverse ({ commit, state }, params) {
-        const { conversationID, count, isInit, positionMsgID } = params;
+        const { conversationID, isInit, positionMsgID, isSyncing } = params;
+        if (state.historyMessageMap[conversationID]?.hasAfterMore && isSyncing) return; // 定位数据时同步信息不处理
         try {
             const {
                 messageList: oldMessageList = [],
-                lastMinSeq: oldLastMinSeq = 0,
-                initLastMessage
+                lastMinSeq: oldLastMinSeq = 0
             } = state.historyMessageMap[conversationID] || {};
-            const startClientMsgID = positionMsgID || initLastMessage?.clientMsgID || oldMessageList[oldMessageList.length - 1]?.clientMsgID || '';
+            const startClientMsgID = positionMsgID || oldMessageList[oldMessageList.length - 1]?.clientMsgID || '';
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetAdvancedHistoryMessageListReverse,
                 uuidv4(),
                 {
                     ...params,
                     isInit: undefined,
-                    startClientMsgID: isInit && !positionMsgID && initLastMessage?.clientMsgID ? '' : startClientMsgID,
+                    startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
                     lastMinSeq: isInit ? 0 : oldLastMinSeq
                 }
             );
@@ -92,14 +95,15 @@ const actions = {
                 lastMinSeq: isInit ? 0 : oldLastMinSeq
             });
             const { messageList = [], isEnd, lastMinSeq } = data;
+            const clientMsgIDList = oldMessageList.map(item => item.clientMsgID);
+            const filterMessageList = messageList.filter(item => !clientMsgIDList.includes(item.clientMsgID));
             commit('SET_HISTORY_MESSAGE_MAP', {
                 ...state.historyMessageMap, 
                 [conversationID]: {
-                    messageList: [...oldMessageList.concat(messageList)],
+                    messageList: [...oldMessageList.concat(filterMessageList)],
                     hasMore: state.historyMessageMap[conversationID]?.hasMore,
                     hasAfterMore: !isEnd,
-                    lastMinSeq: lastMinSeq,
-                    initLastMessage: isInit && !positionMsgID ? getInitLastMessage(messageList) : (positionMsgID ? null : initLastMessage)
+                    lastMinSeq: lastMinSeq
                 },
             });
             return messageList;
