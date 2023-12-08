@@ -197,7 +197,7 @@ export default {
             display: flex;
             height: 60rpx;
             line-height: 60rpx;
-            margin: 10rpx 0;
+            margin: 0;
             & > .text {
                 flex: 1;
                 display: flex;

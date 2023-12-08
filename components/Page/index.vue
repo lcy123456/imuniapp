@@ -7,15 +7,27 @@
             @onDanger="onDanger"
             @onSuccess="onSuccess"
         />
+        <TipMessage
+            :source="storeLastConversation"
+        />
     </view>
 </template>
 
 <script>
 import IncomingCall from '@/components/IncomingCall';
+import TipMessage from '@/components/TipMessage';
+import { mapGetters } from 'vuex';
 export default {
     name: "Page",
     components: {
-        IncomingCall
+        IncomingCall,
+        TipMessage
+    },
+    computed: {
+        ...mapGetters([
+            'storeLastConversation',
+            'storeIsShowTip'
+        ]),
     },
     methods: {
         onDanger () {

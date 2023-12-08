@@ -50,6 +50,10 @@ export default {
         isShowTime: {
             type: Boolean,
             default: true
+        },
+        isQuote: {
+            type: Boolean,
+            default: false
         }
     },
     data () {
@@ -72,8 +76,8 @@ export default {
             }
         },
         getContent () {
-            let text = '';
-            const baseText = `
+            const { contentType, quoteElem, atTextElem, textElem, senderNickname } = this.message;
+            const baseText = !this.isQuote ? `
             <view class="base-box hide-css">
                 <img
                     style="display: ${this.message.pinMap ? 'inherit' : 'none'}"
@@ -101,8 +105,8 @@ export default {
                     0人
                 </div>
             </view>
-            `;
-            const { contentType, quoteElem, atTextElem, textElem, senderNickname } = this.message;
+            ` : ``;
+            let text = '';
             // TODO：解密文本
             if (contentType === MessageType.QuoteMessage) {
                 text = parseEmoji(DecryptoAES(quoteElem?.text));

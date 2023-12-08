@@ -3,7 +3,8 @@ import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting 
 const state = {
     pinList: [],
     connectingStatus: '',
-    keyBoardHeight: 0
+    keyBoardHeight: 0,
+    isShowTip: false
 };
 
 const mutations = {
@@ -15,6 +16,9 @@ const mutations = {
     },
     SET_KEYBOARD_HEIGHT (state, value) {
         state.keyBoardHeight = value;
+    },
+    SET_TIP_STATUS (state, boo) {
+        state.isShowTip = boo;
     }
 };
 

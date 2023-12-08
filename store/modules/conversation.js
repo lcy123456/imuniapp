@@ -9,7 +9,8 @@ const state = {
     isScrollWay: false,
     currentGroup: {},
     currentMemberInGroup: {},
-    conversationMediaList: []
+    conversationMediaList: [],
+    lastConversation: {}
 };
 
 const mutations = {
@@ -27,6 +28,9 @@ const mutations = {
             };
         });
         state.conversationList = [...list];
+    },
+    SET_LAST_CONVERSATION (state, obj) {
+        state.lastConversation = obj;
     },
     SET_CONVERSATION (state, list) {
         state.conversationList = [...list];

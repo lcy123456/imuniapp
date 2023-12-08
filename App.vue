@@ -89,7 +89,8 @@ export default {
             "storeIsIncomingCallIng",
             "storeIsIncomingCallLoading",
             "storeIncomingCallMessage",
-            "storeIsLoginStatus"
+            "storeIsLoginStatus",
+            "storeCurrentConversationID"
         ]),
         contactBadgeRely () {
             return {
@@ -525,6 +526,7 @@ export default {
                     "conversation/SET_CONVERSATION_LIST",
                     conversationSort(result)
                 );
+                this.setTipMessage(data[0])
             };
 
             IMSDK.subscribe(
@@ -536,6 +538,30 @@ export default {
                 IMSDK.IMEvents.OnConversationChanged,
                 conversationChangedHandler
             );
+        },
+        setTipMessage (source) {
+            const pages = getCurrentPages();
+            const currentPage = pages[pages.length - 1];
+            const page = currentPage.route;
+            let tipStatus = true;
+            if (
+                page === `pages/conversation/conversationList/index` ||
+                page === `pages/conversation/chating/index` && source.conversationID === this.storeCurrentConversationID ||
+                source.recvMsgOpt !== MessageReceiveOptType.Nomal ||
+                !source.unreadCount
+            ) {
+                tipStatus = false;
+            }
+            if (tipStatus) {
+                this.$store.commit(
+                    "conversation/SET_LAST_CONVERSATION",
+                    source
+                );
+                this.$store.commit('base/SET_TIP_STATUS', false);
+                setTimeout(() => {
+                    this.$store.commit('base/SET_TIP_STATUS', tipStatus);
+                }, 300);
+            }
         },
 
         async tryLogin () {
@@ -773,17 +799,18 @@ export default {
                     this.$store.commit('user/SET_CLIENT_ID', cid);
                 });
             }, 3000);
-            // plus.push.addEventListener('click', this._handlePush);  
+            plus.push.addEventListener('click', this._handlePush);  
         },
         _handlePush (message) {
             let payload = message && message.payload || {};
             if (!payload.conversationID) return;
-            if (this.num === 1) {
-                this.payload = payload;
-            } else {
-                this.payload = false;
-                uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
-            }
+            uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
+            // if (this.num === 1) {
+            //     this.payload = payload;
+            // } else {
+            //     this.payload = false;
+            //     uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
+            // }
         }
     },
 };

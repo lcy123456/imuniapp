@@ -224,12 +224,14 @@ export default {
         },
         handleItemClick (v) {
             if (this.storeCurrentConversationID) {
-                let pages = getCurrentPages();
-                let prevPage = pages[pages.length - 3];
-                prevPage.$vm.getPositionMsgID(v?.clientMsgID);
+                // let pages = getCurrentPages();
+                // let prevPage = pages[pages.length - 3];
+                // prevPage.$vm.getPositionMsgID(v?.clientMsgID);
+                // console.log('pagespages-----pages', v?.clientMsgID);
                 uni.navigateBack({
                     delta: 2
                 });
+                uni.$emit('getPositionMsgID', v?.clientMsgID);
             } else {
                 recordToDesignatedConversation(
                     this.conversation.conversationID,

@@ -6,7 +6,7 @@
         :scroll-top="scrollTop"
         :scroll-into-view="scrollIntoView"
         scroll-y
-        :upper-threshold="0"
+        :upper-threshold="100"
         @touchstart="handleTouchstart"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"

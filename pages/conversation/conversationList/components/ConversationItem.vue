@@ -190,7 +190,6 @@ export default {
     methods: {
         html2Text,
         clickConversationItem () {
-            console.log(this.source);
             prepareConversationState(this.source);
         },
         async clickConversationMenu ({ index }) {
