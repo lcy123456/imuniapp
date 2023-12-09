@@ -267,7 +267,7 @@ export default {
             await this.$nextTick();
             setTimeout(() => {
                 this.scrollIntoView = auchor;
-            }, 200);
+            }, 500);
         },
         async scrollToTop ({initPage = false} = {}) {
             initPage && this.$emit('initSuccess');
