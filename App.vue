@@ -31,7 +31,7 @@ export default {
         this.tryLogin();
         this.handleAudioManager();
         this.handleUniPush();
-        uni.preloadPage({url: "/pages/conversation/webrtc/index"});
+        // uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         uni.$on('toast', (message) => {
             uni.$u.toast(message);
         });
@@ -39,6 +39,7 @@ export default {
         uni.$on('stop_audio', this.handleStopAudio);
     },
     async onShow () {
+        uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         this.num++;
         // console.log('onShow-onShow');
         // if (this.num > 1) {
@@ -53,6 +54,20 @@ export default {
         //         this.tryLogin();
         //     }
         // }
+        // if (uni.$u.os() === 'ios') {
+        //     clearInterval(this.timer);
+        //     this.timer = setInterval(() => {
+        //         this.time++;
+        //         console.log('this.time----this.time', this.time, this.isHide);
+        //         if (this.time % 30 === 0) {
+        //             if (this.isHide) {
+        //                 // console.log('自己重启。。。。。。。。。。');
+        //                 // plus.runtime.restart();
+        //             }
+        //             this.time = 0;
+        //         }
+        //     }, 1000);
+        // }
         try {
             plus.runtime.setBadgeNumber(0);
             IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
@@ -61,11 +76,16 @@ export default {
         }
     },
     onHide () {
+        this.isHide = true;
+        this.time = 0;
         IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), true);
+        // uni.unPreloadPage({url: "/pages/conversation/webrtc/index"});
     },
     data () {
         return {
             num: 0,
+            time: 0,
+            isHide: false,
             payload: false,
             innerAudioContext: null
         };

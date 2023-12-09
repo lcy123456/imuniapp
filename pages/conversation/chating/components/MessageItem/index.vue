@@ -2,7 +2,6 @@
     <view>
         <view
             v-if="!isNoticeMessage"
-            :id="`auchor${source.clientMsgID}`"
             class="message_item"
             :class="{ message_item_self: isSender, positionActive: positionMsgID === source.clientMsgID }"
             @click="handleMultiple"

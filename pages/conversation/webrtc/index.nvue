@@ -58,31 +58,33 @@ export default {
         console.log('onLoad-onLoad');
     },
     onReady () {
-        uni.preloadPage({url: "/pages/conversation/webrtc/index"});
+        // uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         uni.$on('incoming_message_callback', this.incomingMessageCallback);
         console.log('onReady-onReady');
     },
     onShow () {
-        console.log('onshow-onshow', this.storeIncomingCallWsUrl);
-        if (this.time !== this.storeIncomingCallCallTime) {
-            const selfUserInfo = {
-                faceURL: this.storeSelfInfo.faceURL,
-                nickname: this.storeSelfInfo.nickname,
+        setTimeout(() => {
+            console.log('onshow-onshow', this.storeIncomingCallWsUrl);
+            if (this.time !== this.storeIncomingCallCallTime) {
+                const selfUserInfo = {
+                    faceURL: this.storeSelfInfo.faceURL,
+                    nickname: this.storeSelfInfo.nickname,
+                }
+                const map = {
+                    message: this.storeIncomingCallMessage,
+                    isCallLoading: this.storeIsIncomingCallLoading,
+                    isCallIng: this.storeIsIncomingCallIng,
+                    isAnswer: this.storeIsAnswer,
+                    callUserInfo: this.storeIncomingCallUserInfo,
+                    selfUserInfo: selfUserInfo,
+                    token: this.storeIncomingCallToken,
+                    url: this.storeIncomingCallWsUrl
+                }
+                this.postMessage(`uniEvent(${JSON.stringify(map)})`);
             }
-            const map = {
-                message: this.storeIncomingCallMessage,
-                isCallLoading: this.storeIsIncomingCallLoading,
-                isCallIng: this.storeIsIncomingCallIng,
-                isAnswer: this.storeIsAnswer,
-                callUserInfo: this.storeIncomingCallUserInfo,
-                selfUserInfo: selfUserInfo,
-                token: this.storeIncomingCallToken,
-                url: this.storeIncomingCallWsUrl
-            }
-            this.postMessage(`uniEvent(${JSON.stringify(map)})`);
-        }
-        this.time = this.storeIncomingCallCallTime;
-        console.log('onShow');
+            this.time = this.storeIncomingCallCallTime;
+            console.log('onShow');
+        }, 1000);
     },
     onUnload () {
         console.log('onUnloadonUnload');

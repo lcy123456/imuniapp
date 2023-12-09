@@ -6,7 +6,7 @@
         :scroll-top="scrollTop"
         :scroll-into-view="scrollIntoView"
         scroll-y
-        :upper-threshold="100"
+        :upper-threshold="0"
         @touchstart="handleTouchstart"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
@@ -29,7 +29,8 @@
                 />
                 <view
                     v-for="(item, index) in messageList"
-                    :key="`auchor${item.clientMsgID}`"
+                    :id="`auchor-${item.clientMsgID}`"
+                    :key="`auchor-${item.clientMsgID}`"
                     :class="{isrotate: isReverse}"
                 >
                     <BetweenTime
@@ -87,14 +88,11 @@ export default {
         checkedMsgIds: {
             type: Array,
             default: () => []
-        },
-        positionMsgID: {
-            type: String,
-            default: ''
         }
     },
     data () {
         return {
+            positionMsgID: '',
             conversationID: '',
             animation: true,
             isReverse: true,
@@ -154,8 +152,12 @@ export default {
     methods: {
         ...mapActions('message', ['getHistoryMesageList', 'getHistoryMesageListReverse']),
         init () {
+            console.log('initinitinitinitinitinitinitinit--initinitinit');
             this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
             this.loadMessageList({});
+        },
+        setPositionMsgID (positionMsgID) {
+            this.positionMsgID = positionMsgID;
         },
         async loadMessageList ({isLoadMore = false, isReverse = false, isSyncing = false}) {
             this.messageLoadState.loading = true;
@@ -180,16 +182,16 @@ export default {
                         count: this.positionMsgID ? parseInt(count / 2) : count
                     });
                     if (this.positionMsgID) {
-                        this.isReverse = false;
-                        let positionMsgID = this.storeHistoryMessageList[this.storeHistoryMessageList.length - 1].clientMsgID;
+                        const map = this.storeHistoryMessageList[this.storeHistoryMessageList.length - 1];
+                        let positionMsgID = map.clientMsgID;
                         await this[isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                             ...options,
-                            positionMsgID: positionMsgID,
+                            positionMsgID,
                             isInit: true,
                             count: parseInt(count / 2)
                         });
                         this.animation = true;
-                        this.scrollToAnchor(`auchor${positionMsgID}`, false);
+                        this.scrollToAnchor(`auchor-${positionMsgID}`, false);
                     } else {
                         this.scrollToBottom({ initPage: true });
                     }
@@ -197,10 +199,10 @@ export default {
             } catch (e) {
                 this.animation = true;
             }
-            // setTimeout(() => {
-            //     this.messageLoadState.loading = false;
-            // }, 1000);
-            this.messageLoadState.loading = false;
+            setTimeout(() => {
+                this.messageLoadState.loading = false;
+            }, 1000);
+            // this.messageLoadState.loading = false;
         },
         handleTouchstart () {
             this.isShowMenuFlag = true;
@@ -261,6 +263,7 @@ export default {
         },
         async scrollToAnchor (auchor, isAnimation = true) {
             !isAnimation && this.closeScrollAnimation();
+            this.isReverse = false;
             await this.$nextTick();
             setTimeout(() => {
                 this.scrollIntoView = auchor;

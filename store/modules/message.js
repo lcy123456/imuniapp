@@ -87,7 +87,7 @@ const actions = {
                     ...params,
                     isInit: undefined,
                     startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-                    lastMinSeq: isInit ? 0 : oldLastMinSeq
+                    lastMinSeq: (isInit ? 0 : oldLastMinSeq)
                 }
             );
             console.log('getHistoryMesageListReverse----', data);
@@ -95,7 +95,7 @@ const actions = {
                 ...params,
                 isInit: undefined,
                 startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-                lastMinSeq: isInit ? 0 : oldLastMinSeq
+                lastMinSeq: (isInit ? 0 : oldLastMinSeq)
             });
             const { messageList = [], lastMinSeq } = data;
             const clientMsgIDList = oldMessageList.map(item => item.clientMsgID);
@@ -111,6 +111,7 @@ const actions = {
             });
             return messageList;
         } catch (e) {
+            console.log('eeeeeee-eeee222', e);
             return [];
         }
     },

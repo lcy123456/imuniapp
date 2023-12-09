@@ -196,19 +196,25 @@ export default {
         },
         getPositionMsgID (positionMsgID) {
             this.positionMsgID = positionMsgID;
+            this.$refs.chatingListRef.setPositionMsgID(this.positionMsgID);
             if (!this.storeHasMoreAfterMessage && !this.positionMsgID && this.storeHistoryMessageList.length <= 120) {
                 uni.$emit(PageEvents.ScrollToBottom);
             } else {
-                this.reloadChatingList();
+                const index = this.storeHistoryMessageList.findIndex(item => item.clientMsgID === positionMsgID);
+                if (this.positionMsgID && index > -1) {
+                    console.log('auchor-${positionMsgID}auchor-${positionMsgID}', `auchor-${positionMsgID}`);
+                    this.$refs.chatingListRef.scrollToAnchor(`auchor-${positionMsgID}`);
+                } else {
+                    this.reloadChatingList();
+                }
             }
-            // this.$refs.chatingListRef.init();
         },
         reloadChatingList () {
             const pages = getCurrentPages();
             const currentPage = pages[pages.length - 1];
             const page = currentPage.route;
             if (page === `pages/conversation/chating/index`) {
-                this.updateChatKey = +new Date();
+                this.$refs.chatingListRef.init();
             }
         },
         updatePin (map) {

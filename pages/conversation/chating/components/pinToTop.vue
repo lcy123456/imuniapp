@@ -128,6 +128,10 @@ export default {
             const item = this.list[this.active] || this.list[this.list.length - 1];
             const nextItem = this.list[this.active - 1] || this.list[this.list.length - 1];
             this.scrollIntoView = 'pin' + nextItem.id;
+            console.log('this.list---', this.list);
+            console.log('this.active---', this.active);
+            console.log('item---item', item);
+            console.log('this.scrollIntoView---', this.scrollIntoView);
             this.$emit('setPositionMsgID', item.clientMsgID);
         },
         showTextRender (item) {
