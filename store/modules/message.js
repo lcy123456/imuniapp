@@ -27,14 +27,20 @@ const mutations = {
 
 const actions = {
     async getHistoryMesageList ({ commit, state }, params) {
-        const { conversationID, isInit, positionMsgID, isSyncing } = params;
+        const { conversationID, isInit, positionMsgID, isSyncing, seq } = params;
         if (state.historyMessageMap[conversationID]?.hasAfterMore && isSyncing) return; // 定位数据时同步信息不处理
+        const {
+            messageList: oldMessageList = [],
+            lastMinSeq: oldLastMinSeq = 0
+        } = state.historyMessageMap[conversationID] || {};
+        const startClientMsgID = positionMsgID || oldMessageList[0]?.clientMsgID || '';
+        console.log('paramsparamsparams----', {
+            ...params,
+            isInit: undefined,
+            startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
+            lastMinSeq: seq ? seq : (isInit ? 0 : oldLastMinSeq)
+        });
         try {
-            const {
-                messageList: oldMessageList = [],
-                lastMinSeq: oldLastMinSeq = 0
-            } = state.historyMessageMap[conversationID] || {};
-            const startClientMsgID = positionMsgID || oldMessageList[0]?.clientMsgID || '';
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetAdvancedHistoryMessageList,
                 uuidv4(),
@@ -42,16 +48,10 @@ const actions = {
                     ...params,
                     isInit: undefined,
                     startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-                    lastMinSeq: isInit ? 0 : oldLastMinSeq
+                    lastMinSeq: seq ? seq : (isInit ? 0 : oldLastMinSeq)
                 }
             );
             console.log('getHistoryMesageList----', data);
-            console.log('paramsparamsparams----', {
-                ...params,
-                isInit: undefined,
-                startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-                lastMinSeq: isInit ? 0 : oldLastMinSeq
-            });
             const { messageList = [], lastMinSeq } = data;
             const hasAfterMore = state.historyMessageMap[conversationID]?.hasAfterMore;
             commit('SET_HISTORY_MESSAGE_MAP', {
@@ -66,20 +66,30 @@ const actions = {
             });
             return messageList;
         } catch (e) {
-            console.log('eeeeeee-eeee', e);
+            const { errCode } = e;
+            console.log('eeeeeee-eeee222', errCode);
+            if (errCode === 10005) {
+                uni.$u.toast('获取历史数据失败');
+            }
             return [];
         }
     },
 
     async getHistoryMesageListReverse ({ commit, state }, params) {
-        const { conversationID, isInit, positionMsgID, isSyncing } = params;
+        const { conversationID, isInit, positionMsgID, isSyncing, seq } = params;
         if (state.historyMessageMap[conversationID]?.hasAfterMore && isSyncing) return; // 定位数据时同步信息不处理
+        const {
+            messageList: oldMessageList = [],
+            lastMinSeq: oldLastMinSeq = 0
+        } = state.historyMessageMap[conversationID] || {};
+        const startClientMsgID = positionMsgID || oldMessageList[oldMessageList.length - 1]?.clientMsgID || '';
+        console.log('paramsparamsparams----', {
+            ...params,
+            isInit: undefined,
+            startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
+            lastMinSeq: seq ? seq : (isInit ? 0 : oldLastMinSeq)
+        });
         try {
-            const {
-                messageList: oldMessageList = [],
-                lastMinSeq: oldLastMinSeq = 0
-            } = state.historyMessageMap[conversationID] || {};
-            const startClientMsgID = positionMsgID || oldMessageList[oldMessageList.length - 1]?.clientMsgID || '';
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetAdvancedHistoryMessageListReverse,
                 uuidv4(),
@@ -87,16 +97,10 @@ const actions = {
                     ...params,
                     isInit: undefined,
                     startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-                    lastMinSeq: (isInit ? 0 : oldLastMinSeq)
+                    lastMinSeq: seq ? seq : (isInit ? 0 : oldLastMinSeq)
                 }
             );
             console.log('getHistoryMesageListReverse----', data);
-            console.log('paramsparamsparams----', {
-                ...params,
-                isInit: undefined,
-                startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-                lastMinSeq: (isInit ? 0 : oldLastMinSeq)
-            });
             const { messageList = [], lastMinSeq } = data;
             const clientMsgIDList = oldMessageList.map(item => item.clientMsgID);
             const filterMessageList = messageList.filter(item => !clientMsgIDList.includes(item.clientMsgID));
@@ -111,7 +115,11 @@ const actions = {
             });
             return messageList;
         } catch (e) {
-            console.log('eeeeeee-eeee222', e);
+            const { errCode } = e;
+            console.log('eeeeeee-eeee222', errCode);
+            if (errCode === 10005) {
+                uni.$u.toast('获取历史数据失败');
+            }
             return [];
         }
     },

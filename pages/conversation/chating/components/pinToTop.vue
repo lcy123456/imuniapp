@@ -132,7 +132,7 @@ export default {
             console.log('this.active---', this.active);
             console.log('item---item', item);
             console.log('this.scrollIntoView---', this.scrollIntoView);
-            this.$emit('setPositionMsgID', item.clientMsgID);
+            this.$emit('setPositionMsgID', item.clientMsgID, item.seq);
         },
         showTextRender (item) {
             return TextRenderTypes.includes(item.contentType);

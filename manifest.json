@@ -12,7 +12,7 @@
         "compilerVersion" : 3,
         "kernel" : {
             "ios" : "WKWebview",
-            "recovery" : "reload"
+            "recovery" : "restart"
         },
         "splashscreen" : {
             "alwaysShowBeforeRender" : false,

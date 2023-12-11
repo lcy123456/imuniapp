@@ -21,7 +21,6 @@
             :menu-outside-flag="menuOutsideFlag"
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
-            :position-msg-i-d="positionMsgID"
             @scroll="scroll"
             @touchstart="chatListClick"
             @initSuccess="initSuccess"
@@ -194,9 +193,9 @@ export default {
             this.handleHideMenu();
             // uni.hideKeyboard();
         },
-        getPositionMsgID (positionMsgID) {
+        getPositionMsgID (positionMsgID, seq) {
             this.positionMsgID = positionMsgID;
-            this.$refs.chatingListRef.setPositionMsgID(this.positionMsgID);
+            this.$refs.chatingListRef.setPositionMsgID(this.positionMsgID, seq);
             if (!this.storeHasMoreAfterMessage && !this.positionMsgID && this.storeHistoryMessageList.length <= 120) {
                 uni.$emit(PageEvents.ScrollToBottom);
             } else {

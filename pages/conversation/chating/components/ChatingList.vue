@@ -100,6 +100,7 @@ export default {
             ua: uni.getSystemInfoSync().platform,
             scrollIntoView: '',
             scrollTop: 0,
+            seq: 0,
             withAnimation: true,
             isRecvToBottom: true,
             hasNewMessage: false,
@@ -156,8 +157,9 @@ export default {
             this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
             this.loadMessageList({});
         },
-        setPositionMsgID (positionMsgID) {
+        setPositionMsgID (positionMsgID, seq) {
             this.positionMsgID = positionMsgID;
+            this.seq = seq;
         },
         async loadMessageList ({isLoadMore = false, isReverse = false, isSyncing = false}) {
             this.messageLoadState.loading = true;
@@ -175,18 +177,23 @@ export default {
                     await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse'](options);
                 } else {
                     // this.isReverse = false;
-                    await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
+                    const data = await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                         ...options,
                         positionMsgID: this.positionMsgID,
                         isInit: true,
+                        seq: this.seq,
                         count: this.positionMsgID ? parseInt(count / 2) : count
                     });
+                    console.log('uuuuuuu-----', data);
+                    if (!data || !data.length) return;
                     if (this.positionMsgID) {
                         const map = this.storeHistoryMessageList[this.storeHistoryMessageList.length - 1];
                         let positionMsgID = map.clientMsgID;
+                        let seq = map.seq;
                         await this[isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                             ...options,
                             positionMsgID,
+                            seq,
                             isInit: true,
                             count: parseInt(count / 2)
                         });

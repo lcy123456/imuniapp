@@ -31,7 +31,7 @@ export default {
         this.tryLogin();
         this.handleAudioManager();
         this.handleUniPush();
-        // uni.preloadPage({url: "/pages/conversation/webrtc/index"});
+        uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         uni.$on('toast', (message) => {
             uni.$u.toast(message);
         });
@@ -39,37 +39,9 @@ export default {
         uni.$on('stop_audio', this.handleStopAudio);
     },
     async onShow () {
-        uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         this.num++;
-        // console.log('onShow-onShow');
-        // if (this.num > 1) {
-        //     uni.$u.toast(this.getPage());
-        //     if (this.getPage().includes('/login')) return;
-        //     uni.$u.toast('----------------1111==');
-        //     const status = await IMSDK.asyncApi(IMSDK.IMMethods.GetLoginStatus, IMSDK.uuid());
-        //     uni.$u.toast('----------------2222=status=' + status);
-        //     if ([1].includes(status) && this.storeIsLoginStatus) {
-        //         // await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
-        //         uni.$u.toast('登录状态失效，重新登录');
-        //         this.tryLogin();
-        //     }
-        // }
-        // if (uni.$u.os() === 'ios') {
-        //     clearInterval(this.timer);
-        //     this.timer = setInterval(() => {
-        //         this.time++;
-        //         console.log('this.time----this.time', this.time, this.isHide);
-        //         if (this.time % 30 === 0) {
-        //             if (this.isHide) {
-        //                 // console.log('自己重启。。。。。。。。。。');
-        //                 // plus.runtime.restart();
-        //             }
-        //             this.time = 0;
-        //         }
-        //     }, 1000);
-        // }
         try {
-            plus.runtime.setBadgeNumber(0);
+            // plus.runtime.setBadgeNumber(0);
             IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
         } catch (err) {
             //
@@ -85,6 +57,7 @@ export default {
         return {
             num: 0,
             time: 0,
+            isInitSDK: false,
             isHide: false,
             payload: false,
             innerAudioContext: null
@@ -142,6 +115,7 @@ export default {
                         index: 1,
                     });
                 }
+                plus.runtime.setBadgeNumber(total || 0);
                 this.$store.commit(
                     "contact/SET_UNHANDLE_FRIEND_APPLICATION_NUM",
                     unHandleFriendApplicationNum
@@ -546,7 +520,7 @@ export default {
                     "conversation/SET_CONVERSATION_LIST",
                     conversationSort(result)
                 );
-                this.setTipMessage(data[0])
+                this.setTipMessage(data[0]);
             };
 
             IMSDK.subscribe(
@@ -600,6 +574,7 @@ export default {
                     uni.$u.toast("初始化IMSDK失败！");
                     return new Error('初始化IMSDK失败！');
                 }
+                this.isInitSDK = true;
                 setTimeout(async () => {
                     await IMLogin();
                 }, 1000);
@@ -823,14 +798,8 @@ export default {
         },
         _handlePush (message) {
             let payload = message && message.payload || {};
-            if (!payload.conversationID) return;
+            if (!payload.conversationID || !this.isInitSDK) return;
             uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
-            // if (this.num === 1) {
-            //     this.payload = payload;
-            // } else {
-            //     this.payload = false;
-            //     uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
-            // }
         }
     },
 };

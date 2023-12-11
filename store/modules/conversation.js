@@ -54,6 +54,7 @@ const mutations = {
                 index: 0,
             });
         }
+        plus.runtime.setBadgeNumber(count || 0);
         state.unReadCount = count;
     },
     SET_CURRENT_GROUP (state, group) {

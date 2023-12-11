@@ -667,6 +667,12 @@ export default {
         },
         async handleSendGif (original) {
             this.$loading("加载中");
+            if (!original.url.includes('https://') && !original.url.includes('http://')) {
+                console.log('本地图片走这里-----', original.url);
+                this.batchCreateImageMesage([original.url], 1);
+                this.$hideLoading();
+                return;
+            }
             uni.downloadFile({
                 url: original.url, // webp
                 success: (res) => {
@@ -682,16 +688,17 @@ export default {
                 }
             });
         },
-        batchCreateImageMesage (paths) {
+        batchCreateImageMesage (paths, type) {
             paths.forEach(async path => {
                 const message = await IMSDK.asyncApi(
                     IMMethods.CreateImageMessageFromFullPath,
                     IMSDK.uuid(),
-                    getPurePath(path)
+                    type ? path : getPurePath(path)
                 );
                 if (!message) {
                     return;
                 }
+                console.log('message-------iii', message);
                 this.sendMessage(message);
             });
         },

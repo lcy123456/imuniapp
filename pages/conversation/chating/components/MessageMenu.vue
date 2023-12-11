@@ -219,16 +219,34 @@ export default {
             this.$emit('close');
         },
         addEmoticons () {
-            const { pictureElem, videoElem, contentType, localEx } = this.message;
-            let content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePicture.url;
-            content = localEx || content;
+            const { pictureElem, videoElem } = this.message;
+            let filePath = pictureElem?.sourcePath;
+            if (this.isVideo) {
+                filePath = videoElem?.snapshotPath;
+            }
+            // filePath = localEx || filePath;
+            uni.getFileInfo({
+                filePath,
+                success: () => {
+                    this.saveEmoticons(filePath);
+                },
+                fail: () => {
+                    filePath = pictureElem?.sourcePicture.url;
+                    if (this.isVideo) {
+                        filePath = videoElem?.snapshotUrl;
+                    }
+                    this.saveEmoticons(filePath);
+                }
+            });
+        },
+        saveEmoticons (filePath) {
             let list = uni.getStorageSync('emoticonsList');
             list = list ? JSON.parse(list) : [];
             if (list.length >= 200) {
                 uni.$u.toast('表情添加上限，请删除后添加');
                 return;
             }
-            list.push(content);
+            list.push(filePath);
             uni.setStorageSync('emoticonsList', JSON.stringify(list));
             uni.$u.toast('添加成功');
             uni.$emit('undateEmoticons');
