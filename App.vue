@@ -15,7 +15,6 @@ import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
 import { videoGetToken } from '@/api/incoming';
 import { bindCid } from '@/api/index';
-import message from "./store/modules/message";
 
 // const customStatusTextMap = {
 //     [AudioVideoStatus.Done]: '通话结束',
@@ -31,7 +30,6 @@ export default {
         this.tryLogin();
         this.handleAudioManager();
         this.handleUniPush();
-        uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         uni.$on('toast', (message) => {
             uni.$u.toast(message);
         });
@@ -40,6 +38,7 @@ export default {
     },
     async onShow () {
         this.num++;
+        uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         try {
             // plus.runtime.setBadgeNumber(0);
             IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);

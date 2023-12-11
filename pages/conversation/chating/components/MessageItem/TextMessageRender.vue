@@ -1,5 +1,9 @@
 <template>
-    <view class="text_message_container bg_container">
+    <view
+        :class="['text_message_container', 'bg_container' , 'text_message_container_' + message.clientMsgID]"
+        :message="message"
+        :change:message="getMessage"
+    >
         <!-- <mp-html
             :selectable="true"
             :preview-img="false"
@@ -57,9 +61,13 @@ export default {
         }
     },
     data () {
-        return {};
+        return {
+        };
     },
     computed: {
+        clientMsgID () {
+            return this.message.clientMsgID;
+        },
         isEdit () {
             try {
                 const ex = JSON.parse(this.message.ex);
@@ -122,12 +130,49 @@ export default {
             return `${text}${baseText}`;
         },
     },
-    mounted () {
+    created () {
     },
     methods: {
-    
+        goPerson ({ id }) {
+            uni.$u.route(
+                `/pages/common/userCard/index?sourceID=${id}`
+            );
+        }
     }
 };
+</script>
+
+<script module="textMessageRender" lang="renderjs">
+	export default {
+        data () {
+            return {
+                message: {}
+            }
+        },
+		mounted () {
+            this.setClick();
+        },
+        methods: {
+            getMessage (message) {
+                this.message = message;
+            },
+            setClick () {
+                const { contentType, atTextElem, clientMsgID} = this.message;
+                if (contentType !== 106) return;
+                atTextElem.atUserList.forEach(id => {
+                    if (id === '999999999') return;
+                    let atMember = document.querySelector(`.text_message_container_${clientMsgID} #at_member_${id}`);
+                    if (atMember) {
+                        atMember.addEventListener('click', () => {
+                            this.$ownerInstance.callMethod('goPerson', {
+                                id: atMember.id.match(/\d+/)[0]
+                            })
+                        })  
+                    }
+                });
+            }
+        }
+	}
 </script>
 
 <style lang="scss" scoped>
