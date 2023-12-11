@@ -3,6 +3,8 @@
         :class="['text_message_container', 'bg_container' , 'text_message_container_' + message.clientMsgID]"
         :message="message"
         :change:message="getMessage"
+        :text="text"
+        :change:text="getText"
     >
         <!-- <mp-html
             :selectable="true"
@@ -23,7 +25,7 @@
 </template>
 
 <script>
-import { parseAt, parseEmoji } from "@/util/imCommon";
+import { parseAt, parseEmoji, parseLink } from "@/util/imCommon";
 import { MessageType } from "openim-uniapp-polyfill";
 import { DecryptoAES } from '@/util/crypto';
 import MessageReadState from './MessageReadState.vue';
@@ -83,8 +85,22 @@ export default {
                 return false;
             }
         },
+        text () {
+            const { contentType, quoteElem, atTextElem, textElem } = this.message;
+            let text = '';
+            // TODO：解密文本
+            if (contentType === MessageType.QuoteMessage) {
+                text = parseLink(parseEmoji(DecryptoAES(quoteElem?.text)));
+            } else if (contentType === MessageType.AtTextMessage) {
+                text = parseLink(parseEmoji(parseAt(atTextElem)));
+            } else {
+                text = parseLink(parseEmoji(DecryptoAES(textElem?.content)));
+            }
+            text = text.replace(/\n/g, '<br>');
+            return text;
+        },
         getContent () {
-            const { contentType, quoteElem, atTextElem, textElem, senderNickname } = this.message;
+            const { senderNickname } = this.message;
             const baseText = !this.isQuote ? `
             <view class="base-box hide-css">
                 <img
@@ -114,16 +130,7 @@ export default {
                 </div>
             </view>
             ` : ``;
-            let text = '';
-            // TODO：解密文本
-            if (contentType === MessageType.QuoteMessage) {
-                text = parseEmoji(DecryptoAES(quoteElem?.text));
-            } else if (contentType === MessageType.AtTextMessage) {
-                text = parseEmoji(parseAt(atTextElem));
-            } else {
-                text = parseEmoji(DecryptoAES(textElem?.content));
-            }
-            text = text.replace(/\n/g, '<br>');
+            let text = this.text;
             if (this.showNickname) {
                 text = senderNickname + '：' + text;
             }
@@ -137,6 +144,9 @@ export default {
             uni.$u.route(
                 `/pages/common/userCard/index?sourceID=${id}`
             );
+        },
+        goLink ({ url }) {
+            plus.runtime.openURL(url);
         }
     }
 };
@@ -146,17 +156,22 @@ export default {
 	export default {
         data () {
             return {
-                message: {}
+                message: {},
+                text: ''
             }
         },
 		mounted () {
-            this.setClick();
+            this.setAtClick();
+            this.setLinkClick();
         },
         methods: {
             getMessage (message) {
                 this.message = message;
             },
-            setClick () {
+            getText (text) {
+                this.text = text;
+            },
+            setAtClick () {
                 const { contentType, atTextElem, clientMsgID} = this.message;
                 if (contentType !== 106) return;
                 atTextElem.atUserList.forEach(id => {
@@ -166,6 +181,24 @@ export default {
                         atMember.addEventListener('click', () => {
                             this.$ownerInstance.callMethod('goPerson', {
                                 id: atMember.id.match(/\d+/)[0]
+                            })
+                        })  
+                    }
+                });
+            },
+            setLinkClick () {
+                const { clientMsgID} = this.message;
+                const pattern = /data-url="([^"]*)/g;
+                const arr = this.text.match(pattern);
+                arr?.map((url) => {
+                    url = url.slice(10);
+                    let linkDom = document.querySelector(`.text_message_container_${clientMsgID} #link_${url.replace(/[:/.?#]/g, '').slice(0, 20)}`);
+                    console.log('linkDom----linkDom', linkDom, url);
+                    if (linkDom) {
+                        linkDom.addEventListener('click', () => {
+                            console.log('url----url', url);
+                            this.$ownerInstance.callMethod('goLink', {
+                                url
                             })
                         })  
                     }

@@ -104,7 +104,7 @@ export const isEdit = (message) => {
     } catch (err) {
         return false;
     }
-}
+};
 
 export const parseAt = (atel, type) => {
     let mstr = atel.text;
@@ -127,6 +127,16 @@ export const parseAt = (atel, type) => {
     // }
     });
     return mstr;
+};
+
+
+export const parseLink = (text) => {
+    const pattern = /(https?:\/\/[^\s]+)/g;
+    const arr = text.match(pattern);
+    arr?.map((match) => {
+        text = text.replace(match, `<text data-url="${match}" id="link_${match.replace(/[:/.?#]/g, '').slice(0, 20)}" style="color: #008dff;">${match}</text>`);
+    });
+    return text;
 };
 
 export const parseEmoji = (msgStr) => {
