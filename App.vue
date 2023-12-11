@@ -794,7 +794,7 @@ export default {
                     this.$store.commit('user/SET_CLIENT_ID', cid);
                 });
             }, 3000);
-            plus.push.addEventListener('click', this._handlePush);  
+            // plus.push.addEventListener('click', this._handlePush);  
         },
         _handlePush (message) {
             let payload = message && message.payload || {};
