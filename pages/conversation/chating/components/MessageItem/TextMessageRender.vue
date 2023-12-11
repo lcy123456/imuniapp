@@ -193,10 +193,8 @@ export default {
                 arr?.map((url) => {
                     url = url.slice(10);
                     let linkDom = document.querySelector(`.text_message_container_${clientMsgID} #link_${url.replace(/[:/.?#]/g, '').slice(0, 20)}`);
-                    console.log('linkDom----linkDom', linkDom, url);
                     if (linkDom) {
                         linkDom.addEventListener('click', () => {
-                            console.log('url----url', url);
                             this.$ownerInstance.callMethod('goLink', {
                                 url
                             })
