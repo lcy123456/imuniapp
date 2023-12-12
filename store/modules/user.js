@@ -16,20 +16,25 @@ export const businessAllowType = {
 };
 
 const defaultConfig = {
-    allowSendMsgNotFriend: businessAllowType.NotAllow,
+    allowSendMsgNotFriend: businessAllowType.Allow,
     needInvitationCodeRegister: false,
 };
 
 const state = {
+    isLoginStatus: false,
     clientID: '',
     authData: {},
     selfInfo: {},
     appConfig: {},
+    userList: [],
     isSyncing: false,
-    isProd: process.env.NODE_ENV === 'production'
+    isProd: process.env.NODE_ENV === 'production',
 };
 
 const mutations = {
+    SET_LOGIN_STATUS (state, value) {
+        state.isLoginStatus = value;
+    },
     SET_CLIENT_ID (state, data) {
         state.clientID = data;
     },
@@ -54,6 +59,24 @@ const mutations = {
     SET_IS_PROD (state) {
         state.isProd = !state.isProd;
     },
+    SET_USER_LIST (state, data) {
+        if (!state.userList.map(v => v.userID).includes(data.userID)) {
+            state.userList = state.userList.concat([data]);
+        }
+    },
+    SET_DEL_USER_LIST (state, data) {
+        state.userList = state.userList.filter(v => v.userID !== data.userID);
+    },
+    SET_UPDATE_USER_LIST (state, data) {
+        state.userList.forEach((v, i) => {
+            if (v.userID === data.userID) {
+                state.userList[i] = {
+                    ...v,
+                    ...data
+                };
+            }
+        });
+    },
 };
 
 const actions = {
@@ -69,13 +92,18 @@ const actions = {
             } = await businessGetUserInfo(data.userID);
             const businessData = users[0] ?? {};
             filterEmptyValue(businessData);
+            console.log(data, 'datadatadata');
             commit('SET_SELF_INFO', {
                 ...data,
                 ...businessData
             });
+            commit('SET_UPDATE_USER_LIST', {
+                ...data,
+                ...businessData
+            });
         } catch (e) {
-            console.log(e);
-            uni.$u.toast('获取个人信息失败');
+            console.log(e, '获取个人信息失败');
+            uni.$u.toast('连接失败，请检查网络');
         }
     },
     async updateBusinessInfo ({

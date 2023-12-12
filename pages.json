@@ -1,5 +1,38 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
+		{
+			"path": "pages/conversation/conversationList/index",
+			"style": {
+				"app-plus": {
+					"bounce": "none"
+				}
+			}
+		},
+        {
+            "path": "pages/conversation/chating/index",
+            "style": {
+                "app-plus": {
+                    "softinputMode": "adjustResize",
+                    "bounce": "none",
+                    "softinputNavBar": "none"
+                }
+            }
+        },
+		{
+			"path": "pages/conversation/webrtc/index",
+            "style" : {
+                "popGesture": "none"  
+            }
+		},
+        {
+            "path": "pages/profile/index/index"
+        },
+        {
+            "path": "pages/profile/accountSetting/index"
+        },
+        {
+            "path": "pages/login/scanLogin/index"
+        },
 		{
 			"path": "pages/login/index"
 		},
@@ -16,27 +49,13 @@
 			"path": "pages/login/verifyCode/index"
 		},
 		{
-			"path": "pages/profile/index/index"
+			"path": "pages/login/servicePolicy/index"
 		},
 		{
-			"path": "pages/conversation/conversationList/index",
-			"style": {
-				"app-plus": {
-					"bounce": "none"
-				}
-			}
+			"path": "pages/login/privacyPolicy/index"
 		},
 		{
 			"path": "pages/contact/index/index"
-		},
-		{
-			"path": "pages/conversation/chating/index",
-			"style": {
-				"app-plus": {
-					"softinputMode": "adjustResize",
-					"bounce": "none"
-				}
-			}
 		},
 		{
 			"path": "pages/conversation/groupSettings/index"
@@ -91,9 +110,6 @@
 			"path": "pages/profile/selfInfo/index"
 		},
 		{
-			"path": "pages/profile/accountSetting/index"
-		},
-		{
 			"path": "pages/profile/blockList/index"
 		},
 		{
@@ -113,6 +129,9 @@
 		},
 		{
 			"path": "pages/login/chooseDefaultAvatar/index"
+		},
+		{
+			"path": "pages/profile/favorite/index"
 		},
 		{
 			"path": "pages/profile/about/index"

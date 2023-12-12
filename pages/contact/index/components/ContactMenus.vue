@@ -142,7 +142,6 @@ export default {
 					.u-badge {
 						width: fit-content;
 						padding: 8rpx 12rpx;
-						line-height: 18rpx;
 					}
 				}
 

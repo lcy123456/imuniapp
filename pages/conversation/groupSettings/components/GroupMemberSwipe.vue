@@ -125,7 +125,12 @@ export default {
             this.$refs.swipeActionRef.closeAll();
         },
         userClick (member) {
-            let url = '/pages/common/userCard/index';
+            console.log('membermembermembermember', member);
+            const sourceInfo = {
+                nickname: member.nickname,
+                faceURL: member.faceURL
+            };
+            let url = `/pages/common/userCard/index?sourceInfo=${JSON.stringify(sourceInfo)}`;
             if (this.storeCurrentUserID === member.userID) {
                 url = '/pages/profile/selfInfo/index';
             }

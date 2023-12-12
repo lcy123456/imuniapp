@@ -1,40 +1,42 @@
 <template>
-    <view class="group_members_container page_container">
-        <CustomNavBar title="群成员" />
-        <view class="px-20 pb-20 pt-10">
-            <uni-search-bar
-                v-model="keyword"
-                bg-color="#fff"
-                class="h-70"
-                focus
-                placeholder="搜索"
-                @cancel="handleCancel"
-            />
-        </view>
-
-        <u-list
-            class="member_list"
-            lower-threshold="100"
-            @scrolltolower="scrolltolower"
-        >
-            <u-list-item
-                v-for="member in groupMemberList"
-                :key="member.userID"
-            >
-                <UserItem
-                    :item="member"
-                    light-self
-                    @itemClick="userClick"
+    <Page>
+        <view class="group_members_container page_container">
+            <CustomNavBar title="群成员" />
+            <view class="px-20 pb-20 pt-10">
+                <uni-search-bar
+                    v-model="keyword"
+                    bg-color="#fff"
+                    class="h-70"
+                    focus
+                    placeholder="搜索"
+                    @cancel="handleCancel"
                 />
-            </u-list-item>
-            <view
-                v-show="loadState.loading"
-                class="member_loading"
-            >
-                <u-loading-icon />
             </view>
-        </u-list>
-    </view>
+
+            <u-list
+                class="member_list"
+                lower-threshold="100"
+                @scrolltolower="scrolltolower"
+            >
+                <u-list-item
+                    v-for="member in groupMemberList"
+                    :key="member.userID"
+                >
+                    <UserItem
+                        :item="member"
+                        light-self
+                        @itemClick="userClick"
+                    />
+                </u-list-item>
+                <view
+                    v-show="loadState.loading"
+                    class="member_loading"
+                >
+                    <u-loading-icon />
+                </view>
+            </u-list>
+        </view>
+    </Page>
 </template>
 
 <script>

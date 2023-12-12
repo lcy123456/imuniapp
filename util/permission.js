@@ -87,7 +87,7 @@ function judgeIosPermissionCamera () {
     let AVCaptureDevice = plus.ios.import("AVCaptureDevice");
     let authStatus = AVCaptureDevice.authorizationStatusForMediaType('vide');
     console.log("authStatus:" + authStatus);
-    if (authStatus == 3) {
+    if (authStatus == 3 || authStatus == 0) {
         result = true;
         console.log("相机权限已经开启");
     } else {
@@ -103,7 +103,7 @@ function judgeIosPermissionPhotoLibrary () {
     let PHPhotoLibrary = plus.ios.import("PHPhotoLibrary");
     let authStatus = PHPhotoLibrary.authorizationStatus();
     console.log("authStatus:" + authStatus);
-    if (authStatus == 3) {
+    if (authStatus == 3 || authStatus == 0) {
         result = true;
         console.log("相册权限已经开启");
     } else {

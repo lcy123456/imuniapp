@@ -1,15 +1,15 @@
 <template>
     <view
         class="media_message_container"
-        :style="{height: imageHeight + 'px'}"
+        :style="{height: imageHeight === 'auto' ? imageHeight : (imageHeight + 'px')}"
         @click="clickMediaItem"
     >
         <!-- <view :style="{height:wrapperHeight}" class="media_message_container"> -->
         <u--image
             :show-loading="true"
-            :width="loadingWidth"
+            :width="systemInfo.windowWidth * 0.5 + 'px'"
             :height="imageHeight"
-            mode="heightFix"
+            mode="widthFix"
             :src="imgUrl"
             @load="onLoaded"
             @click="clickMediaItem"
@@ -21,6 +21,7 @@
         <image
             v-if="isVideo"
             class="play_icon"
+            mode="widthFix"
             src="@/static/images/chating_message_video_play.png"
             alt=""
             srcset=""
@@ -38,9 +39,14 @@
 import {
     secFormat
 } from "@/util/imCommon";
-import { MessageType } from "openim-uniapp-polyfill";
+import {
+    getPurePath
+} from "@/util/common";
+import IMSDK, { MessageType } from "openim-uniapp-polyfill";
+import { mapGetters } from "vuex";
 export default {
     name: "",
+    inject: ['getSearchRecord'],
     props: {
         message: {
             type: Object,
@@ -49,16 +55,26 @@ export default {
         isSender: {
             type: Boolean,
             default: false
+        },
+        isQuote: {
+            type: Boolean,
+            default: false
         }
     },
     data () {
         return {
-            loadingWidth: '200px',
+            imgList: [],
+            imageWidth: '300px',
             imageHeight: 240,
-            imgUrl: ''
+            imgUrl: null,
+            systemInfo: uni.getSystemInfoSync()
         };
     },
     computed: {
+        ...mapGetters([
+            "storeConversationMediaList",
+            "storeCurrentConversation"
+        ]),
         isVideo () {
             return this.message.contentType === MessageType.VideoMessage;
         },
@@ -70,11 +86,12 @@ export default {
         },
     },
     created () {
-        const { pictureElem, videoElem} = this.message;
+        const { pictureElem, videoElem, localEx } = this.message;
         let filePath = pictureElem?.sourcePath;
         if (this.isVideo) {
             filePath = videoElem?.snapshotPath;
         }
+        filePath = localEx || filePath;
         uni.getFileInfo({
             filePath,
             success: () => {
@@ -87,29 +104,38 @@ export default {
                 }
             }
         });
-        const imageHeight = (this.isVideo ? videoElem?.snapshotHeight : pictureElem?.sourcePicture.height) || 0;
-        if (imageHeight < this.imageHeight) {
-            this.imageHeight = imageHeight;
-        }
     },
     methods: {
-        clickMediaItem () {
-            if (this.isVideo) {
-                uni.navigateTo({
-                    url: `/pages/conversation/previewVideo/index?previewVideoUrl=${this.message.videoElem.videoUrl}`
-                });
-            } else {
-                uni.previewImage({
-                    current: 0,
-                    urls: [this.imgUrl],
-                    fail (err) {
-                        console.log(err);
-                    }
-                });
-            }
+        async clickMediaItem () {
+            await this.getSearchRecord();
+            const i = this.storeConversationMediaList.findIndex(item => item.poster.includes(this.imgUrl));
+            const index = i > -1 ? i : 0;
+            uni.$u.route('/pages/common/previewMedia/index', {
+                list: encodeURIComponent(JSON.stringify(this.storeConversationMediaList)),
+                current: index,
+            });
         },
         onLoaded () {
-            this.loadingWidth = 'auto';
+            const { conversationID } = this.storeCurrentConversation;
+            const { clientMsgID } = this.message;
+            this.imageHeight = 'auto';
+            if (!this.imgUrl.includes('https://') && !this.imgUrl.includes('http://')) return;
+            if (this.isQuote) return;
+            uni.downloadFile({
+                url: this.imgUrl,
+                success: (res) => {
+                    if (res.statusCode === 200) {
+                        IMSDK.asyncApi(IMSDK.IMMethods.SetMessageLocalEx, IMSDK.uuid(), {
+                            conversationID,
+                            clientMsgID,
+                            localEx: getPurePath(res.tempFilePath)
+                        });
+                    }
+                },
+                fail: () => {
+                    console.log('下载失败下载失败下载失败下载失败下载失败下载失败v');
+                }
+            });
         }
     }
 };
@@ -123,6 +149,7 @@ export default {
 		.play_icon {
 			width: 48px;
 			height: 48px;
+            max-width: 20%;
 			position: absolute;
 			top: 50%;
 			left: 50%;

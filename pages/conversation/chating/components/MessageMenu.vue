@@ -9,7 +9,7 @@
     >
         <view
             v-for="item in menuList"
-            :key="item.idx"
+            :key="item.title"
             class="message_menu_item"
             :style="{height: menuItemHight + 'px'}"
             @click="menuClick(item)"
@@ -27,16 +27,21 @@
 </template>
 
 <script>
+import { html2Text } from '@/util/common';
+import { parseAt, parseEmoji } from "@/util/imCommon";
 import { mapGetters, mapActions } from 'vuex';
-import { MessageMenuTypes } from '@/constant';
-import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
-
+import { pin, pinCancel } from '@/api/pinToTop';
+import IMSDK, { IMMethods, MessageType, SessionType } from 'openim-uniapp-polyfill';
 import { DecryptoAES } from '@/util/crypto';
+import { 
+    MessageMenuTypes,
+    TextRenderTypes,
+    MediaRenderTypes,
+    FileRenderTypes
+} from '@/constant';
 
-const canCopyTypes = [
-    MessageType.TextMessage,
-    MessageType.AtTextMessage,
-    MessageType.QuoteMessage,
+const notPinTypes = [
+    MessageType.CustomMessage,
 ];
 
 export default {
@@ -55,10 +60,15 @@ export default {
         return {
             menuWidth: 200,
             menuItemHight: 40,
+            systemInfo: uni.getSystemInfoSync()
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentMemberInGroup', 'storeCurrentUserID']),
+        ...mapGetters([
+            'storeCurrentMemberInGroup',
+            'storeCurrentUserID',
+            'storeKeyBoardHeight'
+        ]),
         isSender () {
             return this.paterRect.right > uni.getWindowInfo().windowWidth - 30;
         },
@@ -69,69 +79,123 @@ export default {
         },
         getTop () {
             const { top, bottom } = this.paterRect;
+            const { windowHeight } = uni.getSystemInfoSync();
+            console.log('uni.getSystemInfoSync()uni.getSystemInfoSync()', uni.getSystemInfoSync(), this.storeKeyBoardHeight);
             const menuHight = this.menuItemHight * this.menuList.length;
+            const minTop = 0;
+            const maxTop = windowHeight - menuHight - 50 - this.storeKeyBoardHeight;
+            let t = 0;
             if (top - menuHight < 100) {
-                return bottom + 10;
+                t = bottom + 10;
             } else {
-                return top - menuHight - 10;
+                t = top - menuHight - 10;
             }
+            t = t > minTop ? t : minTop;
+            t = t < maxTop ? t : maxTop;
+            return t;
         },
         menuList () {
             return [
                 {
-                    idx: 0,
+                    type: MessageMenuTypes.AddEmoticons,
+                    title: '添加到表情',
+                    icon: '/static/images/chating_message_gif.png',
+                    visible: this.showMediaRender,
+                },
+                {
                     type: MessageMenuTypes.Forward,
                     title: '转发',
                     icon: '/static/images/chating_message_forward.png',
                     visible: true,
                 },
                 {
-                    idx: 1,
+                    type: MessageMenuTypes.Pin,
+                    title: '置顶',
+                    icon: '/static/images/pin.png',
+                    visible: !this.message.pinMap && !notPinTypes.includes(this.message.contentType),
+                },
+                {
+                    type: MessageMenuTypes.PinCancel,
+                    title: '取消置顶',
+                    icon: '/static/images/cancel-pin.png',
+                    visible: this.message.pinMap && !notPinTypes.includes(this.message.contentType),
+                },
+                {
                     type: MessageMenuTypes.Reply,
                     title: '回复',
                     icon: '/static/images/chating_message_reply.png',
                     visible: true,
                 },
                 {
-                    idx: 2,
+                    type: MessageMenuTypes.Edit,
+                    title: '编辑',
+                    icon: '/static/images/chating_message_edit.png',
+                    visible: TextRenderTypes.includes(this.message.contentType) && this.isMyMsg,
+                },
+                {
                     type: MessageMenuTypes.Copy,
                     title: '复制',
                     icon: '/static/images/chating_message_copy.png',
-                    visible: canCopyTypes.includes(this.message.contentType),
+                    visible: TextRenderTypes.includes(this.message.contentType),
                 },
                 {
-                    idx: 3,
                     type: MessageMenuTypes.Revoke,
                     title: '撤回',
                     icon: '/static/images/chating_message_revoke.png',
                     visible: this.isSender,
                 },
                 {
-                    idx: 4,
                     type: MessageMenuTypes.Multiple,
                     title: '多选',
                     icon: '/static/images/chating_message_multiple.png',
                     visible: true,
                 },
                 {
-                    idx: 5,
                     type: MessageMenuTypes.Del,
                     title: '删除',
                     icon: '/static/images/chating_message_del.png',
-                    visible: true,
+                    visible: this.isMyMsg || this.isSingle,
                 },
             ].filter((v) => v.visible);
         },
+        showTextRender () {
+            return TextRenderTypes.includes(this.message.contentType);
+        },
+        showMediaRender () {
+            return MediaRenderTypes.includes(this.message.contentType);
+        },
+        showFileRender () {
+            return FileRenderTypes.includes(this.message.contentType);
+        },
+        isMyMsg () {
+            return this.message.sendID === this.storeCurrentUserID;
+        },
+        isSingle () {
+            return this.message.sessionType === SessionType.Single;
+        }
     },
     methods: {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
         async menuClick ({ type }) {
+            console.log('typetypetypetypetypetypetype', type);
             switch (type) {
+            case MessageMenuTypes.AddEmoticons:
+                this.addEmoticons();
+                break;
+            case MessageMenuTypes.Pin:
+                await this.pin();
+                break;
+            case MessageMenuTypes.PinCancel:
+                await this.PinCancel();
+                break;
             case MessageMenuTypes.Forward:
                 this.handleForward();
                 break;
             case MessageMenuTypes.Reply:
-                await this.handleQuote();
+                uni.$emit('active_message', {
+                    message: this.message,
+                    type: "quote_message"
+                });
                 break;
             case MessageMenuTypes.Copy:
                 await this.handleCopy();
@@ -143,10 +207,106 @@ export default {
                 await this.handleMultiple();
                 break;
             case MessageMenuTypes.Del:
-                await this.handleDel();
+                await uni.$emit('deleteMsg', [this.message]);
+                break;
+            case MessageMenuTypes.Edit:
+                uni.$emit('active_message', {
+                    message: this.message,
+                    type: "edit_message"
+                });
                 break;
             }
             this.$emit('close');
+        },
+        addEmoticons () {
+            const { pictureElem, videoElem } = this.message;
+            let filePath = pictureElem?.sourcePath;
+            if (this.isVideo) {
+                filePath = videoElem?.snapshotPath;
+            }
+            // filePath = localEx || filePath;
+            uni.getFileInfo({
+                filePath,
+                success: () => {
+                    this.saveEmoticons(filePath);
+                },
+                fail: () => {
+                    filePath = pictureElem?.sourcePicture.url;
+                    if (this.isVideo) {
+                        filePath = videoElem?.snapshotUrl;
+                    }
+                    this.saveEmoticons(filePath);
+                }
+            });
+        },
+        saveEmoticons (filePath) {
+            let list = uni.getStorageSync('emoticonsList');
+            list = list ? JSON.parse(list) : [];
+            if (list.length >= 200) {
+                uni.$u.toast('表情添加上限，请删除后添加');
+                return;
+            }
+            list.push(filePath);
+            uni.setStorageSync('emoticonsList', JSON.stringify(list));
+            uni.$u.toast('添加成功');
+            uni.$emit('undateEmoticons');
+        },
+        getContent () {
+            let text = '';
+            const { contentType, quoteElem, atTextElem, textElem } = this.message;
+            // TODO：解密文本
+            if (contentType === MessageType.QuoteMessage) {
+                text = DecryptoAES(quoteElem?.text);
+            } else if (contentType === MessageType.AtTextMessage) {
+                text = parseAt(atTextElem);
+            } else {
+                text = DecryptoAES(textElem?.content);
+            }
+            return text;
+        },
+        async pin () {
+            console.log(this.message);
+            try {
+                const { pictureElem, videoElem, fileElem, contentType } = this.message;
+                let content = '';
+                if (this.showTextRender) {
+                    content = html2Text(this.getContent());
+                } else if (this.showMediaRender) {
+                    content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePicture.url;
+                } else if (this.showFileRender) {
+                    content = fileElem?.fileName;
+                }
+                await pin({
+                    ...this.message,
+                    content: content,
+                    conversationID: this.$store.getters.storeCurrentConversation.conversationID
+                });
+                this.$emit('updatePin', {
+                    type: 'success',
+                    icon: `/static/images/pin.png`,
+                    text: '消息内容已置顶'
+                });
+            } catch (err) {
+                //
+                console.log('置顶失败', err);
+                uni.$u.toast('置顶失败');
+            }
+        },
+        async PinCancel () {
+            console.log(this.message);
+            try {
+                await pinCancel({
+                    id: this.message?.pinMap?.id
+                });
+                this.$emit('updatePin', {
+                    type: 'fail',
+                    icon: `/static/images/cancel-pin.png`,
+                    text: '已取消置顶'
+                });
+            } catch (err) {
+                console.log('取消置顶失败', err);
+                uni.$u.toast('取消置顶失败');
+            }
         },
         async handleForward () {
             const message = await IMSDK.asyncApi(IMMethods.CreateForwardMessage, IMSDK.uuid(), this.message);
@@ -157,9 +317,6 @@ export default {
             uni.$u.route('/pages/common/msgForward/index', {
                 message: encodeURIComponent(JSON.stringify(message))
             });
-        },
-        handleQuote () {
-            uni.$emit('quote_message', this.message);
         },
         handleCopy () {
             return new Promise((resolve, reject) => {
@@ -220,26 +377,6 @@ export default {
                 message: this.message,
                 type: MessageMenuTypes.Init
             });
-        },
-        // TODO: 可以移动到chating统一处理
-        async handleDel () {
-            try {
-                this.$loading('删除中');
-                await IMSDK.asyncApi(
-                    IMSDK.IMMethods.DeleteMessage,
-                    IMSDK.uuid(),
-                    {
-                        conversationID:
-                                this.$store.getters.storeCurrentConversation
-                                    .conversationID,
-                        clientMsgID: this.message.clientMsgID,
-                    }
-                );
-                uni.$u.toast('删除成功');
-                this.deleteMessages([this.message]);
-            } catch {
-                uni.$u.toast('删除失败');
-            }
         },
         getCopyText () {
             const { contentType, atTextElem, quoteElem, textElem } = this.message;

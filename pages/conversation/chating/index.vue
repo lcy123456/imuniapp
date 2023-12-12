@@ -1,19 +1,27 @@
 <template>
     <view
+        id="chating_container"
         class="chating_container"
         @touchstart="handleHideMenu"
     >
+        <!-- <video id="screenshare-video" autoplay playsinline></video> -->
         <chating-header
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
         />
+        <PinToTop
+            ref="pin"
+            :list="storePinList"
+            @setPositionMsgID="getPositionMsgID"
+        />
+        <JoinGroupCall />
         <chating-list
+            :key="updateChatKey"
             ref="chatingListRef"
             :menu-outside-flag="menuOutsideFlag"
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
-            :position-msg-i-d="positionMsgID"
-            @scroll="handleHideMenu"
+            @scroll="scroll"
             @touchstart="chatListClick"
             @initSuccess="initSuccess"
             @menuRect="menuRect"
@@ -23,7 +31,23 @@
             :is-multiple-msg="isMultipleMsg"
             :footer-outside-flag="footerOutsideFlag"
             :checked-msg-ids="checkedMsgIds"
+            @sendInit="getPositionMsgID('')"
         />
+        <view
+            v-show="storeIsShowSetEnd"
+            class="set-end"
+            @click="getPositionMsgID('')"
+        >
+            <view
+                v-if="conversationUnread"
+                class="unread"
+            >
+                {{ conversationUnread < 100 ? conversationUnread : '99' }}
+            </view>
+            <image
+                src="/static/images/set-end.png"
+            />
+        </view>
         <!-- <u-loading-page :loading="initLoading" /> -->
         <view style="height: 0">
             <transition name="fade">
@@ -31,10 +55,17 @@
                     v-if="menuState.visible"
                     :message="menuState.message"
                     :pater-rect="menuState.paterRect"
+                    @updatePin="updatePin"
                     @close="menuState.visible = false"
                 />
             </transition>
         </view>
+        <Notification
+            v-model="isShowNotification"
+            :text="notificationText"
+            :icon="notificationIcon"
+        />
+        <Page />
     </view>
 </template>
 
@@ -48,16 +79,34 @@ import { markConversationAsRead } from '@/util/imCommon';
 import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
-
+import PinToTop from './components/pinToTop.vue';
+import JoinGroupCall from './components/JoinGroupCall.vue';
+import { PageEvents } from "@/constant";
+import {
+    MediaRenderTypes,
+} from '@/constant';
 export default {
     components: {
         ChatingHeader,
         ChatingFooter,
         ChatingList,
         MessageMenu,
+        PinToTop,
+        JoinGroupCall
+    },
+    provide () {
+        return {
+            getSearchRecord: this.getSearchRecord
+        };
     },
     data () {
         return {
+            test: false,
+            isShowNotification: false,
+            notificationText: '',
+            notificationIcon: '',
+            updateChatKey: '',
+            updatePinKey: '',
             listHeight: 0,
             footerOutsideFlag: 0,
             menuOutsideFlag: 0,
@@ -71,6 +120,7 @@ export default {
                 paterRect: {},
                 message: {}
             },
+            imgList: []
         };
     },
     computed: {
@@ -78,6 +128,11 @@ export default {
             'storeCurrentConversation',
             'storeSelfInfo',
             'storeHistoryMessageList',
+            'storeIsScrollWay',
+            'storeIsShowSetEnd',
+            'storePinList',
+            'storeHasMoreAfterMessage',
+            'conversationUnread'
         ]),
         checkedMsg () {
             return this.storeHistoryMessageList.filter((v) =>
@@ -91,6 +146,12 @@ export default {
         this.positionMsgID = clientMsgID;
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
+        uni.$on('deleteMsg', this.handleMsgDel);
+        uni.$on('reloadChatingList', this.reloadChatingList);
+        uni.$on('getPositionMsgID', this.getPositionMsgID);
+        this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
+        this.getSearchRecord();
+        this.getPinList();
     },
     onUnload () {
         console.log('unload');
@@ -104,15 +165,99 @@ export default {
         this.resetMessageState();
         uni.$off('multiple_message', this.handleMultipleMessage);
         uni.$off('forward_finish', this.hideMultipleMsg);
+        uni.$off('deleteMsg', this.handleMsgDel);
+        uni.$off('reloadChatingList', this.reloadChatingList);
+        uni.$off('getPositionMsgID', this.getPositionMsgID);
+        this.$store.commit('base/SET_PIN_LIST', []);
     },
     methods: {
-        ...mapActions('message', ['resetMessageState', 'deleteMessages']),
+        ...mapActions('message', ['resetMessageState']),
         ...mapActions('conversation', ['resetConversationState']),
+        ...mapActions('base', ['pinList']),
         async handleHideMenu () {
-            const res = await getEl.call(this, '.message_menu_container');
-            if (res) {
-                this.menuState.visible = false;
+            if (!this.storeIsShowSetEnd) {
+                this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
             }
+            // const res = await getEl.call(this, '.message_menu_container');
+            // if (res) {
+            //     this.menuState.visible = false;
+            // }
+            this.menuState.visible = false;
+        },
+        async getPinList () {
+            let conversationID = this.storeCurrentConversation.conversationID;
+            this.pinList(conversationID);
+            
+        },
+        scroll () {
+            this.handleHideMenu();
+            // uni.hideKeyboard();
+        },
+        getPositionMsgID (positionMsgID, seq) {
+            this.positionMsgID = positionMsgID;
+            this.$refs.chatingListRef.setPositionMsgID(this.positionMsgID, seq);
+            if (!this.storeHasMoreAfterMessage && !this.positionMsgID && this.storeHistoryMessageList.length <= 120) {
+                uni.$emit(PageEvents.ScrollToBottom);
+            } else {
+                const index = this.storeHistoryMessageList.findIndex(item => item.clientMsgID === positionMsgID);
+                if (this.positionMsgID && index > -1) {
+                    console.log('auchor-${positionMsgID}auchor-${positionMsgID}', `auchor-${positionMsgID}`);
+                    this.$refs.chatingListRef.scrollToAnchor(`auchor-${positionMsgID}`);
+                } else {
+                    this.reloadChatingList();
+                }
+            }
+        },
+        reloadChatingList () {
+            const pages = getCurrentPages();
+            const currentPage = pages[pages.length - 1];
+            const page = currentPage.route;
+            if (page === `pages/conversation/chating/index`) {
+                this.$refs.chatingListRef.init();
+            }
+        },
+        updatePin (map) {
+            this.notificationText = map.text;
+            this.notificationIcon = map.icon;
+            this.isShowNotification = true;
+            this.getPinList();
+        },
+        async getSearchRecord () {
+            let conversationID = this.storeCurrentConversation.conversationID;
+            const params = {
+                conversationID: conversationID,
+                keywordList: [],
+                messageTypeList: MediaRenderTypes,
+                searchTimePosition: 0,
+                searchTimePeriod: 0,
+                pageIndex: 1,
+                count: 999,
+            };
+            const { data } = await IMSDK.asyncApi(
+                IMMethods.SearchLocalMessages,
+                IMSDK.uuid(),
+                params
+            );
+            let imgList = data.searchResultItems?.[0]?.messageList || [];
+            this.imgList = imgList.map((v) => {
+                const { contentType, pictureElem, videoElem } = v;
+                const isVideo = contentType === MessageType.VideoMessage;
+                let map = {
+                    url: pictureElem?.sourcePicture.url,
+                    poster: [pictureElem?.sourcePicture.url, pictureElem?.sourcePath, v.localEx],
+                    type: 'image',
+                };
+                if (isVideo) {
+                    map = {
+                        url: videoElem.videoUrl,
+                        poster: [videoElem?.snapshotUrl, videoElem?.snapshotPath, v.localEx],
+                        type: 'video',
+                    };
+                }
+                return map;
+            });
+            this.imgList.reverse();
+            this.$store.commit('conversation/SET_CONVERSATION_MEDIA_LIST', this.imgList);
         },
         chatListClick () {
             this.footerOutsideFlag += 1;
@@ -141,6 +286,7 @@ export default {
             };
             this.menuState.message = res.message;
             this.menuState.visible = true;
+            // uni.hideKeyboard();
         },
         async handleMultipleMessage ({ show, message, type = '' }) {
             // console.log('开启多选', show, message);
@@ -183,8 +329,9 @@ export default {
             }
         },
         async handleMsgDel (msgArr) {
+            console.log('msgArrmsgArr', msgArr);
             try {
-                this.$loading('删除中');
+                // this.$loading('删除中');
                 for (let i = 0; i < msgArr.length; i++) {
                     console.log(msgArr[i]);
                     const message = msgArr[i];
@@ -197,12 +344,11 @@ export default {
                             clientMsgID: message.clientMsgID,
                         }
                     );
-                    this.deleteMessages([message]);
                 }
-                uni.$u.toast('删除成功');
+                // uni.$u.toast('删除成功');
             } catch (err) {
                 console.log(err);
-                uni.$u.toast('删除失败');
+                // uni.$u.toast('删除失败');
             }
         },
         async handleForward (msg) {
@@ -220,20 +366,43 @@ export default {
         hideMultipleMsg () {
             this.isMultipleMsg = false;
         },
-    },
-    onBackPress () {
-        if (this.back2Tab) {
-            uni.switchTab({
-                url: '/pages/conversation/conversationList/index',
-            });
-            return true;
+        goPerson ({ id }) {
+            uni.$u.route(
+                `/pages/common/userCard/index?sourceID=${id}`
+            );
+        },
+        goLink ({ url }) {
+            console.log('url-----url', url);
+            plus.runtime.openURL(url);
         }
-
-        return false;
-    },
+    }
 };
 </script>
 
+<script module="chatRender" lang="renderjs">
+	export default {
+		mounted () {
+            this.bindEvent();
+        },
+        methods: {
+            bindEvent () {
+                document.querySelector(`.chating_container`).addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (target.getAttribute('data-url')) {
+                        this.$ownerInstance.callMethod('goLink', {
+                            url: target.getAttribute('data-url')
+                        });
+                    }
+                    if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
+                        this.$ownerInstance.callMethod('goPerson', {
+                            id: target.getAttribute('data-at')
+                        });
+                    }
+                });
+            }
+        }
+	}
+</script>
 <style lang="scss" scoped>
 .chating_container {
     @include colBox(false);
@@ -241,7 +410,35 @@ export default {
     overflow: hidden;
     background: url('/static/images/chat-bg.png') no-repeat;
     background-size: cover;
-
+    #screenshare-video {
+        width: 400px;
+        height: 400px;
+        border: 1px solid red;
+    }
+    .set-end {
+        position: fixed;
+        bottom: 130px;
+        right: 20px;
+        uni-image {
+            width: 100rpx;
+            height: 100rpx;
+        }
+        .unread {
+            width: 60rpx;
+            height: 60rpx;
+            line-height: 60rpx;
+            text-align: center;
+            background: rgba(0, 141, 255, 1);
+            color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -40rpx;
+            z-index: 9;
+            font-size: 12px;
+        }
+    }
     .mutiple_action_container {
         display: flex;
         border-top: 1px solid #eaeaea;

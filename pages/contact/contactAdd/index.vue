@@ -1,33 +1,35 @@
 <template>
-    <view class="contact_add_container">
-        <custom-nav-bar title="添加" />
+    <Page>
+        <view class="contact_add_container">
+            <custom-nav-bar title="添加" />
 
-        <view class="desc_title">
-            <text>创建和加入群聊</text>
-        </view>
+            <view class="desc_title">
+                <text>创建和加入群聊</text>
+            </view>
 
-        <view class="action_row">
-            <ActionItem
-                v-for="item in groupActionMenus"
-                :key="item.idx"
-                :action="item"
-                @click="groupAction(item)"
-            />
-        </view>
+            <view class="action_row">
+                <ActionItem
+                    v-for="item in groupActionMenus"
+                    :key="item.idx"
+                    :action="item"
+                    @click="groupAction(item)"
+                />
+            </view>
 
-        <view class="desc_title">
-            <text>添加好友</text>
-        </view>
+            <view class="desc_title">
+                <text>添加好友</text>
+            </view>
 
-        <view class="action_row">
-            <ActionItem
-                v-for="item in friendActionMenus"
-                :key="item.idx"
-                :action="item"
-                @click="friendAction(item)"
-            />
+            <view class="action_row">
+                <ActionItem
+                    v-for="item in friendActionMenus"
+                    :key="item.idx"
+                    :action="item"
+                    @click="friendAction(item)"
+                />
+            </view>
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>

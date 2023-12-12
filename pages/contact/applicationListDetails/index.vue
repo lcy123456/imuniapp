@@ -1,19 +1,21 @@
 <template>
-    <view class="application_list_container">
-        <custom-nav-bar :title="getTitle" />
+    <Page>
+        <view class="application_list_container">
+            <custom-nav-bar :title="getTitle" />
 
-        <u-list class="application_list">
-            <u-list-item
-                v-for="application in getRenderData"
-                :key="getKey(application)"
-            >
-                <application-item
-                    :is-recv="isRecv"
-                    :application="application"
-                />
-            </u-list-item>
-        </u-list>
-    </view>
+            <u-list class="application_list">
+                <u-list-item
+                    v-for="application in getRenderData"
+                    :key="getKey(application)"
+                >
+                    <application-item
+                        :is-recv="isRecv"
+                        :application="application"
+                    />
+                </u-list-item>
+            </u-list>
+        </view>
+    </Page>
 </template>
 
 <script>

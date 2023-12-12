@@ -2,19 +2,26 @@
     "name" : "MuskIM",
     "appid" : "__UNI__E9FEB0B",
     "description" : "",
-    "versionName" : "2.0.8",
-    "versionCode" : 208,
+    "versionName" : "2.2.0",
+    "versionCode" : 220,
     "transformPx" : false,
     "app-plus" : {
         "bounce" : "none",
         "usingComponents" : true,
         "nvueStyleCompiler" : "uni-app",
         "compilerVersion" : 3,
+        "kernel" : {
+            "ios" : "WKWebview",
+            "recovery" : "restart"
+        },
         "splashscreen" : {
             "alwaysShowBeforeRender" : false,
             "waiting" : true,
             "autoclose" : false,
             "delay" : 0
+        },
+        "compatible" : {
+            "ignoreVersion" : true
         },
         "modules" : {
             "VideoPlayer" : {},
@@ -58,15 +65,16 @@
             "ios" : {
                 "dSYMs" : false,
                 "privacyDescription" : {
-                    "NSPhotoLibraryUsageDescription" : "请求获取读取相册权限",
+                    "NSPhotoLibraryUsageDescription" : "请求获取读取相册权限，用于上传头像图片服务",
                     "NSPhotoLibraryAddUsageDescription" : "请求获取存入相册权限",
-                    "NSCameraUsageDescription" : "请求获取摄像头权限",
-                    "NSMicrophoneUsageDescription" : "请求获取麦克风权限",
-                    "NSLocationWhenInUseUsageDescription" : "请求获取位置权限",
-                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "请求获取位置权限",
-                    "NSLocationAlwaysUsageDescription" : "请求获取位置权限",
+                    "NSCameraUsageDescription" : "请求获取摄像头权限，用于视频通话服务",
+                    "NSMicrophoneUsageDescription" : "请求获取麦克风权限，用于语音通话服务",
+                    "NSLocationWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
+                    "NSLocationAlwaysUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
                     "NSBluetoothAlwaysUsageDescription" : "请求获取蓝牙权限"
-                }
+                },
+                "UIBackgroundModes" : "audio"
             },
             "sdkConfigs" : {
                 "ad" : {},
@@ -149,7 +157,7 @@
             }
         },
         "uniStatistics" : {
-            "enable" : false
+            "enable" : true
         }
     },
     /* 快应用特有相关 */
@@ -160,20 +168,32 @@
         "setting" : {
             "urlCheck" : false
         },
-        "usingComponents" : true
+        "usingComponents" : true,
+        "uniStatistics" : {
+            "enable" : true
+        }
     },
     "mp-alipay" : {
-        "usingComponents" : true
+        "usingComponents" : true,
+        "uniStatistics" : {
+            "enable" : true
+        }
     },
     "mp-baidu" : {
-        "usingComponents" : true
+        "usingComponents" : true,
+        "uniStatistics" : {
+            "enable" : true
+        }
     },
     "mp-toutiao" : {
-        "usingComponents" : true
+        "usingComponents" : true,
+        "uniStatistics" : {
+            "enable" : true
+        }
     },
     "uniStatistics" : {
-        "enable" : false,
-        "version" : "2"
+        "enable" : true,
+        "version" : "1"
     },
     "vueVersion" : "2",
     "h5" : {
@@ -191,6 +211,39 @@
                     "secure" : true // 设置支持https协议的代理
                 }
             }
+        },
+        "uniStatistics" : {
+            "enable" : true
+        }
+    },
+    "mp-jd" : {
+        "uniStatistics" : {
+            "enable" : true
+        }
+    },
+    "mp-kuaishou" : {
+        "uniStatistics" : {
+            "enable" : true
+        }
+    },
+    "mp-lark" : {
+        "uniStatistics" : {
+            "enable" : true
+        }
+    },
+    "mp-qq" : {
+        "uniStatistics" : {
+            "enable" : true
+        }
+    },
+    "quickapp-webview-huawei" : {
+        "uniStatistics" : {
+            "enable" : true
+        }
+    },
+    "quickapp-webview-union" : {
+        "uniStatistics" : {
+            "enable" : true
         }
     }
 }

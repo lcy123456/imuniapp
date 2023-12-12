@@ -5,13 +5,38 @@ const state = {
     conversationList: [],
     currentConversation: {},
     unReadCount: 0,
+    conversationUnread: 0,
+    isScrollWay: false,
     currentGroup: {},
-    currentMemberInGroup: {}
+    currentMemberInGroup: {},
+    conversationMediaList: [],
+    lastConversation: {}
 };
 
 const mutations = {
+    SET_CONVERSATION_UNREAD (state, number) {
+        state.conversationUnread = number;
+    },
+    SET_IS_SCROLL_WAY (state, boo) {
+        state.isScrollWay = boo;
+    },
     SET_CONVERSATION_LIST (state, list) {
+        list = list.map(item => {
+            return {
+                ...item,
+                key: `${item.conversationID}-${+new Date()}`
+            };
+        });
         state.conversationList = [...list];
+    },
+    SET_LAST_CONVERSATION (state, obj) {
+        state.lastConversation = obj;
+    },
+    SET_CONVERSATION (state, list) {
+        state.conversationList = [...list];
+    },
+    SET_CONVERSATION_MEDIA_LIST (state, list) {
+        state.conversationMediaList = [...list];
     },
     SET_CURRENT_CONVERSATION (state, conversation) {
         state.currentConversation = {
@@ -29,6 +54,7 @@ const mutations = {
                 index: 0,
             });
         }
+        plus.runtime.setBadgeNumber(count || 0);
         state.unReadCount = count;
     },
     SET_CURRENT_GROUP (state, group) {
@@ -54,6 +80,7 @@ const actions = {
                     count: 999,
                 }
             );
+            console.log('SET_CONVERSATION_LISTSET_CONVERSATION_LISTSET_CONVERSATION_LIST', data);
             commit('SET_CONVERSATION_LIST', [
                 ...(isFirstPage ? [] : state.conversationList),
                 ...data,

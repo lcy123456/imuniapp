@@ -3,8 +3,8 @@
         <CustomNavBar
             title="注册"
         />
-        <view class="flex align-center mt-100 mb-5">
-            <text class="fz-50 ff-bold mr-10">
+        <view class="flex mb-5 align-center mt-100">
+            <text class="mr-10 fz-50 ff-bold">
                 欢迎使用
             </text>
             <u--image
@@ -126,21 +126,31 @@ export default {
         async doNext () {
             try {
                 this.loading = true;
+                let passWord = md5(this.passWord);
+                console.log('md5(passWord)md5(passWord)----', passWord);
                 const options = {
+                    phoneNumber: this.userInfo.phoneNumber,
+                    areaCode: `+${this.userInfo.areaCode}`,
+                    password: passWord,
                     verifyCode: this.codeValue,
                     platform: uni.$u.os() === 'ios' ? 1 : 2,
                     autoLogin: true,
                     user: {
                         ...this.userInfo,
                         areaCode: `+${this.userInfo.areaCode}`,
-                        password: md5(this.passWord),
+                        password: passWord,
                     },
                     cid: this.storeClientID
                 };
                 this.saveLoginInfo();
                 const data = await businessRegister(options);
                 this.$store.commit('user/SET_AUTH_DATA', data);
+                this.$store.commit('user/SET_USER_LIST', {
+                    ...data,
+                    ...options
+                });
                 await IMLogin();
+                this.loading = false;
             } catch (err) {
                 this.loading = false;
                 console.log(err);

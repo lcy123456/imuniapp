@@ -10,7 +10,9 @@
             <view
                 class="action_item_sub"
             >
-                <image :src="item.icon" />
+                <view class="icon_nav">
+                    <image :src="item.icon" />
+                </view>
                 <text class="action_item_title">
                     {{ item.title }}
                 </text>
@@ -48,6 +50,12 @@ export default {
                 },
                 {
                     idx: 2,
+                    type: ChatingFooterActionTypes.Call,
+                    title: '视频通话',
+                    icon: require('static/images/chating_action_call.png'),
+                },
+                {
+                    idx: 3,
                     type: ChatingFooterActionTypes.File,
                     title: '文件',
                     icon: require('static/images/chating_action_file.png'),
@@ -62,6 +70,7 @@ export default {
             switch (action.type) {
             case ChatingFooterActionTypes.Album:
             case ChatingFooterActionTypes.Camera:
+            case ChatingFooterActionTypes.Call:
                 this.$emit('prepareMediaMessage', action.type);
                 break;
             case ChatingFooterActionTypes.File:
@@ -90,15 +99,24 @@ export default {
             @include centerBox();
             flex-direction: column;
 
-            image {
-                width: 96rpx;
-                height: 96rpx;
+            .icon_nav {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 124rpx;
+              height: 124rpx;
+              background-color: #F6F7F9;
+              border-radius: 30rpx;
+              image {
+                width: 46rpx;
+                height: 46rpx;
+              }
             }
 
-            &_title {
+            .action_item_title {
                 font-size: 24rpx;
-                color: $uni-bg-color-grey;
-                margin-top: 6rpx;
+                color: $uni-text-color-grey;
+                margin-top: 10rpx;
             }
         }
     }

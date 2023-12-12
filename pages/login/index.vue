@@ -46,6 +46,7 @@
                         v-model="loginInfo.phoneNumber"
                         class="login-input"
                         placeholder="请输入您的手机号码"
+                        type="number"
                         clearable
                     />
                 </u-form-item>
@@ -55,6 +56,7 @@
                         class="login-input"
                         placeholder="请输入您的登录密码"
                         :password="!eying"
+                        clearable
                     >
                         <u-icon
                             slot="suffix"
@@ -86,11 +88,17 @@
                         :name="true"
                     />
                 </u-checkbox-group>
-                <text class="detail">
+                <text
+                    class="detail"
+                    @click="handleGoToPolicy('/pages/login/servicePolicy/index')"
+                >
                     服务协议
                 </text>
                 <text>与</text>
-                <text class="detail">
+                <text
+                    class="detail"
+                    @click="handleGoToPolicy('/pages/login/privacyPolicy/index')"
+                >
                     隐私政策
                 </text>
             </view>
@@ -126,10 +134,9 @@
 <script>
 import { mapMutations, mapGetters } from 'vuex';
 import md5 from 'md5';
-import { businessLogin } from '@/api/login';
 import AreaPicker from '@/components/AreaPicker';
 import { checkLoginError } from '@/util/common';
-import { IMLogin } from '@/util/imCommon';
+import { login } from '@/util/imCommon';
 import { SmsUserFor } from '@/constant';
 
 let timer;
@@ -216,17 +223,18 @@ export default {
                 try {
                     this.loading = true;
                     this.saveLoginInfo();
-                    const data = await businessLogin({
+                    const requestMap = {
                         phoneNumber: this.loginInfo.phoneNumber,
                         areaCode: `+${this.loginInfo.areaCode}`,
                         password: md5(this.loginInfo.password),
                         platform: uni.$u.os() === 'ios' ? 1 : 2,
                         verifyCode: this.loginInfo.verificationCode,
                         cid: this.storeClientID
-                    });
-                    console.log('login', data);
-                    this.$store.commit('user/SET_AUTH_DATA', data);
-                    await IMLogin();
+                    };
+                    let data = await login(requestMap);
+                    if (!data) {
+                        this.loading = false;
+                    }
                 } catch (err) {
                     console.error(err);
                     uni.$u.toast(checkLoginError(err));
@@ -250,6 +258,10 @@ export default {
                 usedFor: val
             });
         },
+        handleGoToPolicy (url) {
+            console.log((url));
+            uni.$u.route(url);
+        }
     },
 };
 </script>

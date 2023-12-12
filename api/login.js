@@ -40,6 +40,11 @@ export const businessSearchUserInfo = (keyword) => uni.$u?.http.post('/user/sear
     }
 });
 
+export const accountScan = (params) => uni.$u?.http.post('/account/scan', JSON.stringify(params), {
+    header: {
+        token: store.getters.storeBusinessToken
+    }
+});
 
 // app config
 export const getAppConfigFromSvr = (content) => uni.$u?.http.post('/client_config/get');

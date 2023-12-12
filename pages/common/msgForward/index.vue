@@ -1,91 +1,97 @@
 <template>
-    <view class="forward_container">
-        <CustomNavBar
-            title="转发"
-            is-bg-color2
-        >
-            <template slot="more">
-                <text
-                    class="primary mr-32 fz-32"
-                    @click="chooseContact"
-                >
-                    选择联系人
-                </text>
-            </template>
-        </CustomNavBar>
-        <view class="px-20">
-            <uni-search-bar
-                v-model="keyword"
-                class="h-70"
-                placeholder="搜索"
-            />
-        </view>
-        <MyTabs
-            :list="tabList"
-            type="square"
-            class="fz-28 mx-32"
-            :height="86"
-        />
-        <view class="conversation_box bg-color px-32">
-            <view
-                v-for="item in showConversationList" 
-                :key="item.conversationID"
-                class="li h-108 flex align-center"
-                @click="chooseConversation(item)"
+    <Page>
+        <view class="forward_container">
+            <CustomNavBar
+                title="转发"
+                is-bg-color2
             >
-                <MyAvatar
-                    :is-group="item.conversationType === SessionType.WorkingGroup"
-                    :src="item.faceURL"
-                    :desc="item.showName"
-                    size="78rpx"
+                <template slot="more">
+                    <text
+                        class="mr-32 primary fz-32"
+                        @click="chooseContact"
+                    >
+                        选择联系人
+                    </text>
+                </template>
+            </CustomNavBar>
+            <view class="px-20">
+                <uni-search-bar
+                    v-model="keyword"
+                    class="h-70"
+                    placeholder="搜索"
                 />
-                <view class="name_box flex-grow ml-20 ">
-                    {{ item.showName }}
+            </view>
+            <MyTabs
+                :list="tabList"
+                type="square"
+                class="mx-32 fz-28"
+                :height="86"
+            />
+            <view class="px-32 conversation_box bg-color">
+                <view
+                    v-for="item in showConversationList" 
+                    :key="item.conversationID"
+                    class="flex li h-108 align-center"
+                    @click="chooseConversation(item)"
+                >
+                    <MyAvatar
+                        :is-group="item.conversationType === SessionType.WorkingGroup"
+                        :src="item.faceURL"
+                        :desc="item.showName"
+                        size="78rpx"
+                    />
+                    <view class="flex-grow ml-20 name_box ">
+                        {{ item.showName }}
+                    </view>
                 </view>
             </view>
-        </view>
-        <view>
-            <u-modal
-                :show="showModal"
-                show-cancel-button
-                confirm-text="发送"
-                @confirm="handleConfirm"
-                @cancel="showModal = false"
-            >
-                <view class="flex-grow over-hide">
-                    <view class="ff-bold fz-36 mb-20">
-                        发送给:
-                    </view>
-                    <view class="flex align-center">
-                        <MyAvatar
-                            v-for="item in sendObjectArr"
-                            :key="item.userID"
-                            :is-group="item.conversationType === SessionType.WorkingGroup"
-                            :src="item.faceURL"
-                            :desc="item.showName"
-                            size="78rpx"
-                            class="mr-20"
-                        />
-                        <view
-                            v-if="sendObjectArr.length === 1"
-                            class="name_box flex-grow"
-                        >
-                            {{ sendObjectArr[0].showName }}
+            <view>
+                <u-modal
+                    :show="showModal"
+                    show-cancel-button
+                    confirm-text="发送"
+                    @confirm="handleConfirm"
+                    @cancel="showModal = false"
+                >
+                    <view class="flex-grow over-hide">
+                        <view class="mb-20 ff-bold fz-36">
+                            发送给:
+                        </view>
+                        <view class="flex align-center">
+                            <MyAvatar
+                                v-for="item in sendObjectArr"
+                                :key="item.userID"
+                                :is-group="item.conversationType === SessionType.WorkingGroup"
+                                :src="item.faceURL"
+                                :desc="item.showName"
+                                size="78rpx"
+                                class="mr-20"
+                            />
+                            <view
+                                v-if="sendObjectArr.length === 1"
+                                class="flex-grow name_box"
+                            >
+                                {{ sendObjectArr[0].showName }}
+                            </view>
+                        </view>
+                        <view :class="['flex mt-10', (isTextRender && isMergeRender) ? '' : 'justify-center']">
+                            <view v-if="isMergeRender">
+                                [合并消息]{{ message.mergeElem.title }}
+                            </view>
+                            <MessageContentWrap
+                                v-else
+                                :message="message"
+                            />
                         </view>
                     </view>
-                    <view :class="['flex mt-10', (isTextRender && isMergeRender) ? '' : 'justify-center']">
-                        <view v-if="isMergeRender">
-                            [合并消息]{{ message.mergeElem.title }}
-                        </view>
-                        <MessageContentWrap
-                            v-else
-                            :message="message"
-                        />
-                    </view>
-                </view>
-            </u-modal>
+                </u-modal>
+            </view>
+            <Notification
+                v-model="isShowNotification"
+                text="消息已发出，但对方拒收了！"
+            />
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>
@@ -119,6 +125,7 @@ export default {
     data () {
         return {
             SessionType: Object.freeze(SessionType),
+            isShowNotification: false,
             keyword: '',
             tabList: [
                 { label: '全部对话', value: 0 },
@@ -130,7 +137,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeConversationList', 'storeCurrentConversation']),
+        ...mapGetters(['storeConversationList', 'storeCurrentConversation', 'storeHasMoreAfterMessage']),
         showConversationList () {
             return this.storeConversationList.filter(v => {
                 return v.showName.includes(this.keyword);
@@ -169,6 +176,12 @@ export default {
                     const message = this.message;
                     
                     if (isCurConversation) {
+                        if (this.storeHasMoreAfterMessage) {
+                            console.log('发送信息。。。。需要重新new');
+                            let pages = getCurrentPages();
+                            let prevPage = pages[pages.length - 2];
+                            await prevPage.$vm.getPositionMsgID('');
+                        }
                         this.pushNewMessage(message);
                     }
                     const res = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
@@ -185,7 +198,12 @@ export default {
                         });
                     }
                 } catch ({data, errCode}) {
+                    console.log('发送失败', data, errCode);
                     if (isCurConversation) {
+                        if (errCode === 1302) {
+                            console.log('被拉黑了');
+                            this.isShowNotification = true;
+                        }
                         this.updateOneMessage({
                             message: data,
                             type: UpdateMessageTypes.KeyWords,

@@ -12,6 +12,7 @@ export const ChatingFooterActionTypes = {
 
 export const MessageMenuTypes = {
     Copy: 'Copy',
+    AddEmoticons: 'AddEmoticons',
     Del: 'Del',
     DelAll: 'DelAll',
     Forward: 'Forward',
@@ -20,7 +21,10 @@ export const MessageMenuTypes = {
     Revoke: 'Revoke',
     Multiple: 'Multiple',
     Init: 'init',
-    Checked: 'checked'
+    Pin: 'pin',
+    PinCancel: 'pinCancel',
+    Checked: 'checked',
+    Edit: 'edit',
 };
 
 export const ContactMenuTypes = {

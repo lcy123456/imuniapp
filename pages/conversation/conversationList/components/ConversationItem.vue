@@ -1,5 +1,6 @@
 <template>
     <u-swipe-action-item
+        :key="`${(source.conversationID)}-swipe-action-item`"
         :options="getSwipeActions || []"
         :disabled="isDisabled"
         :threshold="50"
@@ -34,7 +35,7 @@
                             {{ messagePrefix }}
                         </text>
                         <text class="lastest_msg_content">
-                            {{ latestMessage }}
+                            {{ html2Text(latestMessage) }}
                         </text>
                     </view>
                 </view>
@@ -48,7 +49,7 @@
                     src="@/static/images/conversation_not_accept.png"
                 />
                 <u-badge
-                    v-else
+                    v-if="!notAccept"
                     max="99"
                     :value="source.unreadCount"
                 />
@@ -64,6 +65,7 @@ import IMSDK, {
     SessionType,
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
+import { html2Text } from '@/util/common';
 import {
     parseMessageByType,
     formatConversionTime,
@@ -98,7 +100,9 @@ export default {
             if (this.notAccept && this.source.unreadCount > 0) {
                 prefix = `[${this.source.unreadCount}条] `;
             }
-
+            if (this.source.groupID === '8635312407') {
+                console.log('needActivePerfix-needActivePerfix', this.source, this.source.groupAtType, GroupAtType.AtNormal);
+            }
             if (this.needActivePerfix) {
                 switch (this.source.groupAtType) {
                 case GroupAtType.AtAll:
@@ -147,10 +151,11 @@ export default {
             return this.source.conversationType === SessionType.Notification;
         },
         getSwipeActions () {
+            const notAccept = this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
             let actions = [
                 {
-                    text: `${this.notAccept ? '打开' : '关闭'}通知`,
-                    icon: `/static/images/conversation_${this.notAccept ? 'accept' : 'not_accept_white' }.png`,
+                    text: `${notAccept ? '打开' : '关闭'}通知`,
+                    icon: `/static/images/conversation_${notAccept ? 'accept' : 'not_accept_white' }.png`,
                     style: {
                         backgroundColor: '#e39f4e',
                     },
@@ -183,8 +188,8 @@ export default {
         },
     },
     methods: {
+        html2Text,
         clickConversationItem () {
-            console.log(this.source);
             prepareConversationState(this.source);
         },
         async clickConversationMenu ({ index }) {

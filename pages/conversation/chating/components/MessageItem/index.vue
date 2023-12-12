@@ -1,66 +1,74 @@
 <template>
-    <view
-        v-if="!isNoticeMessage"
-        :id="`auchor${source.clientMsgID}`"
-        class="message_item"
-        :class="{ message_item_self: isSender, positionActive: positionMsgID === source.clientMsgID }"
-        @click="handleMultiple"
-    >
+    <view>
         <view
-            v-show="isMultipleMsg"
-            class="check_wrap"
-            :class="{'check_wrap_active':isChecked}"
+            v-if="!isNoticeMessage"
+            class="message_item"
+            :class="{ message_item_self: isSender, positionActive: positionMsgID === source.clientMsgID }"
+            @click="handleMultiple"
         >
-            <u-icon
-                v-show="isChecked"
-                name="checkbox-mark"
-                size="12"
-                color="#fff"
-            />
-        </view>
-        <view class="item_right">
-            <MyAvatar
-                v-if="!(isSingle || isSender)"
-                size="80rpx"
-                :desc="source.senderNickname"
-                :src="source.senderFaceUrl"
-                shape="circle"
-                class="my_avatar"
-                @click="showInfo"
-            />
-            <view class="message_container">
-                <view 
+            <view
+                v-show="isMultipleMsg"
+                class="check_wrap"
+                :class="{'check_wrap_active':isChecked}"
+            >
+                <u-icon
+                    v-show="isChecked"
+                    name="checkbox-mark"
+                    size="12"
+                    color="#fff"
+                />
+            </view>
+            <view class="item_right">
+                <MyAvatar
                     v-if="!(isSingle || isSender)"
-                    class="message_sender"
-                >
-                    <text>{{ source.senderNickname }}</text>
+                    size="80rpx"
+                    :desc="source.senderNickname"
+                    :src="source.senderFaceUrl"
+                    shape="circle"
+                    class="my_avatar"
+                    @click="showInfo"
+                    @longpress="avatarLongpress"
+                />
+                <view class="message_container">
+                    <view 
+                        v-if="!(isSingle || isSender)"
+                        class="message_sender"
+                    >
+                        <text>{{ source.senderNickname }}</text>
+                    </view>
+                    <MessageContentWrap
+                        :key="`auchor${source.clientMsgID}-MessageContentWrap`"
+                        :message="source"
+                        :is-multiple-msg="isMultipleMsg"
+                        :is-success-message="isSuccessMessage"
+                        :is-sender="isSender"
+                        :show-sending="showSending"
+                        :is-failed-message="isFailedMessage"
+                        @longpress.prevent.native="handleLongPress"
+                    />
+                    <!-- <MessageReadState
+                        v-if="isSender && isSuccessMessage"
+                        :message="source"
+                    /> -->
                 </view>
-                <MessageContentWrap
-                    :message="source"
-                    @longpress.prevent.native="handleLongPress"
-                />
-                <MessageReadState
-                    v-if="isSender && isSuccessMessage"
-                    :message="source"
-                />
-            </view>
-            <view class="message_send_state">
-                <u-loading-icon v-if="showSending" />
-                <image
-                    v-if="isFailedMessage"
-                    src="@/static/images/chating_message_failed.png"
-                    @click="reSendMessage"
-                />
+                <view class="message_send_state">
+                    <!-- <u-loading-icon v-if="showSending" /> -->
+                    <image
+                        v-if="isFailedMessage"
+                        src="@/static/images/chating_message_failed.png"
+                        @click="reSendMessage"
+                    />
+                </view>
             </view>
         </view>
-    </view>
 
-    <view
-        v-else
-        :id="`auchor${source.clientMsgID}`"
-        class="notice_message_container"
-    >
-        <text>{{ getNoticeContent }}</text>
+        <view
+            v-if="isNoticeMessage"
+            :id="`auchor${source.clientMsgID}`"
+            class="notice_message_container"
+        >
+            <text>{{ getNoticeContent }}</text>
+        </view>
     </view>
 </template>
 
@@ -73,7 +81,7 @@ import IMSDK, {
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import ChatingList from '../ChatingList.vue';
 import MessageContentWrap from './MessageContentWrap.vue';
-import MessageReadState from './MessageReadState.vue';
+// import MessageReadState from './MessageReadState.vue';
 import { noticeMessageTypes, UpdateMessageTypes, MessageMenuTypes } from '@/constant';
 import { tipMessaggeFormat, offlinePushInfo } from '@/util/imCommon';
 
@@ -82,7 +90,7 @@ export default {
     components: {
         MyAvatar,
         MessageContentWrap,
-        MessageReadState,
+        // MessageReadState,
     },
     props: {
         source: {
@@ -112,6 +120,7 @@ export default {
     },
     data () {
         return {
+            islongPress: false,
             conversationID: '',
         };
     },
@@ -149,6 +158,17 @@ export default {
             this.$store.getters.storeCurrentConversation.conversationID;
     },
     methods: {
+        avatarLongpress () {
+            // this.islongPress = true;
+            // console.log('this.sourcethis.sourcethis.source', this.source);
+            setTimeout(() => {
+                const atUsersInfo = {
+                    atUserID: this.source.sendID,
+                    groupNickname: this.source.senderNickname
+                };
+                uni.$emit('setAtMember', atUsersInfo);
+            }, 700);
+        },
         reSendMessage () {
             this.$store.dispatch('message/updateOneMessage', {
                 message: this.source,
@@ -173,6 +193,7 @@ export default {
                     });
                 })
                 .catch(({ data, errCode }) => {
+                    console.log('发送失败', data, errCode);
                     this.$store.dispatch('message/updateOneMessage', {
                         message: data,
                         type: UpdateMessageTypes.KeyWords,
@@ -237,9 +258,20 @@ export default {
                 );
         },
         showInfo () {
+            // console.log('this.islongPressthis.islongPressthis.islongPressthis.islongPressthis.islongPress', this.islongPress);
+            // if (this.islongPress) {
+            //     this.islongPress = false;
+            //     return;
+            // }
+            // this.islongPress = false;
+            // uni.hideKeyboard();
             if (this.isSender) return;
+            const sourceInfo = {
+                nickname: this.source.senderNickname,
+                faceURL: this.source.senderFaceUrl
+            };
             uni.$u.route(
-                `/pages/common/userCard/index?sourceID=${this.source.sendID}`
+                `/pages/common/userCard/index?sourceID=${this.source.sendID}&sourceInfo=${JSON.stringify(sourceInfo)}`
             );
         },
         async handleLongPress () {
@@ -251,6 +283,7 @@ export default {
                 .in(this)
                 .select('.message_content_wrap')
                 .boundingClientRect((res) => {
+                    console.log('resresresres', res);
                     this.$emit('menuRect', {
                         ...res,
                         message: this.source
@@ -306,9 +339,8 @@ export default {
             flex-direction: column;
             align-items: flex-start;
             max-width: 80%;
-            position: relative;
     
-            .message_content_wrap {
+            /deep/.message_content_wrap .message_content_container {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
@@ -344,11 +376,11 @@ export default {
             .message_container {
                 align-items: flex-end;
 
-                .message_content_wrap {
+                /deep/ .message_content_wrap .message_content_container{
                     align-items: flex-end;
-                    .bg_container {
-                        background-color: #c5e3ff !important;
-                    }
+                    // .bg_container {
+                    //     background-color: #c5e3ff !important;
+                    // }
                 }
             }
 

@@ -1,9 +1,11 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import user from "./modules/user";
+import base from "./modules/base";
 import contact from "./modules/contact";
 import conversation from "./modules/conversation";
 import message from "./modules/message";
+import incomingCall from "./modules/incomingCall";
 import getters from "./getters";
 import createPersistedState from "vuex-persistedstate";
 
@@ -14,13 +16,25 @@ const vuexPersisted = createPersistedState({
         removeItem: (key) => uni.removeStorageSync(key)
     },
     reducer (state) {
-        const { user } = state;
-        const { authData, isProd } = user;
+        const { user, conversation, contact } = state;
+        const { authData, isProd, selfInfo, userList } = user;
+        const { conversationList } = conversation;
+        const { friendList, blackList, groupList} = contact;
         return {
             user: {
                 authData,
-                isProd
+                isProd,
+                selfInfo,
+                userList
             },
+            conversation: {
+                conversationList
+            },
+            contact: {
+                friendList,
+                blackList,
+                groupList
+            }
         };
     }
 });
@@ -30,9 +44,11 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
     modules: {
         user,
+        base,
         contact,
         conversation,
         message,
+        incomingCall,
     },
     getters,
     plugins: [vuexPersisted]

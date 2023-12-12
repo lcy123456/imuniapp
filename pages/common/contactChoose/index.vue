@@ -1,52 +1,54 @@
 <template>
-    <view class="contact_choose_container">
-        <CustomNavBar
-            title="选择成员"
-            is-bg-color2
-        />
-
-        <view class="search_box">
-            <MyAvatar
-                v-for="v in showCheckFriendList"
-                :key="v.userID"
-                :src="v.faceURL"
-                :desc="v.remark || v.nickname"
-                size="78rpx"
-                class="mr-10"
-                @click="updateCheckedUser(v)"
+    <Page>
+        <view class="contact_choose_container">
+            <CustomNavBar
+                title="选择成员"
+                is-bg-color2
             />
-            <uni-search-bar
-                v-model="keyword"
-                class="h-60"
-                placeholder="搜索好友"
-                cancel-button="none"
-            >
-                <view
-                    v-if="checkFriendList.length !== 0"
-                    slot="searchIcon"
+
+            <view class="search_box">
+                <MyAvatar
+                    v-for="v in showCheckFriendList"
+                    :key="v.userID"
+                    :src="v.faceURL"
+                    :desc="v.remark || v.nickname"
+                    size="78rpx"
+                    class="mr-10"
+                    @click="updateCheckedUser(v)"
                 />
-            </uni-search-bar>
-        </view>
-        <ChooseIndexList
-            class="bg-color"
-            :index-list="showFriendList.indexList"
-            :item-arr="showFriendList.dataList"
-            :checked-i-d-list="checkUserIDList"
-            :disabled-i-d-list="disabledUserIDList"
-            :show-check="true"
-            @updateCheck="updateCheckedUser"
-        />
-        <view class="flex justify-end my-30">
-            <view>
-                <u-button
-                    :disabled="checkFriendList.length === 0"
-                    type="primary"
-                    :text="`完成 (${checkFriendList.length})`"
-                    @click="confirm"
-                />
+                <uni-search-bar
+                    v-model="keyword"
+                    class="h-60"
+                    placeholder="搜索好友"
+                    cancel-button="none"
+                >
+                    <view
+                        v-if="checkFriendList.length !== 0"
+                        slot="searchIcon"
+                    />
+                </uni-search-bar>
+            </view>
+            <ChooseIndexList
+                class="bg-color"
+                :index-list="showFriendList.indexList"
+                :item-arr="showFriendList.dataList"
+                :checked-i-d-list="checkUserIDList"
+                :disabled-i-d-list="disabledUserIDList"
+                :show-check="true"
+                @updateCheck="updateCheckedUser"
+            />
+            <view class="flex justify-end my-30">
+                <view>
+                    <u-button
+                        :disabled="checkFriendList.length === 0"
+                        type="primary"
+                        :text="`完成 (${checkFriendList.length})`"
+                        @click="confirm"
+                    />
+                </view>
             </view>
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>

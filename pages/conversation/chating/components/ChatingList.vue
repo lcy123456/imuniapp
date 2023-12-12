@@ -2,11 +2,11 @@
     <scroll-view
         id="scroll_view"
         :class="{isrotate: isReverse}"
-        :scroll-with-animation="withAnimation"
+        :scroll-with-animation="animation"
         :scroll-top="scrollTop"
         :scroll-into-view="scrollIntoView"
         scroll-y
-        :upper-threshold="250"
+        :upper-threshold="0"
         @touchstart="handleTouchstart"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
@@ -17,15 +17,31 @@
                 id="scroll_wrap"
             >
                 <view
+                    v-if="isReverse"
                     id="auchormessage_bottom_item"
                     style="visibility: hidden; height: 12px"
                 />
+                <u-loadmore
+                    v-if="!isReverse"
+                    :class="{isrotate: isReverse}"
+                    nomore-text=""
+                    :status="loadMoreStatus"
+                />
                 <view
-                    v-for="item in messageList"
-                    :key="`auchor${item.clientMsgID}`"
+                    v-for="(item, index) in messageList"
+                    :id="`auchor-${item.clientMsgID}`"
+                    :key="`auchor-${item.clientMsgID}`"
                     :class="{isrotate: isReverse}"
                 >
+                    <BetweenTime
+                        :key="`auchor${item.clientMsgID}-BetweenTime`"
+                        :msg-before="isReverse ? item : messageList[index - 1]"
+                        :msg-after="isReverse ? messageList[index + 1]: item"
+                        :is-reverse="isReverse"
+                        :type="(!isReverse && index === 0) || (isReverse && index === messageList.length - 1) ? 'first' : ''"
+                    />
                     <MessageItemRender
+                        :key="`auchor${item.clientMsgID}-MessageItemRender`"
                         :source="item"
                         :is-sender="item.sendID === storeCurrentUserID"
                         :is-show-menu-flag="isShowMenuFlag"
@@ -36,7 +52,13 @@
                     />
                     <!-- @messageItemRender="messageItemRender" -->
                 </view>
+                <view
+                    v-if="!isReverse"
+                    id="auchormessage_bottom_item"
+                    style="visibility: hidden; height: 12px"
+                />
                 <u-loadmore
+                    v-if="isReverse"
                     :class="{isrotate: isReverse}"
                     nomore-text=""
                     :status="loadMoreStatus"
@@ -49,12 +71,14 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import MessageItemRender from './MessageItem/index.vue';
+import BetweenTime from './BetweenTime.vue';
 import { PageEvents } from "@/constant";
 
 export default {
     name: 'ChatingList',
     components: {
         MessageItemRender,
+        BetweenTime
     },
     props: {
         isMultipleMsg: {
@@ -64,18 +88,19 @@ export default {
         checkedMsgIds: {
             type: Array,
             default: () => []
-        },
-        positionMsgID: {
-            type: String,
-            default: ''
         }
     },
     data () {
         return {
+            positionMsgID: '',
+            conversationID: '',
+            animation: true,
             isReverse: true,
+            isInReverse: false,
             ua: uni.getSystemInfoSync().platform,
             scrollIntoView: '',
             scrollTop: 0,
+            seq: 0,
             withAnimation: true,
             isRecvToBottom: true,
             hasNewMessage: false,
@@ -91,8 +116,12 @@ export default {
         ...mapGetters([
             'storeCurrentConversation',
             'storeHistoryMessageList',
+            'storeHistoryMessageListReverse',
             'storeHasMoreMessage',
+            'storeHasMoreAfterMessage',
+            'storeIsShowSetEnd',
             'storeCurrentUserID',
+            'storeHistoryMessageMap'
         ]),
         loadMoreStatus () {
             if (!this.storeHasMoreMessage) {
@@ -101,56 +130,97 @@ export default {
             return this.messageLoadState.loading ? 'loading' : 'loadmore';
         },
         messageList () {
-            return this.isReverse ? (JSON.parse(JSON.stringify(this.storeHistoryMessageList))).reverse() : this.storeHistoryMessageList;
+            return this.isReverse ? this.storeHistoryMessageListReverse : this.storeHistoryMessageList;
         }
     },
     mounted () {
+        this.conversationID = this.storeCurrentConversation.conversationID;
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
-        this.loadMessageList();
+        uni.$on('reloadMore', this.reloadMore);
+        this.init();
     },
     beforeDestroy () {
+        // this.$store.commit('message/SET_HISTORY_MESSAGE_MAP', {
+        //     ...this.storeHistoryMessageMap, 
+        //     [this.conversationID]: {
+        //         messageList: []
+        //     }
+        // });
+        this.init();
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
+        uni.$off('reloadMore', this.reloadMore);
     },
     methods: {
-        ...mapActions('message', ['getHistoryMesageList']),
-        async loadMessageList (isLoadMore = false) {
+        ...mapActions('message', ['getHistoryMesageList', 'getHistoryMesageListReverse']),
+        init () {
+            console.log('initinitinitinitinitinitinitinit--initinitinit');
+            this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
+            this.loadMessageList({});
+        },
+        setPositionMsgID (positionMsgID, seq) {
+            this.positionMsgID = positionMsgID;
+            this.seq = seq;
+        },
+        async loadMessageList ({isLoadMore = false, isReverse = false, isSyncing = false}) {
             this.messageLoadState.loading = true;
-            const lastMsgID = this.storeHistoryMessageList[0]?.clientMsgID;
+            const count = 40;
             const options = {
-                conversationID: this.storeCurrentConversation.conversationID,
+                conversationID: this.conversationID,
                 userID: '',
                 groupID: '',
-                count: 20,
+                count: count,
+                isSyncing
             };
             try {
                 if (isLoadMore) {
-                    await this.getHistoryMesageList(options);
-                    if (this.positionMsgID && this.positionMsgIDFlag) {
-                        this.handlePositionMsgID();
-                    } else {
-                        lastMsgID && this.scrollToAnchor(`auchor${lastMsgID}`, false);
-                    }
+                    this.animation = true;
+                    await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse'](options);
                 } else {
-                    await this.getHistoryMesageList({
+                    // this.isReverse = false;
+                    const data = await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                         ...options,
-                        isInit: true
+                        positionMsgID: this.positionMsgID,
+                        isInit: true,
+                        seq: this.seq,
+                        count: this.positionMsgID ? parseInt(count / 2) : count
                     });
-                    this.scrollToBottom({ initPage: true });
-                    this.positionMsgID && this.handlePositionMsgID();
+                    console.log('uuuuuuu-----', data);
+                    if (!data || !data.length) return;
+                    if (this.positionMsgID) {
+                        const map = this.storeHistoryMessageList[this.storeHistoryMessageList.length - 1];
+                        let positionMsgID = map.clientMsgID;
+                        let seq = map.seq;
+                        await this[isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
+                            ...options,
+                            positionMsgID,
+                            seq,
+                            isInit: true,
+                            count: parseInt(count / 2)
+                        });
+                        this.animation = true;
+                        this.scrollToAnchor(`auchor-${positionMsgID}`, false);
+                    } else {
+                        this.scrollToBottom({ initPage: true });
+                    }
                 }
             } catch (e) {
-                console.log(e);
+                this.animation = true;
             }
             setTimeout(() => {
                 this.messageLoadState.loading = false;
             }, 1000);
+            // this.messageLoadState.loading = false;
         },
         handleTouchstart () {
             this.isShowMenuFlag = true;
             this.$emit('touchstart');
         },
         onScroll (event) {
-            const { scrollHeight } = event.target;
+            const { scrollHeight, scrollTop } = event.target;
+            const height = (scrollHeight + 200) - scrollTop - uni.getWindowInfo().windowHeight;
+            const isScrollWay = (!this.isReverse && (height > 700))
+                || (this.isReverse && (scrollTop > 700));
+            this.$store.commit('conversation/SET_IS_SCROLL_WAY', isScrollWay);
             this.isRecvToBottom = scrollHeight - uni.getWindowInfo().windowHeight < 80;
             this.isShowMenuFlag = false;
             this.$emit('scroll');
@@ -161,65 +231,102 @@ export default {
         scrolltoupper () {
             if (!this.isReverse) {
                 if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
-                    this.loadMessageList(true);
+                    this.isReverse = true;
+                    this.scrollToTop();
+                    this.isInReverse = true;
+                    setTimeout(() => {
+                        this.loadMessageList({ isLoadMore: true });
+                        this.isInReverse = false;
+                    }, 500);
                 }
             } else {
-                this.isRecvToBottom = true;
+                // this.isRecvToBottom = true;
+                if (!this.messageLoadState.loading && this.storeHasMoreAfterMessage) {
+                    this.isReverse = false;
+                    this.scrollToBottom();
+                    this.isInReverse = true;
+                    setTimeout(() => {
+                        this.loadMessageList({ isLoadMore: true, isReverse: true });
+                        this.isInReverse = false;
+                    }, 500);
+                }
             }
         },
         scrolltolower () {
+            if (this.isInReverse) return;
             if (this.isReverse) {
                 if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
-                    this.loadMessageList(true);
+                    this.loadMessageList({ isLoadMore: true });
                 }
             } else {
-                this.isRecvToBottom = true;
+                // this.isRecvToBottom = true;
+                if (!this.messageLoadState.loading && this.storeHasMoreAfterMessage) {
+                    this.loadMessageList({ isLoadMore: true, isReverse: true });
+                }
             }
         },
-        scrollToAnchor (auchor, isAnimation = true) {
-            console.log('滚动id', auchor);
+        reloadMore () {
+            this.loadMessageList({ isLoadMore: false, isReverse: false, isSyncing: true });
+        },
+        async scrollToAnchor (auchor, isAnimation = true) {
             !isAnimation && this.closeScrollAnimation();
-            this.$nextTick(() => {
-                this.scrollIntoView = this.isReverse ? '' : auchor;
-            });
+            this.isReverse = false;
+            await this.$nextTick();
+            setTimeout(() => {
+                this.scrollIntoView = auchor;
+            }, 500);
+        },
+        async scrollToTop ({initPage = false} = {}) {
+            initPage && this.$emit('initSuccess');
+            setTimeout(() => {
+                uni.createSelectorQuery()
+                    .in(this)
+                    .select('#scroll_wrap')
+                    .boundingClientRect((res) => {
+                        this.scrollTop = this.isReverse ? res.height + Math.random() : (initPage ? 0 : Math.random());
+                    })
+                    .exec();
+            }, 200);
         },
         async scrollToBottom ({initPage = false} = {}) {
-            this.scrollTop = 0;
             initPage && this.$emit('initSuccess');
-            // await this.$nextTick();
-            // setTimeout(() => {
-            //     // console.log('scrollToBottom');
-            //     if (initPage) {
-            //         this.closeScrollAnimation();
-            //     } else if (isRecv && !this.isRecvToBottom) {
-            //         this.hasNewMessage = true;
-            //         return;
-            //     }
-            //     uni.createSelectorQuery()
-            //         .in(this)
-            //         .select('#scroll_wrap')
-            //         .boundingClientRect((res) => {
-            //             this.scrollTop = this.isReverse ? '' : res.height + Math.random();
-            //             initPage && this.$emit('initSuccess');
-            //         })
-            //         .exec();
-            // }, 100);
+            await this.$nextTick();
+            setTimeout(() => {
+                uni.createSelectorQuery()
+                    .in(this)
+                    .select('#scroll_wrap')
+                    .boundingClientRect((res) => {
+                        this.scrollTop = this.isReverse ? Math.random() : res.height + (initPage ? 0 : Math.random());
+                        if (initPage) {
+                            setTimeout(() => {
+                                this.animation = true;
+                            }, 200);
+                        }
+                        // setTimeout(() => {
+                        //     this.setMessageMaxLength();
+                        // }, 200);
+                    })
+                    .exec();
+            }, 200);
+        },
+        setMessageMaxLength () {
+            const {
+                messageList,
+            } = this.storeHistoryMessageMap[this.conversationID];
+            if (messageList.length > 120) {
+                this.$store.commit('message/SET_HISTORY_MESSAGE_MAP', {
+                    ...this.storeHistoryMessageMap, 
+                    [this.conversationID]: {
+                        messageList: messageList.slice(messageList.length - 120, messageList.length),
+                        hasMore: true
+                    }
+                });
+                console.log('setMessageMaxLengthsetMessageMaxLengthsetMessageMaxLengthsetMessageMaxLength-------');
+            }
         },
         closeScrollAnimation () {
             this.withAnimation = false;
             setTimeout(() => (this.withAnimation = true), 500);
-        },
-        handlePositionMsgID () {
-            setTimeout(() => {
-                const ids = this.storeHistoryMessageList.map(v => v.clientMsgID);
-                if (ids.includes(this.positionMsgID)) {
-                    this.scrollToAnchor(`auchor${this.positionMsgID}`);
-                    this.positionMsgIDFlag = false;
-                } else {
-                    this.messageLoadState.loading = false;
-                    this.loadMessageList(true);
-                }
-            }, 300);
         },
         menuRect (res) {
             this.$emit('menuRect', res);
@@ -240,7 +347,6 @@ export default {
 #scroll_view {
     flex: 1;
     overflow: hidden;
-
     #scroll_wrap {
         min-height: 100%;
         overflow: hidden;

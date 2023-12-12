@@ -1,28 +1,46 @@
 <template>
-    <swiper
-        class="swiper_container"
-        :current="current"
-        :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
-    >
-        <swiper-item
-            v-for="v in list"
-            :key="v.url"
-            :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
+    <view>
+        <swiper
+            class="swiper_container"
+            :current="current"
+            :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
+            @change="change"
         >
-            <image
-                v-if="v.type === 'image'"
-                :src="v.url"
-                :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
-                mode="aspectFit"
-            />
-            <video
-                v-else-if="v.type === 'video'"
-                :src="v.url"
-                :style="{width: systemInfo.windowWidth, height: systemInfo.windowHeight + 'px'}"
-                :poster="v.poster"
-            />
-        </swiper-item>
-    </swiper>
+            <swiper-item
+                v-for="(v, i) in list"
+                :key="v.url + '-' + i"
+                :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
+            >
+                <image
+                    v-if="v.type === 'image'"
+                    :src="v.url"
+                    :key="v.url + 'image'"
+                    :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
+                    @click="previewImage(v)"
+                    @longpress="longpress(0)"
+                    mode="aspectFit"
+                />
+                <video
+                    v-else-if="v.type === 'video'"
+                    :id="v.url"
+                    :src="v.url"
+                    :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
+                    :poster="v.poster && v.poster[0]"
+                    @longpress="longpress(1)"
+                />
+            </swiper-item>
+        </swiper>
+        <u-action-sheet
+            :safe-area-inset-bottom="true"
+            round="12"
+            :actions="actionSheetMenu"
+            :close-on-click-overlay="true"
+            :close-on-click-action="true"
+            :show="showActionSheet"
+            @select="selectClick"
+            @close="showActionSheet = false"
+        />
+    </view>
 </template>
 
 <script>
@@ -43,6 +61,19 @@ export default {
         return {
             list: [],
             current: 0,
+            item: null,
+            showActionSheet: false,
+            baseList: [
+                {
+                    name: '保存图片',
+                    type: 0
+                },
+                {
+                    name: '保存视频',
+                    type: 1
+                }
+            ],
+            actionSheetMenu: [],
             systemInfo: uni.getSystemInfoSync()
         };
     },
@@ -51,10 +82,67 @@ export default {
         const { list, current } = options;
         this.list = JSON.parse(decodeURIComponent(list));
         this.current = current;
+        this.item = this.list[current];
     },
 
     methods: {
-        
+        longpress (type) {
+            this.actionSheetMenu = [this.baseList[type], { name: '取消', type: 2 }];
+            this.showActionSheet = true;
+        },
+        selectClick ({ type }) {
+            if (type !== 2) {
+                uni.showLoading();
+                uni.downloadFile({
+					url: this.list[this.current].url,
+					success: (res) => {
+						if (res.statusCode === 200) {
+							uni.saveImageToPhotosAlbum({
+								filePath: res.tempFilePath,
+								success: () => {
+									uni.hideLoading();
+									uni.showToast({
+										title: "保存成功",
+										icon: "success"
+									});
+								},
+								fail: () => {
+									uni.hideLoading();
+									uni.showToast({
+										title: "保存失败，请稍后重试",
+										icon: "fail"
+									});
+								}
+							});
+						}
+                    },
+                    fail: () => {
+                        uni.hideLoading();
+                        uni.showToast({
+                            title: "保存失败，请稍后重试",
+                            icon: "fail"
+                        });
+                    }
+                });
+            } else {
+                this.showActionSheet = false;
+            }
+        },
+        previewImage (item) {
+            uni.previewImage({
+                urls: [item.url]
+            });
+        },
+        change (e) {
+            // console.log(e);
+            let current = e.detail.current;
+            if (this.item.type === 'video') {
+                console.log(this.item);
+                let video = uni.createVideoContext(this.item.url, this);
+                video && video.pause();
+            }
+            this.item = this.list[current];
+        }
     },
 };
 </script>

@@ -3,13 +3,15 @@
     <view
         :snapFlag="snapFlag"
         :change:snapFlag="snap.getSnapFlagUpdate"
+        :blurTime="blurTime"
+        :change:blurTime="snap.editorBlur"
         :style="{ 'pointer-events': 'auto' }"
         class="bg-color"
     >
         <view class="chat_footer">
             <view
                 v-if="isMultipleMsg"
-                class="h-110 flex justify-between align-center px-36"
+                class="flex justify-between h-110 align-center px-36"
             >
                 <image
                     :src="`/static/images/chating_message_del_${checkedMsgIds.length === 0 ? 'grey' : 'active'}.png`"
@@ -24,7 +26,7 @@
             </view>
             <template v-else>
                 <view
-                    v-if="quoteMessageShow"
+                    v-if="activeMessageShow"
                     class="quote_box"
                 >
                     <view class="icon_box">
@@ -35,31 +37,49 @@
                     </view>
                     <view class="message_box">
                         <view class="primary title">
-                            回复 {{ quoteMessage.senderNickname }}
+                            {{ activeMessageType === "quote_message" ? `回复 ${activeMessage.senderNickname}` : "编辑消息" }}
                         </view>
-                        <ChatQuote :message="quoteMessage" />
+                        <ChatQuote :message="activeMessage" />
                     </view>
                     <image
                         src="/static/images/chating_footer_quote_close.png"
-                        class="w-30 h-30 ml-40"
-                        @click="quoteMessageShow = false"
+                        class="ml-40 w-30 h-30"
+                        @click="activeMessageShow = false"
                     />
                 </view>
                 <view class="send_box">
                     <view class="flex align-center">
                         <image
-                            class="w-48 h-48 mr-20"
+                            class="w-48 h-48"
                             src="/static/images/chating_footer_emoji.png"
                             @click="updateEmojiBar"
                         />
                         <image
-                            class="w-48 h-48"
+                            class="w-48 h-48 mx-20"
                             src="/static/images/chating_footer_add.png"
                             @click.prevent="updateActionBar"
                         />
+                        <image
+                            class="w-48 h-48"
+                            :src="`/static/images/${recordVisible ? 
+                                'chating_footer_audio'
+                                :
+                                'chating_footer_audio_recording'}.png`"
+                            @click="updateRecordBar"
+                        />
                     </view>
                     <view class="input_content">
+                        <div
+                            v-if="recordVisible"
+                            class="record_btn"
+                            @touchstart="handleRecorderStart"
+                            @touchend="handleRecorderEnd"
+                            @touchmove="handleRecordMove"
+                        >
+                            按住说话
+                        </div>
                         <CustomEditor
+                            v-else
                             ref="customEditor"
                             class="custom_editor"
                             @ready="editorReady"
@@ -69,9 +89,9 @@
                         />
                     </view>
                     <image
-                        v-show="hasContent"
+                        v-show="hasContent && !recordVisible"
                         src="/static/images/chating_footer_send.png"
-                        class="w-80 h-80 ml-20"
+                        class="ml-20 w-80 h-80"
                         @touchend.prevent="sendTextMessage"
                     />
                     <!-- <view class="flex align-center">
@@ -87,7 +107,9 @@
         <ChatingEmojiBar
             v-show="emojiBarVisible"
             @emojiClick="emojiClick"
+            @sendGif="handleSendGif"
         />
+        <ChatingRecordBar v-show="isRecordStart" />
         <u-action-sheet
             :safe-area-inset-bottom="true"
             round="12"
@@ -98,40 +120,50 @@
             @select="selectClick"
             @close="showActionSheet = false"
         />
+        <Notification
+            v-model="isShowNotification"
+            text="消息已发出，但对方拒收了！"
+        />
+        <GoupMemberListPop
+            v-model="isShowAt"
+            @confirm="setAtMember"
+        />
     </view>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { base64ToPath } from 'image-tools';
-import { formatInputHtml, getPurePath, html2Text } from '@/util/common';
-import { offlinePushInfo } from '@/util/imCommon';
+import { formatInputHtml, getPurePath, html2Text, getEl, getNewText } from '@/util/common';
+import { offlinePushInfo, getMessageContent, parseAtInsertImg, isEdit } from '@/util/imCommon';
+import { AudioVideoStatus, AudioVideoType } from '@/enum';
 import {
     ChatingFooterActionTypes,
     UpdateMessageTypes,
     ImageType,
     VideoType,
     MessageMenuTypes,
-    PageEvents
+    PageEvents,
+    TextRenderTypes
 } from '@/constant';
 import IMSDK, {
     IMMethods,
     MessageStatus,
     MessageType,
-    SessionType
+    SessionType,
+    GroupMemberFilter
 } from 'openim-uniapp-polyfill';
 import CustomEditor from './CustomEditor.vue';
 import ChatingActionBar from './ChatingActionBar.vue';
 import ChatingEmojiBar from './ChatingEmojiBar.vue';
+import ChatingRecordBar from './ChatingRecordBar.vue';
+import GoupMemberListPop from './GoupMemberListPop.vue';
 import ChatQuote from '@/components/ChatQuote';
 import { EncryptoAES } from '@/util/crypto';
-import { chooseFile } from '@/util/unisdk';
-
-const needClearTypes = [
-    MessageType.TextMessage,
-    MessageType.AtTextMessage,
-    MessageType.QuoteMessage,
-];
+import { chooseFile, recordVoiceManager } from '@/util/unisdk';
+import { videoCreateRoomAndGetToken } from '@/api/incoming';
+import { updateMsg } from '@/api/message';
+import { AllType } from '@/enum';
 
 const albumChoose = [
     {
@@ -157,13 +189,27 @@ const cameraChoose = [
         idx: 1,
     },
 ];
+const callChoose = [
+    {
+        name: '视频通话',
+        type: ChatingFooterActionTypes.Call,
+        idx: 0,
+    },
+    {
+        name: '语音通话',
+        type: ChatingFooterActionTypes.Call,
+        idx: 1,
+    },
+];
 
 export default {
     components: {
         CustomEditor,
         ChatingActionBar,
         ChatingEmojiBar,
-        ChatQuote
+        ChatingRecordBar,
+        GoupMemberListPop,
+        ChatQuote,
     },
     props: {
         footerOutsideFlag: {
@@ -183,56 +229,85 @@ export default {
         return {
             MessageMenuTypes: Object.freeze(MessageMenuTypes),
             customEditorCtx: null,
+            isShowAt: false,
+            isShowNotification: false,
             inputHtml: '',
             oldText: '',
             actionBarVisible: false,
             emojiBarVisible: false,
+            recordVisible: false,
             isInputFocus: false,
             actionSheetMenu: [],
             showActionSheet: false,
             snapFlag: null,
-            quoteMessageShow: false,
-            quoteMessage: null
+            blurTime: null,
+            activeMessageShow: false,
+            activeMessageType: false,
+            activeMessage: null,
+            isRecordStart: false,
+            isRecordCancel: false,
+            recordCancelBtnInfo: {},
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentConversation']),
+        ...mapGetters([
+            'storeCurrentConversation',
+            'storeHasMoreAfterMessage',
+            'storeIsIncomingCallLoading',
+            'storeIsIncomingCallIng',
+            'storeIncomingIsGroupChat'
+        ]),
         hasContent () {
-            return html2Text(this.inputHtml) !== '';
+            return html2Text(this.inputHtml, 1) !== '';
         },
     },
     watch: {
         footerOutsideFlag () {
-            this.onClickActionBarOutside();
-            this.onClickEmojiBarOutside();
+            this.actionBarVisible = false;
+            this.emojiBarVisible = false;
         },
     },
     mounted () {
         this.setSendMessageListener();
         this.setKeyboardListener();
-        uni.$on('quote_message', this.handleQuoteListener);
+        uni.$on('active_message', this.handleMessageListener);
+        uni.$on('initWebrtc', this.initWebrtc);
+        uni.$on('sendMessage', this.sendMessage);
     },
     beforeDestroy () {
         this.disposeSendMessageListener();
-        this.disposeKeyboardListener();
-        uni.$off('quote_message', this.handleQuoteListener);
+        // this.disposeKeyboardListener();
+        uni.$off('active_message', this.handleMessageListener);
+        uni.$off('initWebrtc', this.initWebrtc);
+        uni.$off('sendMessage', this.sendMessage);
+        clearInterval(this.timer);
+        uni.hideLoading();
     },
     methods: {
-        ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
+        ...mapActions('message', ['pushNewMessage', 'updateOneMessage', 'deleteMessage']),
+        ...mapActions('incomingCall', ['onThrowCall', 'reviewPermission']),
+        setAtMember (list, status) {
+            this.isShowAt = false;
+            uni.$emit('setAtMember', list.map(item => ({
+                atUserID: item.userID,
+                groupNickname: item.nickname
+            })), status);
+        },
         async createTextMessage () {
             let message = '';
-            const { text } = formatInputHtml(this.inputHtml);
-            // TODO：加密文本
-            if (this.quoteMessageShow) {
-                message = await IMSDK.asyncApi(
-                    IMMethods.CreateQuoteMessage,
-                    IMSDK.uuid(),
-                    {
-                        text: EncryptoAES(text),
-                        message: this.quoteMessage
-                    }
-                );
-                this.quoteMessageShow = false;
+            const { text } = formatInputHtml(this.inputHtml, 1);
+            const isAtMsg = this.$refs.customEditor?.getAt()?.length;
+            if (this.activeMessageShow) {
+                if (this.activeMessageType === "quote_message") {
+                    message = await IMSDK.asyncApi(
+                        IMMethods.CreateQuoteMessage,
+                        IMSDK.uuid(),
+                        {
+                            text: EncryptoAES(text),
+                            message: this.activeMessage
+                        }
+                    );
+                }
             } else {
                 message = await IMSDK.asyncApi(
                     IMMethods.CreateTextMessage,
@@ -240,41 +315,227 @@ export default {
                     EncryptoAES(text)
                 );
             }
+            if (isAtMsg) {
+                const atList = this.$refs.customEditor?.getAt();
+                message = await IMSDK.asyncApi('createTextAtMessage', IMSDK.uuid(), {
+                    text: EncryptoAES(text),
+                    atUserIDList: atList.slice(0, 10).map(v => v.atUserID),
+                    atUsersInfo: atList.slice(0, 10),
+                    message: (this.activeMessageType === 'quote_message' || this.activeMessage?.contentType === MessageType.QuoteMessage) ?
+                        ((this.activeMessage?.contentType === MessageType.QuoteMessage && this.activeMessageType === 'edit_message') ? this.activeMessage?.quoteElem.quoteMessage : this.activeMessage) : null
+                });
+                if (atList.length > 10) {
+                    message = {
+                        ...message,
+                        atTextElem: {
+                            ...message.atTextElem,
+                            atUserList: atList.map(v => v.atUserID),
+                            atUsersInfo: atList,
+                        }
+                    };
+                }
+            }
+            if (this.activeMessageType === 'edit_message') {
+                const { contentType, atTextElem } = this.activeMessage;
+                // TODO：编辑消息
+                if (contentType === MessageType.QuoteMessage) {
+                    message = message ? message : await IMSDK.asyncApi(
+                        IMMethods.CreateQuoteMessage,
+                        IMSDK.uuid(),
+                        {
+                            text: EncryptoAES(text),
+                            message: this.activeMessage.quoteElem.quoteMessage
+                        }
+                    );
+                } else if (contentType === MessageType.AtTextMessage) {
+                    atTextElem.text = EncryptoAES(text);
+                } else {
+                    message = message ? message : await IMSDK.asyncApi(
+                        IMMethods.CreateTextMessage,
+                        IMSDK.uuid(),
+                        EncryptoAES(text)
+                    );
+                }
+                const { createTime, sendTime, clientMsgID, sessionType, seq } = this.activeMessage;
+                message = {
+                    ...this.activeMessage,
+                    ...message,
+                    status: MessageStatus.Succeed,
+                    sessionType,
+                    seq,
+                    createTime: createTime,
+                    sendTime: sendTime,
+                    isEditClientMsgID: this.activeMessage.clientMsgID,
+                    ex: JSON.stringify({
+                        type: 'edit',
+                        clientMsgID: clientMsgID
+                    })
+                };
+                if (isAtMsg) {
+                    delete message.textElem;
+                    delete message.quoteElem;
+                }
+                console.log('编辑成。。。。。。消息。。。。', message);
+            }
             return message;
+        },
+        async getGroupMemberList () {
+            const { userID, groupID } = this.storeCurrentConversation;
+            if (groupID) {
+                const data = await IMSDK.asyncApi(
+                    IMMethods.GetGroupMemberList,
+                    IMSDK.uuid(),
+                    {
+                        groupID,
+                        filter: GroupMemberFilter.All,
+                        offset: 0,
+                        count: 100
+                    }
+                );
+                console.log(data, 'getGroupMemberList()  GetGroupMemberList===');
+            } else {
+                const data = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                    [userID]
+                );
+                console.log(data);
+            }
+        },
+        async createCustomMessage (data) {
+            let message = await IMSDK.asyncApi(
+                IMMethods.CreateCustomMessage,
+                IMSDK.uuid(),
+                {...data}
+            );
+            return message;
+        },
+        async sendCustomMessage (type) {
+            this.isLoadingCreateRoom = true;
+            try {
+                const message = await this.createCustomMessage({
+                    data: JSON.stringify({
+                        type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio,
+                        status: AudioVideoStatus.Send
+                    }),
+                    extension: '',
+                    description: ''
+                });
+                return this.sendAudioVideoMessage(message, type);
+            } catch (err) {
+                uni.$u.toast('网络异常，请稍后重试');
+                return false;
+            }
+        },
+        async sendBusyMessage (type) {
+            const message = await this.createCustomMessage({
+                data: JSON.stringify({
+                    type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio,
+                    status: AudioVideoStatus.Busy
+                }),
+                extension: '',
+                description: ''
+            });
+            return this.sendMessage(message, type);
+        },
+        async sendAudioVideoMessage (message, type) {
+            const { userID, groupID, conversationID } = this.storeCurrentConversation;
+            try {
+                // 创建聊天获取token
+                const { token } = await videoCreateRoomAndGetToken({
+                    sendID: message.sendID,
+                    conversationID,
+                    recvID: userID,
+                    groupID,
+                    type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio
+                });
+                console.log('tokenDatatokenDatatokenDatatokenDatatokenData', token);
+                if (token) {
+                    this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
+                }
+            } catch (err) {
+                const { errCode } = err;
+                if (errCode === 1655) {
+                    // 占线发送占线消息
+                    const { userID, groupID, conversationID } = this.storeCurrentConversation;
+                    console.log('userID, groupID, conversationID ', userID, groupID, conversationID, message.sendID);
+                    // uni.$u.toast('对方忙线中');
+                    this.sendBusyMessage(type);
+                } else {
+                    uni.$u.toast('网络异常，请稍后重试');
+                }
+                return false;
+            }
+            return {
+                ...message,
+                recvID: userID,
+                groupID: groupID,
+                sessionType: groupID ? 3 : 1
+            };
+            // return this.sendMessage(message);
         },
         async sendTextMessage () {
             const message = await this.createTextMessage();
+            console.log('oooooooo', message);
+            uni.$emit('active_message', {
+                message: null,
+                type: null
+            });
+            if (!message) return;
             this.sendMessage(message);
         },
         async sendMessage (message) {
             console.log('消息创建成功', message);
+            if (this.storeHasMoreAfterMessage) {
+                console.log('发送信息。。。。需要重新new');
+                await this.$emit('sendInit');
+            }
             const { userID, groupID } = this.storeCurrentConversation;
-            this.pushNewMessage({
+            !isEdit(message) && this.pushNewMessage({
                 ...message,
                 recvID: userID,
                 groupID,
                 sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
             });
             uni.$emit(PageEvents.ScrollToBottom);
-            if (needClearTypes.includes(message.contentType)) {
+            if (TextRenderTypes.includes(message.contentType)) {
                 this.customEditorCtx.clear();
             }
             try {
-                const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                    recvID: userID,
-                    groupID,
-                    message,
-                    offlinePushInfo,
-                });
-                console.log('消息发送成功', data);
-                if (data.quoteElem) {
-                    data.quoteElem.quoteMessage = this.quoteMessage;
+                let data = {};
+                if (isEdit(message)) {
+                    const m = await updateMsg({
+                        ...message
+                    });
+                    data = m.data;
+                    this.pushNewMessage({
+                        ...message,
+                        recvID: userID,
+                        groupID,
+                        sessionType: userID ? SessionType.Single : SessionType.WorkingGroup
+                    });
+                } else {
+                    const m = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                        recvID: userID,
+                        groupID,
+                        message,
+                        offlinePushInfo,
+                    });
+                    data = m.data;
+                    uni.$emit('play_audio', '/static/audio/send_tip.mp3', 'ambient');
+                    this.updateOneMessage({
+                        message: data,
+                        isSuccess: true,
+                    });
                 }
-                this.updateOneMessage({
-                    message: data,
-                    isSuccess: true,
-                });
-            } catch ({ data, errCode }) {
+                console.log('消息发送成功', data);
+                this.isLoadingCreateRoom = false;
+                return data;
+            } catch (err) {
+                const { data, errCode } = err;
+                console.log('发送失败', data, errCode, err);
+                if (errCode === 1302) {
+                    console.log('被拉黑了');
+                    this.isShowNotification = true;
+                }
                 this.updateOneMessage({
                     message: data,
                     type: UpdateMessageTypes.KeyWords,
@@ -289,27 +550,20 @@ export default {
                         },
                     ],
                 });
+                this.isLoadingCreateRoom = false;
             }
         },
 
         // action
-        onClickActionBarOutside () {
-            if (this.actionBarVisible) {
-                this.actionBarVisible = false;
-            }
-        },
-        onClickEmojiBarOutside () {
-            if (this.emojiBarVisible) {
-                this.emojiBarVisible = false;
-            }
-        },
         updateActionBar () {
-            this.onClickEmojiBarOutside();
             this.actionBarVisible = !this.actionBarVisible;
+            this.emojiBarVisible = false;
+            this.recordVisible = false;
         },
         updateEmojiBar () {
-            this.onClickActionBarOutside();
             this.emojiBarVisible = !this.emojiBarVisible;
+            this.actionBarVisible = false;
+            this.recordVisible = false;
         },
         editorReady (e) {
             this.customEditorCtx = e.context;
@@ -325,31 +579,51 @@ export default {
             uni.$emit(PageEvents.ScrollToBottom);
             // #endif
             this.isInputFocus = true;
+            this.emojiBarVisible = false;
+            this.actionBarVisible = false;
         },
         editorBlur () {
             this.isInputFocus = false;
         },
-        editorInput (e) {
+        async editorInput (e) {
             const newText = html2Text(e.detail.html);
-            // if (
-            //     this.$store.getters.storeCurrentConversation.groupID &&
-            //     this.oldText.length < newText.length &&
-            //     newText.endsWith('@')
-            // ) {
-            //     uni.$u.route('/pages/conversation/groupMemberList/index', {
-            //         type: GroupMemberListTypes.ChooseAt,
-            //         groupID:
-            //             this.$store.getters.storeCurrentConversation.groupID,
-            //     });
-            // }
+            const changeTextMap = getNewText(newText, this.oldText);
+            if (
+                this.$store.getters.storeCurrentConversation.groupID &&
+                changeTextMap.type === 'add' &&
+                changeTextMap.text === '@'
+            ) {
+                this.isShowAt = true;
+                this.blurTime = +new Date();
+                // uni.$u.route('/pages/conversation/groupMemberList/index', {
+                //     type: 'ChooseAt',
+                //     groupID:
+                //         this.$store.getters.storeCurrentConversation.groupID,
+                // });
+            }
             this.inputHtml = e.detail.html;
             this.oldText = newText;
+            this.sendTypingMessage('正在输入中...');
+        },
+        async sendTypingMessage (msgTip) {
+            const { userID } = this.storeCurrentConversation;
+            const message = await IMSDK.asyncApi(
+                IMMethods.TypingStatusUpdate,
+                IMSDK.uuid(),
+                {
+                    recvID: userID,
+                    msgTip
+                }
+            );
+            return message;
         },
         prepareMediaMessage (type) {
             if (type === ChatingFooterActionTypes.Album) {
                 this.actionSheetMenu = [...albumChoose];
-            } else {
+            } else if (type === ChatingFooterActionTypes.Camera) {
                 this.actionSheetMenu = [...cameraChoose];
+            } else if (type === ChatingFooterActionTypes.Call) {
+                this.actionSheetMenu = [...callChoose];
             }
             this.showActionSheet = true;
         },
@@ -391,16 +665,40 @@ export default {
             };
             this.$refs.customEditor.insertImage(options);
         },
-        batchCreateImageMesage (paths) {
+        async handleSendGif (original) {
+            this.$loading("加载中");
+            if (!original.url.includes('https://') && !original.url.includes('http://')) {
+                console.log('本地图片走这里-----', original.url);
+                this.batchCreateImageMesage([original.url], 1);
+                this.$hideLoading();
+                return;
+            }
+            uni.downloadFile({
+                url: original.url, // webp
+                success: (res) => {
+                    if (res.statusCode === 200) {
+                        this.batchCreateImageMesage([res.tempFilePath]);
+                    }
+                },
+                fail: () => {
+                    this.$hideLoading();
+                },
+                complete: () => {
+                    this.$hideLoading();
+                }
+            });
+        },
+        batchCreateImageMesage (paths, type) {
             paths.forEach(async path => {
                 const message = await IMSDK.asyncApi(
                     IMMethods.CreateImageMessageFromFullPath,
                     IMSDK.uuid(),
-                    getPurePath(path)
+                    type ? path : getPurePath(path)
                 );
                 if (!message) {
                     return;
                 }
+                console.log('message-------iii', message);
                 this.sendMessage(message);
             });
         },
@@ -429,39 +727,91 @@ export default {
                     fileName: name
                 }
             );
-            console.log('xxx', path, message);
             this.sendMessage(message);
         },
-        selectClick ({ idx }) {
+        async batchCreateSoundMesage ({ path, duration }) {
+            const message = await IMSDK.asyncApi(
+                IMMethods.CreateSoundMessageFromFullPath,
+                IMSDK.uuid(),
+                {
+                    soundPath: getPurePath(path),
+                    duration: duration
+                }
+            );
+            this.sendMessage(message);
+        },
+        async selectClick ({ idx }) {
+            const [{type}] = this.actionSheetMenu;
             if (idx === 0) {
-                if (
-                    this.actionSheetMenu[0].type ===
-                    ChatingFooterActionTypes.Album
-                ) {
+                if (type === ChatingFooterActionTypes.Album) {
+                    let permissions = await this.$store.dispatch('base/hasCameraPermissions');
+                    if (!permissions) return;
                     this.chooseOrShotImage(['album']).then((paths) =>
                         this.batchCreateImageMesage(paths)
                     );
-                } else {
+                } else if (type === ChatingFooterActionTypes.Camera) {
+                    let permissions = await this.$store.dispatch('base/hasCameraPermissions');
+                    if (!permissions) return;
                     this.chooseOrShotImage(['camera']).then((paths) =>
                         this.batchCreateImageMesage(paths)
                     );
+                } else if (type === ChatingFooterActionTypes.Call) {
+                    // 发起视频通话
+                    this.initWebrtc('video');
                 }
-            } else {
+            } else if (idx === 1) {
                 const whenGetFile = (data) => {
                     this.snapFlag = data;
                 };
-                if (
-                    this.actionSheetMenu[0].type ===
-                    ChatingFooterActionTypes.Album
-                ) {
+                if (type === ChatingFooterActionTypes.Album) {
                     this.chooseOrShotVideo(['album']).then(whenGetFile);
-                } else {
+                } else if (type === ChatingFooterActionTypes.Camera) {
                     this.chooseOrShotVideo(['camera']).then(whenGetFile);
+                } else if (type === ChatingFooterActionTypes.Call) {
+                    // 发起语音通话x
+                    this.initWebrtc('audio');
                 }
             }
         },
+        async initWebrtc (type) {
+            uni.showLoading();
+            const { groupID } = this.storeCurrentConversation;
+            if (groupID && this.storeIncomingIsGroupChat) {
+                uni.hideLoading();
+                return uni.$u.toast('群通话正在进行中');
+            }
+            if (this.storeIsIncomingCallLoading || this.storeIsIncomingCallIng) {
+                uni.hideLoading();
+                return uni.$u.toast('通话正在进行中');
+            }
+            const hasPermission  = await this.reviewPermission();
+            if (hasPermission) {
+                try {
+                    await this.getGroupMemberList();
+                    const data = await this.sendCustomMessage(type);
+                    if (typeof data === 'boolean' && !data) {
+                        // uni.$u.toast('网络异常，请稍后重试');
+                        uni.hideLoading();
+                        return;
+                    }
+                    await this.onThrowCall({
+                        ...data,
+                        type
+                    });
+                    uni.hideLoading();
+                    uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+                } catch (err) {
+                    uni.$u.toast('网络异常，请稍后重试');
+                    uni.hideLoading();
+                    return;
+                }
+            }
+            uni.hideLoading();
+        },
         chooseOrShotImage (sourceType) {
             return new Promise((resolve, reject) => {
+                const permissions = this.$store.dispatch('base/hasCameraPermissions');
+                if (!permissions) return;
                 uni.chooseImage({
                     count: 9,
                     sizeType: ['compressed'],
@@ -537,27 +887,83 @@ export default {
         // keyboard
         keyboardChangeHander (data) {
             const { height } = data;
-            if (height > 0) {
-                if (this.emojiBarVisible) {
-                    this.emojiBarVisible = false;
-                }
-                if (this.actionBarVisible) {
-                    this.actionBarVisible = false;
-                }
-            }
-            uni.$emit('keyboardChange', data);
+            this.$store.commit('base/SET_KEYBOARD_HEIGHT', height);
         },
         setKeyboardListener () {
             uni.onKeyboardHeightChange(this.keyboardChangeHander);
         },
-        disposeKeyboardListener () {
-            uni.offKeyboardHeightChange(this.keyboardChangeHander);
+        // disposeKeyboardListener () {
+        //     uni.offKeyboardHeightChange(this.keyboardChangeHander);
+        // },
+        handleMessageListener (data) {
+            const { message, type } = data;
+            if (type === 'edit_message') {
+                if (message.contentType === MessageType.AtTextMessage) {
+                    const source = message.atTextElem.atUsersInfo;
+                    const callback = (l) => {
+                        console.log('callback-callback-callback', l);
+                        this.$refs.customEditor.editorCtx.setContents({html: parseAtInsertImg({
+                            text: getMessageContent(message),
+                            atUsersInfo: l
+                        })});
+                    };
+                    if (message.atTextElem.atUserList.includes(AllType.Code)) {
+                        uni.$emit('createCanvasData', source.map(v => v.atUserID).join(','), source.map(v => v.groupNickname).join(','), null, 'all', {
+                            callback
+                        });
+                    } else {
+                        uni.$emit('createCanvasData', source[0].atUserID, source[0].groupNickname, source, null, {
+                            callback
+                        });
+                    }
+                } else {
+                    this.$refs.customEditor.editorCtx.setContents({html: getMessageContent(message)});
+                }
+            } else {
+                this.$refs.customEditor.editorCtx.insertText({text: ''});
+            }
+            this.activeMessage = message;
+            this.activeMessageShow = !!message;
+            this.activeMessageType = type;
         },
-        handleQuoteListener (val) {
-            console.log('引用', val);
-            this.$refs.customEditor.editorCtx.insertText({text: ''});
-            this.quoteMessage = val;
-            this.quoteMessageShow = true;
+        updateRecordBar () {
+            this.recordVisible = !this.recordVisible;
+            this.emojiBarVisible = false;
+            this.actionBarVisible = false;
+        },
+        async handleRecorderStart () {
+            const {start} = recordVoiceManager();
+            start();
+            this.isRecordStart = true;
+            await this.$nextTick();
+            this.recordCancelBtnInfo = await getEl.call(this, ".chating_record_cancel");
+            this.timer = setInterval(() => {
+                this.sendTypingMessage('正在说话中...');
+            }, 1000);
+        },
+        handleRecordMove (e) {
+            const { left, right, top, bottom } = this.recordCancelBtnInfo;
+            const {pageX, pageY} = e.touches[0];
+            this.isRecordCancel = pageX >= left && pageX <= right && pageY >= top && pageY <= bottom;
+        },
+        async handleRecorderEnd () {
+            clearInterval(this.timer);
+            const {getPath, stop} = recordVoiceManager();
+            if (this.isRecordCancel) {
+                stop();
+            } else {
+                const res = await getPath();
+                if (res.duration >= 2) {
+                    this.batchCreateSoundMesage({
+                        path: res.path,
+                        duration: res.duration
+                    });
+                } else {
+                    uni.$u.toast("语音时长不小于2s");
+                }
+            }
+            this.isRecordStart = false;
+            this.isRecordCancel = false;
         }
     },
 };
@@ -604,6 +1010,12 @@ export default {
 				});
 			});
 		},
+        editorBlur () {
+            if (this.$el) {
+                const dom = this.$el.querySelector('.ql-editor');
+                dom.blur();
+            }
+        },
 	},
 }
 </script>
@@ -650,9 +1062,13 @@ export default {
             overflow: hidden;
     
             .record_btn {
-                background-color: #3c9cff;
-                height: 30px;
-                font-size: 24rpx;
+                background-color: $uni-bg-color-grey;
+                height: 90rpx;
+                line-height: 90rpx;
+                text-align: center;
+                &:active {
+                    box-shadow: inset 0 2px 23px 0 rgba(10,16,23,.4);
+                }
             }
         }
     }

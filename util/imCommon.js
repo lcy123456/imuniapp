@@ -1,19 +1,22 @@
 import store from "@/store";
+import { businessLogin } from '@/api/login';
+import { AudioVideoType } from '@/enum';
 import {
-    CustomType,
     AddFriendQrCodePrefix,
     AddGroupQrCodePrefix,
 } from "@/constant";
 import { getOnlineStateFromSvr } from "@/api/imApi";
 import { businessSearchUserInfo } from '@/api/login';
+import { AudioVideoStatus } from '@/enum';
+import { checkLoginError } from '@/util/common';
 import IMSDK, {
     IMMethods,
     GroupAtType,
     MessageType,
     SessionType,
 } from "openim-uniapp-polyfill";
-import emojis from "../common/emojis";
-import { getPurePath } from '@/util/common';
+import emojis from "@/common/emojis";
+import { getPurePath, html2Text } from '@/util/common';
 import { DecryptoAES } from '@/util/crypto';
 
 import dayjs from "dayjs";
@@ -42,6 +45,23 @@ dayjs.updateLocale("zh-cn", {
         sameElse: "YYYY-MM-DD", // Everything else ( 17/10/2011 )
     },
 });
+
+const timeMap = {
+    86400: `一天`,
+    604800: `一周`,
+    2592000: `一个月`,
+    5184000: `二个月`,
+    7776000: `三个月`,
+    10368000: `四个月`,
+    12960000: `五个月`,
+    15552000: `六个月`,
+    18144000: `七个月`,
+    20736000: `八个月`,
+    23328000: `九个月`,
+    25920000: `十个月`,
+    28512000: `十一个月`,
+    31104000: `十二个月`
+};
 
 const nomalTypes = [GroupAtType.AtAll, GroupAtType.AtAllAtMe, GroupAtType.AtMe];
 
@@ -76,9 +96,19 @@ export const conversationSort = (conversationList) => {
     return filterArr;
 };
 
-export const parseAt = (atel) => {
+
+export const isEdit = (message) => {
+    try {
+        const ex = JSON.parse(message.ex);
+        return ex.type === 'edit';
+    } catch (err) {
+        return false;
+    }
+};
+
+export const parseAt = (atel, type) => {
     let mstr = atel.text;
-    const pattern = /@\S+\s/g;
+    const pattern = /@\d+\s/g;
     const arr = mstr.match(pattern);
     const atUserList = atel.atUsersInfo ?? [];
     arr?.map((match) => {
@@ -86,8 +116,11 @@ export const parseAt = (atel) => {
             (user) => user.atUserID === match.slice(1, -1)
         );
         if (member) {
-            // mstr = mstr.replace(match, `<text class='parsed_at_el'> @${member.groupNickname}&nbsp;</text>`);
-            mstr = mstr.replace(match, `@${member.groupNickname} `);
+            if (!type) {
+                mstr = mstr.replace(match, `<text data-at="${member.atUserID}" class="at_member" style="color: #008dff;"> @${member.groupNickname}&nbsp;</text>`);
+            } else {
+                mstr = mstr.replace(match, `@${member.atUserID} `);
+            }
         }
     // else {
     // 	mstr = mstr.replace(match, `<text class='parsed_at_el'> ${match}</text>`);
@@ -96,12 +129,20 @@ export const parseAt = (atel) => {
     return mstr;
 };
 
+
+export const parseLink = (text) => {
+    const pattern = /(https?:\/\/[^\s]+)/g;
+    const arr = text.match(pattern);
+    arr?.map((match) => {
+        text = text.replace(match, `<text data-url="${match}" class="link-css" style="color: #008dff;">${match}</text>`);
+    });
+    return text;
+};
+
 export const parseEmoji = (msgStr) => {
     emojis.map((item) => {
         if (msgStr?.includes(item.context)) {
-            let imgStr = `
-			<img class="emoji_display" src="${item.src}"/>
-			`;
+            let imgStr = `<img class="emoji_display" src="${item.src}"/>`;
             imgStr = imgStr.replace("/static", "static");
             msgStr = msgStr.replace(item.reg, imgStr);
         }
@@ -110,13 +151,11 @@ export const parseEmoji = (msgStr) => {
 };
 
 const switchCustomMsg = (cMsg) => {
-    switch (cMsg.customType) {
-    case CustomType.MassMsg:
-        return "[通知]";
-    case CustomType.Call:
-        return "[通话消息]";
-    case CustomType.MeetingInvitation:
-        return "[会议邀请]";
+    switch (cMsg.type) {
+    case AudioVideoType.Video:
+        return "[视频通话]";
+    case AudioVideoType.Audio:
+        return "[语音通话]";
     default:
         return "";
     }
@@ -155,155 +194,183 @@ export const sec2Time = (seconds) => {
 };
 
 export const parseMessageByType = (pmsg, isNotify = false) => {
-    const isSelf = (id) => id === store.getters.storeCurrentUserID;
-    const getName = (user) => {
-        return user.userID === store.getters.storeCurrentUserID
-            ? "你"
-            : user.nickname;
-    };
-    switch (pmsg.contentType) {
-    case MessageType.TextMessage:
-        return DecryptoAES(pmsg.textElem.content);
-    case MessageType.AtTextMessage:
-        return parseAt(pmsg.atTextElem);
-    case MessageType.PictureMessage:
-        return "[图片]";
-    case MessageType.VideoMessage:
-        return "[视频]";
-    case MessageType.VoiceMessage:
-        return "[语音]";
-    case MessageType.LocationMessage:
-        return "[位置]";
-    case MessageType.CardMessage:
-        return "[名片]";
-    case MessageType.MergeMessage:
-        return "[合并消息]";
-    case MessageType.FileMessage:
-        return `[文件]${pmsg.fileElem.fileName}`;
-    case MessageType.RevokeMessage:
-        const data = JSON.parse(pmsg.notificationElem.detail);
-        const revoker = isSelf(data.revokerID) ? "你" : data.revokerNickname;
-        const sourcer = isSelf(data.sourceMessageSendID)
-            ? "你"
-            : data.sourceMessageSenderNickname;
-        const isAdminRevoke = data.revokerID !== data.sourceMessageSendID;
-        if (isAdminRevoke) {
-            return `${revoker}撤回了一条${sourcer}的消息`;
-        }
-        return `${revoker}撤回了一条消息`;
-    case MessageType.CustomMessage:
-        const customEl = pmsg.customElem;
-        const customData = JSON.parse(customEl.data);
-        if (customData.customType) {
-            return switchCustomMsg(customData);
-        }
-        return "[自定义消息]";
-    case MessageType.QuoteMessage:
-        return "[引用消息]";
-    case MessageType.FaceMessage:
-        return "[表情]";
-    case MessageType.FriendAdded:
-        return "你们已经是好友了，开始聊天吧~";
-    case MessageType.MemberEnter:
-        const enterDetails = JSON.parse(pmsg.notificationElem.detail);
-        const enterUser = enterDetails.entrantUser;
-        return `${getName(enterUser)}进入了群聊`;
-    case MessageType.GroupCreated:
-        const groupCreatedDetail = JSON.parse(pmsg.notificationElem.detail);
-        const groupCreatedUser = groupCreatedDetail.opUser;
-        return `${getName(groupCreatedUser)}创建了群聊`;
-    case MessageType.MemberInvited:
-        const inviteDetails = JSON.parse(pmsg.notificationElem.detail);
-        const inviteOpUser = inviteDetails.opUser;
-        const invitedUserList = inviteDetails.invitedUserList ?? [];
-        let inviteStr = "";
-        invitedUserList.find(
-            (user, idx) => (inviteStr += getName(user) + " ") && idx > 3
-        );
-        return `${getName(inviteOpUser)}邀请了${inviteStr}${
-            invitedUserList.length > 3 ? "..." : ""
-        }进入群聊`;
+    try {
+        const isSelf = (id) => id === store.getters.storeCurrentUserID;
+        const getName = (user) => {
+            return user.userID === store.getters.storeCurrentUserID
+                ? "你"
+                : user.nickname;
+        };
+        switch (pmsg.contentType) {
+        case AudioVideoStatus.groupDone:
+            try {
+                const groupVideoAudioDetail = JSON.parse(pmsg.notificationElem.detail);
+                return `${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话已结束`;
+            } catch (err) {
+                return `通话已结束`;
+            }
+        case AudioVideoStatus.groupStart:
+            try {
+                const groupVideoAudioDetail = JSON.parse(pmsg.notificationElem.detail);
+                const groupVideoAudioName = `${pmsg.sendID === store.getters.storeCurrentUserID ? '你' : pmsg.senderNickname}`;
+                return `${groupVideoAudioName}发起${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话`;
+            } catch (err) {
+                return `通话已开始`;
+            }
+        case MessageType.TextMessage:
+            return DecryptoAES(pmsg.textElem.content);
+        case MessageType.AtTextMessage:
+            return parseAt(pmsg.atTextElem);
+        case MessageType.PictureMessage:
+            return "[图片]";
+        case MessageType.VideoMessage:
+            return "[视频]";
+        case MessageType.VoiceMessage:
+            return "[语音]";
+        case MessageType.LocationMessage:
+            return "[位置]";
+        case MessageType.CardMessage:
+            return "[名片]";
+        case MessageType.MergeMessage:
+            return "[合并消息]";
+        case MessageType.FileMessage:
+            return `[文件]${pmsg.fileElem.fileName}`;
+        case MessageType.RevokeMessage:
+            try {
+                const data = JSON.parse(pmsg.notificationElem.detail);
+                const revoker = isSelf(data.revokerID) ? "你" : data.revokerNickname;
+                const sourcer = isSelf(data.sourceMessageSendID)
+                    ? "你"
+                    : data.sourceMessageSenderNickname;
+                const isAdminRevoke = data.revokerID !== data.sourceMessageSendID;
+                if (isAdminRevoke) {
+                    return `${revoker}撤回了一条${sourcer}的消息`;
+                }
+                return `${revoker}撤回了一条消息`;
+            } catch (err) {
+                return `撤回了一条消息`;
+            }
+        case MessageType.CustomMessage:
+            try {
+                const customEl = pmsg.customElem;
+                const customData = JSON.parse(customEl.data);
+                if (customData.type) {
+                    return switchCustomMsg(customData);
+                }
+                return "[自定义消息]";
+            } catch (err) {
+                return '[自定义消息]';
+            }
+        case MessageType.QuoteMessage:
+            return "[引用消息]";
+        case MessageType.FaceMessage:
+            return "[表情]";
+        case MessageType.FriendAdded:
+            return "你们已经是好友了，开始聊天吧~";
+        case MessageType.MemberEnter:
+            const enterDetails = JSON.parse(pmsg.notificationElem.detail);
+            const enterUser = enterDetails.entrantUser;
+            return `${getName(enterUser)}进入了群聊`;
+        case MessageType.GroupCreated:
+            const groupCreatedDetail = JSON.parse(pmsg.notificationElem.detail);
+            const groupCreatedUser = groupCreatedDetail.opUser;
+            return `${getName(groupCreatedUser)}创建了群聊`;
+        case MessageType.MemberInvited:
+            const inviteDetails = JSON.parse(pmsg.notificationElem.detail);
+            const inviteOpUser = inviteDetails.opUser;
+            const invitedUserList = inviteDetails.invitedUserList ?? [];
+            let inviteStr = "";
+            invitedUserList.find(
+                (user, idx) => (inviteStr += getName(user) + " ") && idx > 3
+            );
+            return `${getName(inviteOpUser)}邀请了${inviteStr}${
+                invitedUserList.length > 3 ? "..." : ""
+            }进入群聊`;
 
-    case MessageType.MemberKicked:
-        const kickDetails = JSON.parse(pmsg.notificationElem.detail);
-        const kickOpUser = kickDetails.opUser;
-        const kickdUserList = kickDetails.kickedUserList ?? [];
-        let kickStr = "";
-        kickdUserList.find(
-            (user, idx) => (kickStr += getName(user) + " ") && idx > 3
-        );
-        return `${getName(kickOpUser)}踢出了${kickStr}${
-            kickdUserList.length > 3 ? "..." : ""
-        }`;
-    case MessageType.MemberQuit:
-        const quitDetails = JSON.parse(pmsg.notificationElem.detail);
-        const quitUser = quitDetails.quitUser;
-        return `${getName(quitUser)}退出了群聊`;
-    case MessageType.GroupInfoUpdated:
-        const groupUpdateDetail = JSON.parse(pmsg.notificationElem.detail);
-        const groupUpdateUser = groupUpdateDetail.opUser;
-        let updateFiled = "群设置";
-        if (groupUpdateDetail.group.notification) {
-            updateFiled = "群公告";
+        case MessageType.MemberKicked:
+            const kickDetails = JSON.parse(pmsg.notificationElem.detail);
+            const kickOpUser = kickDetails.opUser;
+            const kickdUserList = kickDetails.kickedUserList ?? [];
+            let kickStr = "";
+            kickdUserList.find(
+                (user, idx) => (kickStr += getName(user) + " ") && idx > 3
+            );
+            return `${getName(kickOpUser)}踢出了${kickStr}${
+                kickdUserList.length > 3 ? "..." : ""
+            }`;
+        case MessageType.MemberQuit:
+            const quitDetails = JSON.parse(pmsg.notificationElem.detail);
+            const quitUser = quitDetails.quitUser;
+            return `${getName(quitUser)}退出了群聊`;
+        case MessageType.GroupInfoUpdated:
+            const groupUpdateDetail = JSON.parse(pmsg.notificationElem.detail);
+            const groupUpdateUser = groupUpdateDetail.opUser;
+            let updateFiled = "群设置";
+            if (groupUpdateDetail.group.notification) {
+                updateFiled = "群公告";
+            }
+            if (groupUpdateDetail.group.groupName) {
+                updateFiled = `群名称为 ${groupUpdateDetail.group.groupName}`;
+            }
+            if (groupUpdateDetail.group.faceURL) {
+                updateFiled = "群头像";
+            }
+            if (groupUpdateDetail.group.introduction) {
+                updateFiled = "群介绍";
+            }
+            return `${getName(groupUpdateUser)}修改了${updateFiled}`;
+        case MessageType.GroupOwnerTransferred:
+            const transferDetails = JSON.parse(pmsg.notificationElem.detail);
+            const transferOpUser = transferDetails.opUser;
+            const newOwner = transferDetails.newGroupOwner;
+            return `${getName(transferOpUser)}将群主转让给${getName(newOwner)}`;
+        case MessageType.GroupDismissed:
+            const dismissDetails = JSON.parse(pmsg.notificationElem.detail);
+            const dismissUser = dismissDetails.opUser;
+            return `${getName(dismissUser)}解散了群聊`;
+        case MessageType.GroupMuted:
+            const GROUPMUTEDDetails = JSON.parse(pmsg.notificationElem.detail);
+            const groupMuteOpUser = GROUPMUTEDDetails.opUser;
+            return `${getName(groupMuteOpUser)}开启了全体禁言`;
+        case MessageType.GroupCancelMuted:
+            const GROUPCANCELMUTEDDetails = JSON.parse(pmsg.notificationElem.detail);
+            const groupCancelMuteOpUser = GROUPCANCELMUTEDDetails.opUser;
+            return `${getName(groupCancelMuteOpUser)}取消了全体禁言`;
+        case MessageType.GroupMemberMuted:
+            const gmMutedDetails = JSON.parse(pmsg.notificationElem.detail);
+            const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
+            return `${getName(gmMutedDetails.opUser)}禁言了${getName(
+                gmMutedDetails.mutedUser
+            )} ${muteTime}`;
+        case MessageType.GroupMemberCancelMuted:
+            const gmcMutedDetails = JSON.parse(pmsg.notificationElem.detail);
+            return `${getName(gmcMutedDetails.opUser)}取消了禁言${getName(
+                gmcMutedDetails.mutedUser
+            )}`;
+        case MessageType.GroupAnnouncementUpdated:
+            const groupAnnouncementUpdateDetail = JSON.parse(
+                pmsg.notificationElem.detail
+            );
+            const groupAnnouncementUpdateUser = groupAnnouncementUpdateDetail.opUser;
+            return `${getName(groupAnnouncementUpdateUser)}修改了群公告`;
+        case MessageType.GroupNameUpdated:
+            const groupNameUpdateDetail = JSON.parse(pmsg.notificationElem.detail);
+            const groupNameUpdateUser = groupNameUpdateDetail.opUser;
+            return `${getName(groupNameUpdateUser)}修改了群名称为${
+                groupNameUpdateDetail.group.groupName
+            }`;
+        case MessageType.OANotification:
+            const customNoti = JSON.parse(pmsg.notificationElem.detail);
+            return customNoti.text;
+        case MessageType.BurnMessageChange:
+            const burnDetails = JSON.parse(pmsg.notificationElem.detail);
+            const name = `${burnDetails.revokerID === store.getters.storeCurrentUserID ? '你' : burnDetails.revokerNickname}`;
+            return burnDetails.revokerRole ? `${name}已设置自动删除${timeMap[burnDetails.revokeTime]}前发送的消息` : `${name}已停用自动删除消息`;
+        default:
+            return "";
         }
-        if (groupUpdateDetail.group.groupName) {
-            updateFiled = `群名称为 ${groupUpdateDetail.group.groupName}`;
-        }
-        if (groupUpdateDetail.group.faceURL) {
-            updateFiled = "群头像";
-        }
-        if (groupUpdateDetail.group.introduction) {
-            updateFiled = "群介绍";
-        }
-        return `${getName(groupUpdateUser)}修改了${updateFiled}`;
-    case MessageType.GroupOwnerTransferred:
-        const transferDetails = JSON.parse(pmsg.notificationElem.detail);
-        const transferOpUser = transferDetails.opUser;
-        const newOwner = transferDetails.newGroupOwner;
-        return `${getName(transferOpUser)}将群主转让给${getName(newOwner)}`;
-    case MessageType.GroupDismissed:
-        const dismissDetails = JSON.parse(pmsg.notificationElem.detail);
-        const dismissUser = dismissDetails.opUser;
-        return `${getName(dismissUser)}解散了群聊`;
-    case MessageType.GroupMuted:
-        const GROUPMUTEDDetails = JSON.parse(pmsg.notificationElem.detail);
-        const groupMuteOpUser = GROUPMUTEDDetails.opUser;
-        return `${getName(groupMuteOpUser)}开启了全体禁言`;
-    case MessageType.GroupCancelMuted:
-        const GROUPCANCELMUTEDDetails = JSON.parse(pmsg.notificationElem.detail);
-        const groupCancelMuteOpUser = GROUPCANCELMUTEDDetails.opUser;
-        return `${getName(groupCancelMuteOpUser)}取消了全体禁言`;
-    case MessageType.GroupMemberMuted:
-        const gmMutedDetails = JSON.parse(pmsg.notificationElem.detail);
-        const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
-        return `${getName(gmMutedDetails.opUser)}禁言了${getName(
-            gmMutedDetails.mutedUser
-        )} ${muteTime}`;
-    case MessageType.GroupMemberCancelMuted:
-        const gmcMutedDetails = JSON.parse(pmsg.notificationElem.detail);
-        return `${getName(gmcMutedDetails.opUser)}取消了禁言${getName(
-            gmcMutedDetails.mutedUser
-        )}`;
-    case MessageType.GroupAnnouncementUpdated:
-        const groupAnnouncementUpdateDetail = JSON.parse(
-            pmsg.notificationElem.detail
-        );
-        const groupAnnouncementUpdateUser = groupAnnouncementUpdateDetail.opUser;
-        return `${getName(groupAnnouncementUpdateUser)}修改了群公告`;
-    case MessageType.GroupNameUpdated:
-        const groupNameUpdateDetail = JSON.parse(pmsg.notificationElem.detail);
-        const groupNameUpdateUser = groupNameUpdateDetail.opUser;
-        return `${getName(groupNameUpdateUser)}修改了群名称为${
-            groupNameUpdateDetail.group.groupName
-        }`;
-    case MessageType.OANotification:
-        const customNoti = JSON.parse(pmsg.notificationElem.detail);
-        return customNoti.text;
-    case MessageType.BurnMessageChange:
-        const burnDetails = JSON.parse(pmsg.notificationElem.detail);
-        return `阅后即焚已${burnDetails.isPrivate ? "开启" : "关闭"}`;
-    default:
-        return "";
+    } catch (err) {
+        return '';
     }
 };
 
@@ -343,148 +410,200 @@ export const bytesToSize = (bytes) => {
 };
 
 export const tipMessaggeFormat = (msg, currentUserID) => {
-    if (msg.contentType === MessageType.RevokeMessage) {
-        let revoker, sourcer, isAdminRevoke;
-        const data = JSON.parse(msg.notificationElem.detail);
-        revoker = currentUserID === data.revokerID ? "你" : data.revokerNickname;
-        isAdminRevoke = data.revokerID !== data.sourceMessageSendID;
-        sourcer =
-      data.sourceMessageSendID === currentUserID
-          ? "你"
-          : data.sourceMessageSenderNickname;
+    try {
+        if (msg.contentType === MessageType.RevokeMessage) {
+            let revoker, sourcer, isAdminRevoke;
+            const data = JSON.parse(msg.notificationElem.detail);
+            revoker = currentUserID === data.revokerID ? "你" : data.revokerNickname;
+            isAdminRevoke = data.revokerID !== data.sourceMessageSendID;
+            sourcer =
+        data.sourceMessageSendID === currentUserID
+            ? "你"
+            : data.sourceMessageSenderNickname;
 
-        if (isAdminRevoke) {
-            return `${revoker}撤回了一条${sourcer}的消息`;
+            if (isAdminRevoke) {
+                return `${revoker}撤回了一条${sourcer}的消息`;
+            }
+            return `${revoker}撤回了一条消息`;
         }
-        return `${revoker}撤回了一条消息`;
-    }
 
-    const getName = (user) => {
-        return user.userID === currentUserID ? "你" : user.nickname;
-    };
+        const getName = (user) => {
+            return user.userID === currentUserID ? "你" : user.nickname;
+        };
 
-    switch (msg.contentType) {
-    case MessageType.FriendAdded:
-        return `你们已经是好友了~`;
-    case MessageType.GroupCreated:
-        const groupCreatedDetail = JSON.parse(msg.notificationElem.detail);
-        const groupCreatedUser = groupCreatedDetail.opUser;
-        return `${getName(groupCreatedUser)}创建了群聊`;
-    case MessageType.GroupInfoUpdated:
-        const groupUpdateDetail = JSON.parse(msg.notificationElem.detail);
-        const groupUpdateUser = groupUpdateDetail.opUser;
-        let updateFiled = "群设置";
-        if (groupUpdateDetail.group.notification) {
-            updateFiled = "群公告";
+        switch (msg.contentType) {
+        case AudioVideoStatus.groupDone:
+            try {
+                const groupVideoAudioDetail = JSON.parse(msg.notificationElem.detail);
+                return `${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话已结束`;
+            } catch (err) {
+                return `通话已结束`;
+            }
+        case AudioVideoStatus.groupStart:
+            try {
+                const groupVideoAudioDetail = JSON.parse(msg.notificationElem.detail);
+                const groupVideoAudioName = `${msg.sendID === store.getters.storeCurrentUserID ? '你' : msg.senderNickname}`;
+                return `${groupVideoAudioName}发起${groupVideoAudioDetail.type === AudioVideoType.Video ? '视频' : '语音'}通话`;
+            } catch (err) {
+                return `通话已开始`;
+            }
+        case MessageType.FriendAdded:
+            return `你们已经是好友了~`;
+        case MessageType.GroupCreated:
+            const groupCreatedDetail = JSON.parse(msg.notificationElem.detail);
+            const groupCreatedUser = groupCreatedDetail.opUser;
+            return `${getName(groupCreatedUser)}创建了群聊`;
+        case MessageType.GroupInfoUpdated:
+            const groupUpdateDetail = JSON.parse(msg.notificationElem.detail);
+            const groupUpdateUser = groupUpdateDetail.opUser;
+            let updateFiled = "群设置";
+            if (groupUpdateDetail.group.notification) {
+                updateFiled = "群公告";
+            }
+            if (groupUpdateDetail.group.groupName) {
+                updateFiled = `群名称为 ${groupUpdateDetail.group.groupName}`;
+            }
+            if (groupUpdateDetail.group.faceURL) {
+                updateFiled = "群头像";
+            }
+            if (groupUpdateDetail.group.introduction) {
+                updateFiled = "群介绍";
+            }
+            return `${getName(groupUpdateUser)}修改了${updateFiled}`;
+        case MessageType.GroupOwnerTransferred:
+            const transferDetails = JSON.parse(msg.notificationElem.detail);
+            const transferOpUser = transferDetails.opUser;
+            const newOwner = transferDetails.newGroupOwner;
+            return `${getName(transferOpUser)}转让群主给${getName(newOwner)}`;
+        case MessageType.MemberQuit:
+            const quitDetails = JSON.parse(msg.notificationElem.detail);
+            const quitUser = quitDetails.quitUser;
+            return `${getName(quitUser)}退出了群组`;
+        case MessageType.MemberInvited:
+            const inviteDetails = JSON.parse(msg.notificationElem.detail);
+            const inviteOpUser = inviteDetails.opUser;
+            const invitedUserList = inviteDetails.invitedUserList ?? [];
+            let inviteStr = "";
+            invitedUserList.find(
+                (user, idx) => (inviteStr += getName(user) + " ") && idx > 3
+            );
+            return `${getName(inviteOpUser)}邀请了${inviteStr}${
+                invitedUserList.length > 3 ? "..." : ""
+            }加入群聊`;
+        case MessageType.MemberKicked:
+            const kickDetails = JSON.parse(msg.notificationElem.detail);
+            const kickOpUser = kickDetails.opUser;
+            const kickdUserList = kickDetails.kickedUserList ?? [];
+            let kickStr = "";
+            kickdUserList.find(
+                (user, idx) => (kickStr += getName(user) + " ") && idx > 3
+            );
+            return `${getName(kickOpUser)}踢出了${kickStr}${
+                kickdUserList.length > 3 ? "..." : ""
+            }`;
+        case MessageType.MemberEnter:
+            const enterDetails = JSON.parse(msg.notificationElem.detail);
+            const enterUser = enterDetails.entrantUser;
+            return `${getName(enterUser)}加入了群聊`;
+        case MessageType.GroupDismissed:
+            const dismissDetails = JSON.parse(msg.notificationElem.detail);
+            const dismissUser = dismissDetails.opUser;
+            return `${getName(dismissUser)}解散了群聊`;
+        case MessageType.GroupMuted:
+            const groupMutedDetails = JSON.parse(msg.notificationElem.detail);
+            const groupMuteOpUser = groupMutedDetails.opUser;
+            return `${getName(groupMuteOpUser)}开启了全体禁言`;
+        case MessageType.GroupCancelMuted:
+            const groupCancelMutedDetails = JSON.parse(msg.notificationElem.detail);
+            const groupCancelMuteOpUser = groupCancelMutedDetails.opUser;
+            return `${getName(groupCancelMuteOpUser)}关闭了全体禁言`;
+        case MessageType.GroupMemberMuted:
+            const gmMutedDetails = JSON.parse(msg.notificationElem.detail);
+            const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
+            return `${getName(gmMutedDetails.opUser)}禁言了${getName(
+                gmMutedDetails.mutedUser
+            )} ${muteTime}`;
+        case MessageType.GroupMemberCancelMuted:
+            const gmcMutedDetails = JSON.parse(msg.notificationElem.detail);
+            return `${getName(gmcMutedDetails.opUser)}取消了禁言${getName(
+                gmcMutedDetails.mutedUser
+            )}`;
+        case MessageType.GroupNameUpdated:
+            const groupNameUpdateDetail = JSON.parse(msg.notificationElem.detail);
+            const groupNameUpdateUser = groupNameUpdateDetail.opUser;
+            return `${getName(groupNameUpdateUser)}修改了群名称为${
+                groupNameUpdateDetail.group.groupName
+            }`;
+        case MessageType.BurnMessageChange:
+            const burnDetails = JSON.parse(msg.notificationElem.detail);
+            const name = `${burnDetails.revokerID === store.getters.storeCurrentUserID ? '你' : burnDetails.revokerNickname}`;
+            return burnDetails.revokerRole ? `${name}已设置自动删除${timeMap[burnDetails.revokeTime]}前发送的消息` : `${name}已停用自动删除消息`;
+        case MessageType.OANotification:
+            const customNoti = JSON.parse(msg.notificationElem.detail);
+            return customNoti.text;
+        default:
+            return "";
         }
-        if (groupUpdateDetail.group.groupName) {
-            updateFiled = `群名称为 ${groupUpdateDetail.group.groupName}`;
-        }
-        if (groupUpdateDetail.group.faceURL) {
-            updateFiled = "群头像";
-        }
-        if (groupUpdateDetail.group.introduction) {
-            updateFiled = "群介绍";
-        }
-        return `${getName(groupUpdateUser)}修改了${updateFiled}`;
-    case MessageType.GroupOwnerTransferred:
-        const transferDetails = JSON.parse(msg.notificationElem.detail);
-        const transferOpUser = transferDetails.opUser;
-        const newOwner = transferDetails.newGroupOwner;
-        return `${getName(transferOpUser)}转让群主给${getName(newOwner)}`;
-    case MessageType.MemberQuit:
-        const quitDetails = JSON.parse(msg.notificationElem.detail);
-        const quitUser = quitDetails.quitUser;
-        return `${getName(quitUser)}退出了群组`;
-    case MessageType.MemberInvited:
-        const inviteDetails = JSON.parse(msg.notificationElem.detail);
-        const inviteOpUser = inviteDetails.opUser;
-        const invitedUserList = inviteDetails.invitedUserList ?? [];
-        let inviteStr = "";
-        invitedUserList.find(
-            (user, idx) => (inviteStr += getName(user) + " ") && idx > 3
-        );
-        return `${getName(inviteOpUser)}邀请了${inviteStr}${
-            invitedUserList.length > 3 ? "..." : ""
-        }加入群聊`;
-    case MessageType.MemberKicked:
-        const kickDetails = JSON.parse(msg.notificationElem.detail);
-        const kickOpUser = kickDetails.opUser;
-        const kickdUserList = kickDetails.kickedUserList ?? [];
-        let kickStr = "";
-        kickdUserList.find(
-            (user, idx) => (kickStr += getName(user) + " ") && idx > 3
-        );
-        return `${getName(kickOpUser)}踢出了${kickStr}${
-            kickdUserList.length > 3 ? "..." : ""
-        }`;
-    case MessageType.MemberEnter:
-        const enterDetails = JSON.parse(msg.notificationElem.detail);
-        const enterUser = enterDetails.entrantUser;
-        return `${getName(enterUser)}加入了群聊`;
-    case MessageType.GroupDismissed:
-        const dismissDetails = JSON.parse(msg.notificationElem.detail);
-        const dismissUser = dismissDetails.opUser;
-        return `${getName(dismissUser)}解散了群聊`;
-    case MessageType.GroupMuted:
-        const groupMutedDetails = JSON.parse(msg.notificationElem.detail);
-        const groupMuteOpUser = groupMutedDetails.opUser;
-        return `${getName(groupMuteOpUser)}开启了全体禁言`;
-    case MessageType.GroupCancelMuted:
-        const groupCancelMutedDetails = JSON.parse(msg.notificationElem.detail);
-        const groupCancelMuteOpUser = groupCancelMutedDetails.opUser;
-        return `${getName(groupCancelMuteOpUser)}关闭了全体禁言`;
-    case MessageType.GroupMemberMuted:
-        const gmMutedDetails = JSON.parse(msg.notificationElem.detail);
-        const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
-        return `${getName(gmMutedDetails.opUser)}禁言了${getName(
-            gmMutedDetails.mutedUser
-        )} ${muteTime}`;
-    case MessageType.GroupMemberCancelMuted:
-        const gmcMutedDetails = JSON.parse(msg.notificationElem.detail);
-        return `${getName(gmcMutedDetails.opUser)}取消了禁言${getName(
-            gmcMutedDetails.mutedUser
-        )}`;
-    case MessageType.GroupNameUpdated:
-        const groupNameUpdateDetail = JSON.parse(msg.notificationElem.detail);
-        const groupNameUpdateUser = groupNameUpdateDetail.opUser;
-        return `${getName(groupNameUpdateUser)}修改了群名称为${
-            groupNameUpdateDetail.group.groupName
-        }`;
-    case MessageType.BurnMessageChange:
-        const burnDetails = JSON.parse(msg.notificationElem.detail);
-        return `阅后即焚已${burnDetails.isPrivate ? "开启" : "关闭"}`;
-    case MessageType.OANotification:
-        const customNoti = JSON.parse(msg.notificationElem.detail);
-        return customNoti.text;
-    default:
-        return "";
+    } catch (err) {
+        return '';
     }
 };
 
 export const IMLogin = async () => {
+    console.log('-----', store.state.user.authData);
     const { storeUserID, storeIMToken } = store.getters;
     if (!storeUserID || !storeIMToken) {
         store.commit('user/SET_AUTH_DATA', {});
+        uni.$u.route('/pages/login/index');
         throw new Error('token不存在');
     }
-    await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
-        userID: storeUserID,
-        token: storeIMToken,
-    });
-    store.dispatch("user/getSelfInfo");
-    store.dispatch("conversation/getConversationList");
-    store.dispatch("conversation/getUnReadCount");
-    store.dispatch("contact/getFriendList");
-    store.dispatch("contact/getGrouplist");
-    store.dispatch("contact/getBlacklist");
-    store.dispatch("contact/getRecvFriendApplications");
-    store.dispatch("contact/getSentFriendApplications");
-    store.dispatch("contact/getRecvGroupApplications");
-    store.dispatch("contact/getSentGroupApplications");
-    uni.switchTab({
-        url: "/pages/conversation/conversationList/index",
-    });
+    try {
+        const status = await IMSDK.asyncApi(IMSDK.IMMethods.GetLoginStatus, IMSDK.uuid());
+        if ([2, 3].includes(status)) {
+            await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+        }
+        await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
+            userID: storeUserID,
+            token: storeIMToken,
+        });
+        store.commit('user/SET_LOGIN_STATUS', true);
+        store.dispatch("user/getSelfInfo");
+        store.dispatch("conversation/getConversationList");
+        store.dispatch("conversation/getUnReadCount");
+        store.dispatch("contact/getFriendList");
+        store.dispatch("contact/getGrouplist");
+        store.dispatch("contact/getBlacklist");
+        store.dispatch("contact/getRecvFriendApplications");
+        store.dispatch("contact/getSentFriendApplications");
+        store.dispatch("contact/getRecvGroupApplications");
+        store.dispatch("contact/getSentGroupApplications");
+        uni.switchTab({
+            url: "/pages/conversation/conversationList/index",
+        });
+    } catch (err) {
+        console.log(err);
+        IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+        uni.$u.toast('openim登录异常，请重启');
+        throw new Error('openim登录异常');
+    }
+};
+
+export const login = async (requestMap) => {
+    console.log(requestMap, 'requestMaprequestMap');
+    try {
+        const data = await businessLogin(requestMap);
+        console.log('login------', data);
+        store.commit('user/SET_AUTH_DATA', data);
+        store.commit('user/SET_USER_LIST', {
+            ...data,
+            ...requestMap
+        });
+        return await IMLogin();
+    } catch (err) {
+        console.log(err, err.errMsg);
+        uni.$u.toast(checkLoginError(err));
+        return null;
+    }
 };
 
 export const getDesignatedUserOnlineState = (userID) => {
@@ -500,7 +619,10 @@ export const getDesignatedUserOnlineState = (userID) => {
             statusObj.status,
             statusObj.detailPlatformStatus
         );
-        resolve(onlineStr);
+        resolve({
+            onlineStr,
+            status: statusObj.status
+        });
     });
 };
 
@@ -517,7 +639,7 @@ function switchOnline (oType, details) {
         });
         return `${str.slice(0, -1)} 在线`;
     default:
-        return "";
+        return oType;
     }
 }
 
@@ -543,6 +665,14 @@ export const markConversationAsRead = (conversation, fromChating = false) => {
 };
 
 export const prepareConversationState = (conversation, back2Tab = false, clientMsgID = '') => {
+    const pages = getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    const page = currentPage.route;
+    if (page !== `pages/conversation/conversationList/index`) {
+        uni.switchTab({
+            url: '/pages/conversation/conversationList/index',
+        });
+    }
     markConversationAsRead(conversation);
 
     if (conversation.conversationType === SessionType.WorkingGroup) {
@@ -559,6 +689,7 @@ export const prepareConversationState = (conversation, back2Tab = false, clientM
     if (conversation.conversationType === SessionType.Notification) {
         url = "/pages/conversation/notifyMessageList/index";
     }
+    console.log('back2Tabback2Tabback2Tabback2Tabback2Tab', back2Tab, url);
     uni.navigateTo({
         url,
     });
@@ -607,7 +738,7 @@ export const recordToDesignatedConversation = (
     });
 };
 
-export const scanQrCodeResult = (result) => {
+export const scanQrCodeResult = async (result) => {
     if (result?.includes(AddFriendQrCodePrefix)) {
         const userID = result.replace(AddFriendQrCodePrefix, "");
         uni.navigateTo({
@@ -619,7 +750,21 @@ export const scanQrCodeResult = (result) => {
             url: `/pages/common/groupCard/index?sourceID=${groupID}&isScan=true`,
         });
     } else {
-        uni.$u.toast("未识别到有效内容");
+        try {
+            const resultMap = JSON.parse(result);
+            const { value, type } = resultMap;
+            if (type === 'login') {
+                uni.navigateTo({
+                    url: `/pages/login/scanLogin/index?code=${value}`
+                });
+            } else {
+                uni.$u.toast("未识别到有效内容");
+            }
+        } catch (err) {
+            console.log(err);
+            uni.$u.toast("未识别到有效内容");
+        }
+        // uni.$u.toast("未识别到有效内容");
     }
 };
 
@@ -692,4 +837,49 @@ export const idsGetConversationID = (message) => {
         }
         return new Error('工作群缺少groupID，无法组成conversationID');
     }
+};
+
+export const getMessageContent = (message) => {
+    let text = '';
+    const { contentType, quoteElem, atTextElem, textElem } = message;
+    // TODO：解密文本
+    if (contentType === MessageType.QuoteMessage) {
+        text = parseEmojiInsertImg(DecryptoAES(quoteElem?.text));
+    } else if (contentType === MessageType.AtTextMessage) {
+        text = parseEmojiInsertImg(parseAt(atTextElem, 1));
+    } else {
+        text = parseEmojiInsertImg(DecryptoAES(textElem?.content));
+    }
+    text = text.replace(/\n/g, '<br>');
+    return text;
+};
+
+
+export const parseEmojiInsertImg = (msgStr) => {
+    emojis.map((item) => {
+        if (msgStr?.includes(item.context)) {
+            let imgStr = `<img width="24px" height="18px" class="emoji_el" data-custom="emojiText=${item.context}" src="${item.src}" />`;
+            // imgStr = imgStr.replace("/static", "static");
+            msgStr = msgStr.replace(item.reg, imgStr);
+        }
+    });
+    return msgStr;
+};
+
+export const parseAtInsertImg = (atel) => {
+    let mstr = atel.text;
+    const pattern = /@\d+\s/g;
+    const arr = mstr.match(pattern);
+    const atUserList = atel.atUsersInfo ?? [];
+    arr?.map((match) => {
+        const member = atUserList.find(
+            (user) => user.data.sendID === match.slice(1, -1) || (user.data.sendID.includes(','))
+        );
+        if (member) {
+            let imgStr = `<img width="${member.width}" height="${member.height}" class="${member.extClass}" data-custom="sendID=${member.data.sendID}&amp;senderNickname=${member.data.senderNickname}" src="${member.src}" />`;
+            // imgStr = imgStr.replace("/static", "static");
+            mstr = mstr.replace(match, imgStr);
+        }
+    });
+    return mstr;
 };

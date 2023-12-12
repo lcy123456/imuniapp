@@ -25,10 +25,16 @@
             >
                 <view class="title">
                     {{ storeCurrentConversation.showName }}
+                    <text
+                        v-if="typingText"
+                        class="typing-text"
+                    >
+                        {{ typingText }}
+                    </text>
                 </view>
                 <view
                     v-if="isSingle"
-                    class="fz-24 text-grey flex align-center justify-center"
+                    class="flex justify-center fz-24 text-grey align-center"
                 >
                     <view :class="['w-12', 'h-12', 'br-12', isOnline ? 'bg-primary' : 'bg-inverse']" />
                     <text class="ml-10">
@@ -56,6 +62,7 @@
             </view>
             <MyAvatar
                 v-else-if="isSingle"
+                class="header-avatar"
                 :src="storeCurrentConversation.faceURL"
                 :desc="storeCurrentConversation.showName"
                 size="60rpx"
@@ -77,7 +84,7 @@
 <script>
 import CustomNavBar from '@/components/CustomNavBar';
 import { mapGetters } from "vuex";
-import { SessionType } from 'openim-uniapp-polyfill';
+import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { getDesignatedUserOnlineState } from "@/util/imCommon";
 import { MessageMenuTypes } from '@/constant';
@@ -102,6 +109,7 @@ export default {
         return {
             isOnline: false,
             onlineStr: "离线",
+            typingText: ''
         };
     },
     computed: {
@@ -127,15 +135,46 @@ export default {
             return `${this.storeCurrentGroup?.memberCount ?? 0}位成员`;
         },
     },
+    created () {
+        uni.$on('setStatus', this.setStatus);
+        this.setIMListener();
+        this.getOnlineState();
+        this.timer = setInterval(() => {
+            this.getOnlineState();
+        }, 3000);
+    },
+    beforeDestroy () {
+        clearInterval(this.timer);
+        clearInterval(this.timer2);
+        uni.$off('setStatus', this.setStatus);
+    },
     methods: {
+        setStatus (str) {
+            this.typingText = str;
+            clearTimeout(this.timer2);
+            this.timer2 = setTimeout(() => {
+                this.typingText = '';
+            }, 2000);
+        },
         async getOnlineState () {
             try {
-                const res = await getDesignatedUserOnlineState(this.userID);
-                this.isOnline = res !== "离线";
-                this.onlineStr = res;
-            } catch {
+                const { onlineStr, status } = await getDesignatedUserOnlineState(this.userID);
+                this.isOnline = status === "online";
+                this.onlineStr = onlineStr;
+            } catch (err) {
+                // console.log('获取状态失败失败失败失败失败失败失败', err);
                 this.isOnline = false;
             }
+        },
+        setIMListener () {
+            console.log('注册注册注册注册注册注册注册注册');
+            IMSDK.subscribe(
+                IMSDK.IMEvents.OnUserStatusChanged,
+                this.userStatusChangedHandler
+            );
+        },
+        userStatusChangedHandler (data) {
+            console.log('OnUserStatusChangedOnUserStatusChanged-----', data);
         },
         showInfo () {
             uni.$u.route(`/pages/common/userCard/index?sourceID=${this.userID}&from=chating`);
@@ -159,6 +198,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .header-avatar {
+        /deep/ uni-text {
+            font-size: 24rpx!important;
+        }
+    }
+    .typing-text {
+        margin-left: 20rpx;
+    }
 	.chating_header {
         padding: 0 30rpx;
 		.conversation_info {
@@ -166,7 +213,7 @@ export default {
 
 			.title {
 				@include nomalEllipsis();
-				max-width: 280rpx;
+				max-width: 380rpx;
 				font-size: 34rpx;
 				font-weight: 500;
 				font-family: MiSans-Medium;

@@ -1,53 +1,62 @@
 <template>
-    <view class="contact_container">
-        <CustomNavBar
-            :show-left="false" 
-            is-bg-color2
-            title="通讯录"
+    <Page>
+        <view
+            class="contact_container"
         >
-            <view
-                slot="more"
-                class="mr-30"
-                @click="contactAddClick"
+            <!-- <div>
+            <text @click="roomModule.toggleAudio">切换声音</text>
+            <text @click="roomModule.toggleVideo">开关视频</text>
+            <text @click="roomModule.toggleVideoInput">切换视频</text>
+        </div> -->
+            <CustomNavBar
+                :show-left="false" 
+                is-bg-color2
+                title="通讯录"
             >
-                <image
-                    src="@/static/images/common_circle_add.png"
-                    class="w-44 h-44"
+                <view
+                    slot="more"
+                    class="mr-30"
+                    @click="contactAddClick"
+                >
+                    <image
+                        src="@/static/images/common_circle_add.png"
+                        class="w-44 h-44"
+                    />
+                </view>
+            </CustomNavBar>
+            <view
+                class="px-20 pt-10 pb-20"
+                @click="handleToSearch"
+            >
+                <uni-search-bar
+                    v-model="keyword"
+                    bg-color="#fff"
+                    class="h-70"
+                    placeholder="搜索"
+                    readonly
                 />
             </view>
-        </CustomNavBar>
-        <view
-            class="px-20 pb-20 pt-10"
-            @click="handleToSearch"
-        >
-            <uni-search-bar
-                v-model="keyword"
-                bg-color="#fff"
-                class="h-70"
-                placeholder="搜索"
-                readonly
-            />
-        </view>
-        <ContactMenus />
+            <ContactMenus />
 
-        <view class="list_title">
-            <text>常用联系人</text>
-        </view>
+            <view class="list_title">
+                <text>常用联系人</text>
+            </view>
 
-        <u-list
-            class="user_list"
-        >
-            <u-list-item
-                v-for="user in frequentContacts"
-                :key="user.userID"
+            <u-list
+                class="user_list"
             >
-                <UserItem
-                    :item="user"
-                    @itemClick="userClick"
-                />
-            </u-list-item>
-        </u-list>
-    </view>
+                <u-list-item
+                    v-for="user in frequentContacts"
+                    :key="user.userID"
+                >
+                    <UserItem
+                        :item="user"
+                        @itemClick="userClick"
+                    />
+                </u-list-item>
+            </u-list>
+        </view>
+    </Page>
 </template>
 
 <script>
@@ -62,7 +71,9 @@ export default {
     },
     data () {
         return {
+            videoelm: null,
             keyword: '',
+            update: '',
             frequentContacts: []
         };
     },
@@ -80,7 +91,6 @@ export default {
         },
         getFrequentContacts () {
             const tmpData = uni.getStorageSync(`${this.$store.getters.storeCurrentUserID}_frequentContacts`) || [];
-            console.log(tmpData);
             this.frequentContacts = [...tmpData].sort((a, b) => b - a);
         },
         userClick (item) {
@@ -91,8 +101,13 @@ export default {
     }
 };
 </script>
-
 <style lang="scss" scoped>
+
+    .screenshare-video {
+        width: 400px;
+        height: 400px;
+        border: 1px solid red;
+    }
 	.contact_container {
 		@include colBox(false);
 		height: 100vh;

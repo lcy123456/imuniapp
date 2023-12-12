@@ -3,6 +3,8 @@
         <TextMessageRender
             v-if="showTextRender"
             :message="message"
+            :is-show-time="false"
+            :is-quote="true"
             :show-nickname="showDetail"
         />
         <view
@@ -17,10 +19,12 @@
             </view>
             <MediaMessageRender
                 v-if="showMediaRender"
+                :is-quote="true"
                 :message="message"
             />
             <FileMessageRender
                 v-else-if="showFileRender"
+                :is-quote="true"
                 :message="message"
             />
         </view>
@@ -122,11 +126,13 @@ export default {
     }
 }
 .quote_detail {
+    width: fit-content;
     max-width: 100%;
     padding: 16rpx;
     margin-top: 10rpx;
     background-color: $uni-bg-color-grey;
     border-radius: 16rpx;
+    width: fit-content;
     /deep/.text_message_container > view {
         @include ellipsisWithLine(2);
     }

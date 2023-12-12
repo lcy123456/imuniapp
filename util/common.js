@@ -1,20 +1,25 @@
 import PinYin from './pinyin';
+import { AllType } from '@/enum';
 
-export const html2Text = (html) => {
+export const html2Text = (html, type) => {
     if (!html) {
         return '';
     }
-    return html
+    let text = html
         .replace(/&nbsp;/g, ' ')
         .replace(/<br>/g, '\n')
         .replace(/<p>/g, '')
-        .replace(/<\/p>/g, '')
+        .replace(/<\/p>/g, '\n')
         .trim();
+    if (!type) {
+        text = text.replace(/<([^>]*>)/g, '');
+    }
+    return text;
 };
 
 export const formatInputHtml = (html) => {
     let atUserList = [];
-    let text = html2Text(html);
+    let text = html2Text(html, 1);
     const imgReg = new RegExp('(i?)(<img)([^>]+>)', 'gmi');
     const customDataReg = /data-custom=".+"/;
     text = text.replace(imgReg, (img) => {
@@ -27,7 +32,7 @@ export const formatInputHtml = (html) => {
                 atUserID: atInfoArr[0].slice(7),
                 groupNickname: atInfoArr[1].slice(15),
             });
-            return `@${atInfoArr[0].slice(7)} `;
+            return `@${atInfoArr[0].slice(7).includes(',') ? AllType.Code : atInfoArr[0].slice(7)} `;
         }
         if (img.includes('class="emoji_el"')) {
             return img.match(customDataReg)[0].slice(23, -1);
@@ -43,13 +48,10 @@ export const formatInputHtml = (html) => {
 export function getEl (el) {
     return new Promise((resolve) => {
         const query = uni.createSelectorQuery().in(this);
-        query
-            .select(el)
-            .boundingClientRect((data) => {
-                // 存在data，且存在宽和高，视为渲染完毕
-                resolve(data);
-            })
-            .exec();
+        query.select(el).boundingClientRect((data) => {
+            // 存在data，且存在宽和高，视为渲染完毕
+            resolve(data);
+        }).exec();
     });
 }
 
@@ -197,47 +199,37 @@ export const toastWithCallback = (message, callBack, duration = 1000) => {
 
 export const checkLoginError = (error) => {
     if (!error?.errCode) {
-        return '操作失败';
+        return '网络异常，请稍后重试';
     }
     switch (error.errCode) {
-    case 10003:
-        return '验证码发送失败';
-    case 20001:
-        return '账号已注册';
-    case 20002:
-        return '验证码的发送频率太快了！';
-    case 20003:
-        return '邀请码错误';
-    case 20004:
-    case 40003:
-    case 40004:
-        return 'IP已被限制';
-    case 30001:
-        return '验证码错误';
-    case 30002:
-        return '验证码已过期';
-    case 30003:
-        return '邀请码已被使用';
-    case 30004:
-        return '邀请码不存在';
-    case 40001:
-        return '账号未注册';
-    case 40002:
+    case 1001:
+        return '输入信息有误';
+    case 10001:
         return '密码错误';
-    case 40005:
-        return '账号已被封禁';
-    case 50001:
-        return 'token已过期';
-    case 50002:
-        return 'token格式错误';
-    case 50003:
-        return 'token不存在';
-    case 50004:
-        return '未知token错误';
-    case 50005:
-        return 'token创建失败';
+    case 10002:
+        return '用户不存在';
+    case 10003:
+        return '账号已注册';
+    case 10004:
+        return '账号已注册';
+    case 10005:
+        return '验证码的发送频率太快了！';
+    case 10006:
+        return '验证码错误';
+    case 10007:
+        return '验证码已过期';
+    case 10008:
+        return '验证码失败次数过多';
+    case 10009:
+        return '验证码已被使用';
+    case 10010:
+        return '邀请码已被使用';
+    case 10011:
+        return '邀请码不存在';
+    case 10013:
+        return '拒绝添加好友';
     default:
-        return '操作失败';
+        return '网络异常，请稍后重试';
     }
 };
 
@@ -245,4 +237,34 @@ export const lightTextStr = (str, key) => {
     return str.replace(new RegExp(key, 'gi'), (text) => {
         return `<text class="primary">${text}</text>`;
     }, 'g');
+};
+
+
+export const getNewText = (newStr, oldStr) => {
+    let text = '';
+    let type = newStr.length > oldStr.length ? 'add' : 'remove';
+    let l1 = (type === 'add' ? newStr : oldStr).split('').filter(item => item !== '\n');
+    let l2 = (type === 'add' ? oldStr : newStr).split('').filter(item => item !== '\n');
+    let isN = false;
+    if (l2.length > l1.length) {
+        // 判断\n 的情况
+        isN = true;
+        let l = [...l2];
+        l2 = [...l1];
+        l1 = [...l];
+    }
+    l1.forEach((item, i) => {
+        if (text) return;
+        if (item !== l2[i]) {
+            text = item;
+        }
+    });
+    console.log({
+        type: isN ? 'add' : type,
+        text
+    });
+    return {
+        type: isN ? 'add' : type,
+        text
+    };
 };

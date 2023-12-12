@@ -4,14 +4,14 @@
         @click="clickFileItem"
     >
         <image
-            class="flex-shrink w-84 h-84 mr-20"
+            class="flex-shrink mr-20 w-84 h-84"
             src="@/static/images/chating_message_file.png"
         />
-        <view class="right flex flex-column">
+        <view class="flex right flex-column">
             <text class="nomalEllipsis">
                 {{ fileElem.fileName }}
             </text>
-            <text class="primary file_size mt-10">
+            <text class="mt-10 primary file_size">
                 {{ bytesToSize(fileElem.fileSize) }}
             </text>
         </view>

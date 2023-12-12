@@ -1,61 +1,56 @@
 <template>
-    <view class="search_record_container page_container">
-        <view class="status-bar-height" />
-        <view class="px-20 pb-20 pt-10">
-            <uni-search-bar
-                v-model="keyword"
-                bg-color="#fff"
-                class="h-70"
-                focus
-                placeholder="搜索"
-                @cancel="handleCancel"
+    <Page>
+        <view class="search_record_container page_container">
+            <view class="status-bar-height" />
+            <view class="px-20 pt-10 pb-20">
+                <uni-search-bar
+                    v-model="keyword"
+                    bg-color="#fff"
+                    class="h-70"
+                    focus
+                    placeholder="搜索"
+                    @cancel="handleCancel"
+                />
+            </view>
+            <Empty
+                v-if="!keyword || showList.length === 0"
             />
-        </view>
-        <view
-            v-if="!keyword || showList.length === 0"
-            key="empty"
-            class="flex-grow flex justify-center pt-186 bg-color"
-        >
-            <image
-                src="/static/images/search_record_empty.png"
-                class="empty_icon"
-            />
-        </view>
-        <view
-            v-else
-            key="list"
-            class="record_container"
-            @touchstart="touchstart"
-        >
             <view
-                v-for="v in showList"
-                :key="v.type"
-                class="record_box mb-20 px-30"
+                v-else
+                key="list"
+                class="record_container"
+                @touchstart="touchstart"
             >
                 <view
-                    v-show="!moreType"
-                    class="title_box"
+                    v-for="v in showList"
+                    :key="v.type"
+                    class="mb-20 record_box px-30"
                 >
-                    {{ v.title }}
-                </view>
-                <RecordItem
-                    v-for="j in v.list.slice(0, moreType ? undefined : 3)"
-                    :key="j.userID || j.groupID || j.conversationID"
-                    :source="j"
-                    :keyword="keyword"
-                    :type="v.type"
-                    @click.native="handleItemClick(v.type, j)"
-                />
-                <view
-                    v-if="v.list.length > 3 && !moreType"
-                    class="more_box"
-                    @click="handleMore(v.type)"
-                >
-                    更多{{ v.title }}
+                    <view
+                        v-show="!moreType"
+                        class="title_box"
+                    >
+                        {{ v.title }}
+                    </view>
+                    <RecordItem
+                        v-for="j in v.list.slice(0, moreType ? undefined : 3)"
+                        :key="j.userID || j.groupID || j.conversationID"
+                        :source="j"
+                        :keyword="keyword"
+                        :type="v.type"
+                        @click.native="handleItemClick(v.type, j)"
+                    />
+                    <view
+                        v-if="v.list.length > 3 && !moreType"
+                        class="more_box"
+                        @click="handleMore(v.type)"
+                    >
+                        更多{{ v.title }}
+                    </view>
                 </view>
             </view>
         </view>
-    </view>
+    </Page>
 </template>
 
 <script>

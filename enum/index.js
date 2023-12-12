@@ -11,3 +11,22 @@ export const regMap = {
     numberLetter: /^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]){2,}$/,
     ...phoneReg
 };
+export const AudioVideoStatus = {
+    Send: 1650,
+    Reject: 1651,
+    Cancel: 1652,
+    NotAnswered: 1653,
+    Busy: 1655,
+    Done: 1669,
+    groupStart: 1704,
+    groupDone: 1703
+};
+export const AudioVideoType = {
+    Video: 131,
+    Audio: 130
+};
+
+export const AllType = {
+    Code: '999999999',
+    Text: '所有人'
+};

@@ -1,63 +1,65 @@
 <template>
-    <view class="page_container">
-        <view class="status-bar-height" />
-        <view class="self_info_row">
-            <MyAvatar
-                :src="selfInfo.faceURL"
-                :desc="selfInfo.nickname"
-                size="190rpx"
-            />
-            <text class="nickname">
-                {{ selfInfo.nickname }}
-            </text>
-            <view class="id_row">
-                <text>{{ selfInfo.userID }}</text>
-                <image
-                    class="w-32 h-32 ml-20"
-                    src="/static/images/profile_copy.png"
-                    @click="copyID"
+    <Page>
+        <view class="page_container">
+            <view class="status-bar-height" />
+            <view class="self_info_row">
+                <MyAvatar
+                    :src="selfInfo.faceURL"
+                    :desc="selfInfo.nickname"
+                    size="190rpx"
                 />
-            </view>
-            <image
-                class="qrCode w-38 h-38"
-                src="/static/images/profile_top_qr.png"
-                @click="toSelfQr"
-            />
-        </view>
-
-        <view class="px-40">
-            <view
-                v-for="item in profileMenus"
-                :key="item.idx"
-                class="profile_menu_item"
-                @click="profileMenuClick(item)"
-            >
-                <view class="menu_left">
+                <text class="nickname">
+                    {{ selfInfo.nickname }}
+                </text>
+                <view class="id_row">
+                    <text>{{ selfInfo.userID }}</text>
                     <image
-                        class="w-38 h-38"
-                        :src="item.icon"
-                        mode=""
+                        class="w-32 h-32 ml-20"
+                        src="/static/images/profile_copy.png"
+                        @click="copyID"
                     />
-                    <text>{{ item.title }}</text>
                 </view>
-                <u-icon
-                    class="text-grey"
-                    name="arrow-right"
-                    size="20rpx"
+                <image
+                    class="qrCode w-38 h-38"
+                    src="/static/images/profile_top_qr.png"
+                    @click="toSelfQr"
                 />
             </view>
-        </view>
 
-        <u-modal
-            width="500rpx"
-            show-cancel-button
-            :show="showComfirm"
-            content="确定要退出当前账号吗？"
-            async-close
-            @confirm="logoutConfirm"
-            @cancel="closeModal"
-        />
-    </view>
+            <view class="px-40">
+                <view
+                    v-for="item in profileMenus"
+                    :key="item.idx"
+                    class="profile_menu_item"
+                    @click="profileMenuClick(item)"
+                >
+                    <view class="menu_left">
+                        <image
+                            class="w-38 h-38"
+                            :src="item.icon"
+                            mode=""
+                        />
+                        <text>{{ item.title }}</text>
+                    </view>
+                    <u-icon
+                        class="text-grey"
+                        name="arrow-right"
+                        size="20rpx"
+                    />
+                </view>
+            </view>
+
+            <u-modal
+                width="500rpx"
+                show-cancel-button
+                :show="showComfirm"
+                content="确定要退出当前账号吗？"
+                async-close
+                @confirm="logoutConfirm"
+                @cancel="closeModal"
+            />
+        </view>
+    </Page>
 </template>
 
 <script>
@@ -83,13 +85,18 @@ export default {
                     title: '账号设置',
                     icon: require('static/images/profile_menu_account.png'),
                 },
+                // {
+                //     idx: 3,
+                //     title: '我的收藏',
+                //     icon: require('static/images/profile_menu_favorite.png'),
+                // },
                 {
-                    idx: 3,
+                    idx: 4,
                     title: '关于我们',
                     icon: require('static/images/profile_menu_about.png'),
                 },
                 {
-                    idx: 4,
+                    idx: 5,
                     title: '退出登录',
                     icon: require('static/images/profile_menu_logout.png'),
                 },
@@ -137,10 +144,15 @@ export default {
                 break;
             case 3:
                 uni.navigateTo({
-                    url: '/pages/profile/about/index',
+                    url: '/pages/profile/favorite/index',
                 });
                 break;
             case 4:
+                uni.navigateTo({
+                    url: '/pages/profile/about/index',
+                });
+                break;
+            case 5:
                 this.showComfirm = true;
                 break;
             default:

@@ -1,18 +1,18 @@
-import face_2 from 'static/emojis/face_2.png';
-import face_3 from 'static/emojis/face_3.png';
-import face_4 from 'static/emojis/face_4.png';
-import face_5 from 'static/emojis/face_5.png';
-import face_6 from 'static/emojis/face_6.png';
-import face_7 from 'static/emojis/face_7.png';
-import face_8 from 'static/emojis/face_8.png';
-import face_9 from 'static/emojis/face_9.png';
-import face_10 from 'static/emojis/face_10.png';
-import face_11 from 'static/emojis/face_11.png';
-import face_12 from 'static/emojis/face_12.png';
-import face_13 from 'static/emojis/face_13.png';
-import face_14 from 'static/emojis/face_14.png';
-import face_15 from 'static/emojis/face_15.png';
-import face_16 from 'static/emojis/face_16.png';
+const face_2 = require('@/static/emojis/face_2.png');
+const face_3 = require('@/static/emojis/face_3.png');
+const face_4 = require('@/static/emojis/face_4.png');
+const face_5 = require('@/static/emojis/face_5.png');
+const face_6 = require('@/static/emojis/face_6.png');
+const face_7 = require('@/static/emojis/face_7.png');
+const face_8 = require('@/static/emojis/face_8.png');
+const face_9 = require('@/static/emojis/face_9.png');
+const face_10 = require('@/static/emojis/face_10.png');
+const face_11 = require('@/static/emojis/face_11.png');
+const face_12 = require('@/static/emojis/face_12.png');
+const face_13 = require('@/static/emojis/face_13.png');
+const face_14 = require('@/static/emojis/face_14.png');
+const face_15 = require('@/static/emojis/face_15.png');
+const face_16 = require('@/static/emojis/face_16.png');
 export const emojis = [
     {
         context: '[微笑]',

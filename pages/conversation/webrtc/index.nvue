@@ -1,0 +1,286 @@
+<template>
+    <web-view
+        ref="webviewRef"
+        @onPostMessage="handlePostMessage"
+        :style="{flex: 1}"
+        :src="src"
+    />
+</template>
+
+<script>
+import { mapGetters, mapActions } from "vuex";
+import { AudioVideoType, AudioVideoStatus } from '@/enum';
+import {
+    PageEvents
+} from '@/constant';
+import IMSDK, {
+    IMMethods,
+    SessionType,
+} from 'openim-uniapp-polyfill';
+
+export default {
+    data () {
+        return {
+            time: '',
+            updateKey: '',
+            innerAudioContext: null,
+        }
+    },
+    computed: {
+        ...mapGetters([
+            "storeUserID",
+            "storeIncomingCallMessage",
+            "storeIncomingCallCallTime",
+            "storeIsIncomingCallTop",
+			"storeIsIncomingCallLoading",
+            "storeIsIncomingCallIng",
+            "storeIsAnswer",
+            "storeIncomingCallUserInfo",
+            "storeSelfInfo",
+            "storeIncomingCallToken",
+            "storeIsIncomingConversation",
+            "storeBusinessToken",
+            "storeIncomingCallWsUrl"
+        ]),
+        src () {
+            return `/hybrid/html/chat.html`;
+        }
+    },
+    watch: {
+		storeIsIncomingCallTop: {
+			handler(val){
+				if(val) this.startMusic()
+				else this.stopMusic()
+			}
+		}
+    },
+    onLoad () {
+        console.log('onLoad-onLoad');
+    },
+    onReady () {
+        // uni.preloadPage({url: "/pages/conversation/webrtc/index"});
+        uni.$on('incoming_message_callback', this.incomingMessageCallback);
+        console.log('onReady-onReady');
+    },
+    onShow () {
+        setTimeout(() => {
+            console.log('onshow-onshow', this.storeIncomingCallWsUrl);
+            if (this.time !== this.storeIncomingCallCallTime) {
+                const selfUserInfo = {
+                    faceURL: this.storeSelfInfo.faceURL,
+                    nickname: this.storeSelfInfo.nickname,
+                }
+                const map = {
+                    message: this.storeIncomingCallMessage,
+                    isCallLoading: this.storeIsIncomingCallLoading,
+                    isCallIng: this.storeIsIncomingCallIng,
+                    isAnswer: this.storeIsAnswer,
+                    callUserInfo: this.storeIncomingCallUserInfo,
+                    selfUserInfo: selfUserInfo,
+                    token: this.storeIncomingCallToken,
+                    url: this.storeIncomingCallWsUrl
+                }
+                this.postMessage(`uniEvent(${JSON.stringify(map)})`);
+            }
+            this.time = this.storeIncomingCallCallTime;
+            console.log('onShow');
+        }, 1000);
+    },
+    onUnload () {
+        console.log('onUnloadonUnload');
+        uni.$off('incoming_message_callback', this.incomingMessageCallback);
+    },
+    onHide () {
+        console.log('onHideonHideonHide');
+		
+        if(this.storeIsIncomingCallLoading) {
+			this.onSmall()
+		}
+    },
+    methods: {
+        ...mapActions('incomingCall', ['onSmall', 'onDangerCall', 'onSuccessCall']),
+        ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
+        // 唤起铃声
+        startMusic () {
+            // 避免重复唤起铃声
+            if (this.isStartMusic) return;
+            this.isStartMusic = true;
+            uni.$emit('play_audio', '/static/audio/incoming_call_music.mp3');
+        },
+        // 销毁铃声
+        stopMusic () {
+            this.isStartMusic = false;
+            uni.$emit('stop_audio', '/static/audio/incoming_call_music.mp3');
+        },
+        async handlePostMessage (event) {
+            const [data] = event.detail.data
+            if(data.goOut) {
+                if (data.isDanger === 'fail') {
+                    setTimeout(() => {
+                        uni.$emit('toast', '网络异常，请稍后重试');
+                    }, 1000);
+                }
+                this.getIsInWebrtc() && uni.navigateBack();
+            }
+            if (data.type === 'setTime') {
+                this.$store.commit('incomingCall/SET_TIME_TEXT', data.timeText);
+            }
+            if (data.type === 'success') {
+                uni.$emit('sendMessage', {
+                    ...this.storeIncomingCallMessage,
+                    createTime: +new Date() + 3000,
+                    sendTime: +new Date() + 3000
+                });
+            }
+            if(data.isSmall) {
+                // 缩小
+                this.onSmall()
+            }
+            if(data.isDanger) {
+                // 挂断
+                this.reject(data);
+                this.onDangerCall();
+            }
+            if(data.isSuccess) {
+                // 接听
+				this.onSuccessCall()
+                await this.userJoinCalling(data.joinUserID)
+            }
+        },
+        // 群聊场景，用户刚加入群聊
+        async userJoinCalling(joinUserID) {
+            if(!joinUserID) return;
+            console.log(joinUserID, ' 群聊场景，用户刚加入群聊()=======')
+
+            const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                [joinUserID]
+            );
+            if (usersInfo?.data) {
+                const [uData] = usersInfo.data;
+                const { faceURL, nickname, userID } = uData.publicInfo;
+                const map = { faceURL, nickname, userID, isGroupUserJoin: true }
+                this.postMessage(`uniGroupUserJoinEvent(${JSON.stringify(map)})`);
+                console.log('加入群聊的用户，用户信息', uData);
+            }
+        },
+        postMessage (str) {
+            this.$refs.webviewRef && this.$refs.webviewRef.evalJs(str);
+        },
+        getIsInWebrtc () {
+            const pages = getCurrentPages();
+            const currentPage = pages[pages.length - 1];
+            const url = currentPage.route;
+            return url === `pages/conversation/webrtc/index`;
+        },
+        idsGetConversationID (message) {
+            const { sessionType, sendID, recvID, groupID } = message;
+            const min = Math.min(sendID, recvID);
+            const max = Math.max(sendID, recvID);
+            switch (sessionType) {
+            case SessionType.Single:
+                if (sendID && recvID) {
+                    return `si_${min}_${max}`;
+                }
+                return new Error('单聊缺少sendID或recvID，无法组成conversationID');
+            case SessionType.WorkingGroup:
+                if (groupID) {
+                    return `sg_${groupID}`;
+                }
+                return new Error('工作群缺少groupID，无法组成conversationID');
+            }
+        },
+        async incomingMessageCallback (data) {
+            console.log('incomingMessageCallback--incomingMessageCallback--incomingMessageCallback', data);
+            const { customStatus } = data;
+            const map = {
+                isInWebrtc: this.getIsInWebrtc(),
+                customStatus
+            }
+            if ([AudioVideoStatus.Done].includes(customStatus)) {
+                console.log('聊天结束。。。');
+                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
+            } else if ([AudioVideoStatus.Cancel].includes(customStatus)) {
+                console.log('对方取消');
+                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
+            } else if ([AudioVideoStatus.Reject].includes(customStatus)) {
+                console.log('对方拒绝。。。');
+                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
+            } else if ([AudioVideoStatus.NotAnswered].includes(customStatus)) {
+                console.log('对方未应答。。。');
+                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
+            } else if ([AudioVideoStatus.Busy].includes(customStatus)) {
+                console.log('对方忙线中。。。');
+                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
+            }
+        },
+        // 双方等待接听，拨打方挂断电话，状态已取消
+        // 双方通话中，任意方挂断电话，状态已完成
+        async reject (map) {
+            if(this.storeIsIncomingCallIng || map.customStatus || map.isDanger === 'fail') return;
+            const { recvID, sendID, groupID, sessionType, customElem } = this.storeIncomingCallMessage;
+            console.log('recvID, sendIDrecvID, sendIDrecvID, sendID', recvID, sendID);
+            if (sessionType === 3) return;
+            if (this.storeIsAnswer) {
+                // 拒绝
+                uni.$u?.http.post('/video/single_chat_refused', JSON.stringify({
+                    sendID,
+                    conversationID: this.idsGetConversationID(this.storeIncomingCallMessage)
+                }), {
+                    custom: {
+                        isIMApi: true,
+                    },
+                    header: {
+                        token: this.storeBusinessToken,
+                    }
+                });
+                return;
+            }
+            // 取消
+            const res = JSON.parse(customElem.data);
+            const message = await IMSDK.asyncApi(
+                IMMethods.CreateCustomMessage,
+                IMSDK.uuid(),
+                {
+                    data: JSON.stringify({
+                        type: res.type,
+                        status: AudioVideoStatus.Cancel
+                    }),
+                    extension: '',
+                    description: ''
+                }
+            );
+            if (this.storeIsIncomingConversation) {
+                this.pushNewMessage({
+                    ...message,
+                    recvID: recvID,
+                    groupID,
+                    sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
+                });
+            }
+            console.log('this.storeIncomingCallMessage');
+            const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
+                recvID: recvID,
+                groupID: groupID,
+                message,
+                offlinePushInfo: {
+                    title: "you have a new message",
+                    desc: "you have a new message",
+                    ex: "",
+                    iOSPushSound: "",
+                    iOSBadgeCount: true
+                }
+            });
+            console.log('data', data);
+            this.updateOneMessage({
+                message: data,
+                isSuccess: true,
+            });
+            uni.$emit(PageEvents.ScrollToBottom);
+        }
+    }
+}
+</script>
+
+<style>
+
+</style>

@@ -1,108 +1,129 @@
 <template>
-    <view class="user_card_container">
-        <CustomNavBar
-            title=""
-            is-bg-color2
-        />
-
-        <view class="base_info">
-            <MyAvatar
-                :src="sourceUserInfo.faceURL"
-                :desc="sourceUserInfo.remark || sourceUserInfo.nickname"
-                size="190rpx"
+    <Page>
+        <view
+            class="user_card_container"
+            @click="closeAll"
+        >
+            <CustomNavBar
+                title=""
+                is-bg-color2
             />
-            <text class="nickname">
-                {{ getShowName }}
-            </text>
-            <view class="id_row">
-                ID：<text>{{ sourceID }}</text>
-                <image
-                    class="w-32 h-32 ml-20"
-                    src="/static/images/profile_copy.png"
-                    @click="copyID"
-                />
-            </view>
-        </view>
 
-        <view v-if="isFriend">
-            <view class="flex justify-between mb-30">
-                <view
-                    v-for="item in infoMenus"
-                    :key="item.idx"
-                    class="w-210 h-130 bg-color br-30 flex flex-column justify-evenly align-center"
-                    @click="infoMenusClick(item)"
-                >
+            <view class="base_info">
+                <MyAvatar
+                    :src="sourceUserInfo.faceURL"
+                    :desc="sourceUserInfo.remark || sourceUserInfo.nickname"
+                    size="190rpx"
+                />
+                <text class="nickname">
+                    {{ getShowName }}
+                </text>
+                <view class="id_row">
+                    ID：<text>{{ sourceID }}</text>
                     <image
-                        class="w-54 h-54"
-                        :src="item.icon"
+                        class="w-32 h-32 ml-20"
+                        src="/static/images/profile_copy.png"
+                        @click="copyID"
                     />
-                    <view class="fz-26">
-                        {{ item.title }}
-                    </view>
                 </view>
             </view>
-            <SettingItem
-                class="info-row"
-                title="查找聊天记录"
-                show-arrow
-                @click="handleRecord"
-            />
-            <SettingItem
-                class="info-row"
-                title="加入黑名单"
-                show-switch
-                :loading="blackLoading"
-                :switch-value="isBlacked"
-                @switch="blackChange"
-            />
-            <view 
-                class="h-130 bg-color br-30 flex justify-center align-center error"
-                @click="()=>showConfirm=true"
-            >
-                解除好友关系
+
+            <view v-if="isFriend">
+                <view class="flex justify-between mb-30">
+                    <view
+                        v-for="item in infoMenus"
+                        :key="item.idx"
+                        class="flex feat-item w-210 h-130 bg-color br-30 flex-column justify-evenly align-center"
+                        @click.stop="infoMenusClick(item)"
+                    >
+                        <view
+                            class="w-50 h-54"
+                        >
+                            <image
+                                :class="['w-' + (item.w || 50), 'h-' + (item.h || 54)]"
+                                :src="item.icon"
+                            />
+                        </view>
+                        <view class="fz-26">
+                            {{ item.title }}
+                        </view>
+                        <view v-if="item.idx === 2">
+                            <more-feat
+                                ref="moreFeat"
+                                :options="[{
+                                    icon: '/static/images/user_card_group.png',
+                                    text: '建立群组',
+                                    id: 1
+                                }]"
+                                :source-i-d="sourceID"
+                                @callBack="callBack"
+                            />
+                        </view>
+                    </view>
+                </view>
+                <SettingItem
+                    class="info-row"
+                    title="查找聊天记录"
+                    show-arrow
+                    @click="handleRecord"
+                />
+                <SettingItem
+                    class="info-row"
+                    title="加入黑名单"
+                    show-switch
+                    :loading="blackLoading"
+                    :switch-value="isBlacked"
+                    @switch="blackChange"
+                />
+                <view 
+                    class="flex justify-center h-130 bg-color br-30 align-center error"
+                    @click="()=>showConfirm=true"
+                >
+                    解除好友关系
+                </view>
             </view>
-        </view>
-        <!-- <SettingItem
+            <!-- <SettingItem
             class="info-row"
             :title="infoMenus[1].title"
             show-arrow
             @click="infoMenusClick(infoMenus[1])"
         /> -->
 
-        <view class="action_row">
-            <view
-                v-if="showSendMessage"
-                class="action_item"
-                @click="toDesignatedConversation"
-            >
-                <img
-                    src="static/images/user_card_message.png"
-                    alt=""
+            <view class="action_row">
+                <view
+                    v-if="showSendMessage"
+                    class="action_item"
+                    @click="toDesignatedConversation"
                 >
-                <text>发消息</text>
-            </view>
-            <view
-                v-if="!isFriend"
-                class="action_item"
-                @click="toAddFriend"
-            >
-                <img
-                    src="static/images/user_card_add.png"
-                    alt=""
+                    <img
+                        src="static/images/user_card_message.png"
+                        alt=""
+                    >
+                    <text>发消息</text>
+                </view>
+                <view
+                    v-if="!isFriend"
+                    class="action_item"
+                    @click="toAddFriend"
                 >
-                <text>添加好友</text>
+                    <img
+                        src="static/images/user_card_add.png"
+                        alt=""
+                    >
+                    <text>添加好友</text>
+                </view>
             </view>
-        </view>
         
-        <u-modal
-            :content="`确定要解除与${sourceUserInfo.nickname}的好友关系吗？`"
-            async-close
-            :show="showConfirm"
-            show-cancel-button
-            @confirm="confirmRemove"
-            @cancel="() => showConfirm = false"
-        />
-    </view>
+            <u-modal
+                :content="`确定要解除与${sourceUserInfo.nickname}的好友关系吗？`"
+                async-close
+                :show="showConfirm"
+                show-cancel-button
+                @confirm="confirmRemove"
+                @cancel="() => showConfirm = false"
+            />
+        </view>
+    </Page>
 </template>
 
 <script>
@@ -113,10 +134,11 @@ import {
     getDesignatedUserOnlineState,
     navigateToDesignatedConversation,
 } from '@/util/imCommon';
-import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
+import IMSDK, { SessionType, IMMethods } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import SettingItem from '@/components/SettingItem/index.vue';
+import MoreFeat from '@/pages/common/moreFeat/index.vue';
 import { checkLoginError } from '@/util/common';
 
 export default {
@@ -124,9 +146,11 @@ export default {
         CustomNavBar,
         MyAvatar,
         SettingItem,
+        MoreFeat
     },
     data () {
         return {
+            moreIndex: 0,
             sourceID: '',
             sourceUserInfo: {},
             from: '',
@@ -145,8 +169,35 @@ export default {
                 },
                 {
                     idx: 2,
-                    title: '创建群聊',
-                    icon: require('static/images/user_card_group.png'),
+                    title: '更多',
+                    icon: require('static/images/common_more_active.png'),
+                    w: 42,
+                    h: 10
+                },
+            ],
+            timeMenus: [
+                {
+                    title: '一天',
+                    time: 60 * 60 * 24
+                },
+                {
+                    title: '一周',
+                    time: 60 * 60 * 24 * 7
+                },
+                {
+                    title: '一个月',
+                    time: 60 * 60 * 24 * 30
+                },
+                {
+                    title: '其他',
+                    time: 'other'
+                },
+                {
+                    title: '停用',
+                    time: 60 * 60 * 24 * 30 * 12 * 100,
+                    style: {
+                        color: '#EC4B37'
+                    }
                 },
             ],
             blackLoading: false,
@@ -171,21 +222,28 @@ export default {
             if (this.sourceUserInfo.remark) {
                 suffix = `(${this.sourceUserInfo.remark})`;
             }
-            return this.sourceUserInfo.nickname + suffix;
+            return this.sourceUserInfo.nickname ? this.sourceUserInfo.nickname + suffix : '';
         },
         isBlacked () {
             return this.storeBlackList.some(black => black.userID === this.sourceID);
         },
         showSendMessage () {
-            const businessAllow =
-                this.storeAppConfig.allowSendMsgNotFriend ===
-                CommonIsAllow.Allow;
-            return businessAllow ? businessAllow : this.isFriend;
+            // const businessAllow =
+            //     this.storeAppConfig.allowSendMsgNotFriend ===
+            //     CommonIsAllow.Allow;
+            // return businessAllow ? businessAllow : this.isFriend;
+            return true;
         },
     },
     onLoad (options) {
         const { sourceID, sourceInfo, from } = options;
         if (sourceID) {
+            try {
+                const info = JSON.parse(sourceInfo);
+                this.sourceUserInfo = info;
+            } catch (err) {
+                //
+            }
             this.sourceID = sourceID;
             this.handleGetUserInfo();
         } else {
@@ -201,15 +259,24 @@ export default {
         this.disposeIMListener();
     },
     methods: {
+        closeAll () {
+            this.$refs.moreFeat[0].setMoreIndex(0);
+        },
+        callBack (item) {
+            if (item.id === 1) {
+                this.createGroup();
+            }
+        },
         async handleGetUserInfo () {
             const res = await getSourceUserInfo(this.sourceID);
             this.sourceUserInfo = res;
         },
         async getOnlineState () {
             getDesignatedUserOnlineState(this.sourceID)
-                .then((str) => {
-                    this.isOnline = str !== '离线';
-                    this.onlineStr = str;
+                .then((res) => {
+                    const { onlineStr, status } = res;
+                    this.isOnline = status === "online";
+                    this.onlineStr = onlineStr;
                 })
                 .catch(() => (this.isOnline = false));
         },
@@ -245,21 +312,27 @@ export default {
             switch (idx) {
             case 0:
                 url = `/pages/common/markOrIDPage/index?type=${CustomMarkType.Remark}&sourceInfo=${sourceInfo}`;
+                uni.navigateTo({ url });
                 break;
             case 1:
                 url = `/pages/common/detailsFileds/index?sourceInfo=${sourceInfo}`;
+                uni.navigateTo({ url });
                 break;
             case 2:
-                const checkedMemberList = JSON.stringify([
-                    {
-                        userID: this.sourceID,
-                        faceURL: this.sourceUserInfo.faceURL,
-                        nickname: this.sourceUserInfo.nickname,
-                    },
-                ]);
-                url = `/pages/common/createGroup/index?checkedMemberList=${checkedMemberList}`;
+                this.moreIndex = this.$refs.moreFeat[0].moreIndex === 1 ? 0 : 1;
+                this.$refs.moreFeat[0].setMoreIndex(this.moreIndex);
                 break;
             }
+        },
+        createGroup () {
+            const checkedMemberList = JSON.stringify([
+                {
+                    userID: this.sourceID,
+                    faceURL: this.sourceUserInfo.faceURL,
+                    nickname: this.sourceUserInfo.nickname,
+                },
+            ]);
+            const url = `/pages/common/createGroup/index?checkedMemberList=${checkedMemberList}`;
             uni.navigateTo({ url });
         },
         async handleRecord () {
@@ -333,7 +406,9 @@ export default {
     height: 100vh;
     background-color: $uni-bg-color-grey;
     padding: 0 30rpx;
-
+    .feat-item {
+        position: relative;
+    }
     .base_info {
         margin-top: 20rpx;
         display: flex;
