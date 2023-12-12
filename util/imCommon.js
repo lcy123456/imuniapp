@@ -117,7 +117,7 @@ export const parseAt = (atel, type) => {
         );
         if (member) {
             if (!type) {
-                mstr = mstr.replace(match, `<text class="at_member" id="at_member_${member.atUserID}" style="color: #008dff;"> @${member.groupNickname}&nbsp;</text>`);
+                mstr = mstr.replace(match, `<text data-at="${member.atUserID}" class="at_member" style="color: #008dff;"> @${member.groupNickname}&nbsp;</text>`);
             } else {
                 mstr = mstr.replace(match, `@${member.atUserID} `);
             }
@@ -134,7 +134,7 @@ export const parseLink = (text) => {
     const pattern = /(https?:\/\/[^\s]+)/g;
     const arr = text.match(pattern);
     arr?.map((match) => {
-        text = text.replace(match, `<text data-url="${match}" id="link_${match.replace(/[:/.?#]/g, '').slice(0, 20)}" style="color: #008dff;">${match}</text>`);
+        text = text.replace(match, `<text data-url="${match}" class="link-css" style="color: #008dff;">${match}</text>`);
     });
     return text;
 };

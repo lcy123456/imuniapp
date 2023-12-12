@@ -140,70 +140,8 @@ export default {
     created () {
     },
     methods: {
-        goPerson ({ id }) {
-            uni.$u.route(
-                `/pages/common/userCard/index?sourceID=${id}`
-            );
-        },
-        goLink ({ url }) {
-            plus.runtime.openURL(url);
-        }
     }
 };
-</script>
-
-<script module="textMessageRender" lang="renderjs">
-	export default {
-        data () {
-            return {
-                message: {},
-                text: ''
-            }
-        },
-		mounted () {
-            this.setAtClick();
-            this.setLinkClick();
-        },
-        methods: {
-            getMessage (message) {
-                this.message = message;
-            },
-            getText (text) {
-                this.text = text;
-            },
-            setAtClick () {
-                const { contentType, atTextElem, clientMsgID} = this.message;
-                if (contentType !== 106) return;
-                atTextElem.atUserList.forEach(id => {
-                    if (id === '999999999') return;
-                    let atMember = document.querySelector(`.text_message_container_${clientMsgID} #at_member_${id}`);
-                    if (atMember) {
-                        atMember.addEventListener('click', () => {
-                            this.$ownerInstance.callMethod('goPerson', {
-                                id: atMember.id.match(/\d+/)[0]
-                            })
-                        })  
-                    }
-                });
-            },
-            setLinkClick () {
-                const { clientMsgID} = this.message;
-                const pattern = /data-url="([^"]*)/g;
-                const arr = this.text.match(pattern);
-                arr?.map((url) => {
-                    url = url.slice(10);
-                    let linkDom = document.querySelector(`.text_message_container_${clientMsgID} #link_${url.replace(/[:/.?#]/g, '').slice(0, 20)}`);
-                    if (linkDom) {
-                        linkDom.addEventListener('click', () => {
-                            this.$ownerInstance.callMethod('goLink', {
-                                url
-                            })
-                        })  
-                    }
-                });
-            }
-        }
-	}
 </script>
 
 <style lang="scss" scoped>

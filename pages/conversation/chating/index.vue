@@ -366,10 +366,43 @@ export default {
         hideMultipleMsg () {
             this.isMultipleMsg = false;
         },
+        goPerson ({ id }) {
+            uni.$u.route(
+                `/pages/common/userCard/index?sourceID=${id}`
+            );
+        },
+        goLink ({ url }) {
+            console.log('url-----url', url);
+            plus.runtime.openURL(url);
+        }
     }
 };
 </script>
 
+<script module="chatRender" lang="renderjs">
+	export default {
+		mounted () {
+            this.bindEvent();
+        },
+        methods: {
+            bindEvent () {
+                document.querySelector(`.chating_container`).addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (target.getAttribute('data-url')) {
+                        this.$ownerInstance.callMethod('goLink', {
+                            url: target.getAttribute('data-url')
+                        });
+                    }
+                    if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
+                        this.$ownerInstance.callMethod('goPerson', {
+                            id: target.getAttribute('data-at')
+                        });
+                    }
+                });
+            }
+        }
+	}
+</script>
 <style lang="scss" scoped>
 .chating_container {
     @include colBox(false);
