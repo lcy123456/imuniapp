@@ -1,6 +1,6 @@
 <template>
     <u-swipe-action-item
-        :key="`${(source.conversationID)}-swipe-action-item`"
+        :key="`${(source.key || source.conversationID)}-swipe-action-item`"
         :options="getSwipeActions || []"
         :disabled="isDisabled"
         :threshold="50"
