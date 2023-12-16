@@ -337,7 +337,7 @@ export default {
 
 <style lang="scss" scoped>
 .isrotate {
-    transform-style: preserve-3d;
+    // transform-style: preserve-3d;
     transform:rotateX(180deg);
     -ms-transform:rotateX(180deg);
     -moz-transform:rotateX(180deg);
