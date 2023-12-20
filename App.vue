@@ -42,6 +42,8 @@ export default {
         try {
             // plus.runtime.setBadgeNumber(0);
             IMSDK.asyncApi(IMSDK.IMMethods.SetAppBackgroundStatus, IMSDK.uuid(), false);
+            this.isHide = false;
+            this.storeCurrentConversation.conversationID && (uni.$u.debounce(this.markConversationAsRead, 100));
         } catch (err) {
             //
         }
@@ -626,7 +628,7 @@ export default {
                     }
                     this.setEditMsg(newServerMsg);
                     this.pushNewMessage(newServerMsg);
-                    uni.$u.debounce(this.markConversationAsRead, 2000);
+                    !this.isHide && uni.$u.debounce(this.markConversationAsRead, 2000);
                     if (this.storeIsShowSetEnd) return;
                     setTimeout(() => uni.$emit(PageEvents.ScrollToBottom, {isRecv: true}));
                 } else if ([MessageType.TypingMessage].includes(newServerMsg.contentType)) {

@@ -18,7 +18,7 @@
                 />
             </view>
             <!-- v-if="!storeIsSyncing" -->
-            <z-paging
+            <!-- <z-paging
                 ref="paging"
                 :fixed="false"
                 :auto="false"
@@ -26,6 +26,13 @@
                 :show-loading-more-no-more-view="false"
                 :refresher-enabled="!storeIsSyncing"
                 @query="queryList"
+            > -->
+            <scroll-view
+                class="scroll_view"
+                :scroll-with-animation="true"
+                scroll-y
+                :upper-threshold="0"
+                @scrolltolower="queryList"
             >
                 <!-- @refresherTouchmove="refresherTouchmove"
                 @refresherTouchend="refresherTouchend" -->
@@ -35,13 +42,14 @@
                 >
                     <ConversationItem
                         v-for="item in showConversationList"
-                        :key="`${(item.key || item.conversationID)}-ConversationItem`"
+                        :key="`${(item.conversationID)}-ConversationItem`"
                         :source="item"
                         :is-disabled="isDisabledSwipe"
                         @closeAllSwipe="closeAllSwipe"
                     />
                 </u-swipe-action>
-            </z-paging>
+            </scroll-view>
+            <!-- </z-paging> -->
 
         <!-- <view
             v-else
@@ -90,11 +98,11 @@ export default {
         this.$nextTick(() => plus.navigator.closeSplashscreen());
     },
     watch: {
-        showConversationList (val) {
-            this.$nextTick(() => {
-                this.$refs.paging.complete([...val]);
-            });
-        }
+        // showConversationList (val) {
+        //     this.$nextTick(() => {
+        //         this.$refs.paging.complete([...val]);
+        //     });
+        // }
     },
     onLoad () {
         this.videoGetLivekitUrl();
@@ -160,10 +168,10 @@ export default {
                 this.isDisabledSwipe = false;
             }, 500);
         },
-        async queryList (pageNo) {
+        async queryList () {
             await this.$store.dispatch(
                 'conversation/getConversationList',
-                pageNo === 1
+                false
             );
             // console.log('xxx', data);
         },
@@ -209,5 +217,9 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+.scroll_view {
+    flex: 1;
+    overflow: hidden;
 }
 </style>
