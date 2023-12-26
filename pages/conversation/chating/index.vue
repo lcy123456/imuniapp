@@ -198,10 +198,13 @@ export default {
         ...mapActions('conversation', ['resetConversationState']),
         ...mapActions('base', ['pinList']),
         inputBlur () {
+            if (this.isHide) return;
             this.transition = 'all 0.2s';
             this.height = '100%';
+            console.log('inputBlur-----inputBlur');
         },
-        async inputFocus () {
+        inputFocus () {
+            console.log('inputFocus--inputFocus-----inputFocus--inputFocus');
             this.transition = 'all 0.239s';
             this.height = this.storeKeyBoardHeight ? uni.getSystemInfoSync().windowHeight - this.storeKeyBoardHeight + 'px' : '100%';
         },

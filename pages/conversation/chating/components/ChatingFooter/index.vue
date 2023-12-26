@@ -893,7 +893,6 @@ export default {
             const _heightDiff = _sysInfo.screenHeight - _sysInfo.windowHeight;
             const _diff = height - _heightDiff;
             height = _diff > 0 ? _diff : 0;
-            console.log('----', height !== 0);
             this.$store.commit('base/SET_IS_SHOW_KEYBOARD', height !== 0);
             if (height === 0) return;
             setTimeout(() => {
