@@ -182,8 +182,6 @@ export default {
     },
     onHide () {
         this.isHide = true;
-        console.log('this.isHide---', this.isHide);
-        console.log('this.isHide---', this.storeIsShowkeyBoard);
         this.isShowkeyBoard = this.storeIsShowkeyBoard;
         if (this.storeIsShowkeyBoard) {
             uni.$emit('inputFocus');
@@ -203,10 +201,9 @@ export default {
             if (this.isHide) return;
             this.transition = 'all 0.2s';
             this.height = '100%';
-            console.log('inputBlur-----inputBlur');
         },
         inputFocus () {
-            console.log('inputFocus--inputFocus-----inputFocus--inputFocus');
+            if (uni.$u.os() !== 'ios') return;
             this.transition = 'all 0.239s';
             this.height = this.storeKeyBoardHeight ? uni.getSystemInfoSync().windowHeight - this.storeKeyBoardHeight + 'px' : '100%';
         },
