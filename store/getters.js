@@ -20,6 +20,14 @@ export default {
     storeUnHandleFriendApplicationNum: (state) => state.contact.unHandleFriendApplicationNum,
     storeUnHandleGroupApplicationNum: (state) => state.contact.unHandleGroupApplicationNum,
     storeIsScrollWay: (state) => state.conversation.isScrollWay,
+    storeDraftText: (state) => {
+        const { conversation } = state;
+        const { currentConversation, conversationList } = conversation;
+        const item = conversationList.find(
+            (conversation) => conversation.conversationID === currentConversation.conversationID
+        );
+        return item?.draftText;
+    },
     storeIsShowSetEnd: (state) => {
         const { message, conversation } = state;
         const { historyMessageMap } = message;
@@ -117,7 +125,10 @@ export default {
     storePinList: (state) => state.base.pinList,
     storeIsShowTip: (state) => state.base.isShowTip,
     storeKeyBoardHeight: (state) => state.base.keyBoardHeight,
+    storeIsShowkeyBoard: (state) => state.base.isShowkeyBoard,
     storeConnectingStatus: (state) => state.base.connectingStatus,
+    storeThirdData: (state) => state.base.thirdData,
+    storeUnreadMap: (state) => state.base.unreadMap,
     storeIncomingCallUserInfo: (state) => state.incomingCall.incomingCallUserInfo,
     storeIsIncomingCallTop: (state) => state.incomingCall.isIncomingCallTop,
     storeIsIncomingCallSmall: (state) => state.incomingCall.isIncomingCallSmall,

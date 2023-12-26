@@ -152,7 +152,7 @@ export default {
             loginInfo: {
                 phoneNumber: '',
                 password: '',
-                areaCode: '86',
+                areaCode: '1',
                 verificationCode: undefined,
             },
             checked: [true],
@@ -259,7 +259,6 @@ export default {
             });
         },
         handleGoToPolicy (url) {
-            console.log((url));
             uni.$u.route(url);
         }
     },

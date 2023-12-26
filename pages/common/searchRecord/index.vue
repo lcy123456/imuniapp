@@ -90,6 +90,9 @@ export default {
     },
     watch: {
         keyword () {
+            if (!this.keyword) {
+                this.showList = [];
+            }
             this.throttleSearchRecord();
         },
     },

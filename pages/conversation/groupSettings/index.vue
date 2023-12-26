@@ -15,7 +15,7 @@
                     size="190rpx"
                     @click="updateAvatar"
                 />
-                <view class="flex mt-30 flex-center">
+                <view class="flex mt-30 flex-center align-center">
                     <text class="nickname">
                         {{ currentGroup.groupName }}
                     </text>
@@ -207,7 +207,6 @@ export default {
             }
         },
         showMore () {
-            console.log(this.$refs.moreFeat);
             let moreIndex = this.$refs.moreFeat.moreIndex === 1 ? 0 : 1;
             this.$refs.moreFeat.setMoreIndex(moreIndex);
         },
@@ -329,9 +328,10 @@ export default {
 
         .nickname {
             display: block;
-            @include nomalEllipsis();
+            // @include nomalEllipsis();
             max-width: 400rpx;
             font-size: 50rpx;
+            word-wrap: break-word;
         }
 
         .id_row {

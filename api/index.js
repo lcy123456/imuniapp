@@ -3,13 +3,13 @@ import store from '@/store';
 // 在线状态
 export const getGifsSearch = (params) => {
     return uni.$u?.http.get(
-        'v1/gifs/search',
+        `${store.getters.storeThirdData?.gif?.url}/v1/gifs/search`,
         {
             custom: {
                 isGiphy: true,
             },
             data: {
-                api_key: "3eFQvabDx69SMoOemSPiYfh9FY0nzO9x",
+                api_key: store.getters.storeThirdData?.gif?.apiKey,
                 ...params
             },
         }
@@ -24,3 +24,17 @@ export const bindCid = (params) => uni.$u?.http.post('/account/bind_cid', JSON.s
     }
 });
     
+
+
+// 获取 Url
+export const thirdConfig = (params) => uni.$u?.http.get('/third/config', {
+    data: {
+        ...params
+    },
+    custom: {
+        isIMApi: true,
+    },
+    header: {
+        token: store.getters.storeBusinessToken,
+    }
+});

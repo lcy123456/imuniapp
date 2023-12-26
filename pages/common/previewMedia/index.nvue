@@ -11,15 +11,20 @@
                 :key="v.url + '-' + i"
                 :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
             >
-                <image
+                <u--image
                     v-if="v.type === 'image'"
-                    :src="v.url"
-                    :key="v.url + 'image'"
-                    :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
-                    @click="previewImage(v)"
-                    @longpress="longpress(0)"
+                    :show-loading="true"
+                    :width="systemInfo.windowWidth + 'px'"
+                    :height="systemInfo.windowHeight + 'px'"
                     mode="aspectFit"
-                />
+                    :src="v.url"
+                    @click="previewImage(v)"
+                    @longpress.prevent.native="longpress(0)"
+                >
+                    <template #loading>
+                        <u-loading-icon color="red" />
+                    </template>
+                </u--image>
                 <video
                     v-else-if="v.type === 'video'"
                     :id="v.url"
@@ -44,17 +49,6 @@
 </template>
 
 <script>
-//  list = [
-//      {
-//         url: 'url',
-//         poster: 'url',
-//         type: 'video'
-//      },
-//      {
-//         url: 'url',
-//         type: 'image'
-//      },
-//  ];
 export default {
 
     data () {
@@ -134,10 +128,8 @@ export default {
             });
         },
         change (e) {
-            // console.log(e);
             let current = e.detail.current;
             if (this.item.type === 'video') {
-                console.log(this.item);
                 let video = uni.createVideoContext(this.item.url, this);
                 video && video.pause();
             }

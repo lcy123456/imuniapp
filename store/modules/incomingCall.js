@@ -5,7 +5,6 @@ import IMSDK, {
 import dayjs from 'dayjs';
 
 const state = {
-    wsUrl: '',
     startTime: '',
     callTime: '',
     timeText: '',
@@ -30,9 +29,6 @@ const state = {
 };
 
 const mutations = {
-    SET_WSURL (state, url) {
-        state.wsUrl = url;
-    },
     SET_TIME_TEXT (state, val) {
         state.timeText = val;
     },

@@ -46,7 +46,7 @@ import IMSDK, { MessageType } from "openim-uniapp-polyfill";
 import { mapGetters } from "vuex";
 export default {
     name: "",
-    inject: ['getSearchRecord'],
+    inject: ['getSearchRecordMedia'],
     props: {
         message: {
             type: Object,
@@ -107,7 +107,7 @@ export default {
     },
     methods: {
         async clickMediaItem () {
-            await this.getSearchRecord();
+            await this.getSearchRecordMedia();
             const i = this.storeConversationMediaList.findIndex(item => item.poster.includes(this.imgUrl));
             const index = i > -1 ? i : 0;
             uni.$u.route('/pages/common/previewMedia/index', {
@@ -133,7 +133,6 @@ export default {
                     }
                 },
                 fail: () => {
-                    console.log('下载失败下载失败下载失败下载失败下载失败下载失败v');
                 }
             });
         }

@@ -2,6 +2,7 @@
     <view
         id="chating_container"
         class="chating_container"
+        :style="{height: height, transition: transition}"
         @touchstart="handleHideMenu"
     >
         <!-- <video id="screenshare-video" autoplay playsinline></video> -->
@@ -22,7 +23,8 @@
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
             @scroll="scroll"
-            @touchstart="chatListClick"
+            @touchstart="chatingTouchStart"
+            @touchend="chatingTouchEnd"
             @initSuccess="initSuccess"
             @menuRect="menuRect"
         />
@@ -96,17 +98,19 @@ export default {
     },
     provide () {
         return {
-            getSearchRecord: this.getSearchRecord
+            getSearchRecordMedia: this.getSearchRecordMedia
         };
     },
     data () {
         return {
             test: false,
             isShowNotification: false,
+            height: uni.getSystemInfoSync().windowHeight + 'px',
             notificationText: '',
             notificationIcon: '',
             updateChatKey: '',
             updatePinKey: '',
+            transition: '',
             listHeight: 0,
             footerOutsideFlag: 0,
             menuOutsideFlag: 0,
@@ -132,13 +136,15 @@ export default {
             'storeIsShowSetEnd',
             'storePinList',
             'storeHasMoreAfterMessage',
-            'conversationUnread'
+            'conversationUnread',
+            'storeKeyBoardHeight',
+            'storeIsShowkeyBoard'
         ]),
         checkedMsg () {
             return this.storeHistoryMessageList.filter((v) =>
                 this.checkedMsgIds.includes(v.clientMsgID)
             );
-        },
+        }
     },
     onLoad (options) {
         const { back2Tab, clientMsgID } = options;
@@ -149,12 +155,13 @@ export default {
         uni.$on('deleteMsg', this.handleMsgDel);
         uni.$on('reloadChatingList', this.reloadChatingList);
         uni.$on('getPositionMsgID', this.getPositionMsgID);
+        uni.$on('inputBlur', this.inputBlur);
+        uni.$on('inputFocus', this.inputFocus);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
-        this.getSearchRecord();
+        this.getSearchRecordMedia();
         this.getPinList();
     },
     onUnload () {
-        console.log('unload');
         markConversationAsRead(
             {
                 ...this.$store.getters.storeCurrentConversation,
@@ -168,12 +175,24 @@ export default {
         uni.$off('deleteMsg', this.handleMsgDel);
         uni.$off('reloadChatingList', this.reloadChatingList);
         uni.$off('getPositionMsgID', this.getPositionMsgID);
+        uni.$off('inputBlur', this.inputBlur);
+        uni.$off('inputFocus', this.inputFocus);
         this.$store.commit('base/SET_PIN_LIST', []);
     },
     methods: {
         ...mapActions('message', ['resetMessageState']),
         ...mapActions('conversation', ['resetConversationState']),
         ...mapActions('base', ['pinList']),
+        inputBlur () {
+            this.transition = 'all 0.2s';
+            this.height = '100%';
+            console.log(this.height, '====-------inputBlurinputBlurinputBlur');
+        },
+        async inputFocus () {
+            this.transition = 'all 0.239s';
+            this.height = this.storeKeyBoardHeight ? uni.getSystemInfoSync().windowHeight - this.storeKeyBoardHeight + 'px' : '100%';
+            console.log(this.height, '====-------editorFocuseditorFocuseditorFocus');
+        },
         async handleHideMenu () {
             if (!this.storeIsShowSetEnd) {
                 this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
@@ -201,7 +220,6 @@ export default {
             } else {
                 const index = this.storeHistoryMessageList.findIndex(item => item.clientMsgID === positionMsgID);
                 if (this.positionMsgID && index > -1) {
-                    console.log('auchor-${positionMsgID}auchor-${positionMsgID}', `auchor-${positionMsgID}`);
                     this.$refs.chatingListRef.scrollToAnchor(`auchor-${positionMsgID}`);
                 } else {
                     this.reloadChatingList();
@@ -222,7 +240,7 @@ export default {
             this.isShowNotification = true;
             this.getPinList();
         },
-        async getSearchRecord () {
+        async getSearchRecordMedia () {
             let conversationID = this.storeCurrentConversation.conversationID;
             const params = {
                 conversationID: conversationID,
@@ -259,9 +277,15 @@ export default {
             this.imgList.reverse();
             this.$store.commit('conversation/SET_CONVERSATION_MEDIA_LIST', this.imgList);
         },
-        chatListClick () {
+        chatingTouchStart () {
             this.footerOutsideFlag += 1;
-            uni.hideKeyboard();
+        },
+        chatingTouchEnd () {
+            // uni.$emit("inputBlur");
+            // uni.hideKeyboard();
+        },
+        chatingTouchMove () {
+            // uni.hideKeyboard();
         },
         getEl (el) {
             return new Promise((resolve) => {
@@ -275,11 +299,9 @@ export default {
             });
         },
         initSuccess () {
-            // console.log('initSuccess');
             this.initLoading = false;
         },
         menuRect (res) {
-            // console.log('menuRect', res);
             this.menuState.paterRect = {
                 ...res,
                 message: undefined
@@ -289,8 +311,7 @@ export default {
             // uni.hideKeyboard();
         },
         async handleMultipleMessage ({ show, message, type = '' }) {
-            // console.log('开启多选', show, message);
-            this.chatListClick();
+            this.chatingTouchStart();
             this.isMultipleMsg = show;
             switch (type) {
             case MessageMenuTypes.Init:
@@ -329,11 +350,9 @@ export default {
             }
         },
         async handleMsgDel (msgArr) {
-            console.log('msgArrmsgArr', msgArr);
             try {
                 // this.$loading('删除中');
                 for (let i = 0; i < msgArr.length; i++) {
-                    console.log(msgArr[i]);
                     const message = msgArr[i];
                     await IMSDK.asyncApi(
                         IMMethods.DeleteMessage,
@@ -358,7 +377,6 @@ export default {
                     v.quoteElem.quoteMessage = undefined;
                 }
             });
-            console.log(temp);
             uni.$u.route('/pages/common/msgForward/index', {
                 message: encodeURIComponent(JSON.stringify(temp)),
             });
@@ -372,7 +390,6 @@ export default {
             );
         },
         goLink ({ url }) {
-            console.log('url-----url', url);
             plus.runtime.openURL(url);
         }
     }
@@ -406,10 +423,10 @@ export default {
 <style lang="scss" scoped>
 .chating_container {
     @include colBox(false);
-    height: 100%;
     overflow: hidden;
     background: url('/static/images/chat-bg.png') no-repeat;
     background-size: cover;
+    transition: all 0.139s;
     #screenshare-video {
         width: 400px;
         height: 400px;

@@ -162,19 +162,16 @@ export default {
                 this.isOnline = status === "online";
                 this.onlineStr = onlineStr;
             } catch (err) {
-                // console.log('获取状态失败失败失败失败失败失败失败', err);
                 this.isOnline = false;
             }
         },
         setIMListener () {
-            console.log('注册注册注册注册注册注册注册注册');
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnUserStatusChanged,
                 this.userStatusChangedHandler
             );
         },
-        userStatusChangedHandler (data) {
-            console.log('OnUserStatusChangedOnUserStatusChanged-----', data);
+        userStatusChangedHandler () {
         },
         showInfo () {
             uni.$u.route(`/pages/common/userCard/index?sourceID=${this.userID}&from=chating`);

@@ -14,6 +14,7 @@
             :style="{height: menuItemHight + 'px'}"
             @click="menuClick(item)"
             @touchstart.stop
+            @touchend.prevent="menuClick(item)"
         >
             <text>{{ item.title }}</text>
             <image
@@ -67,7 +68,8 @@ export default {
         ...mapGetters([
             'storeCurrentMemberInGroup',
             'storeCurrentUserID',
-            'storeKeyBoardHeight'
+            'storeKeyBoardHeight',
+            'storeIsShowkeyBoard'
         ]),
         isSender () {
             return this.paterRect.right > uni.getWindowInfo().windowWidth - 30;
@@ -80,10 +82,9 @@ export default {
         getTop () {
             const { top, bottom } = this.paterRect;
             const { windowHeight } = uni.getSystemInfoSync();
-            console.log('uni.getSystemInfoSync()uni.getSystemInfoSync()', uni.getSystemInfoSync(), this.storeKeyBoardHeight);
             const menuHight = this.menuItemHight * this.menuList.length;
             const minTop = 0;
-            const maxTop = windowHeight - menuHight - 50 - this.storeKeyBoardHeight;
+            const maxTop = windowHeight - menuHight - 50 - (this.storeIsShowkeyBoard ? this.storeKeyBoardHeight : 0);
             let t = 0;
             if (top - menuHight < 100) {
                 t = bottom + 10;
@@ -177,7 +178,6 @@ export default {
     methods: {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
         async menuClick ({ type }) {
-            console.log('typetypetypetypetypetypetype', type);
             switch (type) {
             case MessageMenuTypes.AddEmoticons:
                 this.addEmoticons();
@@ -265,7 +265,6 @@ export default {
             return text;
         },
         async pin () {
-            console.log(this.message);
             try {
                 const { pictureElem, videoElem, fileElem, contentType } = this.message;
                 let content = '';
@@ -288,12 +287,10 @@ export default {
                 });
             } catch (err) {
                 //
-                console.log('置顶失败', err);
                 uni.$u.toast('置顶失败');
             }
         },
         async PinCancel () {
-            console.log(this.message);
             try {
                 await pinCancel({
                     id: this.message?.pinMap?.id
@@ -304,7 +301,6 @@ export default {
                     text: '已取消置顶'
                 });
             } catch (err) {
-                console.log('取消置顶失败', err);
                 uni.$u.toast('取消置顶失败');
             }
         },
@@ -313,7 +309,6 @@ export default {
             if (message.quoteElem) {
                 message.quoteElem.quoteMessage = undefined;
             }
-            console.log('CreateForwardMessage', message);
             uni.$u.route('/pages/common/msgForward/index', {
                 message: encodeURIComponent(JSON.stringify(message))
             });

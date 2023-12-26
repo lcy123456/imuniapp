@@ -5,6 +5,8 @@
         :change:snapFlag="snap.getSnapFlagUpdate"
         :blurTime="blurTime"
         :change:blurTime="snap.editorBlur"
+        :cursorToEnd="cursorToEnd"
+        :change:cursorToEnd="snap.moveCursorToEnd"
         :style="{ 'pointer-events': 'auto' }"
         class="bg-color"
     >
@@ -44,7 +46,7 @@
                     <image
                         src="/static/images/chating_footer_quote_close.png"
                         class="ml-40 w-30 h-30"
-                        @click="activeMessageShow = false"
+                        @touchend.prevent="closeChatQuote"
                     />
                 </view>
                 <view class="send_box">
@@ -233,6 +235,7 @@ export default {
             isShowNotification: false,
             inputHtml: '',
             oldText: '',
+            cursorToEnd: '',
             actionBarVisible: false,
             emojiBarVisible: false,
             recordVisible: false,
@@ -276,7 +279,7 @@ export default {
     },
     beforeDestroy () {
         this.disposeSendMessageListener();
-        // this.disposeKeyboardListener();
+        this.disposeKeyboardListener();
         uni.$off('active_message', this.handleMessageListener);
         uni.$off('initWebrtc', this.initWebrtc);
         uni.$off('sendMessage', this.sendMessage);
@@ -292,6 +295,10 @@ export default {
                 atUserID: item.userID,
                 groupNickname: item.nickname
             })), status);
+        },
+        closeChatQuote () {
+            this.activeMessageShow = false;
+            this.activeMessageType === 'edit_message' && this.customEditorCtx.clear();
         },
         async createTextMessage () {
             let message = '';
@@ -375,14 +382,13 @@ export default {
                     delete message.textElem;
                     delete message.quoteElem;
                 }
-                console.log('编辑成。。。。。。消息。。。。', message);
             }
             return message;
         },
         async getGroupMemberList () {
             const { userID, groupID } = this.storeCurrentConversation;
             if (groupID) {
-                const data = await IMSDK.asyncApi(
+                await IMSDK.asyncApi(
                     IMMethods.GetGroupMemberList,
                     IMSDK.uuid(),
                     {
@@ -392,12 +398,10 @@ export default {
                         count: 100
                     }
                 );
-                console.log(data, 'getGroupMemberList()  GetGroupMemberList===');
             } else {
-                const data = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
                     [userID]
                 );
-                console.log(data);
             }
         },
         async createCustomMessage (data) {
@@ -447,7 +451,6 @@ export default {
                     groupID,
                     type: type === 'video' ? AudioVideoType.Video : AudioVideoType.Audio
                 });
-                console.log('tokenDatatokenDatatokenDatatokenDatatokenData', token);
                 if (token) {
                     this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
                 }
@@ -455,9 +458,6 @@ export default {
                 const { errCode } = err;
                 if (errCode === 1655) {
                     // 占线发送占线消息
-                    const { userID, groupID, conversationID } = this.storeCurrentConversation;
-                    console.log('userID, groupID, conversationID ', userID, groupID, conversationID, message.sendID);
-                    // uni.$u.toast('对方忙线中');
                     this.sendBusyMessage(type);
                 } else {
                     uni.$u.toast('网络异常，请稍后重试');
@@ -474,7 +474,6 @@ export default {
         },
         async sendTextMessage () {
             const message = await this.createTextMessage();
-            console.log('oooooooo', message);
             uni.$emit('active_message', {
                 message: null,
                 type: null
@@ -485,7 +484,6 @@ export default {
         async sendMessage (message) {
             console.log('消息创建成功', message);
             if (this.storeHasMoreAfterMessage) {
-                console.log('发送信息。。。。需要重新new');
                 await this.$emit('sendInit');
             }
             const { userID, groupID } = this.storeCurrentConversation;
@@ -533,7 +531,6 @@ export default {
                 const { data, errCode } = err;
                 console.log('发送失败', data, errCode, err);
                 if (errCode === 1302) {
-                    console.log('被拉黑了');
                     this.isShowNotification = true;
                 }
                 this.updateOneMessage({
@@ -565,9 +562,10 @@ export default {
             this.actionBarVisible = false;
             this.recordVisible = false;
         },
-        editorReady (e) {
+        editorReady (e, inputHtml) {
             this.customEditorCtx = e.context;
-            this.customEditorCtx.clear();
+            this.inputHtml = inputHtml;
+            // this.customEditorCtx.clear();
         },
         editorFocus () {
             // #ifdef APP-IOS
@@ -668,7 +666,6 @@ export default {
         async handleSendGif (original) {
             this.$loading("加载中");
             if (!original.url.includes('https://') && !original.url.includes('http://')) {
-                console.log('本地图片走这里-----', original.url);
                 this.batchCreateImageMesage([original.url], 1);
                 this.$hideLoading();
                 return;
@@ -698,7 +695,6 @@ export default {
                 if (!message) {
                     return;
                 }
-                console.log('message-------iii', message);
                 this.sendMessage(message);
             });
         },
@@ -820,7 +816,6 @@ export default {
                         resolve(tempFilePaths);
                     },
                     fail: function (err) {
-                        console.log(err);
                         reject(err);
                     },
                 });
@@ -835,7 +830,6 @@ export default {
                     success: function ({ tempFilePath, duration }) {
                         const idx = tempFilePath.lastIndexOf('.');
                         const videoType = tempFilePath.slice(idx + 1);
-                        console.log(tempFilePath);
                         if (tempFilePath.includes('_doc/')) {
                             tempFilePath = `file://${plus.io.convertLocalFileSystemURL(
                                 tempFilePath
@@ -848,7 +842,6 @@ export default {
                         });
                     },
                     fail: function (err) {
-                        console.log(err);
                         reject(err);
                     },
                 });
@@ -886,26 +879,37 @@ export default {
         },
         // keyboard
         keyboardChangeHander (data) {
-            const { height } = data;
-            this.$store.commit('base/SET_KEYBOARD_HEIGHT', height);
+            let { height } = data;
+            const _sysInfo = uni.getSystemInfoSync();
+            const _heightDiff = _sysInfo.screenHeight - _sysInfo.windowHeight;
+            const _diff = height - _heightDiff;
+            height = _diff > 0 ? _diff : 0;
+            this.$store.commit('base/SET_IS_SHOW_KEYBOARD', height !== 0);
+            if (height === 0) return;
+            setTimeout(() => {
+                this.$store.commit('base/SET_KEYBOARD_HEIGHT', height);
+            }, 0);
         },
         setKeyboardListener () {
             uni.onKeyboardHeightChange(this.keyboardChangeHander);
         },
-        // disposeKeyboardListener () {
-        //     uni.offKeyboardHeightChange(this.keyboardChangeHander);
-        // },
+        disposeKeyboardListener () {
+            uni.offKeyboardHeightChange(this.keyboardChangeHander);
+        },
         handleMessageListener (data) {
             const { message, type } = data;
             if (type === 'edit_message') {
                 if (message.contentType === MessageType.AtTextMessage) {
                     const source = message.atTextElem.atUsersInfo;
                     const callback = (l) => {
-                        console.log('callback-callback-callback', l);
-                        this.$refs.customEditor.editorCtx.setContents({html: parseAtInsertImg({
+                        const inputHtml = parseAtInsertImg({
                             text: getMessageContent(message),
                             atUsersInfo: l
-                        })});
+                        });
+                        this.$refs.customEditor.editorCtx.setContents({html: inputHtml});
+                        this.$refs.customEditor.editorCtx.insertText({text: ''});
+                        this.cursorToEnd = +new Date();
+                        this.inputHtml = inputHtml;
                     };
                     if (message.atTextElem.atUserList.includes(AllType.Code)) {
                         uni.$emit('createCanvasData', source.map(v => v.atUserID).join(','), source.map(v => v.groupNickname).join(','), null, 'all', {
@@ -918,6 +922,9 @@ export default {
                     }
                 } else {
                     this.$refs.customEditor.editorCtx.setContents({html: getMessageContent(message)});
+                    this.$refs.customEditor.editorCtx.insertText({text: ''});
+                    this.cursorToEnd = +new Date();
+                    this.inputHtml = getMessageContent(message);
                 }
             } else {
                 this.$refs.customEditor.editorCtx.insertText({text: ''});
@@ -1016,6 +1023,16 @@ export default {
                 dom.blur();
             }
         },
+        moveCursorToEnd () {
+            if (!this.$el || !this.$el.querySelector) return;
+            const element = this.$el.querySelector('.ql-editor');
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(element);
+            range.collapse(false); // 将范围折叠到光标位置，false 表示折叠到范围的末尾
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
 	},
 }
 </script>
@@ -1026,6 +1043,12 @@ export default {
         vertical-align: sub;
     }
 }
+// /deep/ .ql-container {
+//     height: 47px;
+//     overflow: hidden;
+//     border: 1px solid red;
+//     transition: height 1s!important;
+// }
 
 .chat_footer {
     .quote_box {

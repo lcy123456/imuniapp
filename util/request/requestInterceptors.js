@@ -4,7 +4,7 @@ import { v4 as uuidV4 } from 'uuid';
  * 请求拦截
  * @param {Object} http
  */
-module.exports = (vm) => {
+module.exports = () => {
     uni.$u.http.interceptors.request.use(
         (config) => {
             // 可使用async await 做异步操作
@@ -25,7 +25,7 @@ module.exports = (vm) => {
                 ...config.header,
                 operationID: uuidV4()
             };
-            if (!['/user/get_users_online_status'].includes(config.url)) {
+            if (!['/user/get_users_online_status', '/msg/get_unread_msg_count'].includes(config.url)) {
                 console.log('http request：', config);
             }
             // 可以在此通过vm引用vuex中的变量，具体值在vm.$store.state中

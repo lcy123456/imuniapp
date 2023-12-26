@@ -40,7 +40,7 @@ export default {
             "storeIncomingCallToken",
             "storeIsIncomingConversation",
             "storeBusinessToken",
-            "storeIncomingCallWsUrl"
+            "storeThirdData"
         ]),
         src () {
             return `/hybrid/html/chat.html`;
@@ -55,16 +55,13 @@ export default {
 		}
     },
     onLoad () {
-        console.log('onLoad-onLoad');
     },
     onReady () {
         // uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         uni.$on('incoming_message_callback', this.incomingMessageCallback);
-        console.log('onReady-onReady');
     },
     onShow () {
         setTimeout(() => {
-            console.log('onshow-onshow', this.storeIncomingCallWsUrl);
             if (this.time !== this.storeIncomingCallCallTime) {
                 const selfUserInfo = {
                     faceURL: this.storeSelfInfo.faceURL,
@@ -78,21 +75,17 @@ export default {
                     callUserInfo: this.storeIncomingCallUserInfo,
                     selfUserInfo: selfUserInfo,
                     token: this.storeIncomingCallToken,
-                    url: this.storeIncomingCallWsUrl
+                    url: this.storeThirdData?.livekit?.url
                 }
                 this.postMessage(`uniEvent(${JSON.stringify(map)})`);
             }
             this.time = this.storeIncomingCallCallTime;
-            console.log('onShow');
         }, 1000);
     },
     onUnload () {
-        console.log('onUnloadonUnload');
         uni.$off('incoming_message_callback', this.incomingMessageCallback);
     },
     onHide () {
-        console.log('onHideonHideonHide');
-		
         if(this.storeIsIncomingCallLoading) {
 			this.onSmall()
 		}
@@ -150,7 +143,6 @@ export default {
         // 群聊场景，用户刚加入群聊
         async userJoinCalling(joinUserID) {
             if(!joinUserID) return;
-            console.log(joinUserID, ' 群聊场景，用户刚加入群聊()=======')
 
             const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
                 [joinUserID]
@@ -160,7 +152,6 @@ export default {
                 const { faceURL, nickname, userID } = uData.publicInfo;
                 const map = { faceURL, nickname, userID, isGroupUserJoin: true }
                 this.postMessage(`uniGroupUserJoinEvent(${JSON.stringify(map)})`);
-                console.log('加入群聊的用户，用户信息', uData);
             }
         },
         postMessage (str) {
@@ -190,7 +181,6 @@ export default {
             }
         },
         async incomingMessageCallback (data) {
-            console.log('incomingMessageCallback--incomingMessageCallback--incomingMessageCallback', data);
             const { customStatus } = data;
             const map = {
                 isInWebrtc: this.getIsInWebrtc(),
@@ -218,7 +208,6 @@ export default {
         async reject (map) {
             if(this.storeIsIncomingCallIng || map.customStatus || map.isDanger === 'fail') return;
             const { recvID, sendID, groupID, sessionType, customElem } = this.storeIncomingCallMessage;
-            console.log('recvID, sendIDrecvID, sendIDrecvID, sendID', recvID, sendID);
             if (sessionType === 3) return;
             if (this.storeIsAnswer) {
                 // 拒绝
@@ -257,7 +246,6 @@ export default {
                     sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
                 });
             }
-            console.log('this.storeIncomingCallMessage');
             const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                 recvID: recvID,
                 groupID: groupID,
@@ -270,7 +258,6 @@ export default {
                     iOSBadgeCount: true
                 }
             });
-            console.log('data', data);
             this.updateOneMessage({
                 message: data,
                 isSuccess: true,

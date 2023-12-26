@@ -10,3 +10,14 @@ export const updateMsg = (params) => uni.$u?.http.post('/msg/update_msg', JSON.s
         // storeBusinessToken
     }
 });
+
+// 未读消息数
+export const getUnreadMsgCount = (params) => uni.$u?.http.post('/msg/get_unread_msg_count', JSON.stringify(params), {
+    custom: {
+        isIMApi: true,
+    },
+    header: {
+        token: store.getters.storeIMToken,
+        // storeBusinessToken
+    }
+});

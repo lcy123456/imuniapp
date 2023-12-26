@@ -86,8 +86,7 @@ export default {
       
     },
     methods: {
-        async queryList (pageNo) {
-            console.log('xxx', pageNo);
+        async queryList () {
         },
         refresherTouchmove () {
             this.isDisabled = true;
@@ -100,8 +99,7 @@ export default {
         closeAllSwipe () {
             this.$refs.swipeWrapperRef.closeAll();
         },
-        swipeActionClick ({index}) {
-            console.log(index);
+        swipeActionClick ({}) {
         }
     }
 };

@@ -41,11 +41,19 @@
                         />
                         <text>{{ item.title }}</text>
                     </view>
-                    <u-icon
-                        class="text-grey"
-                        name="arrow-right"
-                        size="20rpx"
-                    />
+                    <view class="flex align-center">
+                        <view  
+                            v-if="item.idx === 2 && unreadMap.count"
+                            class="base-count"
+                        >
+                            {{ unreadMap.count }}
+                        </view>
+                        <u-icon
+                            class="text-grey"
+                            name="arrow-right"
+                            size="20rpx"
+                        />
+                    </view>
                 </view>
             </view>
 
@@ -105,7 +113,8 @@ export default {
     },
     computed: {
         ...mapGetters({
-            selfInfo: 'storeSelfInfo'
+            selfInfo: 'storeSelfInfo',
+            unreadMap: 'storeUnreadMap'
         }),
     },
     methods: {

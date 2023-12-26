@@ -488,7 +488,6 @@
                 checkDom () {
                     if (this.isGroup) {
                         const dom = this.getDom('chat-group-css');
-                        console.log(dom, '==');
                         this.isDomIn = !!dom.children[0];
                     } else {
                         const otherDom = this.getDom('other-box');
@@ -612,13 +611,11 @@
                 async openRoom() {
                     const wsURL = this.wsURL || `ws://192.168.2.20:7880`;
                     // const wsURL = this.wsURL || `ws://192.168.2.20:7880`;
-                    const token = this.token || localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
-                    console.log('tokentokentoken', token);
+                    const token = this.token || localStorage.getItem('token') || ``;
                     this.room = new Room();
                     this.trackList = [];
                     try {
                         await this.room.connect(wsURL, token);
-                        console.log('connected to room----', this.room.name);
                         if (!this.isCallIng) {
                             uni.postMessage({
                                 data: {
@@ -1065,7 +1062,6 @@
                         if (this.timer && !this.isCallIng) {
                             this.timer = null;
                             clearTimeout(this.timer);
-                            console.log('&&&&&&清空通话中计时器&&&&&&');
                             return;
                         }
                         func.call(null);

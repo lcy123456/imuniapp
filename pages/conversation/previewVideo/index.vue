@@ -35,7 +35,6 @@ export default {
     },
     onLoad (options) {
         this.previewVideoUrl = options.previewVideoUrl;
-        console.log(this.previewVideoUrl);
     },
     methods: {
         back () {

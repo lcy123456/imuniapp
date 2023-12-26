@@ -48,6 +48,13 @@
                     :content="selfInfo.phoneNumber || '-'"
                 />
                 <SettingItem
+                    :loading="loadingState.isHiddenPhone"
+                    title="隐藏/显示手机号"
+                    :content="getIsHiddenPhone"
+                    show-arrow
+                    @click="updateIsHiddenPhone"
+                />
+                <SettingItem
                     :show-arrow="false"
                     title="邮箱"
                     :content="selfInfo.email || '-'"
@@ -130,6 +137,9 @@ export default {
             }
             return '女';
         },
+        getIsHiddenPhone () {
+            return this.selfInfo.isHiddenPhone === 1 ? '显示' : '隐藏';
+        },
         getBirth () {
             const birth = this.selfInfo.birth;
             return birth ? dayjs(birth).format('YYYY-MM-DD') : '-';
@@ -152,6 +162,19 @@ export default {
                         { gender: tapIndex + 1, },
                         'gender'
                     );
+                },
+            });
+        },
+        updateIsHiddenPhone () {
+            uni.showActionSheet({
+                itemList: ['显示', '隐藏'],
+                success: async ({ tapIndex }) => {
+                    this.loadingState.isHiddenPhone = true;
+                    await this.updateSelfInfo(
+                        { isHiddenPhone: tapIndex + 1, },
+                        'isHiddenPhone'
+                    );
+                    this.$store.dispatch("user/getSelfInfo");
                 },
             });
         },

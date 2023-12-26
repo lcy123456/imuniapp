@@ -125,7 +125,6 @@ export default {
             this.$refs.swipeActionRef.closeAll();
         },
         userClick (member) {
-            console.log('membermembermembermember', member);
             const sourceInfo = {
                 nickname: member.nickname,
                 faceURL: member.faceURL

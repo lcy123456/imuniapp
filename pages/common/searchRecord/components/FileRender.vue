@@ -5,16 +5,16 @@
         @longpress="handleLongPress"
     >
         <image
-            class="w-66 h-76 flex-shrink mr-30"
+            class="flex-shrink w-66 h-76 mr-30"
             src="/static/images/search_record_file.png"
         />
-        <view class="main flex-grow h-full flex flex-column justify-center over-hide">
+        <view class="flex justify-center flex-grow h-full main flex-column over-hide">
             <text class="fz-30 ff-bold nomalEllipsis">
                 {{ fileElem.fileName }}
             </text>
-            <view class="text-grey fz-26 flex align-center my-4">
+            <view class="flex my-4 text-grey fz-26 align-center">
                 <image
-                    class="w-20 h-22 mr-10"
+                    class="w-20 mr-10 h-22"
                     src="/static/images/search_record_download.png"
                 />
                 <text>{{ bytesToSize(fileElem.fileSize) }}</text>
@@ -102,7 +102,6 @@ export default {
             });
         },
         handleLongPress () {
-            console.log('handleLongPress');
             if (plus.os.name === 'iOS') return;
             uni.showActionSheet({
                 itemList: ['保存到本地'],

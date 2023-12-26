@@ -12,6 +12,7 @@
             @click="editorFocus"
             @blur="editorBlur"
             @input="editorInput"
+            @focus="touchstart"
         />
         <view
             class="canvas_container"
@@ -32,6 +33,11 @@
 
 <script>
 import { AllType } from '@/enum';
+import { mapGetters } from "vuex";
+import { html2Text, draftText2Text } from '@/util/common';
+import IMSDK, {
+    IMMethods
+} from 'openim-uniapp-polyfill';
 export default {
     props: {
         placeholder: {
@@ -50,15 +56,24 @@ export default {
             },
             imageData: {},
             insertImageFlag: null,
+            conversationID: ''
         };
     },
+    computed: {
+        ...mapGetters([
+            "storeCurrentConversationID",
+            "storeDraftText"
+        ]),
+    },
     created () {
+        this.conversationID = this.storeCurrentConversationID;
         uni.$on('setAtMember', this.setAtMember);
         uni.$on('createCanvasData', this.createCanvasData);
     },
     beforeDestroy () {
         uni.$off('setAtMember', this.setAtMember);
         uni.$off('createCanvasData', this.createCanvasData);
+        this.setDraftTextItem();
     },
     methods: {
         editorReady () {
@@ -66,8 +81,12 @@ export default {
                 .createSelectorQuery()
                 .select("#editor2")
                 .context((res) => {
-                    this.$emit("ready", res);
                     this.editorCtx = res.context;
+                    if (html2Text(draftText2Text(this.storeDraftText))) {
+                        this.storeDraftText && this.insertHtml(this.storeDraftText);
+                        this.inputHtml = this.storeDraftText;
+                    }
+                    this.$emit("ready", res, this.inputHtml);
                 })
                 .exec();
         },
@@ -135,6 +154,16 @@ export default {
                 },
             });
         },
+        setDraftTextItem () {
+            IMSDK.asyncApi(
+                IMMethods.SetConversationDraft,
+                IMSDK.uuid(),
+                {
+                    conversationID: this.conversationID,
+                    draftText: this.inputHtml
+                }
+            );
+        },
         async createCanvasData (sendID, senderNickname, source, type, filePathMap) {
             const canvas = this.canvasData;
             canvas.title = !type ? "@" + senderNickname : "@所有人";
@@ -169,7 +198,6 @@ export default {
         },
         canvasToTempFilePath (sendID, senderNickname, source, filePathMap) {
             const canvas = this.canvasData;
-            console.log('-------------------------------------');
             uni.canvasToTempFilePath({
                 canvasId: "atCanvas",
                 success: (res) => {
@@ -183,7 +211,6 @@ export default {
                         },
                         extClass: 'at_el'
                     };
-                    console.log('filePathList-filePathList-filePathList', filePathMap, source);
                     if (filePathMap) {
                         if (!filePathMap.list) {
                             filePathMap.list = [];
@@ -261,6 +288,14 @@ export default {
         },
         editorBlur () {
             this.$emit("blur");
+            uni.$emit("inputBlur");
+        },
+        inputFocus () {
+            this.$emit("focus");
+            uni.$emit("inputFocus");
+        },
+        touchstart () {
+            uni.$emit("inputFocus");
         },
         editorInput (e) {
             this.inputHtml = e.detail.html;

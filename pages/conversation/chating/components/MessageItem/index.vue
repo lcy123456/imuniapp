@@ -19,16 +19,20 @@
                 />
             </view>
             <view class="item_right">
-                <MyAvatar
-                    v-if="!(isSingle || isSender)"
-                    size="80rpx"
-                    :desc="source.senderNickname"
-                    :src="source.senderFaceUrl"
-                    shape="circle"
-                    class="my_avatar"
+                <EventDom
                     @click="showInfo"
                     @longpress="avatarLongpress"
-                />
+                >
+                    <MyAvatar
+                        v-if="!(isSingle || isSender)"
+                        :key="`auchor${source.clientMsgID}-MyAvatar`"
+                        size="80rpx"
+                        :desc="source.senderNickname"
+                        :src="source.senderFaceUrl"
+                        shape="circle"
+                        class="my_avatar"
+                    />
+                </EventDom>
                 <view class="message_container">
                     <view 
                         v-if="!(isSingle || isSender)"
@@ -159,15 +163,11 @@ export default {
     },
     methods: {
         avatarLongpress () {
-            // this.islongPress = true;
-            // console.log('this.sourcethis.sourcethis.source', this.source);
-            setTimeout(() => {
-                const atUsersInfo = {
-                    atUserID: this.source.sendID,
-                    groupNickname: this.source.senderNickname
-                };
-                uni.$emit('setAtMember', atUsersInfo);
-            }, 700);
+            const atUsersInfo = {
+                atUserID: this.source.sendID,
+                groupNickname: this.source.senderNickname
+            };
+            uni.$emit('setAtMember', atUsersInfo);
         },
         reSendMessage () {
             this.$store.dispatch('message/updateOneMessage', {
@@ -258,13 +258,6 @@ export default {
                 );
         },
         showInfo () {
-            // console.log('this.islongPressthis.islongPressthis.islongPressthis.islongPressthis.islongPress', this.islongPress);
-            // if (this.islongPress) {
-            //     this.islongPress = false;
-            //     return;
-            // }
-            // this.islongPress = false;
-            // uni.hideKeyboard();
             if (this.isSender) return;
             const sourceInfo = {
                 nickname: this.source.senderNickname,
@@ -273,6 +266,7 @@ export default {
             uni.$u.route(
                 `/pages/common/userCard/index?sourceID=${this.source.sendID}&sourceInfo=${JSON.stringify(sourceInfo)}`
             );
+            uni.hideKeyboard();
         },
         async handleLongPress () {
             if (!this.isShowMenuFlag) return;
@@ -283,7 +277,6 @@ export default {
                 .in(this)
                 .select('.message_content_wrap')
                 .boundingClientRect((res) => {
-                    console.log('resresresres', res);
                     this.$emit('menuRect', {
                         ...res,
                         message: this.source

@@ -80,14 +80,12 @@ const actions = {
                     count: 999,
                 }
             );
-            console.log('SET_CONVERSATION_LISTSET_CONVERSATION_LISTSET_CONVERSATION_LIST', data);
             commit('SET_CONVERSATION_LIST', [
                 ...(isFirstPage ? [] : state.conversationList),
                 ...data,
             ]);
             return [...data];
         } catch (e) {
-            console.log(e);
             commit('SET_CONVERSATION_LIST', []);
             return [];
         }
@@ -120,7 +118,6 @@ const actions = {
     getUnReadCount ({ commit }) {
         IMSDK.asyncApi(IMSDK.IMMethods.GetTotalUnreadMsgCount, uuidv4()).then(
             (res) => {
-                console.log(res);
                 commit('SET_UNREAD_COUNT', res.data);
             }
         );

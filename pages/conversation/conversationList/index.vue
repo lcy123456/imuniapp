@@ -59,7 +59,7 @@ import ChatHeader from './components/ChatHeader.vue';
 import ConversationItem from './components/ConversationItem.vue';
 import { prepareConversationState } from '@/util/imCommon';
 import { PageEvents } from "@/constant";
-import { videoGetToken, videoGetOfflineInfo, videoGetLivekitUrl } from '@/api/incoming';
+import { videoGetToken, videoGetOfflineInfo } from '@/api/incoming';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 
 export default {
@@ -97,7 +97,6 @@ export default {
         }
     },
     onLoad () {
-        this.videoGetLivekitUrl();
         this.getCall();
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
@@ -106,22 +105,12 @@ export default {
     },
     methods: {
         ...mapActions('incomingCall', ['appearLoadingCall']),
-        async videoGetLivekitUrl () {
-            try {
-                const { url } = await videoGetLivekitUrl();
-                console.log('urlurlurlurlurlurl', url);
-                this.$store.commit('incomingCall/SET_WSURL', url);
-            } catch (err) {
-                console.log('url---', err);
-            }
-        },
         async getCall () {
             try {
                 const { sendID, room, type } = await videoGetOfflineInfo({
                     recvID: this.storeUserID
                 });
                 if (!room) {
-                    console.log('-------------------------没人请求通话');
                     return;
                 }
                 const newServerMsg = {
@@ -143,7 +132,6 @@ export default {
                     conversationID: room
                 });
                 this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
-                console.log(token);
                 this.appearLoadingCall(newServerMsg);
             } catch (err) {
                 console.log('-------11', err);
@@ -165,13 +153,11 @@ export default {
                 'conversation/getConversationList',
                 pageNo === 1
             );
-            // console.log('xxx', data);
         },
         closeAllSwipe () {
             this.$refs.swipeWrapperRef.closeAll();
         },
         handlePushConversation (conversationID) {
-            console.log(PageEvents.ClickPushMessage, conversationID);
             const source = this.storeConversationList.find(v => v.conversationID === conversationID);
             if (!source) return;
             const pages = getCurrentPages();

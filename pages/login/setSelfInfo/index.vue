@@ -120,14 +120,12 @@ export default {
             });
         },
         getDefaultAvatar (value) {
-            console.log(value);
             this.userInfo.faceURL = value;
         },
         async doNext () {
             try {
                 this.loading = true;
                 let passWord = md5(this.passWord);
-                console.log('md5(passWord)md5(passWord)----', passWord);
                 const options = {
                     phoneNumber: this.userInfo.phoneNumber,
                     areaCode: `+${this.userInfo.areaCode}`,
@@ -153,7 +151,6 @@ export default {
                 this.loading = false;
             } catch (err) {
                 this.loading = false;
-                console.log(err);
                 uni.$u.toast(checkLoginError(err));
                 // uni.$u.toast('注册失败')
             }

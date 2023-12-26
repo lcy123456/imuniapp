@@ -92,7 +92,7 @@ const actions = {
             } = await businessGetUserInfo(data.userID);
             const businessData = users[0] ?? {};
             filterEmptyValue(businessData);
-            console.log(data, 'datadatadata');
+            console.log('datadat-------adata', users);
             commit('SET_SELF_INFO', {
                 ...data,
                 ...businessData
@@ -129,7 +129,6 @@ const actions = {
     }) {
         try {
             const data = await getAppConfigFromSvr();
-            console.log(data);
             commit('SET_APP_CONFIG', data.config ?? defaultConfig);
         } catch (e) {
             console.error(e);

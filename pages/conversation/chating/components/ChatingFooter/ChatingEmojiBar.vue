@@ -172,7 +172,6 @@ export default {
         },
         getEmoticonsList () {
             this.emoticonsList = uni.getStorageSync('emoticonsList') ? JSON.parse(uni.getStorageSync('emoticonsList')) : [];
-            console.log('this.emoticonsListthis.emoticonsList----', this.emoticonsList);
         },
         handleSwiperChange ({detail}) {
             this.current = detail.current;

@@ -29,12 +29,13 @@
                             v-if="messagePrefix"
                             class="lastest_msg_prefix"
                             :class="{
-                                lastest_msg_prefix_active: needActivePerfix,
+                                lastest_msg_prefix_active: needActivePerfix || source.draftText,
                             }"
                         >
                             {{ messagePrefix }}
                         </text>
-                        <text class="lastest_msg_content">
+                        <text
+                            class="lastest_msg_content">
                             {{ html2Text(latestMessage) }}
                         </text>
                     </view>
@@ -65,7 +66,7 @@ import IMSDK, {
     SessionType,
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
-import { html2Text } from '@/util/common';
+import { html2Text, draftText2Text } from '@/util/common';
 import {
     parseMessageByType,
     formatConversionTime,
@@ -91,17 +92,13 @@ export default {
     },
     computed: {
         messagePrefix () {
-            if (this.source.draftText !== '') {
-                // let text = this.source.draftText;
+            if (html2Text(draftText2Text(this.source.draftText))) {
                 return '[草稿]';
             }
             let prefix = '';
 
             if (this.notAccept && this.source.unreadCount > 0) {
                 prefix = `[${this.source.unreadCount}条] `;
-            }
-            if (this.source.groupID === '8635312407') {
-                console.log('needActivePerfix-needActivePerfix', this.source, this.source.groupAtType, GroupAtType.AtNormal);
             }
             if (this.needActivePerfix) {
                 switch (this.source.groupAtType) {
@@ -123,6 +120,7 @@ export default {
             return prefix;
         },
         latestMessage () {
+            if (html2Text(draftText2Text(this.source.draftText))) return draftText2Text(this.source.draftText);
             if (this.source.latestMsg === '') return '';
             let parsedMessage;
             try {
@@ -224,7 +222,6 @@ export default {
                     this.source.conversationID
                 );
             } catch (err) {
-                console.log(err, this.source.conversationID);
                 uni.$u.toast('已读失败');
             }
         },
@@ -305,7 +302,7 @@ export default {
                     margin-right: 6rpx;
 
                     &_active {
-                        color: $u-primary;
+                        color: red
                     }
                 }
 

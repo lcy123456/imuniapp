@@ -49,30 +49,6 @@ export default {
             style: {}
         };
     },
-    watch: {
-        storeIsIncomingCallIng: {
-            handler (val) {
-                this.timer = null;
-                clearTimeout(this.timer);
-
-                setTimeout(()=> {
-                    if (val) this.intervalHandle();
-                    else this.timeText = '等待接听';
-                }, 1000);
-            },
-            immediate: true
-        },
-        storeIncomingCallSmallStyle: {
-            handler (data) {
-                const {moveX, moveY} = data;
-                this.style = {
-                    transform: `translate(${moveX}px, ${moveY}px)`
-                };
-            },
-            deep: true,
-            immediate: true
-        }
-    },
     computed: {
         ...mapGetters([
             'storeIsIncomingCallSmall',
@@ -96,6 +72,30 @@ export default {
         },
         smallSIcon () {
             return this.isVideoCall ? incomingCallSmallSVideoIcon : incomingCallSmallSIcon;
+        }
+    },
+    watch: {
+        storeIsIncomingCallIng: {
+            handler (val) {
+                this.timer = null;
+                clearTimeout(this.timer);
+
+                setTimeout(()=> {
+                    if (val) this.intervalHandle();
+                    else this.timeText = '等待接听';
+                }, 1000);
+            },
+            immediate: true
+        },
+        storeIncomingCallSmallStyle: {
+            handler (data) {
+                const {moveX, moveY} = data;
+                this.style = {
+                    transform: `translate(${moveX}px, ${moveY}px)`
+                };
+            },
+            deep: true,
+            immediate: true
         }
     },
     methods: {

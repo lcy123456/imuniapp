@@ -100,7 +100,6 @@ export default {
         this.checkedMemberList = checkedMemberList
             ? JSON.parse(checkedMemberList)
             : [];
-        console.log(this.checkedMemberList);
     },
     methods: {
         toChooseMember () {

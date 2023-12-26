@@ -14,6 +14,7 @@ import { getDbDir, toastWithCallback } from "@/util/common.js";
 import { IMLogin, conversationSort } from "@/util/imCommon";
 import { PageEvents, UpdateMessageTypes, AudioVideoRenderTypes } from "@/constant";
 import { videoGetToken } from '@/api/incoming';
+import { thirdConfig } from '@/api/';
 import { bindCid } from '@/api/index';
 
 // const customStatusTextMap = {
@@ -35,6 +36,11 @@ export default {
         });
         uni.$on('play_audio', this.handlePlayAudio);
         uni.$on('stop_audio', this.handleStopAudio);
+        this.timer = setInterval(() => {
+            if (!this.$store.getters.storeIMToken) return;
+            this.getUnreadMsgCount();
+        }, 2000);
+        this.thirdConfig();
     },
     async onShow () {
         this.num++;
@@ -149,7 +155,6 @@ export default {
         ...mapActions('incomingCall', ['appearLoadingCall']),
       
         setGlobalIMlistener () {
-            console.log("setGlobalIMlistener");
             // init
             const kickHander = (message) => {
                 toastWithCallback(message, () => {
@@ -583,6 +588,19 @@ export default {
                 // uni.$u.route('/pages/login/index');
             }
         },
+        async thirdConfig () {
+            try {
+                const data = await thirdConfig();
+                this.$store.commit('base/SET_THIRD_DATA', data);
+            } catch (err) {
+                setTimeout(() => {
+                    this.thirdConfig();
+                }, 3000);
+            }
+        },
+        async getUnreadMsgCount () {
+            this.$store.dispatch('base/getUnreadMsgCount');
+        },
         isAudioVideoSend (message) {
             const customElemData = message.customElem?.data;
             let data = {};
@@ -614,7 +632,7 @@ export default {
             if (this.inCurrentConversation(newServerMsg)) {
                 if (![MessageType.TypingMessage, MessageType.RevokeMessage].includes(newServerMsg.contentType)) {
                     if (this.storeHasMoreAfterMessage) {
-                        console.log('当前数据不在底端，不做数据推送');
+                        // 当前数据不在底端，不做数据推送
                         let conversationUnread = this.conversationUnread + 1;
                         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', conversationUnread);
                         return;
@@ -650,7 +668,6 @@ export default {
             }
             if (customStatus) {
                 if ([AudioVideoStatus.Send].includes(customStatus)) {
-                    console.log(newServerMsg, 'newServerMsgnewServerMsg');
                     if (newServerMsg.sendID === this.storeUserID) return;
                     if (this.storeIsIncomingCallLoading || this.storeIsIncomingCallIng) {
                         // uni.$u.toast('占线占线');
@@ -662,7 +679,6 @@ export default {
                             conversationID: idsGetConversationID(newServerMsg)
                         });
                         this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
-                        console.log(token);
                         this.appearLoadingCall(newServerMsg);
                     } catch (err) {
                         console.log(err);
@@ -754,7 +770,6 @@ export default {
             // this.innerAudioContext = uni.createInnerAudioContext();
         },
         handlePlayAudio (src, sessionCategory) {
-            console.log('this.audioSrcthis.audioSrc-', src, this.audioSrc);
             if (this.audioSrc) {
                 this.innerAudioContext.close();
                 if (src === this.audioSrc) {
@@ -788,7 +803,7 @@ export default {
                             cid
                         });
                     } catch (e) {
-                        console.log('ddd', e);
+                        console.log(e);
                     }
                     this.$store.commit('user/SET_CLIENT_ID', cid);
                 });

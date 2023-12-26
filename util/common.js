@@ -17,6 +17,23 @@ export const html2Text = (html, type) => {
     return text;
 };
 
+
+export const draftText2Text = (draftText) => {
+    if (!draftText) return '';
+    const list = draftText.match(/<img([^>]*)>/g);
+    list && list.forEach(img => {
+        if (img.includes(`emojiText`)) {
+            const text = img.match(/emojiText=([^"]*)/)[1];
+            draftText = draftText.replace(img, text);
+        }
+        if (img.includes(`senderNickname`)) {
+            const text = img.match(/senderNickname=([^"]*)/)[1];
+            draftText = draftText.replace(img,  '@' + text + ' ');
+        }
+    });
+    return draftText;
+};
+
 export const formatInputHtml = (html) => {
     let atUserList = [];
     let text = html2Text(html, 1);
@@ -258,10 +275,6 @@ export const getNewText = (newStr, oldStr) => {
         if (item !== l2[i]) {
             text = item;
         }
-    });
-    console.log({
-        type: isN ? 'add' : type,
-        text
     });
     return {
         type: isN ? 'add' : type,

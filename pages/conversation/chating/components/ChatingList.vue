@@ -8,6 +8,7 @@
         scroll-y
         :upper-threshold="0"
         @touchstart="handleTouchstart"
+        @touchend="$emit('touchend')"
         @scroll="throttleScroll"
         @scrolltoupper="scrolltoupper"
         @scrolltolower="scrolltolower"
@@ -50,7 +51,6 @@
                         :position-msg-i-d="positionMsgID"
                         @menuRect="menuRect"
                     />
-                    <!-- @messageItemRender="messageItemRender" -->
                 </view>
                 <view
                     v-if="!isReverse"
@@ -140,12 +140,6 @@ export default {
         this.init();
     },
     beforeDestroy () {
-        // this.$store.commit('message/SET_HISTORY_MESSAGE_MAP', {
-        //     ...this.storeHistoryMessageMap, 
-        //     [this.conversationID]: {
-        //         messageList: []
-        //     }
-        // });
         this.init();
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
         uni.$off('reloadMore', this.reloadMore);
@@ -153,7 +147,6 @@ export default {
     methods: {
         ...mapActions('message', ['getHistoryMesageList', 'getHistoryMesageListReverse']),
         init () {
-            console.log('initinitinitinitinitinitinitinit--initinitinit');
             this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
             this.loadMessageList({});
         },
@@ -176,7 +169,6 @@ export default {
                     this.animation = true;
                     await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse'](options);
                 } else {
-                    // this.isReverse = false;
                     const data = await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
                         ...options,
                         positionMsgID: this.positionMsgID,
@@ -184,7 +176,6 @@ export default {
                         seq: this.seq,
                         count: this.positionMsgID ? parseInt(count / 2) : count
                     });
-                    console.log('uuuuuuu-----', data);
                     if (!data || !data.length) return;
                     if (this.positionMsgID) {
                         const map = this.storeHistoryMessageList[this.storeHistoryMessageList.length - 1];
@@ -240,7 +231,6 @@ export default {
                     }, 500);
                 }
             } else {
-                // this.isRecvToBottom = true;
                 if (!this.messageLoadState.loading && this.storeHasMoreAfterMessage) {
                     this.isReverse = false;
                     this.scrollToBottom();
@@ -259,7 +249,6 @@ export default {
                     this.loadMessageList({ isLoadMore: true });
                 }
             } else {
-                // this.isRecvToBottom = true;
                 if (!this.messageLoadState.loading && this.storeHasMoreAfterMessage) {
                     this.loadMessageList({ isLoadMore: true, isReverse: true });
                 }
@@ -321,7 +310,6 @@ export default {
                         hasMore: true
                     }
                 });
-                console.log('setMessageMaxLengthsetMessageMaxLengthsetMessageMaxLengthsetMessageMaxLength-------');
             }
         },
         closeScrollAnimation () {

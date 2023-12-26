@@ -38,9 +38,9 @@
             </view>
             <ContactMenus />
 
-            <view class="list_title">
+            <!-- <view class="list_title">
                 <text>常用联系人</text>
-            </view>
+            </view> -->
 
             <u-list
                 class="user_list"

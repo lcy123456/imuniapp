@@ -1,13 +1,28 @@
 import { pinList } from '@/api/pinToTop';
+import { getUnreadMsgCount } from '@/api/message';
 import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting } from '@/util/permission.js';
 const state = {
     pinList: [],
     connectingStatus: '',
     keyBoardHeight: 0,
-    isShowTip: false
+    isShowkeyBoard: false,
+    isShowTip: false,
+    unreadMap: {},
+    thirdData: {
+        gif: {
+            url: '',
+            apiKey: ''
+        },
+        livekit: {
+            url: ''
+        }
+    }
 };
 
 const mutations = {
+    SET_THIRD_DATA (state, data) {
+        state.thirdData = data;
+    },
     SET_PIN_LIST (state, list) {
         state.pinList = list;
     },
@@ -17,12 +32,41 @@ const mutations = {
     SET_KEYBOARD_HEIGHT (state, value) {
         state.keyBoardHeight = value;
     },
+    SET_IS_SHOW_KEYBOARD (state, boo) {
+        state.isShowkeyBoard = boo;
+    },
     SET_TIP_STATUS (state, boo) {
         state.isShowTip = boo;
+    },
+    SET_UNREAD_MAP (state, map) {
+        state.unreadMap = map;
+        if (map.count) {
+            uni.setTabBarBadge({
+                index: 2,
+                text: map.count < 99 ? map.count + "" : "99+",
+            });
+        } else {
+            uni.removeTabBarBadge({
+                index: 2,
+            });
+        }
     }
 };
 
 const actions = {
+    async getUnreadMsgCount ({
+        rootState,
+        commit
+    }) {
+        try {
+            const data = await getUnreadMsgCount({
+                userID: rootState.user.userList.map(item => item.userID).filter(userID => userID !== rootState.user.authData.userID)
+            });
+            commit('SET_UNREAD_MAP', data || {});
+        } catch (e) {
+            console.log(e, '获取未读数据失败');
+        }
+    },
     async pinList ({
         commit
     }, conversationID) {
@@ -34,7 +78,6 @@ const actions = {
                     showNumber: 200
                 }
             });
-            console.log(data.list, 'pinListpinListpinListpinList', conversationID);
             commit('SET_PIN_LIST', data.list || []);
         } catch (e) {
             console.log(e, '获取置顶列表失败');

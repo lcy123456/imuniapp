@@ -1,18 +1,7 @@
-import IMSDK, {
-    MessageStatus,
-} from 'openim-uniapp-polyfill';
+import IMSDK from 'openim-uniapp-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateMessageTypes } from '@/constant';
 import { idsGetConversationID, isEdit } from '@/util/imCommon';
-
-function getInitLastMessage (messageList) {
-    for (let i = messageList.length - 1; i >= 0; i--) {
-        const item = messageList[i];
-        if ([MessageStatus.Succeed].includes(item.status)) {
-            return item;
-        }
-    }
-}
 
 const state = {
     historyMessageMap: {}

@@ -167,7 +167,6 @@ export default {
             const res =  this.groupMemberList.filter(v => {
                 return v.nickname.includes(this.keyword || '');
             });
-            console.log('xxx', res, this.keyword || '');
             return res;
         }
     },
@@ -178,7 +177,6 @@ export default {
     },
 
     onLoad (options) {
-        console.log(options);
         const { conversation, keyword, from, groupID } = options;
         this.conversation = JSON.parse(decodeURIComponent(conversation));
         this.keyword = keyword || '';

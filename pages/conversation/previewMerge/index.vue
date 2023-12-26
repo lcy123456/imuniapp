@@ -58,7 +58,6 @@ export default {
     onLoad (params) {
         const { message } = params;
         this.message = JSON.parse(decodeURIComponent(message));
-        console.log(this.message);
     },
 
     methods: {
