@@ -182,6 +182,8 @@ export default {
     },
     onHide () {
         this.isHide = true;
+        console.log('this.isHide---', this.isHide);
+        console.log('this.isHide---', this.storeIsShowkeyBoard);
         this.isShowkeyBoard = this.storeIsShowkeyBoard;
         if (this.storeIsShowkeyBoard) {
             uni.$emit('inputFocus');

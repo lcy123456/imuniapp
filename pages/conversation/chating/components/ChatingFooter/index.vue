@@ -237,7 +237,9 @@ export default {
             isShowNotification: false,
             inputHtml: '',
             oldText: '',
+            editorblurtime: '',
             cursorToEnd: '',
+            testtime: '',
             inputfocustime: '',
             actionBarVisible: false,
             emojiBarVisible: false,
@@ -296,7 +298,6 @@ export default {
         ...mapActions('incomingCall', ['onThrowCall', 'reviewPermission']),
         setInputFocus () {
             this.inputfocustime = +new Date();
-            this.cursorToEnd = +new Date();
         },
         setAtMember (list, status) {
             this.isShowAt = false;
@@ -591,6 +592,7 @@ export default {
         },
         editorBlur () {
             this.isInputFocus = false;
+            this.testtime = +new Date();
         },
         async editorInput (e) {
             const newText = html2Text(e.detail.html);
@@ -893,7 +895,9 @@ export default {
             const _heightDiff = _sysInfo.screenHeight - _sysInfo.windowHeight;
             const _diff = height - _heightDiff;
             height = _diff > 0 ? _diff : 0;
-            this.$store.commit('base/SET_IS_SHOW_KEYBOARD', height !== 0);
+            setTimeout(() => {
+                this.$store.commit('base/SET_IS_SHOW_KEYBOARD', height !== 0);
+            }, 300);
             if (height === 0) return;
             setTimeout(() => {
                 this.$store.commit('base/SET_KEYBOARD_HEIGHT', height);
@@ -987,6 +991,12 @@ export default {
 
 <script module="snap" lang="renderjs">
 export default {
+    data () {
+        return {
+            baseOffset: 0,
+            anchorNode: null
+        }
+    },
 	methods: {
 		getSnapFlagUpdate(newValue, oldValue, ownerVm, vm) {
 			if (newValue === null) {
@@ -1032,6 +1042,10 @@ export default {
                 dom.blur();
             }
         },
+        setInputStatus () {
+            this.baseOffset = window.getSelection().getRangeAt(0).endOffset;
+            this.anchorNode = window.getSelection().getRangeAt(0).commonAncestorContainer;
+        },
         moveCursorToEnd () {
             if (!this.$el || !this.$el.querySelector) return;
             const element = this.$el.querySelector('.ql-editor');
@@ -1042,9 +1056,21 @@ export default {
             selection.removeAllRanges();
             selection.addRange(range);
         },
+        moveCursorToIndex () {
+            console.log(this.anchorNode);
+            console.log('this.selection-------', this.baseOffset);
+            if (!this.$el || !this.$el.querySelector) return;
+            const element = this.$el.querySelector('.ql-editor');
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.setStart(this.anchorNode, this.baseOffset);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        },
         setInputFocus () {
             const dom = this.$el.querySelector('.ql-editor');
             dom.focus();
+            this.moveCursorToEnd();
         }
 	},
 }
