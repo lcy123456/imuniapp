@@ -7,6 +7,8 @@
         :change:blurTime="snap.editorBlur"
         :cursorToEnd="cursorToEnd"
         :change:cursorToEnd="snap.moveCursorToEnd"
+        :inputfocustime="inputfocustime"
+        :change:inputfocustime="snap.setInputFocus"
         :style="{ 'pointer-events': 'auto' }"
         class="bg-color"
     >
@@ -236,6 +238,7 @@ export default {
             inputHtml: '',
             oldText: '',
             cursorToEnd: '',
+            inputfocustime: '',
             actionBarVisible: false,
             emojiBarVisible: false,
             recordVisible: false,
@@ -276,6 +279,7 @@ export default {
         uni.$on('active_message', this.handleMessageListener);
         uni.$on('initWebrtc', this.initWebrtc);
         uni.$on('sendMessage', this.sendMessage);
+        uni.$on('setInputFocus', this.setInputFocus);
     },
     beforeDestroy () {
         this.disposeSendMessageListener();
@@ -283,12 +287,17 @@ export default {
         uni.$off('active_message', this.handleMessageListener);
         uni.$off('initWebrtc', this.initWebrtc);
         uni.$off('sendMessage', this.sendMessage);
+        uni.$off('setInputFocus', this.setInputFocus);
         clearInterval(this.timer);
         uni.hideLoading();
     },
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage', 'deleteMessage']),
         ...mapActions('incomingCall', ['onThrowCall', 'reviewPermission']),
+        setInputFocus () {
+            this.inputfocustime = +new Date();
+            this.cursorToEnd = +new Date();
+        },
         setAtMember (list, status) {
             this.isShowAt = false;
             uni.$emit('setAtMember', list.map(item => ({
@@ -884,6 +893,7 @@ export default {
             const _heightDiff = _sysInfo.screenHeight - _sysInfo.windowHeight;
             const _diff = height - _heightDiff;
             height = _diff > 0 ? _diff : 0;
+            console.log('----', height !== 0);
             this.$store.commit('base/SET_IS_SHOW_KEYBOARD', height !== 0);
             if (height === 0) return;
             setTimeout(() => {
@@ -1032,6 +1042,10 @@ export default {
             range.collapse(false); // 将范围折叠到光标位置，false 表示折叠到范围的末尾
             selection.removeAllRanges();
             selection.addRange(range);
+        },
+        setInputFocus () {
+            const dom = this.$el.querySelector('.ql-editor');
+            dom.focus();
         }
 	},
 }

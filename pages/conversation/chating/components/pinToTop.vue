@@ -60,13 +60,13 @@
             </scroll-view>
             <view
                 class="dialog"
-                @click="setTop"
+                @touchend.prevent="setTop"
             />
         </view>
         <image
             class="close"
             src="/static/images/close.png"
-            @touchend.prevent="isShow = false;"
+            @touchend.prevent="close"
         />
     </view>
 </template>
@@ -117,6 +117,10 @@ export default {
     },
     methods: {
         html2Text,
+        close () {
+            console.log(33443);
+            this.isShow = false;
+        },
         init () {
             if (!this.list.length) return;
             this.active = this.list.length - 1;

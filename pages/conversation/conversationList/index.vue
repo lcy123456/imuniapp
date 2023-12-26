@@ -35,7 +35,7 @@
                 >
                     <ConversationItem
                         v-for="item in showConversationList"
-                        :key="`${(item.key || item.conversationID)}-ConversationItem`"
+                        :key="`${(item.conversationID)}-ConversationItem`"
                         :source="item"
                         :is-disabled="isDisabledSwipe"
                         @closeAllSwipe="closeAllSwipe"

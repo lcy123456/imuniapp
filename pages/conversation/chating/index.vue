@@ -78,7 +78,6 @@ import ChatingFooter from './components/ChatingFooter/index.vue';
 import ChatingList from './components/ChatingList.vue';
 import MessageMenu from './components/MessageMenu.vue';
 import { markConversationAsRead } from '@/util/imCommon';
-import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
 import PinToTop from './components/pinToTop.vue';
@@ -112,6 +111,7 @@ export default {
             updatePinKey: '',
             transition: '',
             listHeight: 0,
+            isHide: false,
             footerOutsideFlag: 0,
             menuOutsideFlag: 0,
             initLoading: true,
@@ -119,6 +119,7 @@ export default {
             positionMsgID: '',
             isMultipleMsg: false,
             checkedMsgIds: [],
+            isShowkeyBoard: false,
             menuState: {
                 visible: false,
                 paterRect: {},
@@ -179,6 +180,19 @@ export default {
         uni.$off('inputFocus', this.inputFocus);
         this.$store.commit('base/SET_PIN_LIST', []);
     },
+    onHide () {
+        this.isHide = true;
+        this.isShowkeyBoard = this.storeIsShowkeyBoard;
+        if (this.storeIsShowkeyBoard) {
+            uni.$emit('inputFocus');
+        }
+    },
+    onShow () {
+        this.isHide = false;
+        if (this.isShowkeyBoard) {
+            uni.$emit('setInputFocus');
+        }
+    },
     methods: {
         ...mapActions('message', ['resetMessageState']),
         ...mapActions('conversation', ['resetConversationState']),
@@ -186,12 +200,10 @@ export default {
         inputBlur () {
             this.transition = 'all 0.2s';
             this.height = '100%';
-            console.log(this.height, '====-------inputBlurinputBlurinputBlur');
         },
         async inputFocus () {
             this.transition = 'all 0.239s';
             this.height = this.storeKeyBoardHeight ? uni.getSystemInfoSync().windowHeight - this.storeKeyBoardHeight + 'px' : '100%';
-            console.log(this.height, '====-------editorFocuseditorFocuseditorFocus');
         },
         async handleHideMenu () {
             if (!this.storeIsShowSetEnd) {
