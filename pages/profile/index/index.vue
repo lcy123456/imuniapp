@@ -46,7 +46,7 @@
                             v-if="item.idx === 2 && unreadMap.count"
                             class="base-count"
                         >
-                            {{ unreadMap.count }}
+                            {{ unreadMap.count > 99 ? `99+` : unreadMap.count }}
                         </view>
                         <u-icon
                             class="text-grey"

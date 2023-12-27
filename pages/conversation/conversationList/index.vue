@@ -17,8 +17,12 @@
                     readonly
                 />
             </view>
+            <PcLoginTip
+                v-if="platformID !== 0"
+                :platform-i-d="platformID"
+            />
             <!-- v-if="!storeIsSyncing" -->
-            <z-paging
+            <!-- <z-paging
                 ref="paging"
                 :fixed="false"
                 :auto="false"
@@ -26,6 +30,13 @@
                 :show-loading-more-no-more-view="false"
                 :refresher-enabled="!storeIsSyncing"
                 @query="queryList"
+> -->
+            <scroll-view
+                class="scroll_view"
+                :scroll-with-animation="true"
+                scroll-y
+                :upper-threshold="0"
+                @scrolltolower="queryList"
             >
                 <!-- @refresherTouchmove="refresherTouchmove"
                 @refresherTouchend="refresherTouchend" -->
@@ -41,7 +52,8 @@
                         @closeAllSwipe="closeAllSwipe"
                     />
                 </u-swipe-action>
-            </z-paging>
+            </scroll-view>
+            <!-- </z-paging> -->
 
         <!-- <view
             v-else
@@ -56,21 +68,25 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import ChatHeader from './components/ChatHeader.vue';
+import PcLoginTip from './components/PcLoginTip.vue';
 import ConversationItem from './components/ConversationItem.vue';
 import { prepareConversationState } from '@/util/imCommon';
 import { PageEvents } from "@/constant";
 import { videoGetToken, videoGetOfflineInfo } from '@/api/incoming';
+import { authGetPcLoginPlatform } from '@/api/login';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 
 export default {
     components: {
         ChatHeader,
         ConversationItem,
+        PcLoginTip
     },
     data () {
         return {
             keyword: '',
             refreshing: false,
+            platformID: 0,
             isDisabledSwipe: false
         };
     },
@@ -90,21 +106,33 @@ export default {
         this.$nextTick(() => plus.navigator.closeSplashscreen());
     },
     watch: {
-        showConversationList (val) {
-            this.$nextTick(() => {
-                this.$refs.paging.complete([...val]);
-            });
-        }
+        // showConversationList (val) {
+        //     this.$nextTick(() => {
+        //         this.$refs.paging.complete([...val]);
+        //     });
+        // }
     },
     onLoad () {
+        this.timer = setInterval(() => {
+            this.authGetPcLoginPlatform();
+        }, 3000);
         this.getCall();
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
     onUnload () {
+        clearInterval(this.timer);
         uni.$off(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
     methods: {
         ...mapActions('incomingCall', ['appearLoadingCall']),
+        async authGetPcLoginPlatform () {
+            try {
+                const { platformID } = await authGetPcLoginPlatform();
+                this.platformID = platformID;
+            } catch (err) {
+                console.log(err);
+            }
+        },
         async getCall () {
             try {
                 const { sendID, room, type } = await videoGetOfflineInfo({
@@ -148,10 +176,10 @@ export default {
                 this.isDisabledSwipe = false;
             }, 500);
         },
-        async queryList (pageNo) {
+        async queryList () {
             await this.$store.dispatch(
                 'conversation/getConversationList',
-                pageNo === 1
+                false
             );
         },
         closeAllSwipe () {
@@ -195,5 +223,9 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+.scroll_view {
+    flex: 1;
+    overflow: hidden;
 }
 </style>

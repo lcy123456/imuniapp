@@ -27,10 +27,10 @@
                             </view>
                             <view class="right">
                                 <text
-                                    v-if="storeUnreadMap[item.userID] && storeUnreadMap[item.userID].count"
+                                    v-if="getUnreadCount(item.userID)"
                                     class="base-count"
                                 >
-                                    {{ storeUnreadMap[item.userID] && storeUnreadMap[item.userID].count }}
+                                    {{ getUnreadCount(item.userID) }}
                                 </text>
                             </view>
                         </view>
@@ -81,6 +81,13 @@ export default {
         ])
     },
     methods: {
+        getUnreadCount (userID) {
+            const map = this.storeUnreadMap[userID];
+            if (map && map.count) {
+                return map.count > 99 ? '99+' : map.count;
+            }
+            return '';
+        },
         getAvatarUrl (src) {
             return defaultAvatars[src] ?? src;
         },

@@ -7,7 +7,6 @@ export const updateMsg = (params) => uni.$u?.http.post('/msg/update_msg', JSON.s
     },
     header: {
         token: store.getters.storeIMToken,
-        // storeBusinessToken
     }
 });
 
@@ -18,6 +17,15 @@ export const getUnreadMsgCount = (params) => uni.$u?.http.post('/msg/get_unread_
     },
     header: {
         token: store.getters.storeIMToken,
-        // storeBusinessToken
+    }
+});
+
+// 获取消息详情
+export const getMsgID = (params) => uni.$u?.http.post('/msg/get_msg_id', JSON.stringify(params), {
+    custom: {
+        isIMApi: true,
+    },
+    header: {
+        token: store.getters.storeIMToken,
     }
 });

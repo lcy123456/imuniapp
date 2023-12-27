@@ -689,7 +689,6 @@ export const prepareConversationState = (conversation, back2Tab = false, clientM
     if (conversation.conversationType === SessionType.Notification) {
         url = "/pages/conversation/notifyMessageList/index";
     }
-    console.log('back2Tabback2Tabback2Tabback2Tabback2Tab', back2Tab, url);
     uni.navigateTo({
         url,
     });
@@ -796,6 +795,22 @@ export const getSourceUserInfo = (sourceID) => {
             resolve({
                 ...info,
             });
+        } catch (e) {
+            uni.$u.toast("获取用户信息失败");
+            reject(e);
+        }
+    });
+};
+
+export const getUserListInfo = (userList) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data } = await IMSDK.asyncApi(
+                IMSDK.IMMethods.GetUsersInfo,
+                IMSDK.uuid(),
+                userList
+            );
+            resolve([...data]);
         } catch (e) {
             uni.$u.toast("获取用户信息失败");
             reject(e);

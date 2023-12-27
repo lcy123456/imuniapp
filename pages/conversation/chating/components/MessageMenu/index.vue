@@ -8,28 +8,76 @@
         }"
     >
         <view
-            v-for="item in menuList"
-            :key="item.title"
-            class="message_menu_item"
-            :style="{height: menuItemHight + 'px'}"
-            @click="menuClick(item)"
-            @touchstart.stop
-            @touchend.prevent="menuClick(item)"
+            v-if="steps === 'first'"
         >
-            <text>{{ item.title }}</text>
-            <image
-                :src="item.icon"
-                alt=""
-                srcset=""
-            />
+            <view
+                v-for="item in menuList"
+                :key="item.title"
+                :style="{height: menuItemHight + 'px'}"
+                class="message_menu_item"
+                @click="menuClick(item)"
+                @touchstart.stop
+                @touchend.prevent="menuClick(item)"
+            >
+                <view
+                    v-if="!item.template"
+                    class="base-box"
+                >
+                    <text>{{ item.title }}</text>
+                    <image
+                        :src="item.icon"
+                        alt=""
+                        srcset=""
+                    />
+                </view>
+                <template v-if="item.template === 'readCount'">
+                    <view class="readCount">
+                        <image
+                            class="read"
+                            src="@/static/images/read.png"
+                        />
+                        <text>{{ attachedInfo.groupHasReadInfo.hasReadCount || 0 }}人已读</text>
+                        <view class="read-img-list">
+                            <my-avatar
+                                v-for="user of userList.slice(0, 3)"
+                                :key="user.userID"
+                                :desc="user.nickname"
+                                :src="user.faceURL"
+                                :font-size="12"
+                                size="24"
+                                shape="circle"
+                                :class="['avatar']"
+                            />
+                        </view>
+                    </view>
+                </template>
+            </view>
+        </view>
+        <view
+            v-else
+        >
+            <view
+                :style="{height: menuItemHight + 'px'}"
+                class="message_menu_item"
+                @touchstart.stop
+                @touchend.prevent.stop="back('first')"
+            >🔙 返回</view>
+            <view v-if="secondTemplate === 'readCount'">
+                <ReadUserList
+                    :user-list="userList"
+                />
+            </view>
         </view>
     </view>
     <!-- <u-modal :show="show" :title="title" :content='content'></u-modal> -->
 </template>
 
 <script>
+import MyAvatar from "@/components/MyAvatar/index.vue";
+import ReadUserList from "./ReadUserList.vue";
+import { getMsgID } from '@/api/message';
 import { html2Text } from '@/util/common';
-import { parseAt, parseEmoji } from "@/util/imCommon";
+import { parseAt, getUserListInfo } from "@/util/imCommon";
 import { mapGetters, mapActions } from 'vuex';
 import { pin, pinCancel } from '@/api/pinToTop';
 import IMSDK, { IMMethods, MessageType, SessionType } from 'openim-uniapp-polyfill';
@@ -46,7 +94,10 @@ const notPinTypes = [
 ];
 
 export default {
-    components: {},
+    components: {
+        MyAvatar,
+        ReadUserList
+    },
     props: {
         message: {
             required: true,
@@ -55,12 +106,23 @@ export default {
         paterRect: {
             type: Object,
             required: true,
+        },
+        visible: {
+            type: Boolean,
+            default: false,
         }
     },
     data () {
         return {
+            steps: 'first',
+            secondTemplate: '',
             menuWidth: 200,
             menuItemHight: 40,
+            attachedInfo: {
+                groupHasReadInfo: {},
+                hasReadUids: []
+            },
+            userList: [],
             systemInfo: uni.getSystemInfoSync()
         };
     },
@@ -95,8 +157,18 @@ export default {
             t = t < maxTop ? t : maxTop;
             return t;
         },
+        isGroup () {
+            return this.message.sessionType === SessionType.WorkingGroup;
+        },
         menuList () {
             return [
+                {
+                    type: MessageMenuTypes.ReadCount,
+                    title: '',
+                    icon: '/static/images/chating_message_gif.png',
+                    visible: this.isSender && this.isGroup,
+                    template: 'readCount'
+                },
                 {
                     type: MessageMenuTypes.AddEmoticons,
                     title: '添加到表情',
@@ -175,10 +247,48 @@ export default {
             return this.message.sessionType === SessionType.Single;
         }
     },
+    watch: {
+        visible: {
+            handler () {
+                console.log('===this.visible', this.visible);
+                if (this.visible) {
+                    this.getMsgID();
+                } else {
+                    setTimeout(() => {
+                        this.steps = 'first';
+                    }, 0);
+                }
+            },
+            deep: true
+        }
+    },
     methods: {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
+        back (steps) {
+            this.steps = steps;
+        },
+        async getMsgID () {
+            try {
+                const { chatLogs } = await getMsgID({
+                    clientMsgID: this.message.clientMsgID
+                });
+                this.attachedInfo = chatLogs && chatLogs[0] ? JSON.parse(chatLogs[0].attachedInfo) : {};
+                this.userList = await getUserListInfo(this.attachedInfo.groupHasReadInfo.hasReadUids);
+                this.userList = this.userList.map(user => user.publicInfo);
+                console.log('---attachedInfo--attachedInfo', this.userList);
+            } catch (err) {
+                console.log(err);
+            }
+        },
+        showAllRead () {
+            this.steps = 'second';
+            this.secondTemplate = 'readCount';
+        },
         async menuClick ({ type }) {
             switch (type) {
+            case MessageMenuTypes.ReadCount:
+                this.showAllRead();
+                return;
             case MessageMenuTypes.AddEmoticons:
                 this.addEmoticons();
                 break;
@@ -395,10 +505,11 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 9;
+    z-index: 999999;
     color: $uni-text-color-inverse;
 
     .message_menu_item {
+        width: 100%;
         // height: 80rpx;
         padding: 0 15px;
         @include btwBox();
@@ -407,6 +518,45 @@ export default {
         image {
             width: 19px;
             height: 19px;
+        }
+        .base-box {
+            width: 100%;
+            @include btwBox();
+        }
+        .readCount {
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            .read {
+                width: 26rpx;
+                height: 18rpx;
+                margin: 0 10rpx 0 0;
+            }
+            .read-img-list {
+                display: flex;
+                position: absolute;
+                right: 0;
+                top: 0;
+                .avatar {
+                    border: 1px solid #fff;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    &:nth-child(1) {
+                        right: 0;
+                        z-index: 1;
+                    }
+                    &:nth-child(2) {
+                        right: calc(12px * 1);
+                        z-index: 2;
+                    }
+                    &:nth-child(3) {
+                        right: calc(12px * 2);
+                        z-index: 3;
+                    }
+                }
+            }
         }
     }
 }

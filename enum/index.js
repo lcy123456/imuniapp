@@ -30,3 +30,11 @@ export const AllType = {
     Code: '999999999',
     Text: '所有人'
 };
+
+export const PlatformMap = {
+    1: 'iPhone',
+    2: 'Android',
+    3: 'Windows',
+    4: 'Mac',
+    5: 'Web',
+};

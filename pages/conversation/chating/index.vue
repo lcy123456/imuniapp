@@ -44,7 +44,7 @@
                 v-if="conversationUnread"
                 class="unread"
             >
-                {{ conversationUnread < 100 ? conversationUnread : '99' }}
+                {{ conversationUnread < 100 ? conversationUnread : '99+' }}
             </view>
             <image
                 src="/static/images/set-end.png"
@@ -54,9 +54,10 @@
         <view style="height: 0">
             <transition name="fade">
                 <MessageMenu
-                    v-if="menuState.visible"
+                    v-show="menuState.visible"
                     :message="menuState.message"
                     :pater-rect="menuState.paterRect"
+                    :visible="menuState.visible"
                     @updatePin="updatePin"
                     @close="menuState.visible = false"
                 />
@@ -76,10 +77,10 @@ import { mapActions, mapGetters } from 'vuex';
 import ChatingHeader from './components/ChatingHeader.vue';
 import ChatingFooter from './components/ChatingFooter/index.vue';
 import ChatingList from './components/ChatingList.vue';
-import MessageMenu from './components/MessageMenu.vue';
+import MessageMenu from './components/MessageMenu';
 import { markConversationAsRead } from '@/util/imCommon';
 import { MessageMenuTypes } from '@/constant';
-import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
+import IMSDK, { IMMethods, MessageType, SessionType } from 'openim-uniapp-polyfill';
 import PinToTop from './components/pinToTop.vue';
 import JoinGroupCall from './components/JoinGroupCall.vue';
 import { PageEvents } from "@/constant";
@@ -145,6 +146,9 @@ export default {
             return this.storeHistoryMessageList.filter((v) =>
                 this.checkedMsgIds.includes(v.clientMsgID)
             );
+        },
+        isWorkingGroup () {
+            return this.storeCurrentConversation.conversationType === SessionType.WorkingGroup;
         }
     },
     onLoad (options) {
@@ -343,6 +347,18 @@ export default {
                 break;
             case MessageMenuTypes.DelAll:
                 if (this.checkedMsg.length === 0) return;
+                if (this.isWorkingGroup) {
+                    let isAllMyMsg = true;
+                    this.checkedMsg.forEach(msg => {
+                        if (msg.sendID !== this.storeSelfInfo.userID) {
+                            isAllMyMsg = false;
+                        }
+                    });
+                    if (!isAllMyMsg) {
+                        uni.$u.toast('无法删除其他人的消息');
+                        break;
+                    }
+                }
                 this.handleMsgDel(this.checkedMsg);
                 break;
             case MessageMenuTypes.Del:

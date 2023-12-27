@@ -1,7 +1,6 @@
 <template>
     <view
         :class="['quote_message_container', showDetail && 'quote_detail']"
-        @touchend.prevent
     >
         <TextMessageRender
             v-if="showTextRender"

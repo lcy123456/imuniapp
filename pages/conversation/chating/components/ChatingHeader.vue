@@ -4,14 +4,14 @@
         bg-color="rgba(255,255,255, .8)"
         :route="!isMultipleMsg"
     >
-        <view
+        <!-- <view
             v-if="isMultipleMsg"
             slot="left"
             :class="['ml-30', checkedMsgIds.length === 0 ? 'text-grey' : 'primary']"
             @click="handleMultipleDelAll"
         >
             全部删除
-        </view>
+        </view> -->
         <template slot="center">
             <view
                 v-if="isMultipleMsg"

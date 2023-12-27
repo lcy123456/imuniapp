@@ -4,6 +4,7 @@
         :text="getAvatarUrl ? undefined : avatarText"
         bg-color="#5496EB"
         :default-url="getDdefaultUrl"
+        :font-size="fontSize"
         :shape="shape"
         :size="size"
         mode="aspectFill"
@@ -20,10 +21,17 @@ import defaultNotifyIcon from 'static/images/default_notify_icon.png';
 export default {
     name: "MyAvatar",
     props: {
-        src: String,
+        src: {
+            type: String,
+            default: ''
+        },
         shape: {
             type: String,
             default: 'square'
+        },
+        fontSize: {
+            type: Number,
+            default: 18
         },
         size: {
             type: String,
@@ -37,7 +45,10 @@ export default {
             type: Boolean,
             default: false
         },
-        desc: String
+        desc: {
+            type: String,
+            default: ''
+        }
     },
     data () {
         return {

@@ -47,4 +47,22 @@ export const accountScan = (params) => uni.$u?.http.post('/account/scan', JSON.s
 });
 
 // app config
-export const getAppConfigFromSvr = (content) => uni.$u?.http.post('/client_config/get');
+export const getAppConfigFromSvr = () => uni.$u?.http.post('/client_config/get');
+
+
+export const authForceLogout = (params) => uni.$u?.http.post('/auth/force_logout', JSON.stringify(params), {
+    custom: {
+        isIMApi: true,
+    },
+    header: {
+        token: store.getters.storeIMToken
+    }
+});
+export const authGetPcLoginPlatform = (params) => uni.$u?.http.post('/auth/get_pc_login_platform', JSON.stringify(params), {
+    custom: {
+        isIMApi: true,
+    },
+    header: {
+        token: store.getters.storeIMToken,
+    }
+});

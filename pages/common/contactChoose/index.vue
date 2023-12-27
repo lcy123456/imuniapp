@@ -29,6 +29,7 @@
                 </uni-search-bar>
             </view>
             <ChooseIndexList
+                v-if="showFriendList.dataList"
                 class="bg-color"
                 :index-list="showFriendList.indexList"
                 :item-arr="showFriendList.dataList"
@@ -55,6 +56,7 @@
 import { mapGetters } from 'vuex';
 import { ContactChooseTypes } from '@/constant';
 import { formatChooseData } from '@/util/common';
+import { businessSearchUserInfo } from '@/api/login';
 import IMSDK, {
     SessionType,
 } from 'openim-uniapp-polyfill';
@@ -77,23 +79,33 @@ export default {
             groupID: '',
             checkFriendList: [],
             disabledUserIDList: [],
+            showFriendList: {}
         };
     },
     computed: {
         ...mapGetters(['storeFriendList']),
-        showFriendList () {
-            const newList = this.storeFriendList.filter(
-                (friend) =>
-                    friend.nickname.includes(this.keyword) ||
-                    friend.remark.includes(this.keyword)
-            );
-            return formatChooseData(newList);
-        },
+        // showFriendList () {
+        //     const newList = this.storeFriendList.filter(
+        //         (friend) =>
+        //             friend.nickname.includes(this.keyword) ||
+        //             friend.remark.includes(this.keyword)
+        //     );
+        //     return formatChooseData(newList);
+        // },
         checkUserIDList () {
             return this.checkFriendList.map((v) => v.userID);
         },
         showCheckFriendList () {
             return this.checkFriendList.slice(-6);
+        }
+    },
+    watch: {
+        async keyword () {
+            if (this.keyword) {
+                uni.$u.throttle(() => this.businessSearchUserInfo(), 200);
+            } else {
+                this.showFriendList = formatChooseData(this.storeFriendList);
+            }
         }
     },
     onLoad (options) {
@@ -102,11 +114,25 @@ export default {
         this.groupID = groupID;
         const userIdList = checkUserIDList ? JSON.parse(checkUserIDList) : [];
         this.checkFriendList = this.storeFriendList.filter(v => userIdList.includes(v.userID));
+        this.showFriendList = formatChooseData(this.storeFriendList);
         if (this.type === ContactChooseTypes.Invite) {
             this.checkDisabledUser();
         }
     },
     methods: {
+        async businessSearchUserInfo () {
+            const {
+                total,
+                users
+            } = await businessSearchUserInfo(this.keyword);
+            if (total > 0) {
+                console.log('users--', users);
+                const {
+                    data
+                } = await IMSDK.asyncApi(IMSDK.IMMethods.GetUsersInfo, IMSDK.uuid(), users.map(user => user.userID));
+                this.showFriendList = formatChooseData(data.map(item => item.friendInfo ?? item.publicInfo ?? {}));
+            }
+        },
         checkDisabledUser () {
             const friendIDList = this.storeFriendList.map(
                 (friend) => friend.userID
@@ -119,7 +145,20 @@ export default {
                     userIDList: friendIDList,
                 }
             ).then(({ data }) => {
-                this.disabledUserIDList = data.map((member) => member.userID);
+                const friendList = data;
+                console.log('this.disabledUserIDList----datadata', data);
+                IMSDK.asyncApi(IMSDK.IMMethods.GetGroupMemberList, IMSDK.uuid(), {
+                    groupID: this.groupID,
+                    filter: 0,
+                    offset: 0,
+                    count: 500
+                }).then(({
+                    data
+                }) => {
+                    // this.groupMemberList = [...memberList];
+                    this.disabledUserIDList = data.concat(friendList).map((member) => member.userID);
+                    console.log('this.disabledUserIDList----', this.disabledUserIDList);
+                });
             });
         },
         updateCheckedUser (val) {

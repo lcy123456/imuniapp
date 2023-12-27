@@ -4,9 +4,29 @@
             <image
                 src="/static/images/scan-login-icon.png"
             />
-            <text>登录WEB端</text>
+            <text>{{ platformID ? '' : '登录' }}{{ PlatformMap[platformID] || '客户' }}端</text>
         </view>
-        <view class="btns">
+        <view
+            v-if="platformID"
+            class="btns"
+        >
+            <view
+                class="submit"
+                @click="authForceLogout"
+            >
+                退出登录
+            </view>
+            <view
+                class="cancel"
+                @click="back"
+            >
+                取消
+            </view>
+        </view>
+        <view
+            v-else
+            class="btns"
+        >
             <view
                 class="submit"
                 @click="accountScan"
@@ -26,22 +46,35 @@
 <script>
 
 import { accountScan } from '@/api/login';
+import { authForceLogout } from '@/api/login';
+import { PlatformMap } from '@/enum';
 export default {
     components: {
     },
     data () {
         return {
+            platformID: '',
+            code: '',
+            PlatformMap
         };
     },
     computed: {
     },
     onLoad (options) {
         this.code = options.code;
+        this.platformID = Number(options.platformID);
     },
     methods: {
         async accountScan () {
             await accountScan({
                 code: this.code
+            });
+            this.back();
+        },
+        async authForceLogout () {
+            await authForceLogout({
+                platformID: this.platformID,
+                userID: this.$store.state.user.selfInfo.userID
             });
             this.back();
         },

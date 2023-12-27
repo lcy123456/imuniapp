@@ -25,6 +25,7 @@ export const MessageMenuTypes = {
     PinCancel: 'pinCancel',
     Checked: 'checked',
     Edit: 'edit',
+    ReadCount: 'readCount',
 };
 
 export const ContactMenuTypes = {
