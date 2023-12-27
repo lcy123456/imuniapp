@@ -31,12 +31,19 @@
                     />
                 </view>
                 <template v-if="item.template === 'readCount'">
-                    <view class="readCount">
+                    <view
+                        class="readCount"
+                    >
                         <image
                             class="read"
-                            src="@/static/images/read.png"
+                            :src="attachedInfo.groupHasReadInfo.hasReadCount ? `/static/images/read.svg` : `/static/images/unread.svg`"
                         />
-                        <text>{{ attachedInfo.groupHasReadInfo.hasReadCount || 0 }}人已读</text>
+                        <text v-if="attachedInfo.groupHasReadInfo.hasReadCount">
+                            {{ attachedInfo.groupHasReadInfo.hasReadCount }}人已读
+                        </text>
+                        <text v-else>
+                            暂无已读
+                        </text>
                         <view class="read-img-list">
                             <my-avatar
                                 v-for="user of userList.slice(0, 3)"
@@ -269,10 +276,12 @@ export default {
         },
         async getMsgID () {
             try {
+                this.userList = [];
                 const { chatLogs } = await getMsgID({
                     clientMsgID: this.message.clientMsgID
                 });
                 this.attachedInfo = chatLogs && chatLogs[0] ? JSON.parse(chatLogs[0].attachedInfo) : {};
+                if (!this.attachedInfo.groupHasReadInfo.hasReadUids) return;
                 this.userList = await getUserListInfo(this.attachedInfo.groupHasReadInfo.hasReadUids);
                 this.userList = this.userList.map(user => user.publicInfo);
                 console.log('---attachedInfo--attachedInfo', this.userList);
@@ -422,6 +431,7 @@ export default {
             uni.$u.route('/pages/common/msgForward/index', {
                 message: encodeURIComponent(JSON.stringify(message))
             });
+            uni.hideKeyboard();
         },
         handleCopy () {
             return new Promise((resolve, reject) => {
@@ -482,6 +492,7 @@ export default {
                 message: this.message,
                 type: MessageMenuTypes.Init
             });
+            uni.$emit('inputBlur');
         },
         getCopyText () {
             const { contentType, atTextElem, quoteElem, textElem } = this.message;

@@ -78,7 +78,7 @@ export default {
             if (this.message.status === MessageStatus.Sending) {
                 return `/static/images/message_issend.png`;
             }
-            return this.message.isRead || this.isGroupRead ? `/static/images/read.png` : `/static/images/unread.png`;
+            return this.message.isRead || this.isGroupRead ? `/static/images/read.svg` : `/static/images/unread.svg`;
         }
     },
 };
