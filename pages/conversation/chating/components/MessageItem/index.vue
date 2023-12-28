@@ -20,6 +20,7 @@
             </view>
             <view class="item_right">
                 <EventDom
+                    class="avatar-box"
                     @click="showInfo"
                     @longpress="avatarLongpress"
                 >
@@ -323,6 +324,9 @@ export default {
         flex: 1;
         overflow: hidden;
         display: flex;
+        .avatar-box {
+            height: 80rpx;
+        }
         .my_avatar {
             margin-right: 24rpx;
         }

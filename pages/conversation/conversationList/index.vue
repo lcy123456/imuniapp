@@ -41,14 +41,15 @@
                 <!-- @refresherTouchmove="refresherTouchmove"
                 @refresherTouchend="refresherTouchend" -->
                 <u-swipe-action
+                    :key="key"
                     ref="swipeWrapperRef"
                     class="swipe_wrapper"
                 >
                     <ConversationItem
-                        v-for="item in showConversationList"
+                        v-for="(item) in showConversationList"
                         :key="`${(item.conversationID)}-ConversationItem`"
                         :source="item"
-                        :is-disabled="isDisabledSwipe"
+                        :is-disabled="item.isArchvistItem"
                         @closeAllSwipe="closeAllSwipe"
                     />
                 </u-swipe-action>
@@ -84,10 +85,40 @@ export default {
     },
     data () {
         return {
+            key: '',
             keyword: '',
             refreshing: false,
             platformID: 0,
-            isDisabledSwipe: false
+            isDisabledSwipe: false,
+            isArchvistItem: {
+                isArchvistItem: true,
+                unreadCount: 0,
+                groupAtType: 0,
+                isPrivateChat: false,
+                groupID: '',
+                isNotInGroup: false,
+                draftText: '',
+                userID: '',
+                latestMsgSendTime: 0,
+                maxSeq: 0,
+                showName: '归档信息',
+                conversationID: '',
+                conversationType: 0,
+                isPinned: false,
+                attachedInfo: JSON.stringify({
+                    archvist: 1
+                }),
+                ex: '',
+                hasReadSeq: 0,
+                updateUnreadCountTime: 0,
+                recvMsgOpt: 0,
+                draftTextTime: 0,
+                burnDuration: 0,
+                minSeq: 0,
+                faceURL: "/static/images/archive.png",
+                msgDestructTime: 0,
+                isMsgDestruct: false,
+            }
         };
     },
     computed: {
@@ -99,7 +130,35 @@ export default {
             'storeCurrentConversationID'
         ]),
         showConversationList () {
-            return this.storeConversationList;
+            const isArchvistList = [];
+            let conversationList = [];
+            this.storeConversationList.forEach(item => {
+                try {
+                    const attachedInfo = JSON.parse(item.attachedInfo);
+                    if (attachedInfo.archvist === 1) {
+                        isArchvistList.push(item);
+                    }
+                } catch (err) {
+                    //
+                }
+            });
+            if (isArchvistList.length) {
+                const conversationIsArchvistIdList = isArchvistList.map(conversation => conversation.conversationID);
+                conversationList = [
+                    {
+                        ...this.isArchvistItem,
+                        unreadCount: isArchvistList.filter(item => item.unreadCount).length,
+                        latestMsg: JSON.stringify({
+                            contentType: 101,
+                            textElem: {
+                                content: isArchvistList.map(item => item.showName).join(',')
+                            }
+                        }),
+                    },
+                    ...this.storeConversationList.filter(item => !conversationIsArchvistIdList.includes(item.conversationID))
+                ];
+            }
+            return conversationList.length ? conversationList : this.storeConversationList;
         },
     },
     onReady () {
@@ -168,14 +227,6 @@ export default {
         handleToSearch () {
             uni.$u.route('/pages/common/searchRecord/index');
         },
-        refresherTouchmove () {
-            this.isDisabledSwipe = true;
-        },
-        refresherTouchend () {
-            setTimeout(() => {
-                this.isDisabledSwipe = false;
-            }, 500);
-        },
         async queryList () {
             await this.$store.dispatch(
                 'conversation/getConversationList',
@@ -183,6 +234,7 @@ export default {
             );
         },
         closeAllSwipe () {
+            // this.key = +new Date();
             this.$refs.swipeWrapperRef.closeAll();
         },
         handlePushConversation (conversationID) {

@@ -61,6 +61,9 @@
 			"path": "pages/conversation/groupSettings/index"
 		},
 		{
+			"path": "pages/conversation/conversationList/conversationArchvist"
+		},
+		{
 			"path": "pages/common/userCard/index"
 		},
 		{

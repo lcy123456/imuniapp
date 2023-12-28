@@ -466,7 +466,7 @@ export default {
         position: fixed;
         bottom: 130px;
         right: 20px;
-        uni-image {
+                uni-image {
             width: 100rpx;
             height: 100rpx;
         }

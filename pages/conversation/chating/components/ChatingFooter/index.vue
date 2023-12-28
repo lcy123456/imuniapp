@@ -291,6 +291,7 @@ export default {
         uni.$off('sendMessage', this.sendMessage);
         uni.$off('setInputFocus', this.setInputFocus);
         clearInterval(this.timer);
+        this.$store.commit('base/SET_IS_SHOW_KEYBOARD', false);
         uni.hideLoading();
     },
     methods: {

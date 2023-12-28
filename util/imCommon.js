@@ -668,7 +668,7 @@ export const prepareConversationState = (conversation, back2Tab = false, clientM
     const pages = getCurrentPages();
     const currentPage = pages[pages.length - 1];
     const page = currentPage.route;
-    if (page !== `pages/conversation/conversationList/index`) {
+    if (![`pages/conversation/conversationList/index`, `pages/conversation/conversationList/conversationArchvist`].includes(page)) {
         uni.switchTab({
             url: '/pages/conversation/conversationList/index',
         });

@@ -67,11 +67,13 @@ import IMSDK, {
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { html2Text, draftText2Text } from '@/util/common';
+import { mapGetters } from 'vuex';
 import {
     parseMessageByType,
     formatConversionTime,
     prepareConversationState,
 } from '@/util/imCommon';
+import { setConversations } from '@/api/conversation';
 
 export default {
     components: {
@@ -91,6 +93,10 @@ export default {
         return {};
     },
     computed: {
+        ...mapGetters([
+            'storeCurrentUserID',
+            'storeCurrentConversation'
+        ]),
         messagePrefix () {
             if (html2Text(draftText2Text(this.source.draftText))) {
                 return '[草稿]';
@@ -148,6 +154,14 @@ export default {
         isNotify () {
             return this.source.conversationType === SessionType.Notification;
         },
+        isArchvist () {
+            try {
+                const attachedInfo = JSON.parse(this.source.attachedInfo);
+                return attachedInfo.archvist === 1;
+            } catch (err) {
+                return false;
+            }
+        },
         getSwipeActions () {
             const notAccept = this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
             let actions = [
@@ -172,6 +186,13 @@ export default {
                         backgroundColor: '#ec4b37',
                     }
                 },
+                {
+                    text: `${this.isArchvist ? '取消归档' : '归档'}`,
+                    icon: `/static/images/archive${this.isArchvist ? '_not' : ''}.svg`,
+                    style: {
+                        backgroundColor: '#37A0EC',
+                    }
+                },
             ];
             if (this.source.unreadCount > 0) {
                 actions.unshift({
@@ -188,11 +209,15 @@ export default {
     methods: {
         html2Text,
         clickConversationItem () {
-            prepareConversationState(this.source);
+            if (this.source.isArchvistItem) {
+                uni.$u.route('pages/conversation/conversationList/conversationArchvist');
+            } else {
+                prepareConversationState(this.source);
+            }
         },
         async clickConversationMenu ({ index }) {
             this.$loading('加载中');
-            const noUnRead = this.getSwipeActions.length === 3;
+            const noUnRead = this.getSwipeActions.length === 4;
 
             let tempIndex = index;
             if (noUnRead) tempIndex += 1;
@@ -210,9 +235,31 @@ export default {
             case 3:
                 await this.handleDel();
                 break;
+            case 4:
+                await this.handleArchive();
             }
             this.$hideLoading();
             this.$emit('closeAllSwipe');
+        },
+        async handleArchive () {
+            try {
+                await setConversations({
+                    userIDs: [
+                        this.storeCurrentUserID
+                    ],
+                    conversation: {
+                        conversationID: this.source.conversationID,
+                        conversationType: this.source.conversationType,
+                        groupID: this.source.groupID,
+                        attachedInfo: JSON.stringify({
+                            archvist: this.source.attachedInfo && JSON.parse(this.source.attachedInfo).archvist === 1 ? 2 : 1
+                        })
+                    }
+                });
+                uni.$u.toast('设置归档成功');
+            } catch (err) {
+                console.log(err);
+            }
         },
         async handleAsRead () {
             try {
@@ -261,7 +308,7 @@ export default {
                 uni.$u.toast('置顶失败');
             }
         }
-    },
+    }
 };
 </script>
 
