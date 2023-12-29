@@ -1,7 +1,7 @@
 <template>
-    <u-swipe-action-item
+    <uni-swipe-action-item
         :key="`${(source.conversationID)}-swipe-action-item`"
-        :options="getSwipeActions || []"
+        :right-options="getSwipeActions || []"
         :disabled="isDisabled"
         :threshold="50"
         @click="clickConversationMenu"
@@ -56,7 +56,7 @@
                 />
             </view>
         </view>
-    </u-swipe-action-item>
+    </uni-swipe-action-item>
 </template>
 
 <script>
@@ -243,6 +243,7 @@ export default {
         },
         async handleArchive () {
             try {
+                const archvist = this.source.attachedInfo && JSON.parse(this.source.attachedInfo).archvist === 1 ? 2 : 1;
                 await setConversations({
                     userIDs: [
                         this.storeCurrentUserID
@@ -252,11 +253,11 @@ export default {
                         conversationType: this.source.conversationType,
                         groupID: this.source.groupID,
                         attachedInfo: JSON.stringify({
-                            archvist: this.source.attachedInfo && JSON.parse(this.source.attachedInfo).archvist === 1 ? 2 : 1
+                            archvist: archvist
                         })
                     }
                 });
-                uni.$u.toast('设置归档成功');
+                uni.$u.toast(archvist === 1 ? '设置归档成功' : '取消归档成功');
             } catch (err) {
                 console.log(err);
             }
@@ -387,11 +388,11 @@ export default {
         }
     }
 }
-/deep/.u-swipe-action-item__right__button {
-    width: 142rpx;
-    .u-swipe-action-item__right__button__wrapper {
-        width: 100%;
+/deep/.uni-swipe_button-group {
+    .uni-swipe_button {
+        width: 140rpx;
         padding: 0 20rpx !important;
+        display: flex;
         flex-direction: column !important;
         justify-content: space-evenly;
         .u-icon {
@@ -402,7 +403,7 @@ export default {
                 height: 100% !important;
             }
         }
-        .u-swipe-action-item__right__button__wrapper__text {
+        .uni-swipe_button-text {
             font-size: 26rpx !important;
         }
     }

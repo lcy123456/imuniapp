@@ -40,8 +40,7 @@
             >
                 <!-- @refresherTouchmove="refresherTouchmove"
                 @refresherTouchend="refresherTouchend" -->
-                <u-swipe-action
-                    :key="key"
+                <uni-swipe-action
                     ref="swipeWrapperRef"
                     class="swipe_wrapper"
                 >
@@ -52,7 +51,7 @@
                         :is-disabled="item.isArchvistItem"
                         @closeAllSwipe="closeAllSwipe"
                     />
-                </u-swipe-action>
+                </uni-swipe-action>
             </scroll-view>
             <!-- </z-paging> -->
 
@@ -234,7 +233,7 @@ export default {
             );
         },
         closeAllSwipe () {
-            // this.key = +new Date();
+            this.key = +new Date();
             this.$refs.swipeWrapperRef.closeAll();
         },
         handlePushConversation (conversationID) {

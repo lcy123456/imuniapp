@@ -26,7 +26,7 @@
                 scroll-y
                 :upper-threshold="0"
             >
-                <u-swipe-action
+                <uni-swipe-action
                     ref="swipeWrapperRef"
                     class="swipe_wrapper"
                 >
@@ -37,7 +37,7 @@
                         :is-disabled="isDisabledSwipe"
                         @closeAllSwipe="closeAllSwipe"
                     />
-                </u-swipe-action>
+                </uni-swipe-action>
             </scroll-view>
         </view>
     </Page>
