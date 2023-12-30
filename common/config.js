@@ -4,13 +4,13 @@ import store from '@/store';
 // const configUrl = 'https://web.rentsoft.cn/complete_admin'
 // const apiUrl = 'https://web.rentsoft.cn/api'
 // const wsUrl = 'wss://web.rentsoft.cn/msg_gateway'
-function getUrl () {
+function getUrl() {
     let registerUrl = 'http://192.168.2.244:10008';
     let configUrl = 'http://192.168.2.244:10009';
     let apiUrl = 'http://192.168.2.244:10002';
     let wsUrl = 'ws://192.168.2.244:10001';
     let liveWsUrl = 'ws://192.168.2.20:7880';
-    
+
     if (store.getters.storeIsProd) {
         registerUrl = 'https://imlogic.muskim.com';
         configUrl = 'https://imcms.muskim.com';
@@ -23,14 +23,13 @@ function getUrl () {
         // apiUrl = 'https://imapi.qncjkeusoge.cfd';
         // wsUrl = 'wss://imws.qncjkeusoge.cfd';
         // liveWsUrl = 'wss://cms.qncjkeusoge.cfd';
-
     }
     return {
         registerUrl,
         configUrl,
         apiUrl,
         wsUrl,
-        liveWsUrl,
+        liveWsUrl
     };
 }
 const getRegisterUrl = () => getUrl().registerUrl;

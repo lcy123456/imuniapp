@@ -26,14 +26,14 @@ import incomingCallSmallSIcon from '@/static/images/incoming_call_small_s_icon.p
 import incomingCallSmallSVideoIcon from '@/static/images/incoming_call_small_s_video_icon.png';
 import incomingCallSmallNIcon from '@/static/images/incoming_call_small_n_icon.png';
 import { mapGetters, mapActions } from 'vuex';
-import store from "@/store";
+import store from '@/store';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import {AudioVideoType} from "@/enum";
+import { AudioVideoType } from '@/enum';
 dayjs.extend(duration);
 export default {
-    name: "SmallPopup",
-    data () {
+    name: 'SmallPopup',
+    data() {
         return {
             incomingCallSmallSIcon,
             incomingCallSmallSVideoIcon,
@@ -59,7 +59,7 @@ export default {
             'storeIncomingCallMessage',
             'storeIncomingTimeText'
         ]),
-        isVideoCall () {
+        isVideoCall() {
             let result = false;
             try {
                 const { data } = this.storeIncomingCallMessage.customElem;
@@ -70,17 +70,19 @@ export default {
             }
             return result;
         },
-        smallSIcon () {
-            return this.isVideoCall ? incomingCallSmallSVideoIcon : incomingCallSmallSIcon;
+        smallSIcon() {
+            return this.isVideoCall
+                ? incomingCallSmallSVideoIcon
+                : incomingCallSmallSIcon;
         }
     },
     watch: {
         storeIsIncomingCallIng: {
-            handler (val) {
+            handler(val) {
                 this.timer = null;
                 clearTimeout(this.timer);
 
-                setTimeout(()=> {
+                setTimeout(() => {
                     if (val) this.intervalHandle();
                     else this.timeText = '等待接听';
                 }, 1000);
@@ -88,8 +90,8 @@ export default {
             immediate: true
         },
         storeIncomingCallSmallStyle: {
-            handler (data) {
-                const {moveX, moveY} = data;
+            handler(data) {
+                const { moveX, moveY } = data;
                 this.style = {
                     transform: `translate(${moveX}px, ${moveY}px)`
                 };
@@ -102,10 +104,14 @@ export default {
         ...mapActions('incomingCall', ['onSuccessCall']),
 
         // 计时器
-        interval (func, delay) {
+        interval(func, delay) {
             const _this = this;
             const interFunc = function () {
-                if (_this.timer && (!_this.storeIsIncomingCallIng || _this.storeIncomingIsHangup)) {
+                if (
+                    _this.timer &&
+                    (!_this.storeIsIncomingCallIng ||
+                        _this.storeIncomingIsHangup)
+                ) {
                     _this.timer = null;
                     clearTimeout(_this.timer);
                     console.log('&&&&&&清空通话中计时器&&&&&&');
@@ -116,35 +122,40 @@ export default {
             };
             interFunc();
         },
-        intervalHandle () {
+        intervalHandle() {
             try {
-                this.interval(()=> {
+                this.interval(() => {
                     this.timeText = this.storeIncomingTimeText;
                 }, 1000);
             } catch (err) {
-                console.log('调用倒计时方法intervalHandle()异常+++++++++++++++++++++++++++++');
+                console.log(
+                    '调用倒计时方法intervalHandle()异常+++++++++++++++++++++++++++++'
+                );
                 console.log(err);
             }
         },
         // 初始化页面宽高度、dom元素宽高度
-        initContainerHeight () {
+        initContainerHeight() {
             const { windowHeight, windowWidth } = uni.getSystemInfoSync();
             this.windowWidth = windowWidth;
             this.windowHeight = windowHeight;
 
             const query = uni.createSelectorQuery().in(this);
-            query.select('.small_popup_container').boundingClientRect(data => {
-                this.containerRect = data;
-            }).exec();
+            query
+                .select('.small_popup_container')
+                .boundingClientRect(data => {
+                    this.containerRect = data;
+                })
+                .exec();
         },
         // 手指落下时触发
-        onTouchstart () {
+        onTouchstart() {
             if (!this.windowWidth) this.initContainerHeight();
         },
         // 手指移动时触发
-        onTouchmove (event) {
+        onTouchmove(event) {
             const [touches] = event.touches;
-            const {pageX, pageY} = touches;
+            const { pageX, pageY } = touches;
             let moveX = pageX;
             let moveY = pageY;
             const { windowHeight, windowWidth } = this;
@@ -159,7 +170,7 @@ export default {
             // 上边界
             if (moveY <= halfDomWidth) moveY = halfDomHeight + padding;
             // 右边界  页面宽度 - 拖动元素宽度
-            if (moveX >= windowWidth - this.containerRect.width) 
+            if (moveX >= windowWidth - this.containerRect.width)
                 moveX = windowWidth - halfDomWidth - padding;
             // 下边界  页面高度 - 拖动元素高度
             if (moveY >= windowHeight - this.containerRect.height)
@@ -174,64 +185,68 @@ export default {
             });
         },
         // 手指抬起时
-        onTouchend () {
-        },
-        async onOpenPhone () {
+        onTouchend() {},
+        async onOpenPhone() {
             if (this.storeIsIncomingCallIng) {
-                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+                uni.navigateTo({ url: `/pages/conversation/webrtc/index` });
             } else {
                 await this.onSuccessCall();
                 await this.goWebrtc();
             }
         },
-        async goWebrtc () {
-            const hasPermission  = await this.$store.dispatch('incomingCall/reviewPermission');
+        async goWebrtc() {
+            const hasPermission = await this.$store.dispatch(
+                'incomingCall/reviewPermission'
+            );
             const type = this.isVideoCall ? 'video' : 'audio';
             if (hasPermission) {
-                this.$store.commit('incomingCall/SET_IS_INCOMING_CALL_MESSAGE', {
-                    ...this.storeIncomingCallMessage,
-                    type
-                });
-                uni.navigateTo({url: `/pages/conversation/webrtc/index`});
+                this.$store.commit(
+                    'incomingCall/SET_IS_INCOMING_CALL_MESSAGE',
+                    {
+                        ...this.storeIncomingCallMessage,
+                        type
+                    }
+                );
+                uni.navigateTo({ url: `/pages/conversation/webrtc/index` });
             }
-        },
+        }
     }
 };
 </script>
 
 <style lang="scss" scoped>
 .small_popup_container {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  transform: translate(14rpx, 200rpx);
-  transition: all 0.1s;
-  width: 140rpx;
-  height: 140rpx;
-  border-radius: 20rpx;
-  box-shadow: 0 0 4rpx rgba(0, 0, 0, 0.25);
-  background-color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  z-index: 999;
-  image {
-    width: 40rpx;
-    height: 40rpx;
-    margin: 28rpx 0;
-  }
-  .text_time {
-    color: #58BE6B;
-  }
-  .hang_up_icon {
-    height: 20rpx;
-    width: 50rpx;
-    margin: 38rpx 0 28rpx;
-  }
-  .hang_up_time {
-    color: #F45955;
-  }
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translate(14rpx, 200rpx);
+    transition: all 0.1s;
+    width: 140rpx;
+    height: 140rpx;
+    border-radius: 20rpx;
+    box-shadow: 0 0 4rpx rgba(0, 0, 0, 0.25);
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    z-index: 999;
+    image {
+        width: 40rpx;
+        height: 40rpx;
+        margin: 28rpx 0;
+    }
+    .text_time {
+        color: #58be6b;
+    }
+    .hang_up_icon {
+        height: 20rpx;
+        width: 50rpx;
+        margin: 38rpx 0 28rpx;
+    }
+    .hang_up_time {
+        color: #f45955;
+    }
 }
 </style>

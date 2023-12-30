@@ -3,10 +3,7 @@
         <view class="search_container">
             <custom-nav-bar :route="false">
                 <view slot="left" />
-                <view
-                    slot="center"
-                    class="search_bar"
-                >
+                <view slot="center" class="search_bar">
                     <u-search
                         v-model="keyword"
                         action-text="取消"
@@ -24,11 +21,7 @@
                 class="result_row"
                 @click="startSearch"
             >
-                <image
-                    class="icon"
-                    :src="getIcon"
-                    alt=""
-                />
+                <image class="icon" :src="getIcon" alt="" />
                 <view class="">
                     <text>搜索：</text>
                     <text>{{ keyword }}</text>
@@ -42,10 +35,7 @@
                 <u-loading-icon />
             </view>
 
-            <view
-                v-show="empty"
-                class="result_row result_row_empty"
-            >
+            <view v-show="empty" class="result_row result_row_empty">
                 <text>暂无搜索结果</text>
             </view>
         </view>
@@ -58,81 +48,85 @@ import CustomNavBar from '@/components/CustomNavBar/index.vue';
 
 import searchGroup from 'static/images/contact_add_join_group.png';
 import searchUser from 'static/images/contact_add_search_user.png';
-import {
-    businessSearchUserInfo
-} from '@/api/login';
+import { businessSearchUserInfo } from '@/api/login';
 
 export default {
     components: {
         CustomNavBar
     },
-    data () {
+    data() {
         return {
             keyword: '',
             searching: false,
             empty: false,
-            isSearchGroup: false,
+            isSearchGroup: false
         };
     },
     computed: {
-        getIcon () {
+        getIcon() {
             return this.isSearchGroup ? searchGroup : searchUser;
         },
-        getPlaceholder () {
+        getPlaceholder() {
             return this.isSearchGroup ? '请输入群聊ID' : '请输入用户ID或手机号';
         }
     },
-    onLoad (options) {
-        const {
-            isSearchGroup
-        } = options;
+    onLoad(options) {
+        const { isSearchGroup } = options;
         this.isSearchGroup = JSON.parse(isSearchGroup);
     },
     methods: {
-        cancel () {
+        cancel() {
             console.log('cancel');
             uni.navigateBack();
         },
-        keywordChange () {
+        keywordChange() {
             if (this.empty) {
                 this.empty = !this.empty;
             }
         },
-        async startSearch () {
+        async startSearch() {
             if (!this.keyword) return;
             this.searching = true;
             try {
                 if (this.isSearchGroup) {
-                    let info = this.$store.getters.storeGroupList.find(item => item.groupID === this.keyword);
+                    let info = this.$store.getters.storeGroupList.find(
+                        item => item.groupID === this.keyword
+                    );
                     if (!info) {
-                        const {
-                            data
-                        } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupsInfo, IMSDK.uuid(), [this
-                            .keyword
-                        ]);
+                        const { data } = await IMSDK.asyncApi(
+                            IMSDK.IMMethods.GetSpecifiedGroupsInfo,
+                            IMSDK.uuid(),
+                            [this.keyword]
+                        );
                         info = data[0];
                     }
                     if (info) {
                         uni.navigateTo({
-                            url: `/pages/common/groupCard/index?sourceInfo=${JSON.stringify(info)}`
+                            url: `/pages/common/groupCard/index?sourceInfo=${JSON.stringify(
+                                info
+                            )}`
                         });
                     } else {
                         this.empty = true;
                     }
                 } else {
-                    let info = this.$store.getters.storeFriendList.find(item => item.userID === this.keyword);
+                    let info = this.$store.getters.storeFriendList.find(
+                        item => item.userID === this.keyword
+                    );
                     if (!info) {
-                        const {
-                            total,
-                            users
-                        } = await businessSearchUserInfo(this.keyword);
+                        const { total, users } = await businessSearchUserInfo(
+                            this.keyword
+                        );
                         if (total > 0) {
-                            const {
-                                data
-                            } = await IMSDK.asyncApi(IMSDK.IMMethods.GetUsersInfo, IMSDK.uuid(), [
-                                users[0].userID
-                            ]);
-                            const imData = data[0]?.friendInfo ?? data[0]?.publicInfo ?? {};
+                            const { data } = await IMSDK.asyncApi(
+                                IMSDK.IMMethods.GetUsersInfo,
+                                IMSDK.uuid(),
+                                [users[0].userID]
+                            );
+                            const imData =
+                                data[0]?.friendInfo ??
+                                data[0]?.publicInfo ??
+                                {};
 
                             info = {
                                 ...imData,
@@ -142,7 +136,9 @@ export default {
                     }
                     if (info) {
                         uni.navigateTo({
-                            url: `/pages/common/userCard/index?sourceInfo=${JSON.stringify(info)}`
+                            url: `/pages/common/userCard/index?sourceInfo=${JSON.stringify(
+                                info
+                            )}`
                         });
                     } else {
                         this.empty = true;
@@ -152,40 +148,39 @@ export default {
                 //TODO handle the exception
             }
             this.searching = false;
-
         }
     }
 };
 </script>
 
 <style lang="scss" scoped>
-	.search_container {
-		height: 100vh;
-		background-color: #F8F8F8;
+.search_container {
+    height: 100vh;
+    background-color: #f8f8f8;
 
-		.search_bar {
-			width: 100%;
-			padding: 0 44rpx;
-		}
+    .search_bar {
+        width: 100%;
+        padding: 0 44rpx;
+    }
 
-		.result_row {
-			@include vCenterBox();
-			padding: 24rpx 44rpx;
-			font-size: 28rpx;
-			color: $uni-text-color;
-			background-color: #fff;
+    .result_row {
+        @include vCenterBox();
+        padding: 24rpx 44rpx;
+        font-size: 28rpx;
+        color: $uni-text-color;
+        background-color: #fff;
 
-			.icon {
-				width: 20px;
-				height: 20px;
-				margin-right: 24rpx;
-			}
+        .icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 24rpx;
+        }
 
-			&_empty {
-				display: flex;
-				justify-content: center;
-				color: #999;
-			}
-		}
-	}
+        &_empty {
+            display: flex;
+            justify-content: center;
+            color: #999;
+        }
+    }
+}
 </style>

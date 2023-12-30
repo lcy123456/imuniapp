@@ -11,8 +11,8 @@
 
 <script>
 export default {
-    name: "EventDom",
-    data () {
+    name: 'EventDom',
+    data() {
         return {
             isTouchmove: false,
             touchT: '',
@@ -20,22 +20,22 @@ export default {
         };
     },
     methods: {
-        touchmove () {
+        touchmove() {
             this.isTouchmove = true;
         },
-        touchstart () {
+        touchstart() {
             this.isTouchmove = false;
             this.touchT = new Date().getTime();
             this.$emit('touchstart');
         },
-        touchend () {
+        touchend() {
             this.touchE = new Date().getTime();
             this.$emit('touchend');
             if (this.touchE - this.touchT < 350 && !this.isTouchmove) {
                 this.$emit('click');
             }
         },
-        longpress () {
+        longpress() {
             this.$emit('longpress');
         }
     }

@@ -1,8 +1,5 @@
 <template>
-    <view
-        class="code-not fs-28 text-grey"
-        @click="handleCodeNot"
-    >
+    <view class="code-not fs-28 text-grey" @click="handleCodeNot">
         收不到验证码?
     </view>
 </template>
@@ -11,18 +8,16 @@
 export default {
     name: 'CodeNot',
 
-    data () {
-        return {
-            
-        };
+    data() {
+        return {};
     },
 
     methods: {
         // 收不到验证码
-        handleCodeNot () {
+        handleCodeNot() {
             uni.$u.toast(`请联系管理员\n\remail_xxx@163.com`);
         }
-    },
+    }
 };
 </script>
 

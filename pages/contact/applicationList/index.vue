@@ -17,15 +17,14 @@
             </view>
 
             <view class="bg-color px-30 py-28">
-                <MyTabs
-                    :list="tabList"
-                    @change="tabsChange"
-                />
+                <MyTabs :list="tabList" @change="tabsChange" />
             </view>
             <view class="pane_row">
                 <view
                     class="pane_transform"
-                    :style="{ transform: `translateX(${isRecv ? '0' : '-100%'})` }"
+                    :style="{
+                        transform: `translateX(${isRecv ? '0' : '-100%'})`
+                    }"
                 >
                     <view class="pane_content">
                         <u-list
@@ -48,10 +47,7 @@
                                 />
                             </u-list-item>
                         </u-list>
-                        <u-empty
-                            v-else
-                            mode="list"
-                        />
+                        <u-empty v-else mode="list" />
                     </view>
                     <view class="pane_content">
                         <u-list
@@ -62,21 +58,20 @@
                                 v-for="application in getSendRenderData"
                                 :key="
                                     application[
-                                        !isGroupApplication ? 'toUserID' : 'groupID'
+                                        !isGroupApplication
+                                            ? 'toUserID'
+                                            : 'groupID'
                                     ]
                                 "
                             >
                                 <ApplicationItem :application="application" />
                             </u-list-item>
                         </u-list>
-                        <u-empty
-                            v-else
-                            mode="list"
-                        />
+                        <u-empty v-else mode="list" />
                     </view>
                 </view>
 
-            <!-- <view
+                <!-- <view
                 v-if="
                     isRecv
                         ? getRecvRenderData.length > 0
@@ -107,13 +102,13 @@ export default {
     components: {
         MyTabs,
         CustomNavBar,
-        ApplicationItem,
+        ApplicationItem
     },
-    data () {
+    data() {
         return {
             keyword: '',
             isRecv: true,
-            isGroupApplication: false,
+            isGroupApplication: false
         };
     },
     computed: {
@@ -123,38 +118,38 @@ export default {
             'storeRecvGroupApplications',
             'storeSentGroupApplications',
             'storeUnHandleFriendApplicationNum',
-            'storeUnHandleGroupApplicationNum',
+            'storeUnHandleGroupApplicationNum'
         ]),
-        getRecvRenderData () {
+        getRecvRenderData() {
             const tmpList = this.isGroupApplication
                 ? this.storeRecvGroupApplications
                 : this.storeRecvFriendApplications;
-            tmpList.sort((a) => (a.handleResult === 0 ? -1 : 1));
+            tmpList.sort(a => (a.handleResult === 0 ? -1 : 1));
             return [...tmpList];
         },
-        getSendRenderData () {
+        getSendRenderData() {
             const tmpList = this.isGroupApplication
                 ? this.storeSentGroupApplications
                 : this.storeSentFriendApplications;
-            tmpList.sort((a) => (a.handleResult === 0 ? -1 : 1));
+            tmpList.sort(a => (a.handleResult === 0 ? -1 : 1));
             return [...tmpList];
         },
-        tabList () {
+        tabList() {
             return [
                 {
                     label: this.isGroupApplication ? '入群申请' : '好友请求',
-                    value: 0,
+                    value: 0
                 },
-                { label: '我的请求', value: 1 },
+                { label: '我的请求', value: 1 }
             ];
-        },
+        }
     },
-    onLoad (params) {
+    onLoad(params) {
         const { applicationType } = params;
         this.isGroupApplication = applicationType === ContactMenuTypes.NewGroup;
     },
     methods: {
-        tabsChange ({ value }) {
+        tabsChange({ value }) {
             this.isRecv = value === 0;
         },
         // previewAll () {
@@ -162,12 +157,12 @@ export default {
         //         url: `/pages/contact/applicationListDetails/index?isGroupApplication=${this.isGroupApplication}&isRecv=${this.isRecv}`,
         //     });
         // },
-        toSearch () {
+        toSearch() {
             uni.navigateTo({
-                url: `/pages/common/searchUserOrGroup/index?isSearchGroup=${this.isGroupApplication}`,
+                url: `/pages/common/searchUserOrGroup/index?isSearchGroup=${this.isGroupApplication}`
             });
-        },
-    },
+        }
+    }
 };
 </script>
 

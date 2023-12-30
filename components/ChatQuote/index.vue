@@ -1,7 +1,5 @@
 <template>
-    <view
-        :class="['quote_message_container', showDetail && 'quote_detail']"
-    >
+    <view :class="['quote_message_container', showDetail && 'quote_detail']">
         <TextMessageRender
             v-if="showTextRender"
             :message="message"
@@ -9,10 +7,7 @@
             :is-quote="true"
             :show-nickname="showDetail"
         />
-        <view
-            v-else-if="showDetail"
-            class="flex"
-        >
+        <view v-else-if="showDetail" class="flex">
             <view class="name_box">
                 {{ message.senderNickname }}：
                 <template v-if="!(showMediaRender || showFileRender)">
@@ -38,11 +33,7 @@
 
 <script>
 import { MessageType } from 'openim-uniapp-polyfill';
-import { 
-    TextRenderTypes,
-    MediaRenderTypes,
-    FileRenderTypes,
-} from '@/constant';
+import { TextRenderTypes, MediaRenderTypes, FileRenderTypes } from '@/constant';
 import TextMessageRender from '@/pages/conversation/chating/components/MessageItem/TextMessageRender.vue';
 import MediaMessageRender from '@/pages/conversation/chating/components/MessageItem/MediaMessageRender.vue';
 import FileMessageRender from '@/pages/conversation/chating/components/MessageItem/FileMessageRender.vue';
@@ -68,55 +59,52 @@ export default {
             default: ''
         }
     },
-    data () {
+    data() {
         return {
             MessageType: Object.freeze(MessageType)
         };
     },
-    
+
     computed: {
-        contentType () {
+        contentType() {
             return this.message.contentType;
         },
-        showTextRender () {
+        showTextRender() {
             return TextRenderTypes.includes(this.contentType);
         },
-        showMediaRender () {
+        showMediaRender() {
             return MediaRenderTypes.includes(this.contentType);
         },
-        showFileRender () {
+        showFileRender() {
             return FileRenderTypes.includes(this.contentType);
         },
-        getQuoteText () {
+        getQuoteText() {
             switch (this.contentType) {
-            case MessageType.PictureMessage:
-                return '[图片]';
-            case MessageType.VideoMessage:
-                return '[视频]';
-            case MessageType.FileMessage:
-                return '[文件]';
-            case MessageType.MergeMessage:
-                if (this.originType === 'merge_record') {
-                    return '[聊天记录]';
-                }
-                return `[聊天记录]${this.message.mergeElem.title}`;
-            case MessageType.RevokeMessage:
-                return '[引用内容已撤回]';
-            default:
-                return '';
+                case MessageType.PictureMessage:
+                    return '[图片]';
+                case MessageType.VideoMessage:
+                    return '[视频]';
+                case MessageType.FileMessage:
+                    return '[文件]';
+                case MessageType.MergeMessage:
+                    if (this.originType === 'merge_record') {
+                        return '[聊天记录]';
+                    }
+                    return `[聊天记录]${this.message.mergeElem.title}`;
+                case MessageType.RevokeMessage:
+                    return '[引用内容已撤回]';
+                default:
+                    return '';
             }
         }
     },
 
-    methods: {
-        
-    },
+    methods: {}
 };
 </script>
 
 <style lang="scss" scoped>
 .quote_message_container {
-
     /deep/.text_message_container {
         padding: 0;
         & > view {

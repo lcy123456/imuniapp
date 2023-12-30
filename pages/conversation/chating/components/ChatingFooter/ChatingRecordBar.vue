@@ -1,9 +1,6 @@
 <template>
     <div class="chating_record_bar">
-        <image
-            class="w-150 h-150"
-            src="/static/images/recording.gif"
-        />
+        <image class="w-150 h-150" src="/static/images/recording.gif" />
         <image
             class="chating_record_cancel w-80 h-80"
             src="/static/images/close.svg"
@@ -15,18 +12,13 @@
 export default {
     name: 'ChatingRecordBar',
 
-    data () {
-        return {
-            
-        };
+    data() {
+        return {};
     },
 
-    mounted () {
-        
-    },
+    mounted() {},
 
-    methods: {
-    },
+    methods: {}
 };
 </script>
 
@@ -39,7 +31,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    background-color: rgba(0, 0, 0, .4);
+    background-color: rgba(0, 0, 0, 0.4);
     border-start-start-radius: 50% 25%;
     border-start-end-radius: 50% 25%;
 }

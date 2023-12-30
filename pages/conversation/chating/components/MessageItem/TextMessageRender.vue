@@ -1,6 +1,10 @@
 <template>
     <view
-        :class="['text_message_container', 'bg_container' , 'text_message_container_' + message.clientMsgID]"
+        :class="[
+            'text_message_container',
+            'bg_container',
+            'text_message_container_' + message.clientMsgID
+        ]"
         :message="message"
         :change:message="getMessage"
         :text="text"
@@ -25,14 +29,14 @@
 </template>
 
 <script>
-import { parseAt, parseEmoji, parseLink } from "@/util/imCommon";
-import { MessageType } from "openim-uniapp-polyfill";
+import { parseAt, parseEmoji, parseLink } from '@/util/imCommon';
+import { MessageType } from 'openim-uniapp-polyfill';
 import { DecryptoAES } from '@/util/crypto';
 import MessageReadState from './MessageReadState.vue';
 import { SessionType } from 'openim-uniapp-polyfill';
 
 export default {
-    name: "TextMessageRender",
+    name: 'TextMessageRender',
     components: {
         MessageReadState
     },
@@ -62,15 +66,14 @@ export default {
             default: false
         }
     },
-    data () {
-        return {
-        };
+    data() {
+        return {};
     },
     computed: {
-        clientMsgID () {
+        clientMsgID() {
             return this.message.clientMsgID;
         },
-        isEdit () {
+        isEdit() {
             try {
                 const ex = JSON.parse(this.message.ex);
                 return ex.type === 'edit';
@@ -78,15 +81,19 @@ export default {
                 return false;
             }
         },
-        isGroupRead () {
+        isGroupRead() {
             try {
-                return this.message.sessionType !== SessionType.Single && this.message.attachedInfoElem.groupHasReadInfo.hasReadCount;
+                return (
+                    this.message.sessionType !== SessionType.Single &&
+                    this.message.attachedInfoElem.groupHasReadInfo.hasReadCount
+                );
             } catch (err) {
                 return false;
             }
         },
-        text () {
-            const { contentType, quoteElem, atTextElem, textElem } = this.message;
+        text() {
+            const { contentType, quoteElem, atTextElem, textElem } =
+                this.message;
             let text = '';
             // TODO：解密文本
             if (contentType === MessageType.QuoteMessage) {
@@ -99,16 +106,19 @@ export default {
             text = text.replace(/\n/g, '<br>');
             return text;
         },
-        getContent () {
+        getContent() {
             const { senderNickname } = this.message;
-            const baseText = !this.isQuote ? `
+            const baseText = !this.isQuote
+                ? `
             <view class="base-box hide-css">
                 <img
                     style="display: ${this.message.pinMap ? 'inherit' : 'none'}"
                     class="pined"
                     src="/static/images/pin2.png"
                 />
-                <div class="text read_state ${this.isSender ? 'isSender' : 'notisSender'} ${this.message.pinMap ? 'isPin' : ''}">
+                <div class="text read_state ${
+    this.isSender ? 'isSender' : 'notisSender'
+} ${this.message.pinMap ? 'isPin' : ''}">
                     <text
                         style="display: ${this.isEdit ? 'inline' : 'none'}"
                         class="edit"
@@ -123,24 +133,25 @@ export default {
                     src="/static/images/message_issend.png"
                 />
                 <div
-                    style="display: ${this.isSender && this.isGroupRead ? 'inherit' : 'none'}"
+                    style="display: ${
+    this.isSender && this.isGroupRead ? 'inherit' : 'none'
+}"
                     class="text"
                 >
                     0人
                 </div>
             </view>
-            ` : ``;
+            `
+                : ``;
             let text = this.text;
             if (this.showNickname) {
                 text = senderNickname + '：' + text;
             }
             return `${text}${baseText}`;
-        },
+        }
     },
-    created () {
-    },
-    methods: {
-    }
+    created() {},
+    methods: {}
 };
 </script>
 
@@ -170,11 +181,11 @@ export default {
     .read_state {
         // font-size: 26rpx;
         font-size: 12px;
-        color: #43D100!important;
+        color: #43d100 !important;
         margin-left: 20rpx;
         min-width: 50rpx;
         &.notisSender {
-            color: #ccc!important;
+            color: #ccc !important;
         }
         &.isPin {
             margin-left: 0;
@@ -183,7 +194,7 @@ export default {
     .text {
         width: max-content;
         font-size: 12px;
-        color: #43D100!important;
+        color: #43d100 !important;
     }
     .read {
         width: 26rpx;

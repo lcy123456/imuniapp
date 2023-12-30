@@ -22,29 +22,31 @@
     </view>
 </template>
 <script>
-import MyAvatar from "@/components/MyAvatar/index.vue";
+import MyAvatar from '@/components/MyAvatar/index.vue';
 export default {
-    name: "ReadUserList",
+    name: 'ReadUserList',
     components: {
         MyAvatar
     },
     props: {
         userList: {
             type: Array,
-            default: () => ([])
+            default: () => []
         }
     },
     methods: {
-        showInfo (user) {
+        showInfo(user) {
             const sourceInfo = {
                 nickname: user.nickname,
                 faceURL: user.faceURL
             };
             uni.$u.route(
-                `/pages/common/userCard/index?sourceID=${user.userID}&sourceInfo=${JSON.stringify(sourceInfo)}`
+                `/pages/common/userCard/index?sourceID=${
+                    user.userID
+                }&sourceInfo=${JSON.stringify(sourceInfo)}`
             );
             uni.hideKeyboard();
-        },
+        }
     }
 };
 </script>

@@ -1,8 +1,5 @@
 <template>
-    <view
-        class="file_message_container bg_container"
-        @click="clickFileItem"
-    >
+    <view class="file_message_container bg_container" @click="clickFileItem">
         <image
             class="flex-shrink mr-20 w-84 h-84"
             src="@/static/images/chating_message_file.png"
@@ -24,29 +21,29 @@ import { bytesToSize } from '@/util/imCommon';
 export default {
     name: '',
     props: {
-        message: Object,
+        message: Object
     },
-    data () {
+    data() {
         return {
             path: ''
         };
     },
     computed: {
-        fileElem () {
+        fileElem() {
             return this.message.fileElem;
         }
     },
     methods: {
         bytesToSize,
-        clickFileItem () {
+        clickFileItem() {
             this.$loading('加载中');
             if (this.path) {
                 this.openDoc(this.path);
             } else {
                 uni.downloadFile({
                     url: this.fileElem.sourceUrl,
-                    success: (res) => {
-                        const path = this.path = res.tempFilePath;
+                    success: res => {
+                        const path = (this.path = res.tempFilePath);
                         this.openDoc(path);
                     },
                     complete: () => {
@@ -55,19 +52,19 @@ export default {
                 });
             }
         },
-        openDoc (path) {
+        openDoc(path) {
             uni.openDocument({
                 filePath: path,
                 success: () => {
                     this.$hideLoading();
                 },
-                fail: (err) => {
+                fail: err => {
                     console.log('打开文档失败', err);
                     this.$toast('暂不支持的文件格式，请保存到本地进行预览');
                 }
             });
         }
-    },
+    }
 };
 </script>
 

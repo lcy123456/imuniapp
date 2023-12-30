@@ -10,33 +10,26 @@
             <text>{{ source.nickname || source.groupName }}</text>
         </view>
         <view>
-            <u-button
-                plain
-                text="移除"
-                type="primary"
-                @click="action"
-            />
+            <u-button plain text="移除" type="primary" @click="action" />
         </view>
     </view>
 </template>
 
 <script>
-import MyAvatar from "@/components/MyAvatar/index.vue";
+import MyAvatar from '@/components/MyAvatar/index.vue';
 export default {
-    name: "",
+    name: '',
     components: {
         MyAvatar
     },
     props: {
         source: Object
     },
-    data () {
-        return {
-
-        };
+    data() {
+        return {};
     },
     methods: {
-        action () {
+        action() {
             this.$emit('removeItem');
         }
     }
@@ -44,20 +37,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.selected_item {
-		@include btwBox();
-		padding: 20rpx 0;
+.selected_item {
+    @include btwBox();
+    padding: 20rpx 0;
 
-		.left_info {
-			@include vCenterBox();
+    .left_info {
+        @include vCenterBox();
 
-			.u-avatar {
-				margin-right: 24rpx;
-			}
-		}
+        .u-avatar {
+            margin-right: 24rpx;
+        }
+    }
 
-		.u-button {
-			height: 48rpx;
-		}
-	}
+    .u-button {
+        height: 48rpx;
+    }
+}
 </style>

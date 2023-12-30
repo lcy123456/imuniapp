@@ -4,9 +4,7 @@
         @click="initWebrtc"
     >
         <view class="main">
-            <text
-                v-if="isSender"
-            >
+            <text v-if="isSender">
                 {{ getContent }}
             </text>
             <image
@@ -14,21 +12,12 @@
                 class="video-icon"
                 src="/static/images/video.png"
             />
-            <image
-                v-else
-                class="phone-icon"
-                src="/static/images/phone.png"
-            />
-            <text
-                v-if="!isSender"
-            >
+            <image v-else class="phone-icon" src="/static/images/phone.png" />
+            <text v-if="!isSender">
                 {{ getContent }}
             </text>
         </view>
-        <MessageReadState
-            :message="message"
-            :is-sender="isSender"
-        />
+        <MessageReadState :message="message" :is-sender="isSender" />
     </view>
 </template>
 
@@ -40,7 +29,7 @@ import { AudioVideoStatus, AudioVideoType } from '@/enum';
 import MessageReadState from './MessageReadState.vue';
 
 export default {
-    name: "AudioVideoMessageRender",
+    name: 'AudioVideoMessageRender',
     components: {
         MessageReadState
     },
@@ -59,49 +48,53 @@ export default {
         },
         isMultipleMsg: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isSuccessMessage: {
             type: Boolean,
             default: false
         }
     },
-    data () {
+    data() {
         return {};
     },
     computed: {
-        getContent () {
+        getContent() {
             const { data } = this.message.customElem;
-            const res = JSON.parse(data); 
+            const res = JSON.parse(data);
             switch (res.status) {
-            case AudioVideoStatus.Reject:
-                return this.isSender ? `[对方已拒绝]` : `[已拒绝]`;
-            case AudioVideoStatus.Cancel:
-                return this.isSender ? `[已取消]` : `[对方已取消]`;
-            case AudioVideoStatus.NotAnswered:
-                return this.isSender ? `[对方未应答]` : `[未应答]`;
-            case AudioVideoStatus.Busy:
-                return this.isSender ? `[对方忙线中]` : `[忙线中]`;
-            case AudioVideoStatus.Done:
-                const t = new Date(new Date().Format('yyyy/MM/dd') +  ' 00:00:00').getTime();
-                let time = new Date(t + res.duration).Format(res.duration >= 1000 * 60 * 60 ? 'hh:mm:ss' : 'mm:ss');
-                return `[通话时长]${time}`;
-            default:
-                return this.isVideo ? `[发起视频通话]` : `[发起语音通话]`;
+                case AudioVideoStatus.Reject:
+                    return this.isSender ? `[对方已拒绝]` : `[已拒绝]`;
+                case AudioVideoStatus.Cancel:
+                    return this.isSender ? `[已取消]` : `[对方已取消]`;
+                case AudioVideoStatus.NotAnswered:
+                    return this.isSender ? `[对方未应答]` : `[未应答]`;
+                case AudioVideoStatus.Busy:
+                    return this.isSender ? `[对方忙线中]` : `[忙线中]`;
+                case AudioVideoStatus.Done:
+                    const t = new Date(
+                        new Date().Format('yyyy/MM/dd') + ' 00:00:00'
+                    ).getTime();
+                    let time = new Date(t + res.duration).Format(
+                        res.duration >= 1000 * 60 * 60 ? 'hh:mm:ss' : 'mm:ss'
+                    );
+                    return `[通话时长]${time}`;
+                default:
+                    return this.isVideo ? `[发起视频通话]` : `[发起语音通话]`;
             }
         },
-        isVideo () {
+        isVideo() {
             const { data } = this.message.customElem;
-            const res = JSON.parse(data); 
+            const res = JSON.parse(data);
             return res.type === AudioVideoType.Video;
         }
     },
     methods: {
-        initWebrtc () {
+        initWebrtc() {
             if (this.isMultipleMsg) return;
             uni.$emit('initWebrtc', this.isVideo ? 'video' : 'audio');
         }
-    },
+    }
 };
 </script>
 

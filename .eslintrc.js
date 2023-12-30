@@ -3,7 +3,7 @@
 module.exports = {
     env: {
         browser: true,
-        node: true,
+        node: true
     },
     // required to lint *.vue files
     plugins: ['vue', 'prettier'],
@@ -13,7 +13,7 @@ module.exports = {
         getApp: 'writable',
         plus: 'writable',
         require: 'writable',
-        getCurrentPages: 'writable',
+        getCurrentPages: 'writable'
     },
 
     // add your custom rules here
@@ -23,8 +23,8 @@ module.exports = {
         'vue/max-attributes-per-line': [
             2,
             {
-                singleline: 10,
-            },
+                singleline: 10
+            }
         ],
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-tabs': 'off',
@@ -52,7 +52,7 @@ module.exports = {
         'vue/no-v-html': 'off',
         'no-async-promise-executor': 0,
         'no-case-declarations': 0,
-        'no-multi-spaces': 'off',
+        'no-multi-spaces': 'off'
     },
 
     root: true,
@@ -61,9 +61,9 @@ module.exports = {
         'plugin:vue/recommended',
         'eslint:recommended',
         'plugin:vue/essential',
-        'plugin:prettier/recommended',
+        'plugin:prettier/recommended'
         // '@vue/typescript/recommended'
-    ],
+    ]
     // parserOptions: {
     //     parser: '@babel/eslint-parser',
     //     ecmaVersion: 2020

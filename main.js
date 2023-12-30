@@ -20,7 +20,7 @@ Vue.config.productionTip = false;
 App.mpType = 'app';
 const app = new Vue({
     store,
-    ...App,
+    ...App
 });
 
 // 引入请求封装

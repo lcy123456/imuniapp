@@ -7,43 +7,36 @@
             top: getTop + 'px'
         }"
     >
-        <view
-            v-if="steps === 'first'"
-        >
+        <view v-if="steps === 'first'">
             <view
                 v-for="item in menuList"
                 :key="item.title"
-                :style="{height: menuItemHight + 'px'}"
+                :style="{ height: menuItemHight + 'px' }"
                 class="message_menu_item"
                 @click="menuClick(item)"
                 @touchstart.stop
                 @touchend.prevent="menuClick(item)"
             >
-                <view
-                    v-if="!item.template"
-                    class="base-box"
-                >
+                <view v-if="!item.template" class="base-box">
                     <text>{{ item.title }}</text>
-                    <image
-                        :src="item.icon"
-                        alt=""
-                        srcset=""
-                    />
+                    <image :src="item.icon" alt="" srcset="" />
                 </view>
                 <template v-if="item.template === 'readCount'">
-                    <view
-                        class="readCount"
-                    >
+                    <view class="readCount">
                         <image
                             class="read"
-                            :src="attachedInfo.groupHasReadInfo.hasReadCount ? `/static/images/read.svg` : `/static/images/unread.svg`"
+                            :src="
+                                attachedInfo.groupHasReadInfo.hasReadCount
+                                    ? `/static/images/read.svg`
+                                    : `/static/images/unread.svg`
+                            "
                         />
                         <text v-if="attachedInfo.groupHasReadInfo.hasReadCount">
-                            {{ attachedInfo.groupHasReadInfo.hasReadCount }}人已读
+                            {{
+                                attachedInfo.groupHasReadInfo.hasReadCount
+                            }}人已读
                         </text>
-                        <text v-else>
-                            暂无已读
-                        </text>
+                        <text v-else> 暂无已读 </text>
                         <view class="read-img-list">
                             <my-avatar
                                 v-for="user of userList.slice(0, 3)"
@@ -60,11 +53,9 @@
                 </template>
             </view>
         </view>
-        <view
-            v-else
-        >
+        <view v-else>
             <view
-                :style="{height: menuItemHight + 'px'}"
+                :style="{ height: menuItemHight + 'px' }"
                 class="message_menu_item back"
                 @touchstart.stop
                 @touchend.prevent.stop="back('first')"
@@ -73,9 +64,7 @@
                 <text>返回</text>
             </view>
             <view v-if="secondTemplate === 'readCount'">
-                <ReadUserList
-                    :user-list="userList"
-                />
+                <ReadUserList :user-list="userList" />
             </view>
         </view>
     </view>
@@ -83,25 +72,27 @@
 </template>
 
 <script>
-import MyAvatar from "@/components/MyAvatar/index.vue";
-import ReadUserList from "./ReadUserList.vue";
+import MyAvatar from '@/components/MyAvatar/index.vue';
+import ReadUserList from './ReadUserList.vue';
 import { getMsgID } from '@/api/message';
 import { html2Text } from '@/util/common';
-import { parseAt, getUserListInfo } from "@/util/imCommon";
+import { parseAt, getUserListInfo } from '@/util/imCommon';
 import { mapGetters, mapActions } from 'vuex';
 import { pin, pinCancel } from '@/api/pinToTop';
-import IMSDK, { IMMethods, MessageType, SessionType } from 'openim-uniapp-polyfill';
+import IMSDK, {
+    IMMethods,
+    MessageType,
+    SessionType
+} from 'openim-uniapp-polyfill';
 import { DecryptoAES } from '@/util/crypto';
-import { 
+import {
     MessageMenuTypes,
     TextRenderTypes,
     MediaRenderTypes,
     FileRenderTypes
 } from '@/constant';
 
-const notPinTypes = [
-    MessageType.CustomMessage,
-];
+const notPinTypes = [MessageType.CustomMessage];
 
 export default {
     components: {
@@ -111,18 +102,18 @@ export default {
     props: {
         message: {
             required: true,
-            type: Object,
+            type: Object
         },
         paterRect: {
             type: Object,
-            required: true,
+            required: true
         },
         visible: {
             type: Boolean,
-            default: false,
+            default: false
         }
     },
-    data () {
+    data() {
         return {
             steps: 'first',
             secondTemplate: '',
@@ -143,20 +134,24 @@ export default {
             'storeKeyBoardHeight',
             'storeIsShowkeyBoard'
         ]),
-        isSender () {
+        isSender() {
             return this.paterRect.right > uni.getWindowInfo().windowWidth - 30;
         },
-        getLeft () {
+        getLeft() {
             const { left, right } = this.paterRect;
             if (this.isSender) return right - 200;
             return left;
         },
-        getTop () {
+        getTop() {
             const { top, bottom } = this.paterRect;
             const { windowHeight } = uni.getSystemInfoSync();
             const menuHight = this.menuItemHight * this.menuList.length;
             const minTop = 0;
-            const maxTop = windowHeight - menuHight - 50 - (this.storeIsShowkeyBoard ? this.storeKeyBoardHeight : 0);
+            const maxTop =
+                windowHeight -
+                menuHight -
+                50 -
+                (this.storeIsShowkeyBoard ? this.storeKeyBoardHeight : 0);
             let t = 0;
             if (top - menuHight < 100) {
                 t = bottom + 10;
@@ -167,10 +162,10 @@ export default {
             t = t < maxTop ? t : maxTop;
             return t;
         },
-        isGroup () {
+        isGroup() {
             return this.message.sessionType === SessionType.WorkingGroup;
         },
-        menuList () {
+        menuList() {
             return [
                 {
                     type: MessageMenuTypes.ReadCount,
@@ -183,89 +178,95 @@ export default {
                     type: MessageMenuTypes.AddEmoticons,
                     title: '添加到表情',
                     icon: '/static/images/chating_message_gif.png',
-                    visible: this.showMediaRender,
+                    visible: this.showMediaRender
                 },
                 {
                     type: MessageMenuTypes.Forward,
                     title: '转发',
                     icon: '/static/images/chating_message_forward.png',
-                    visible: true,
+                    visible: true
                 },
                 {
                     type: MessageMenuTypes.Pin,
                     title: '置顶',
                     icon: '/static/images/pin.png',
-                    visible: !this.message.pinMap && !notPinTypes.includes(this.message.contentType),
+                    visible:
+                        !this.message.pinMap &&
+                        !notPinTypes.includes(this.message.contentType)
                 },
                 {
                     type: MessageMenuTypes.PinCancel,
                     title: '取消置顶',
                     icon: '/static/images/cancel-pin.png',
-                    visible: this.message.pinMap && !notPinTypes.includes(this.message.contentType),
+                    visible:
+                        this.message.pinMap &&
+                        !notPinTypes.includes(this.message.contentType)
                 },
                 {
                     type: MessageMenuTypes.Reply,
                     title: '回复',
                     icon: '/static/images/chating_message_reply.png',
-                    visible: true,
+                    visible: true
                 },
                 {
                     type: MessageMenuTypes.Edit,
                     title: '编辑',
                     icon: '/static/images/chating_message_edit.png',
-                    visible: TextRenderTypes.includes(this.message.contentType) && this.isMyMsg,
+                    visible:
+                        TextRenderTypes.includes(this.message.contentType) &&
+                        this.isMyMsg
                 },
                 {
                     type: MessageMenuTypes.Copy,
                     title: '复制',
                     icon: '/static/images/chating_message_copy.png',
-                    visible: TextRenderTypes.includes(this.message.contentType),
+                    visible: TextRenderTypes.includes(this.message.contentType)
                 },
                 {
                     type: MessageMenuTypes.Revoke,
                     title: '撤回',
                     icon: '/static/images/chating_message_revoke.png',
-                    visible: this.isSender,
+                    visible: this.isSender
                 },
                 {
                     type: MessageMenuTypes.Multiple,
                     title: '多选',
                     icon: '/static/images/chating_message_multiple.png',
-                    visible: true,
+                    visible: true
                 },
                 {
                     type: MessageMenuTypes.Favorite,
                     title: '收藏',
                     icon: '/static/images/chating_message_favorite.svg',
-                    visible: true,
+                    visible: true
                 },
                 {
                     type: MessageMenuTypes.Del,
                     title: '删除',
                     icon: '/static/images/chating_message_del.png',
-                    visible: this.isMyMsg || this.isSingle,
-                },
-            ].filter((v) => v.visible);
+                    visible: this.isMyMsg || this.isSingle
+                }
+            ].filter(v => v.visible);
         },
-        showTextRender () {
+        showTextRender() {
             return TextRenderTypes.includes(this.message.contentType);
         },
-        showMediaRender () {
+        showMediaRender() {
             return MediaRenderTypes.includes(this.message.contentType);
         },
-        showFileRender () {
+        showFileRender() {
             return FileRenderTypes.includes(this.message.contentType);
         },
-        isMyMsg () {
+        isMyMsg() {
             return this.message.sendID === this.storeCurrentUserID;
         },
-        isSingle () {
+        isSingle() {
             return this.message.sessionType === SessionType.Single;
         }
     },
     watch: {
         visible: {
-            handler () {
+            handler() {
                 if (this.visible) {
                     this.getMsgID();
                 } else {
@@ -279,83 +280,85 @@ export default {
     },
     methods: {
         ...mapActions('message', ['deleteMessages', 'updateOneMessage']),
-        back (steps) {
+        back(steps) {
             this.steps = steps;
         },
-        async getMsgID () {
+        async getMsgID() {
             try {
                 this.userList = [];
                 const { chatLogs } = await getMsgID({
                     clientMsgID: this.message.clientMsgID,
                     groupID: this.message.groupID,
                     sendID: this.message.sendID,
-                    sessionType: this.message.sessionType,
+                    sessionType: this.message.sessionType
                 });
                 if (chatLogs && chatLogs[0] && chatLogs[0].attachedInfo) {
                     this.attachedInfo = JSON.parse(chatLogs[0].attachedInfo);
                 }
                 if (!this.attachedInfo.groupHasReadInfo.hasReadUids) return;
-                this.userList = await getUserListInfo(this.attachedInfo.groupHasReadInfo.hasReadUids);
+                this.userList = await getUserListInfo(
+                    this.attachedInfo.groupHasReadInfo.hasReadUids
+                );
                 this.userList = this.userList.map(user => user.publicInfo);
             } catch (err) {
                 console.log(err);
             }
         },
-        showAllRead () {
+        showAllRead() {
             this.steps = 'second';
             this.secondTemplate = 'readCount';
         },
-        async menuClick ({ type }) {
+        async menuClick({ type }) {
             switch (type) {
-            case MessageMenuTypes.ReadCount:
-                this.showAllRead();
-                return;
-            case MessageMenuTypes.AddEmoticons:
-                this.addEmoticons();
-                break;
-            case MessageMenuTypes.Pin:
-                await this.pin();
-                break;
-            case MessageMenuTypes.PinCancel:
-                await this.PinCancel();
-                break;
-            case MessageMenuTypes.Forward:
-                this.handleForward();
-                break;
-            case MessageMenuTypes.Favorite:
-                this.handleFavorite();
-                break;
-            case MessageMenuTypes.Reply:
-                uni.$emit('active_message', {
-                    message: this.message,
-                    type: "quote_message"
-                });
-                break;
-            case MessageMenuTypes.Copy:
-                await this.handleCopy();
-                break;
-            case MessageMenuTypes.Revoke:
-                await this.handleRevoke();
-                break;
-            case MessageMenuTypes.Multiple:
-                await this.handleMultiple();
-                break;
-            case MessageMenuTypes.Del:
-                await uni.$emit('deleteMsg', [this.message]);
-                break;
-            case MessageMenuTypes.Edit:
-                uni.$emit('active_message', {
-                    message: this.message,
-                    type: "edit_message"
-                });
-                break;
+                case MessageMenuTypes.ReadCount:
+                    this.showAllRead();
+                    return;
+                case MessageMenuTypes.AddEmoticons:
+                    this.addEmoticons();
+                    break;
+                case MessageMenuTypes.Pin:
+                    await this.pin();
+                    break;
+                case MessageMenuTypes.PinCancel:
+                    await this.PinCancel();
+                    break;
+                case MessageMenuTypes.Forward:
+                    this.handleForward();
+                    break;
+                case MessageMenuTypes.Favorite:
+                    this.handleFavorite();
+                    break;
+                case MessageMenuTypes.Reply:
+                    uni.$emit('active_message', {
+                        message: this.message,
+                        type: 'quote_message'
+                    });
+                    break;
+                case MessageMenuTypes.Copy:
+                    await this.handleCopy();
+                    break;
+                case MessageMenuTypes.Revoke:
+                    await this.handleRevoke();
+                    break;
+                case MessageMenuTypes.Multiple:
+                    await this.handleMultiple();
+                    break;
+                case MessageMenuTypes.Del:
+                    await uni.$emit('deleteMsg', [this.message]);
+                    break;
+                case MessageMenuTypes.Edit:
+                    uni.$emit('active_message', {
+                        message: this.message,
+                        type: 'edit_message'
+                    });
+                    break;
             }
             this.$emit('close');
         },
-        handleFavorite () {
+        handleFavorite() {
             console.log('handleFavorite-handleFavorite');
         },
-        addEmoticons () {
+        addEmoticons() {
             const { pictureElem, videoElem } = this.message;
             let filePath = pictureElem?.sourcePath;
             if (this.isVideo) {
@@ -376,7 +379,7 @@ export default {
                 }
             });
         },
-        saveEmoticons (filePath) {
+        saveEmoticons(filePath) {
             let list = uni.getStorageSync('emoticonsList');
             list = list ? JSON.parse(list) : [];
             if (list.length >= 200) {
@@ -388,9 +391,10 @@ export default {
             uni.$u.toast('添加成功');
             uni.$emit('undateEmoticons');
         },
-        getContent () {
+        getContent() {
             let text = '';
-            const { contentType, quoteElem, atTextElem, textElem } = this.message;
+            const { contentType, quoteElem, atTextElem, textElem } =
+                this.message;
             // TODO：解密文本
             if (contentType === MessageType.QuoteMessage) {
                 text = DecryptoAES(quoteElem?.text);
@@ -401,21 +405,27 @@ export default {
             }
             return text;
         },
-        async pin () {
+        async pin() {
             try {
-                const { pictureElem, videoElem, fileElem, contentType } = this.message;
+                const { pictureElem, videoElem, fileElem, contentType } =
+                    this.message;
                 let content = '';
                 if (this.showTextRender) {
                     content = html2Text(this.getContent());
                 } else if (this.showMediaRender) {
-                    content = contentType === MessageType.VideoMessage ? videoElem?.snapshotUrl : pictureElem?.sourcePicture.url;
+                    content =
+                        contentType === MessageType.VideoMessage
+                            ? videoElem?.snapshotUrl
+                            : pictureElem?.sourcePicture.url;
                 } else if (this.showFileRender) {
                     content = fileElem?.fileName;
                 }
                 await pin({
                     ...this.message,
                     content: content,
-                    conversationID: this.$store.getters.storeCurrentConversation.conversationID
+                    conversationID:
+                        this.$store.getters.storeCurrentConversation
+                            .conversationID
                 });
                 this.$emit('updatePin', {
                     type: 'success',
@@ -427,7 +437,7 @@ export default {
                 uni.$u.toast('置顶失败');
             }
         },
-        async PinCancel () {
+        async PinCancel() {
             try {
                 await pinCancel({
                     id: this.message?.pinMap?.id
@@ -441,8 +451,12 @@ export default {
                 uni.$u.toast('取消置顶失败');
             }
         },
-        async handleForward () {
-            const message = await IMSDK.asyncApi(IMMethods.CreateForwardMessage, IMSDK.uuid(), this.message);
+        async handleForward() {
+            const message = await IMSDK.asyncApi(
+                IMMethods.CreateForwardMessage,
+                IMSDK.uuid(),
+                this.message
+            );
             if (message.quoteElem) {
                 message.quoteElem.quoteMessage = undefined;
             }
@@ -451,7 +465,7 @@ export default {
             });
             uni.hideKeyboard();
         },
-        handleCopy () {
+        handleCopy() {
             return new Promise((resolve, reject) => {
                 uni.setClipboardData({
                     data: this.getCopyText(),
@@ -466,7 +480,7 @@ export default {
                 });
             });
         },
-        async handleRevoke () {
+        async handleRevoke() {
             try {
                 this.$loading('撤回中');
                 await IMSDK.asyncApi(
@@ -474,9 +488,9 @@ export default {
                     IMSDK.uuid(),
                     {
                         conversationID:
-                                this.$store.getters.storeCurrentConversation
-                                    .conversationID,
-                        clientMsgID: this.message.clientMsgID,
+                            this.$store.getters.storeCurrentConversation
+                                .conversationID,
+                        clientMsgID: this.message.clientMsgID
                     }
                 );
                 this.$hideLoading();
@@ -495,16 +509,17 @@ export default {
                                 sessionType: this.message.sessionType,
                                 sourceMessageSendID: this.message.sendID,
                                 sourceMessageSendTime: this.message.sendTime,
-                                sourceMessageSenderNickname: this.message.senderNickname,
-                            }),
-                        },
+                                sourceMessageSenderNickname:
+                                    this.message.senderNickname
+                            })
+                        }
                     }
                 });
             } catch {
                 uni.$u.toast('撤回失败');
             }
         },
-        handleMultiple () {
+        handleMultiple() {
             uni.$emit('multiple_message', {
                 show: true,
                 message: this.message,
@@ -512,8 +527,9 @@ export default {
             });
             uni.$emit('inputBlur');
         },
-        getCopyText () {
-            const { contentType, atTextElem, quoteElem, textElem } = this.message;
+        getCopyText() {
+            const { contentType, atTextElem, quoteElem, textElem } =
+                this.message;
             if (contentType === MessageType.AtTextMessage) {
                 return atTextElem.text;
             }
@@ -521,8 +537,8 @@ export default {
                 return DecryptoAES(quoteElem.text);
             }
             return DecryptoAES(textElem.content);
-        },
-    },
+        }
+    }
 };
 </script>
 

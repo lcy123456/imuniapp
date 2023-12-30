@@ -17,11 +17,7 @@
                         </text>
                     </view>
                     <view class="create_time">
-                        <u-icon
-                            name="clock"
-                            color="#999"
-                            size="18"
-                        />
+                        <u-icon name="clock" color="#999" size="18" />
                         <text>{{ getCreateTime }}</text>
                     </view>
                 </view>
@@ -36,11 +32,7 @@
                     <text class="member_count">
                         {{ `${sourceGroupInfo.memberCount}人` }}
                     </text>
-                    <u-icon
-                        name="arrow-right"
-                        color="#999"
-                        size="18"
-                    />
+                    <u-icon name="arrow-right" color="#999" size="18" />
                 </view>
                 <view class="member_list">
                     <my-avatar
@@ -67,19 +59,11 @@
                 />
             </view>
 
-            <view
-                v-if="!isJoinedGroup"
-                class="action_row"
-                @click="joinGroup"
-            >
+            <view v-if="!isJoinedGroup" class="action_row" @click="joinGroup">
                 <text>申请加入该群</text>
             </view>
 
-            <view
-                v-else
-                class="action_row"
-                @click="chatingInGroup"
-            >
+            <view v-else class="action_row" @click="chatingInGroup">
                 <text>发消息</text>
             </view>
 
@@ -89,13 +73,12 @@
 </template>
 
 <script>
-import {
-    GroupMemberListTypes,
-} from '@/constant';
-import {
-    navigateToDesignatedConversation
-} from '@/util/imCommon';
-import IMSDK, { GroupVerificationType, SessionType } from 'openim-uniapp-polyfill';
+import { GroupMemberListTypes } from '@/constant';
+import { navigateToDesignatedConversation } from '@/util/imCommon';
+import IMSDK, {
+    GroupVerificationType,
+    SessionType
+} from 'openim-uniapp-polyfill';
 import dayjs from 'dayjs';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
@@ -109,39 +92,41 @@ export default {
         MyAvatar,
         UserInfoRowItem
     },
-    data () {
+    data() {
         return {
-            sourceID: "",
+            sourceID: '',
             isScan: false,
             sourceGroupInfo: {},
             groupMemberList: []
         };
     },
     computed: {
-        isJoinedGroup () {
-            return this.$store.getters.storeGroupList.findIndex(group => group.groupID === this.sourceID) !== -1;
+        isJoinedGroup() {
+            return (
+                this.$store.getters.storeGroupList.findIndex(
+                    group => group.groupID === this.sourceID
+                ) !== -1
+            );
         },
-        getCreateTime () {
+        getCreateTime() {
             return dayjs(this.sourceGroupInfo.createTime).format('YYYY-MM-DD');
         },
-        getRenderMemberList () {
+        getRenderMemberList() {
             if (this.isJoinedGroup) {
                 this.groupMemberList;
                 return this.groupMemberList;
             }
             const memberCount = this.sourceGroupInfo.memberCount ?? 0;
-            return new Array(memberCount >= 6 ? 6 : memberCount).fill(1).map((item, idx) => ({
-                userID: idx,
-                src: userIcon,
-            }));
+            return new Array(memberCount >= 6 ? 6 : memberCount)
+                .fill(1)
+                .map((item, idx) => ({
+                    userID: idx,
+                    src: userIcon
+                }));
         }
     },
-    onLoad (options) {
-        const {
-            sourceID,
-            sourceInfo,
-            isScan
-        } = options;
+    onLoad(options) {
+        const { sourceID, sourceInfo, isScan } = options;
         this.isScan = !!isScan;
         if (sourceID) {
             this.sourceID = sourceID;
@@ -156,28 +141,36 @@ export default {
         this.getGroupMemberList();
     },
     methods: {
-        joinGroup () {
+        joinGroup() {
             uni.$u.route('/pages/common/sendAddRequest/index', {
                 isGroup: true,
                 sourceID: this.sourceID,
                 isScan: this.isScan,
-                notNeedVerification: this.sourceGroupInfo.needVerification === GroupVerificationType.AllNot,
+                notNeedVerification:
+                    this.sourceGroupInfo.needVerification ===
+                    GroupVerificationType.AllNot,
                 sessionType: SessionType.WorkingGroup
             });
         },
-        chatingInGroup () {
-            navigateToDesignatedConversation(this.sourceID, SessionType.WorkingGroup)
-                .catch(() => this.showToast('获取会话信息失败'));
+        chatingInGroup() {
+            navigateToDesignatedConversation(
+                this.sourceID,
+                SessionType.WorkingGroup
+            ).catch(() => this.showToast('获取会话信息失败'));
         },
-        async getSourceGroupInfo () {
+        async getSourceGroupInfo() {
             let info = null;
             if (this.isJoinedGroup) {
-                info = this.$store.getters.storeGroupList.find(group => group.groupID === this.sourceID);
+                info = this.$store.getters.storeGroupList.find(
+                    group => group.groupID === this.sourceID
+                );
             } else {
                 try {
-                    const {
-                        data
-                    } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupsInfo, IMSDK.uuid(), [this.sourceID]);
+                    const { data } = await IMSDK.asyncApi(
+                        IMSDK.IMMethods.GetSpecifiedGroupsInfo,
+                        IMSDK.uuid(),
+                        [this.sourceID]
+                    );
                     info = data[0] ?? {};
                 } catch (e) {
                     info = {};
@@ -187,22 +180,23 @@ export default {
                 ...info
             };
         },
-        getGroupMemberList () {
+        getGroupMemberList() {
             if (this.isJoinedGroup) {
-                IMSDK.asyncApi(IMSDK.IMMethods.GetGroupMemberList, IMSDK.uuid(), {
-                    groupID: this.sourceID,
-                    filter: 0,
-                    offset: 0,
-                    count: 6
-                })
-                    .then(({
-                        data
-                    }) => {
-                        this.groupMemberList = [...data];
-                    });
+                IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetGroupMemberList,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.sourceID,
+                        filter: 0,
+                        offset: 0,
+                        count: 6
+                    }
+                ).then(({ data }) => {
+                    this.groupMemberList = [...data];
+                });
             }
         },
-        showToast (message) {
+        showToast(message) {
             this.$refs.uToast.show({
                 message
             });
@@ -212,103 +206,102 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.group_card_container {
-		@include colBox(false);
-		height: 100vh;
-		background-color: #F6F6F6;
-		overflow-y: auto;
+.group_card_container {
+    @include colBox(false);
+    height: 100vh;
+    background-color: #f6f6f6;
+    overflow-y: auto;
 
-		.base_info {
-			@include vCenterBox();
-			background-color: #fff;
-			padding: 44rpx;
-			margin-bottom: 18rpx;
+    .base_info {
+        @include vCenterBox();
+        background-color: #fff;
+        padding: 44rpx;
+        margin-bottom: 18rpx;
 
-			.u-avatar {
-				margin-right: 24rpx;
-			}
+        .u-avatar {
+            margin-right: 24rpx;
+        }
 
-			.group_name {
-				display: flex;
-				margin-bottom: 12rpx;
-			}
+        .group_name {
+            display: flex;
+            margin-bottom: 12rpx;
+        }
 
-			.create_time {
-				@include vCenterBox();
-				color: #ADADAD;
-				font-size: 26rpx;
+        .create_time {
+            @include vCenterBox();
+            color: #adadad;
+            font-size: 26rpx;
 
-				.u-icon {
-					margin-right: 12rpx;
-				}
-			}
+            .u-icon {
+                margin-right: 12rpx;
+            }
+        }
+    }
 
-		}
+    .member_row {
+        padding: 24rpx 44rpx;
 
-		.member_row {
-			padding: 24rpx 44rpx;
+        .member_desc {
+            margin-bottom: 24rpx;
+            position: relative;
 
-			.member_desc {
-				margin-bottom: 24rpx;
-				position: relative;
+            .member_count {
+                font-size: 28rpx;
+                color: #adadad;
+                margin-left: 24rpx;
+            }
 
-				.member_count {
-					font-size: 28rpx;
-					color: #ADADAD;
-					margin-left: 24rpx;
-				}
+            .u-icon {
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+        }
 
-				.u-icon {
-					position: absolute;
-					right: 0;
-					top: 0;
-				}
-			}
+        .member_list {
+            display: flex;
 
-			.member_list {
-				display: flex;
+            .member_item {
+                margin-right: 12rpx;
 
-				.member_item {
-					margin-right: 12rpx;
+                &:nth-child(7) {
+                    margin-right: 0;
+                }
+            }
+        }
+    }
 
-					&:nth-child(7) {
-						margin-right: 0;
-					}
-				}
-			}
-		}
+    .info_row {
+        background-color: #fff;
+        margin-bottom: 24rpx;
 
-		.info_row {
-			background-color: #fff;
-			margin-bottom: 24rpx;
+        /deep/ .content {
+            color: #adadad;
+        }
+    }
 
-			/deep/ .content {
-				color: #ADADAD;
-			}
-		}
+    .action_row {
+        background-color: #fff;
+        padding: 24rpx 44rpx;
+        text-align: center;
+        color: $u-primary;
+        font-size: 28rpx;
+        margin-top: 96rpx;
+    }
 
-		.action_row {
-			background-color: #fff;
-			padding: 24rpx 44rpx;
-			text-align: center;
-			color: $u-primary;
-			font-size: 28rpx;
-			margin-top: 96rpx;
-		}
+    .online_state {
+        @include vCenterBox();
+        margin-left: 24rpx;
+        font-size: 24rpx;
+        color: #999;
 
-		.online_state {
-			@include vCenterBox();
-			margin-left: 24rpx;
-			font-size: 24rpx;
-			color: #999;
-
-			.dot {
-				background-color: #10CC64;
-				width: 12rpx;
-				height: 12rpx;
-				border-radius: 50%;
-				margin-right: 12rpx;
-			}
-		}
-	}
+        .dot {
+            background-color: #10cc64;
+            width: 12rpx;
+            height: 12rpx;
+            border-radius: 50%;
+            margin-right: 12rpx;
+        }
+    }
+}
 </style>

@@ -8,26 +8,29 @@ const state = {
 };
 
 const mutations = {
-    SET_HISTORY_MESSAGE_MAP (state, obj) {
+    SET_HISTORY_MESSAGE_MAP(state, obj) {
         console.log('obj-------obj', JSON.parse(JSON.stringify(obj)));
         state.historyMessageMap = obj;
-    },
+    }
 };
 
 const actions = {
-    async getHistoryMesageList ({ commit, state }, params) {
-        const { conversationID, isInit, positionMsgID, isSyncing, seq } = params;
-        if (state.historyMessageMap[conversationID]?.hasAfterMore && isSyncing) return; // 定位数据时同步信息不处理
+    async getHistoryMesageList({ commit, state }, params) {
+        const { conversationID, isInit, positionMsgID, isSyncing, seq } =
+            params;
+        if (state.historyMessageMap[conversationID]?.hasAfterMore && isSyncing)
+            return; // 定位数据时同步信息不处理
         const {
             messageList: oldMessageList = [],
             lastMinSeq: oldLastMinSeq = 0
         } = state.historyMessageMap[conversationID] || {};
-        const startClientMsgID = positionMsgID || oldMessageList[0]?.clientMsgID || '';
+        const startClientMsgID =
+            positionMsgID || oldMessageList[0]?.clientMsgID || '';
         console.log('paramsparamsparams----', {
             ...params,
             isInit: undefined,
             startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-            lastMinSeq: seq ? seq : (isInit ? 0 : oldLastMinSeq)
+            lastMinSeq: seq ? seq : isInit ? 0 : oldLastMinSeq
         });
         try {
             const { data } = await IMSDK.asyncApi(
@@ -36,22 +39,30 @@ const actions = {
                 {
                     ...params,
                     isInit: undefined,
-                    startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-                    lastMinSeq: seq ? seq : (isInit ? 0 : oldLastMinSeq)
+                    startClientMsgID:
+                        isInit && !positionMsgID ? '' : startClientMsgID,
+                    lastMinSeq: seq ? seq : isInit ? 0 : oldLastMinSeq
                 }
             );
             console.log('getHistoryMesageList----', data);
             const { messageList = [], lastMinSeq } = data;
-            const hasAfterMore = state.historyMessageMap[conversationID]?.hasAfterMore;
+            const hasAfterMore =
+                state.historyMessageMap[conversationID]?.hasAfterMore;
             commit('SET_HISTORY_MESSAGE_MAP', {
-                ...state.historyMessageMap, 
+                ...state.historyMessageMap,
                 [conversationID]: {
-                    messageList: [...messageList.concat(isInit ? [] : oldMessageList)],
+                    messageList: [
+                        ...messageList.concat(isInit ? [] : oldMessageList)
+                    ],
                     hasMore: messageList[0]?.seq > 1,
-                    hasAfterMore: (isInit && !positionMsgID) ?
-                        false : (typeof hasAfterMore === 'undefined' ? true : hasAfterMore),
+                    hasAfterMore:
+                        isInit && !positionMsgID
+                            ? false
+                            : typeof hasAfterMore === 'undefined'
+                                ? true
+                                : hasAfterMore,
                     lastMinSeq: lastMinSeq
-                },
+                }
             });
             return messageList;
         } catch (e) {
@@ -64,19 +75,24 @@ const actions = {
         }
     },
 
-    async getHistoryMesageListReverse ({ commit, state }, params) {
-        const { conversationID, isInit, positionMsgID, isSyncing, seq } = params;
-        if (state.historyMessageMap[conversationID]?.hasAfterMore && isSyncing) return; // 定位数据时同步信息不处理
+    async getHistoryMesageListReverse({ commit, state }, params) {
+        const { conversationID, isInit, positionMsgID, isSyncing, seq } =
+            params;
+        if (state.historyMessageMap[conversationID]?.hasAfterMore && isSyncing)
+            return; // 定位数据时同步信息不处理
         const {
             messageList: oldMessageList = [],
             lastMinSeq: oldLastMinSeq = 0
         } = state.historyMessageMap[conversationID] || {};
-        const startClientMsgID = positionMsgID || oldMessageList[oldMessageList.length - 1]?.clientMsgID || '';
+        const startClientMsgID =
+            positionMsgID ||
+            oldMessageList[oldMessageList.length - 1]?.clientMsgID ||
+            '';
         console.log('paramsparamsparams----', {
             ...params,
             isInit: undefined,
             startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-            lastMinSeq: seq ? seq : (isInit ? 0 : oldLastMinSeq)
+            lastMinSeq: seq ? seq : isInit ? 0 : oldLastMinSeq
         });
         try {
             const { data } = await IMSDK.asyncApi(
@@ -85,22 +101,27 @@ const actions = {
                 {
                     ...params,
                     isInit: undefined,
-                    startClientMsgID: isInit && !positionMsgID ? '' : startClientMsgID,
-                    lastMinSeq: seq ? seq : (isInit ? 0 : oldLastMinSeq)
+                    startClientMsgID:
+                        isInit && !positionMsgID ? '' : startClientMsgID,
+                    lastMinSeq: seq ? seq : isInit ? 0 : oldLastMinSeq
                 }
             );
             console.log('getHistoryMesageListReverse----', data);
             const { messageList = [], lastMinSeq } = data;
-            const clientMsgIDList = oldMessageList.map(item => item.clientMsgID);
-            const filterMessageList = messageList.filter(item => !clientMsgIDList.includes(item.clientMsgID));
+            const clientMsgIDList = oldMessageList.map(
+                item => item.clientMsgID
+            );
+            const filterMessageList = messageList.filter(
+                item => !clientMsgIDList.includes(item.clientMsgID)
+            );
             commit('SET_HISTORY_MESSAGE_MAP', {
-                ...state.historyMessageMap, 
+                ...state.historyMessageMap,
                 [conversationID]: {
                     messageList: [...oldMessageList.concat(filterMessageList)],
                     hasMore: state.historyMessageMap[conversationID]?.hasMore,
                     hasAfterMore: messageList.length !== 0,
                     lastMinSeq: lastMinSeq
-                },
+                }
             });
             return messageList;
         } catch (e) {
@@ -112,53 +133,63 @@ const actions = {
             return [];
         }
     },
-    pushNewMessage ({ commit, state, rootState }, message) {
-        let conversationID = rootState.conversation.currentConversation.conversationID;
+    pushNewMessage({ commit, state, rootState }, message) {
+        let conversationID =
+            rootState.conversation.currentConversation.conversationID;
         if (!conversationID) {
             conversationID = idsGetConversationID(message);
         }
         const obj = state.historyMessageMap[conversationID];
         let msgList = [];
         if (!isEdit(message)) {
-            msgList = [...obj?.messageList || [], message];
+            msgList = [...(obj?.messageList || []), message];
         } else {
             // 编辑消息
             let index = -1;
-            msgList = [
-                ...obj.messageList
-            ];
-            if (!msgList.map(v => v.clientMsgID).includes(message.clientMsgID)) {
+            msgList = [...obj.messageList];
+            if (
+                !msgList.map(v => v.clientMsgID).includes(message.clientMsgID)
+            ) {
                 obj.messageList.forEach((item, i) => {
                     const preMsg = obj.messageList[i - 1] || {};
                     const msg = obj.messageList[i] || {};
                     const { sendTime } = message;
-                    if (sendTime >= preMsg.sendTime && sendTime <= msg.sendTime) {
+                    if (
+                        sendTime >= preMsg.sendTime &&
+                        sendTime <= msg.sendTime
+                    ) {
                         index = i;
                     }
                 });
-                let i = index === - 1 ? obj.messageList.length : index;
-                msgList = [...(obj?.messageList || []).slice(0, i), message, ...(obj?.messageList || []).slice(i)];
+                let i = index === -1 ? obj.messageList.length : index;
+                msgList = [
+                    ...(obj?.messageList || []).slice(0, i),
+                    message,
+                    ...(obj?.messageList || []).slice(i)
+                ];
             }
         }
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
             [conversationID]: {
                 ...obj,
-                messageList: [...msgList],
-            },
+                messageList: [...msgList]
+            }
         });
     },
-    updateOneMessage ({ commit, state, rootState }, {
-        message,
-        type = UpdateMessageTypes.Overall,
-        keyWords = [],
-    }) {
+    updateOneMessage(
+        { commit, state, rootState },
+        { message, type = UpdateMessageTypes.Overall, keyWords = [] }
+    ) {
         console.log('updateOneMessage', message);
-        let conversationID = rootState.conversation.currentConversation.conversationID;
+        let conversationID =
+            rootState.conversation.currentConversation.conversationID;
         const obj = state.historyMessageMap[conversationID];
         const tmpList = obj?.messageList || [];
 
-        const idx = tmpList.findIndex(v => v.clientMsgID === message.clientMsgID);
+        const idx = tmpList.findIndex(
+            v => v.clientMsgID === message.clientMsgID
+        );
         if (idx === -1) return;
         if (type === UpdateMessageTypes.Overall) {
             tmpList[idx] = message;
@@ -172,12 +203,13 @@ const actions = {
             ...state.historyMessageMap,
             [conversationID]: {
                 ...obj,
-                messageList: [...tmpList],
-            },
+                messageList: [...tmpList]
+            }
         });
     },
-    deleteMessages ({ commit, state, rootState }, messages) {
-        let conversationID = rootState.conversation.currentConversation.conversationID;
+    deleteMessages({ commit, state, rootState }, messages) {
+        let conversationID =
+            rootState.conversation.currentConversation.conversationID;
         if (!conversationID) {
             conversationID = idsGetConversationID(messages[0]);
         }
@@ -185,7 +217,7 @@ const actions = {
         const obj = state.historyMessageMap[conversationID];
         const tmpList = [...obj.messageList];
         console.log('删除的------', messages);
-        messages.forEach((v) => {
+        messages.forEach(v => {
             const idx = tmpList.findIndex(j => j.clientMsgID === v.clientMsgID);
             if (idx !== -1) {
                 tmpList.splice(idx, 1);
@@ -196,20 +228,20 @@ const actions = {
                 ...state.historyMessageMap,
                 [conversationID]: {
                     ...obj,
-                    messageList: [...tmpList],
-                },
+                    messageList: [...tmpList]
+                }
             });
         }, 0);
     },
-    resetMessageState ({ commit }) {
+    resetMessageState({ commit }) {
         // commit('SET_HISTORY_MESSAGE_LIST', []);
         // commit('SET_HAS_MORE_MESSAGE', true);
-    },
+    }
 };
 
 export default {
     namespaced: true,
     state,
     mutations,
-    actions,
+    actions
 };

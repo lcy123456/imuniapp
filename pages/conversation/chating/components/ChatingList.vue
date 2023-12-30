@@ -1,7 +1,7 @@
 <template>
     <scroll-view
         id="scroll_view"
-        :class="{isrotate: isReverse}"
+        :class="{ isrotate: isReverse }"
         :scroll-with-animation="animation"
         :scroll-top="scrollTop"
         :scroll-into-view="scrollIntoView"
@@ -14,9 +14,7 @@
         @scrolltolower="scrolltolower"
     >
         <view>
-            <view
-                id="scroll_wrap"
-            >
+            <view id="scroll_wrap">
                 <view
                     v-if="isReverse"
                     id="auchormessage_bottom_item"
@@ -24,7 +22,7 @@
                 />
                 <u-loadmore
                     v-if="!isReverse"
-                    :class="{isrotate: isReverse}"
+                    :class="{ isrotate: isReverse }"
                     nomore-text=""
                     :status="loadMoreStatus"
                 />
@@ -32,14 +30,19 @@
                     v-for="(item, index) in messageList"
                     :id="`auchor-${item.clientMsgID}`"
                     :key="`auchor-${item.clientMsgID}`"
-                    :class="{isrotate: isReverse}"
+                    :class="{ isrotate: isReverse }"
                 >
                     <BetweenTime
                         :key="`auchor${item.clientMsgID}-BetweenTime`"
                         :msg-before="isReverse ? item : messageList[index - 1]"
-                        :msg-after="isReverse ? messageList[index + 1]: item"
+                        :msg-after="isReverse ? messageList[index + 1] : item"
                         :is-reverse="isReverse"
-                        :type="(!isReverse && index === 0) || (isReverse && index === messageList.length - 1) ? 'first' : ''"
+                        :type="
+                            (!isReverse && index === 0) ||
+                                (isReverse && index === messageList.length - 1)
+                                ? 'first'
+                                : ''
+                        "
                     />
                     <MessageItemRender
                         :key="`auchor${item.clientMsgID}-MessageItemRender`"
@@ -59,7 +62,7 @@
                 />
                 <u-loadmore
                     v-if="isReverse"
-                    :class="{isrotate: isReverse}"
+                    :class="{ isrotate: isReverse }"
                     nomore-text=""
                     :status="loadMoreStatus"
                 />
@@ -72,7 +75,7 @@
 import { mapGetters, mapActions } from 'vuex';
 import MessageItemRender from './MessageItem/index.vue';
 import BetweenTime from './BetweenTime.vue';
-import { PageEvents } from "@/constant";
+import { PageEvents } from '@/constant';
 
 export default {
     name: 'ChatingList',
@@ -83,7 +86,7 @@ export default {
     props: {
         isMultipleMsg: {
             type: Boolean,
-            default: false,
+            default: false
         },
         checkedMsgIds: {
             type: Array,
@@ -94,7 +97,7 @@ export default {
             default: ''
         }
     },
-    data () {
+    data() {
         return {
             positionMsgID: '',
             conversationID: '',
@@ -109,7 +112,7 @@ export default {
             isRecvToBottom: true,
             hasNewMessage: false,
             messageLoadState: {
-                loading: false,
+                loading: false
             },
             isShowMenuFlag: false,
             positionMsgIDFlag: true,
@@ -127,39 +130,48 @@ export default {
             'storeCurrentUserID',
             'storeHistoryMessageMap'
         ]),
-        loadMoreStatus () {
+        loadMoreStatus() {
             if (!this.storeHasMoreMessage) {
                 return 'nomore';
             }
             return this.messageLoadState.loading ? 'loading' : 'loadmore';
         },
-        messageList () {
-            return this.isReverse ? this.storeHistoryMessageListReverse : this.storeHistoryMessageList;
+        messageList() {
+            return this.isReverse
+                ? this.storeHistoryMessageListReverse
+                : this.storeHistoryMessageList;
         }
     },
-    mounted () {
+    mounted() {
         this.conversationID = this.storeCurrentConversation.conversationID;
         this.positionMsgID = this.clientMsgID;
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
         uni.$on('reloadMore', this.reloadMore);
         this.init();
     },
-    beforeDestroy () {
+    beforeDestroy() {
         this.init();
         uni.$off(PageEvents.ScrollToBottom, this.scrollToBottom);
         uni.$off('reloadMore', this.reloadMore);
     },
     methods: {
-        ...mapActions('message', ['getHistoryMesageList', 'getHistoryMesageListReverse']),
-        init () {
+        ...mapActions('message', [
+            'getHistoryMesageList',
+            'getHistoryMesageListReverse'
+        ]),
+        init() {
             this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
             this.loadMessageList({});
         },
-        setPositionMsgID (positionMsgID, seq) {
+        setPositionMsgID(positionMsgID, seq) {
             this.positionMsgID = positionMsgID;
             this.seq = seq;
         },
-        async loadMessageList ({isLoadMore = false, isReverse = false, isSyncing = false}) {
+        async loadMessageList({
+            isLoadMore = false,
+            isReverse = false,
+            isSyncing = false
+        }) {
             this.messageLoadState.loading = true;
             const count = 40;
             const options = {
@@ -172,9 +184,17 @@ export default {
             try {
                 if (isLoadMore) {
                     this.animation = true;
-                    await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse'](options);
+                    await this[
+                        !isReverse
+                            ? 'getHistoryMesageList'
+                            : 'getHistoryMesageListReverse'
+                    ](options);
                 } else {
-                    const data = await this[!isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
+                    const data = await this[
+                        !isReverse
+                            ? 'getHistoryMesageList'
+                            : 'getHistoryMesageListReverse'
+                    ]({
                         ...options,
                         positionMsgID: this.positionMsgID,
                         isInit: true,
@@ -183,10 +203,17 @@ export default {
                     });
                     if (!data || !data.length) return;
                     if (this.positionMsgID) {
-                        const map = this.storeHistoryMessageList[this.storeHistoryMessageList.length - 1];
+                        const map =
+                            this.storeHistoryMessageList[
+                                this.storeHistoryMessageList.length - 1
+                            ];
                         let positionMsgID = map.clientMsgID;
                         let seq = map.seq;
-                        await this[isReverse ? 'getHistoryMesageList' : 'getHistoryMesageListReverse']({
+                        await this[
+                            isReverse
+                                ? 'getHistoryMesageList'
+                                : 'getHistoryMesageListReverse'
+                        ]({
                             ...options,
                             positionMsgID,
                             seq,
@@ -206,26 +233,35 @@ export default {
                 this.messageLoadState.loading = false;
             }, 500);
         },
-        handleTouchstart () {
+        handleTouchstart() {
             this.isShowMenuFlag = true;
             this.$emit('touchstart');
         },
-        onScroll (event) {
+        onScroll(event) {
             const { scrollHeight, scrollTop } = event.target;
-            const height = (scrollHeight + 200) - scrollTop - uni.getWindowInfo().windowHeight;
-            const isScrollWay = (!this.isReverse && (height > 700))
-                || (this.isReverse && (scrollTop > 700));
+            const height =
+                scrollHeight +
+                200 -
+                scrollTop -
+                uni.getWindowInfo().windowHeight;
+            const isScrollWay =
+                (!this.isReverse && height > 700) ||
+                (this.isReverse && scrollTop > 700);
             this.$store.commit('conversation/SET_IS_SCROLL_WAY', isScrollWay);
-            this.isRecvToBottom = scrollHeight - uni.getWindowInfo().windowHeight < 80;
+            this.isRecvToBottom =
+                scrollHeight - uni.getWindowInfo().windowHeight < 80;
             this.isShowMenuFlag = false;
             this.$emit('scroll');
         },
-        throttleScroll (event) {
+        throttleScroll(event) {
             uni.$u.throttle(() => this.onScroll(event), 200);
         },
-        scrolltoupper () {
+        scrolltoupper() {
             if (!this.isReverse) {
-                if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
+                if (
+                    !this.messageLoadState.loading &&
+                    this.storeHasMoreMessage
+                ) {
                     this.isReverse = true;
                     this.scrollToTop();
                     this.isInReverse = true;
@@ -235,60 +271,85 @@ export default {
                     }, 500);
                 }
             } else {
-                if (!this.messageLoadState.loading && this.storeHasMoreAfterMessage) {
+                if (
+                    !this.messageLoadState.loading &&
+                    this.storeHasMoreAfterMessage
+                ) {
                     this.isReverse = false;
                     this.scrollToBottom();
                     this.isInReverse = true;
                     setTimeout(() => {
-                        this.loadMessageList({ isLoadMore: true, isReverse: true });
+                        this.loadMessageList({
+                            isLoadMore: true,
+                            isReverse: true
+                        });
                         this.isInReverse = false;
                     }, 500);
                 }
             }
         },
-        scrolltolower () {
+        scrolltolower() {
             if (this.isInReverse) return;
             if (this.isReverse) {
-                if (!this.messageLoadState.loading && this.storeHasMoreMessage) {
+                if (
+                    !this.messageLoadState.loading &&
+                    this.storeHasMoreMessage
+                ) {
                     this.loadMessageList({ isLoadMore: true });
                 }
             } else {
-                if (!this.messageLoadState.loading && this.storeHasMoreAfterMessage) {
-                    this.loadMessageList({ isLoadMore: true, isReverse: true });
+                if (
+                    !this.messageLoadState.loading &&
+                    this.storeHasMoreAfterMessage
+                ) {
+                    this.loadMessageList({
+                        isLoadMore: true,
+                        isReverse: true
+                    });
                 }
             }
         },
-        reloadMore () {
-            this.loadMessageList({ isLoadMore: false, isReverse: false, isSyncing: true });
+        reloadMore() {
+            this.loadMessageList({
+                isLoadMore: false,
+                isReverse: false,
+                isSyncing: true
+            });
         },
-        async scrollToAnchor (auchor) {
+        async scrollToAnchor(auchor) {
             this.isReverse = false;
             await this.$nextTick();
             setTimeout(() => {
                 this.scrollIntoView = auchor;
             }, 500);
         },
-        async scrollToTop ({initPage = false} = {}) {
+        async scrollToTop({ initPage = false } = {}) {
             initPage && this.$emit('initSuccess');
             setTimeout(() => {
                 uni.createSelectorQuery()
                     .in(this)
                     .select('#scroll_wrap')
-                    .boundingClientRect((res) => {
-                        this.scrollTop = this.isReverse ? res.height + Math.random() : (initPage ? 0 : Math.random());
+                    .boundingClientRect(res => {
+                        this.scrollTop = this.isReverse
+                            ? res.height + Math.random()
+                            : initPage
+                                ? 0
+                                : Math.random();
                     })
                     .exec();
             }, 200);
         },
-        async scrollToBottom ({initPage = false} = {}) {
+        async scrollToBottom({ initPage = false } = {}) {
             initPage && this.$emit('initSuccess');
             await this.$nextTick();
             setTimeout(() => {
                 uni.createSelectorQuery()
                     .in(this)
                     .select('#scroll_wrap')
-                    .boundingClientRect((res) => {
-                        this.scrollTop = this.isReverse ? Math.random() : res.height + (initPage ? 0 : Math.random());
+                    .boundingClientRect(res => {
+                        this.scrollTop = this.isReverse
+                            ? Math.random()
+                            : res.height + (initPage ? 0 : Math.random());
                         if (initPage) {
                             setTimeout(() => {
                                 this.animation = true;
@@ -298,21 +359,21 @@ export default {
                     .exec();
             }, 200);
         },
-        menuRect (res) {
+        menuRect(res) {
             this.$emit('menuRect', res);
         }
-    },
+    }
 };
 </script>
 
 <style lang="scss" scoped>
 .isrotate {
     // transform-style: preserve-3d;
-    transform:rotateX(180deg);
-    -ms-transform:rotateX(180deg);
-    -moz-transform:rotateX(180deg);
-    -webkit-transform:rotateX(180deg);
-    -o-transform:rotateX(180deg);
+    transform: rotateX(180deg);
+    -ms-transform: rotateX(180deg);
+    -moz-transform: rotateX(180deg);
+    -webkit-transform: rotateX(180deg);
+    -o-transform: rotateX(180deg);
 }
 #scroll_view {
     flex: 1;

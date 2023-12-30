@@ -1,9 +1,7 @@
 <template>
     <Page>
         <view class="merger_message_container">
-            <CustomNavBar
-                :title="mergeTitle.slice(0, -5)"
-            />
+            <CustomNavBar :title="mergeTitle.slice(0, -5)" />
             <view
                 v-for="v in multiMessage"
                 :key="v.clientMsgID"
@@ -38,31 +36,29 @@ export default {
         MessageContentWrap
     },
 
-    data () {
+    data() {
         return {
             message: {}
         };
     },
     computed: {
-        mergeElem () {
+        mergeElem() {
             return this.message.mergeElem || {};
         },
-        mergeTitle () {
+        mergeTitle() {
             return this.mergeElem.title || '';
         },
-        multiMessage () {
+        multiMessage() {
             return this.mergeElem.multiMessage || [];
         }
     },
 
-    onLoad (params) {
+    onLoad(params) {
         const { message } = params;
         this.message = JSON.parse(decodeURIComponent(message));
     },
 
-    methods: {
-        
-    },
+    methods: {}
 };
 </script>
 
@@ -88,7 +84,7 @@ export default {
                 }
             }
             /deep/.read-content {
-                bottom: 0!important;
+                bottom: 0 !important;
             }
         }
     }

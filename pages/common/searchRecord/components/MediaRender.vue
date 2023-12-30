@@ -1,7 +1,7 @@
 <template>
     <view
         class="media_container"
-        :style="{height: size + 'px'}"
+        :style="{ height: size + 'px' }"
         @click="$emit('click')"
     >
         <u--image
@@ -24,11 +24,10 @@
 </template>
 
 <script>
-import { secFormat } from "@/util/imCommon";
-import { MessageType } from "openim-uniapp-polyfill";
+import { secFormat } from '@/util/imCommon';
+import { MessageType } from 'openim-uniapp-polyfill';
 
 export default {
-    
     props: {
         mode: {
             type: String,
@@ -40,27 +39,27 @@ export default {
         },
         size: {
             type: Number,
-            default: 120    // px
+            default: 120 // px
         }
     },
-    data () {
+    data() {
         return {
             imgUrl: ''
         };
     },
     computed: {
-        isVideo () {
+        isVideo() {
             return this.message.contentType === MessageType.VideoMessage;
         },
-        getDuration () {
+        getDuration() {
             if (!this.isVideo) {
                 return 0;
             }
             return secFormat(this.message.videoElem.duration);
-        },
+        }
     },
-    created () {
-        const { pictureElem, videoElem} = this.message;
+    created() {
+        const { pictureElem, videoElem } = this.message;
         let filePath = pictureElem?.sourcePath;
         if (this.isVideo) {
             filePath = videoElem?.snapshotPath;
@@ -78,8 +77,7 @@ export default {
             }
         });
     },
-    methods: {
-    }
+    methods: {}
 };
 </script>
 

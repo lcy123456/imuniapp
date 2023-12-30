@@ -4,17 +4,15 @@
 
 <script>
 export default {
-    data () {
+    data() {
         return {
             url: ''
         };
     },
-    onLoad (options) {
+    onLoad(options) {
         this.url = decodeURIComponent(options.url);
     }
 };
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

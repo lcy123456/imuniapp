@@ -3,10 +3,7 @@
         <view class="mark_id_container">
             <CustomNavBar :title="getTitle">
                 <template slot="more">
-                    <text
-                        class="primary mr-30 fz-32"
-                        @click="saveOrCopy"
-                    >
+                    <text class="primary mr-30 fz-32" @click="saveOrCopy">
                         完成
                     </text>
                 </template>
@@ -42,14 +39,14 @@
                 :show="showConfirm"
                 show-cancel-button
                 @confirm="confirm"
-                @cancel="() => showConfirm = false"
+                @cancel="() => (showConfirm = false)"
             />
         </view>
     </Page>
 </template>
 
 <script>
-import IMSDK, {IMMethods} from 'openim-uniapp-polyfill';
+import IMSDK, { IMMethods } from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import { businessInfoUpdate, businessCancellation } from '@/api/login';
 import { CustomMarkType } from '@/constant';
@@ -60,10 +57,8 @@ export default {
     components: {
         CustomNavBar
     },
-    props: {
-
-    },
-    data () {
+    props: {},
+    data() {
         return {
             CustomMarkType: Object.freeze(CustomMarkType),
             content: '',
@@ -74,94 +69,102 @@ export default {
         };
     },
     computed: {
-        getTitle () {
+        getTitle() {
             switch (this.type) {
-            case CustomMarkType.Remark:
-                return '设置备注';
-            case CustomMarkType.SelfNickname:
-                return '修改姓名';
-            case CustomMarkType.GroupName:
-                return '修改组名';
-            case CustomMarkType.AccountCancel:
-                return '注销账户';
-            default: 
-                return '';
+                case CustomMarkType.Remark:
+                    return '设置备注';
+                case CustomMarkType.SelfNickname:
+                    return '修改姓名';
+                case CustomMarkType.GroupName:
+                    return '修改组名';
+                case CustomMarkType.AccountCancel:
+                    return '注销账户';
+                default:
+                    return '';
             }
         },
-        getPlaceholder () {
+        getPlaceholder() {
             let str = '请输入您的';
             switch (this.type) {
-            case CustomMarkType.AccountCancel:
-                return str + '密码';
-            default: 
-                return str + '信息';
+                case CustomMarkType.AccountCancel:
+                    return str + '密码';
+                default:
+                    return str + '信息';
             }
         }
     },
-    onLoad (options) {
-        const {
-            type,
-            sourceInfo
-        } = options;
+    onLoad(options) {
+        const { type, sourceInfo } = options;
         this.type = type;
         this.sourceInfo = JSON.parse(sourceInfo);
         switch (type) {
-        case CustomMarkType.Remark:
-            this.content = this.sourceInfo.remark;
-            break;
-        case CustomMarkType.SelfNickname:
-            this.content = this.sourceInfo.nickname;
-            break;
-        case CustomMarkType.GroupName:
-            this.content = this.sourceInfo.groupName;
-            break;
+            case CustomMarkType.Remark:
+                this.content = this.sourceInfo.remark;
+                break;
+            case CustomMarkType.SelfNickname:
+                this.content = this.sourceInfo.nickname;
+                break;
+            case CustomMarkType.GroupName:
+                this.content = this.sourceInfo.groupName;
+                break;
         }
     },
     methods: {
-        async saveOrCopy () {
+        async saveOrCopy() {
             if (!this.content) return;
             uni.showLoading({
                 title: '加载中'
             });
             try {
                 switch (this.type) {
-                case CustomMarkType.Remark:
-                    await IMSDK.asyncApi(IMMethods.SetFriendRemark, IMSDK.uuid(), {
-                        toUserID: this.sourceInfo.userID,
-                        remark: this.content
-                    });
-                    uni.$u.toast('设置成功');
-                    setTimeout(() => uni.navigateBack(), 1000);
-                    break;
-                case CustomMarkType.SelfNickname:
-                    await businessInfoUpdate({
-                        userID: this.sourceInfo.userID,
-                        nickname: this.content,
-                    });
-                    await this.$store.dispatch('user/updateBusinessInfo');
-                    uni.$u.toast('修改成功');
-                    setTimeout(() => uni.navigateBack(), 1000);
-                    break;
-                case CustomMarkType.GroupName:
-                    await IMSDK.asyncApi(IMMethods.SetGroupInfo, IMSDK.uuid(), {
-                        groupID: this.sourceInfo.groupID,
-                        groupName: this.content
-                    });
-                    this.$toast('修改成功');
-                    this.$store.dispatch("conversation/getCurrentGroup", this.sourceInfo.groupID);
-                    setTimeout(() => uni.navigateBack(), 1000);
-                    break;
-                case CustomMarkType.AccountCancel:
-                    uni.hideLoading();
-                    this.showConfirm = true;
-                    break;
+                    case CustomMarkType.Remark:
+                        await IMSDK.asyncApi(
+                            IMMethods.SetFriendRemark,
+                            IMSDK.uuid(),
+                            {
+                                toUserID: this.sourceInfo.userID,
+                                remark: this.content
+                            }
+                        );
+                        uni.$u.toast('设置成功');
+                        setTimeout(() => uni.navigateBack(), 1000);
+                        break;
+                    case CustomMarkType.SelfNickname:
+                        await businessInfoUpdate({
+                            userID: this.sourceInfo.userID,
+                            nickname: this.content
+                        });
+                        await this.$store.dispatch('user/updateBusinessInfo');
+                        uni.$u.toast('修改成功');
+                        setTimeout(() => uni.navigateBack(), 1000);
+                        break;
+                    case CustomMarkType.GroupName:
+                        await IMSDK.asyncApi(
+                            IMMethods.SetGroupInfo,
+                            IMSDK.uuid(),
+                            {
+                                groupID: this.sourceInfo.groupID,
+                                groupName: this.content
+                            }
+                        );
+                        this.$toast('修改成功');
+                        this.$store.dispatch(
+                            'conversation/getCurrentGroup',
+                            this.sourceInfo.groupID
+                        );
+                        setTimeout(() => uni.navigateBack(), 1000);
+                        break;
+                    case CustomMarkType.AccountCancel:
+                        uni.hideLoading();
+                        this.showConfirm = true;
+                        break;
                 }
             } catch (err) {
                 console.log(err);
                 uni.$u.toast(checkLoginError(err));
             }
         },
-        async confirm () {
+        async confirm() {
             this.showConfirm = false;
             uni.showLoading({
                 title: '加载中'
@@ -179,7 +182,7 @@ export default {
                 uni.$u.toast(checkLoginError(err));
             }
         },
-        back () {
+        back() {
             setTimeout(() => uni.navigateBack(), 1000);
         }
     }
@@ -187,9 +190,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.mark_id_container {
-		@include colBox(false);
-        height: 100vh;
-        background-color: $uni-bg-color-grey;
-	}
+.mark_id_container {
+    @include colBox(false);
+    height: 100vh;
+    background-color: $uni-bg-color-grey;
+}
 </style>

@@ -7,9 +7,7 @@
             :style="`width: ${width};height:${height}`"
             @click="actionClick(item)"
         >
-            <view
-                class="action_item_sub"
-            >
+            <view class="action_item_sub">
                 <view class="icon_nav">
                     <image :src="item.icon" />
                 </view>
@@ -30,9 +28,8 @@
 import { ChatingFooterActionTypes } from '@/constant';
 
 export default {
-    components: {
-    },
-    data () {
+    components: {},
+    data() {
         return {
             ChatingFooterActionTypes: Object.freeze(ChatingFooterActionTypes),
             actionList: [
@@ -40,51 +37,51 @@ export default {
                     idx: 0,
                     type: ChatingFooterActionTypes.Album,
                     title: '相册',
-                    icon: require('static/images/chating_action_image.png'),
+                    icon: require('static/images/chating_action_image.png')
                 },
                 {
                     idx: 1,
                     type: ChatingFooterActionTypes.Camera,
                     title: '拍摄',
-                    icon: require('static/images/chating_action_camera.png'),
+                    icon: require('static/images/chating_action_camera.png')
                 },
                 {
                     idx: 2,
                     type: ChatingFooterActionTypes.Call,
                     title: '视频通话',
-                    icon: require('static/images/chating_action_call.png'),
+                    icon: require('static/images/chating_action_call.png')
                 },
                 {
                     idx: 3,
                     type: ChatingFooterActionTypes.File,
                     title: '文件',
-                    icon: require('static/images/chating_action_file.png'),
-                },
+                    icon: require('static/images/chating_action_file.png')
+                }
             ],
             width: '140rpx',
-            height: '140rpx',
+            height: '140rpx'
         };
     },
     methods: {
-        async actionClick (action) {
+        async actionClick(action) {
             switch (action.type) {
-            case ChatingFooterActionTypes.Album:
-            case ChatingFooterActionTypes.Camera:
-            case ChatingFooterActionTypes.Call:
-                this.$emit('prepareMediaMessage', action.type);
-                break;
-            case ChatingFooterActionTypes.File:
-                this.$emit('prepareFileMessage', action.type);
-                break;
-            default:
+                case ChatingFooterActionTypes.Album:
+                case ChatingFooterActionTypes.Camera:
+                case ChatingFooterActionTypes.Call:
+                    this.$emit('prepareMediaMessage', action.type);
+                    break;
+                case ChatingFooterActionTypes.File:
+                    this.$emit('prepareFileMessage', action.type);
+                    break;
+                default:
             }
-        },
-    },
+        }
+    }
 };
 </script>
 
 <style lang="scss" scoped>
-.chat_action_bar {  
+.chat_action_bar {
     padding: 24rpx 36rpx;
     background-color: $uni-bg-color;
     display: flex;
@@ -100,17 +97,17 @@ export default {
             flex-direction: column;
 
             .icon_nav {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 124rpx;
-              height: 124rpx;
-              background-color: #F6F7F9;
-              border-radius: 30rpx;
-              image {
-                width: 46rpx;
-                height: 46rpx;
-              }
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 124rpx;
+                height: 124rpx;
+                background-color: #f6f7f9;
+                border-radius: 30rpx;
+                image {
+                    width: 46rpx;
+                    height: 46rpx;
+                }
             }
 
             .action_item_title {
@@ -120,6 +117,5 @@ export default {
             }
         }
     }
-
 }
 </style>

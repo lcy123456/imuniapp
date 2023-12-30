@@ -1,15 +1,10 @@
 <template>
     <Page>
         <view class="page_container">
-            <CustomNavBar
-                title="更多资料"
-                is-bg-color2
-            />
+            <CustomNavBar title="更多资料" is-bg-color2 />
 
             <view class="info_wrap">
-                <SettingItem
-                    title="头像"
-                >
+                <SettingItem title="头像">
                     <MyAvatar
                         slot="right"
                         :src="sourceInfo.faceURL"
@@ -17,28 +12,16 @@
                         size="80rpx"
                     />
                 </SettingItem>
-                <SettingItem
-                    title="姓名"
-                    :content="sourceInfo.nickname"
-                />
-                <SettingItem
-                    title="性别"
-                    :content="getGender"
-                />
-                <SettingItem
-                    title="生日"
-                    :content="getBirth"
-                />
+                <SettingItem title="姓名" :content="sourceInfo.nickname" />
+                <SettingItem title="性别" :content="getGender" />
+                <SettingItem title="生日" :content="getBirth" />
             </view>
             <view class="info_wrap">
                 <SettingItem
                     title="手机号码"
                     :content="sourceInfo.phoneNumber || '-'"
                 />
-                <SettingItem
-                    title="邮箱"
-                    :content="sourceInfo.email || '-'"
-                />
+                <SettingItem title="邮箱" :content="sourceInfo.email || '-'" />
             </view>
         </view>
     </Page>
@@ -56,13 +39,13 @@ export default {
         MyAvatar,
         SettingItem
     },
-    data () {
+    data() {
         return {
-            sourceInfo: {},
+            sourceInfo: {}
         };
     },
     computed: {
-        getGender () {
+        getGender() {
             if (this.sourceInfo.gender === 1) {
                 return '男';
             }
@@ -71,15 +54,15 @@ export default {
             }
             return '保密';
         },
-        getBirthStr () {
+        getBirthStr() {
             const birth = this.sourceInfo.birth;
             return birth ? dayjs(birth).format('YYYY-MM-DD') : '-';
-        },
+        }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { sourceInfo } = options;
         this.sourceInfo = JSON.parse(sourceInfo);
-    },
+    }
 };
 </script>
 

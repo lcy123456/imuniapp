@@ -1,14 +1,13 @@
 <template>
     <Page>
         <view class="page_container">
-            <custom-nav-bar :title="isGroupApplication ? '群通知' : '好友请求'" />
+            <custom-nav-bar
+                :title="isGroupApplication ? '群通知' : '好友请求'"
+            />
 
             <view class="application_item">
                 <view class="base_info_row">
-                    <view
-                        class="base_info_left"
-                        @click="toSourceDetails"
-                    >
+                    <view class="base_info_left" @click="toSourceDetails">
                         <my-avatar
                             :src="getSourceFaceURL"
                             :desc="getSourceName"
@@ -20,25 +19,22 @@
                             <view class="online_state">
                                 <view
                                     class="dot"
-                                    :style="{ backgroundColor: isOnline ? '#10CC64' : '#999' }"
+                                    :style="{
+                                        backgroundColor: isOnline
+                                            ? '#10CC64'
+                                            : '#999'
+                                    }"
                                 />
                                 <text>{{ onlineStr }}</text>
                             </view>
                         </view>
                     </view>
 
-                    <u-icon
-                        name="arrow-right"
-                        size="18"
-                        color="#999"
-                    />
+                    <u-icon name="arrow-right" size="18" color="#999" />
                 </view>
 
                 <view class="request_message">
-                    <view
-                        v-if="isGroupApplication"
-                        class="title"
-                    >
+                    <view v-if="isGroupApplication" class="title">
                         <text>申请加入 </text>
                         <text class="group_name">
                             {{ currentApplication.groupName }}
@@ -75,66 +71,69 @@
 </template>
 
 <script>
-import { getDesignatedUserOnlineState } from "@/util/imCommon";
-import IMSDK, { GroupJoinSource } from "openim-uniapp-polyfill";
-import CustomNavBar from "@/components/CustomNavBar/index.vue";
-import MyAvatar from "@/components/MyAvatar/index.vue";
+import { getDesignatedUserOnlineState } from '@/util/imCommon';
+import IMSDK, { GroupJoinSource } from 'openim-uniapp-polyfill';
+import CustomNavBar from '@/components/CustomNavBar/index.vue';
+import MyAvatar from '@/components/MyAvatar/index.vue';
 export default {
     components: {
         CustomNavBar,
-        MyAvatar,
+        MyAvatar
     },
-    data () {
+    data() {
         return {
             currentApplication: {},
-            onlineStr: "离线",
+            onlineStr: '离线',
             isOnline: false,
             loadingState: {
                 accept: false,
-                refuse: false,
-            },
+                refuse: false
+            }
         };
     },
     computed: {
-        isGroupApplication () {
+        isGroupApplication() {
             return this.currentApplication.groupID !== undefined;
         },
-        getSourceID () {
+        getSourceID() {
             return (
-                this.currentApplication.fromUserID ?? this.currentApplication.userID
+                this.currentApplication.fromUserID ??
+                this.currentApplication.userID
             );
         },
-        getSourceName () {
+        getSourceName() {
             return (
-                this.currentApplication.fromNickname ?? this.currentApplication.nickname
+                this.currentApplication.fromNickname ??
+                this.currentApplication.nickname
             );
         },
-        getSourceFaceURL () {
+        getSourceFaceURL() {
             return (
-                this.currentApplication.fromFaceURL ?? this.currentApplication.faceURL
+                this.currentApplication.fromFaceURL ??
+                this.currentApplication.faceURL
             );
         }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { application } = options;
         this.currentApplication = JSON.parse(application);
     },
     methods: {
-        getOnlineState () {
+        getOnlineState() {
             getDesignatedUserOnlineState(this.sourceID)
-                .then((res) => {
+                .then(res => {
                     const { onlineStr, status } = res;
-                    this.isOnline = status === "online";
+                    this.isOnline = status === 'online';
                     this.onlineStr = onlineStr;
                 })
                 .catch(() => (this.isOnline = false));
         },
-        toSourceDetails () {
+        toSourceDetails() {
             uni.navigateTo({
-                url: `/pages/common/userCard/index?sourceID=${this.getSourceID}`,
+                url: `/pages/common/userCard/index?sourceID=${this.getSourceID}`
             });
         },
-        acceptAplication () {
+        acceptAplication() {
             this.loadingState.accept = true;
             let func;
             if (this.isGroupApplication) {
@@ -144,7 +143,7 @@ export default {
                     {
                         groupID: this.currentApplication.groupID,
                         fromUserID: this.currentApplication.userID,
-                        handleMsg: "",
+                        handleMsg: ''
                     }
                 );
             } else {
@@ -154,22 +153,21 @@ export default {
                     IMSDK.uuid(),
                     {
                         toUserID: this.currentApplication.fromUserID,
-                        handleMsg: "",
+                        handleMsg: ''
                     }
                 );
             }
-            func
-                .then(() => {
-                    uni.$u.toast("操作成功");
-                    setTimeout(() => uni.navigateBack(), 500);
-                })
-                .catch((e) => {
+            func.then(() => {
+                uni.$u.toast('操作成功');
+                setTimeout(() => uni.navigateBack(), 500);
+            })
+                .catch(e => {
                     console.log(e);
-                    uni.$u.toast("操作失败");
+                    uni.$u.toast('操作失败');
                 })
                 .finally(() => (this.loadingState.accept = false));
         },
-        refuseAplication () {
+        refuseAplication() {
             this.loadingState.refuse = true;
             let func;
             if (this.isGroupApplication) {
@@ -179,7 +177,7 @@ export default {
                     {
                         groupID: this.currentApplication.groupID,
                         fromUserID: this.currentApplication.userID,
-                        handleMsg: "",
+                        handleMsg: ''
                     }
                 );
             } else {
@@ -188,105 +186,104 @@ export default {
                     IMSDK.uuid(),
                     {
                         toUserID: this.currentApplication.fromUserID,
-                        handleMsg: "",
+                        handleMsg: ''
                     }
                 );
             }
-            func
-                .then(() => {
-                    uni.$u.toast("操作成功");
-                    setTimeout(() => uni.navigateBack(), 250);
-                })
-                .catch(() => uni.$u.toast("操作失败"))
+            func.then(() => {
+                uni.$u.toast('操作成功');
+                setTimeout(() => uni.navigateBack(), 250);
+            })
+                .catch(() => uni.$u.toast('操作失败'))
                 .finally(() => (this.loadingState.refuse = false));
-        },
-    },
+        }
+    }
 };
 </script>
 
 <style lang="scss" scoped>
 .page_container {
-  background-color: #f8f8f8;
+    background-color: #f8f8f8;
 
-  .application_item {
-    padding: 72rpx 44rpx 24rpx;
-    background-color: #fff;
+    .application_item {
+        padding: 72rpx 44rpx 24rpx;
+        background-color: #fff;
 
-    .base_info_row {
-      @include btwBox();
+        .base_info_row {
+            @include btwBox();
 
-      .base_info_left {
-        @include vCenterBox();
-      }
+            .base_info_left {
+                @include vCenterBox();
+            }
 
-      .base_info_details {
-        margin-left: 24rpx;
+            .base_info_details {
+                margin-left: 24rpx;
 
-        .nickname {
-          @include nomalEllipsis();
-          max-width: 600rpx;
+                .nickname {
+                    @include nomalEllipsis();
+                    max-width: 600rpx;
+                }
+
+                .online_state {
+                    @include vCenterBox();
+                    flex-direction: row;
+                    font-size: 24rpx;
+                    color: #999;
+                    margin-top: 6rpx;
+
+                    .dot {
+                        background-color: #10cc64;
+                        width: 12rpx;
+                        height: 12rpx;
+                        border-radius: 50%;
+                        margin-right: 12rpx;
+                    }
+                }
+            }
         }
 
-        .online_state {
-          @include vCenterBox();
-          flex-direction: row;
-          font-size: 24rpx;
-          color: #999;
-          margin-top: 6rpx;
+        .request_message {
+            background-color: #eee;
+            margin-top: 48rpx;
+            padding: 24rpx 36rpx;
+            border-radius: 12rpx;
+            font-size: 28rpx;
+            color: #666;
+            min-height: 240rpx;
 
-          .dot {
-            background-color: #10cc64;
-            width: 12rpx;
-            height: 12rpx;
-            border-radius: 50%;
-            margin-right: 12rpx;
-          }
+            .title {
+                margin-bottom: 12rpx;
+                color: $uni-text-color;
+
+                .group_name {
+                    @nomalEllipsis();
+                    max-width: 400rpx;
+                    color: $uni-color-primary;
+                    margin-left: 12rpx;
+                }
+            }
         }
-      }
-    }
 
-    .request_message {
-      background-color: #eee;
-      margin-top: 48rpx;
-      padding: 24rpx 36rpx;
-      border-radius: 12rpx;
-      font-size: 28rpx;
-      color: #666;
-      min-height: 240rpx;
-
-      .title {
-        margin-bottom: 12rpx;
-        color: $uni-text-color;
-
-        .group_name {
-          @nomalEllipsis();
-          max-width: 400rpx;
-          color: $uni-color-primary;
-          margin-left: 12rpx;
+        .join_source {
+            margin-top: 20rpx;
+            font-size: 24rpx;
+            color: #666;
+            text-align: right;
         }
-      }
     }
 
-    .join_source {
-      margin-top: 20rpx;
-      font-size: 24rpx;
-      color: #666;
-      text-align: right;
-    }
-  }
+    .action_row {
+        margin-top: 24rpx;
 
-  .action_row {
-    margin-top: 24rpx;
+        .u-button {
+            border: none;
+        }
 
-    .u-button {
-      border: none;
+        &:last-child {
+            .u-button {
+                color: #999 !important;
+            }
+        }
     }
-
-    &:last-child {
-      .u-button {
-        color: #999 !important;
-      }
-    }
-  }
 }
 </style>

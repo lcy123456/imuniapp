@@ -2,20 +2,14 @@
     <view class="add-user">
         <view slot="content">
             <view class="ul">
-                <view
-                    v-for="item of storeUserList"
-                    :key="item.userID"
-                >
+                <view v-for="item of storeUserList" :key="item.userID">
                     <u-swipe-action-item
                         v-if="storeUserID !== item.userID"
                         :threshold="50"
                         :options="options"
                         @click="clickConversationMenu(item)"
                     >
-                        <view
-                            class="li"
-                            @click="checkUser(item)"
-                        >
+                        <view class="li" @click="checkUser(item)">
                             <view class="left">
                                 <MyAvatar
                                     shape="circle"
@@ -37,12 +31,14 @@
                     </u-swipe-action-item>
                 </view>
                 <view
-                    :class="['li', 'add', storeUserList.length === 1 ? 'empty' : '']"
+                    :class="[
+                        'li',
+                        'add',
+                        storeUserList.length === 1 ? 'empty' : ''
+                    ]"
                     @click="goLogin('')"
                 >
-                    <image
-                        src="/static/images/add_user.png"
-                    />
+                    <image src="/static/images/add_user.png" />
                     <text>添加账号</text>
                     <u-loading-icon v-if="addUserLoading" />
                 </view>
@@ -55,54 +51,52 @@
 import defaultAvatars from '@/common/defaultAvatars.js';
 import { mapGetters } from 'vuex';
 import { login } from '@/util/imCommon';
-import MyAvatar from "@/components/MyAvatar/index.vue";
+import MyAvatar from '@/components/MyAvatar/index.vue';
 
 export default {
     components: {
         MyAvatar
     },
-    data () {
+    data() {
         return {
             addUserLoading: false,
             show: false,
-            options: [{
-                icon: '/static/images/chating_message_del.png',
-                style: {
-                    backgroundColor: '#f00',
+            options: [
+                {
+                    icon: '/static/images/chating_message_del.png',
+                    style: {
+                        backgroundColor: '#f00'
+                    }
                 }
-            }]
+            ]
         };
     },
     computed: {
-        ...mapGetters([
-            "storeUserList",
-            "storeUserID",
-            "storeUnreadMap"
-        ])
+        ...mapGetters(['storeUserList', 'storeUserID', 'storeUnreadMap'])
     },
     methods: {
-        getUnreadCount (userID) {
+        getUnreadCount(userID) {
             const map = this.storeUnreadMap[userID];
             if (map && map.count) {
                 return map.count > 99 ? '99+' : map.count;
             }
             return '';
         },
-        getAvatarUrl (src) {
+        getAvatarUrl(src) {
             return defaultAvatars[src] ?? src;
         },
-        clickConversationMenu (item) {
+        clickConversationMenu(item) {
             this.$store.commit('user/SET_DEL_USER_LIST', item);
         },
-        async goLogin (type) {
+        async goLogin(type) {
             try {
-                !type && (uni.$u.route('/pages/login/index'));
+                !type && uni.$u.route('/pages/login/index');
             } catch (err) {
                 console.log(err);
                 uni.$u.toast('网络异常，请重试');
             }
         },
-        async checkUser (requestMap) {
+        async checkUser(requestMap) {
             uni.showLoading({
                 mask: true
             });
@@ -158,7 +152,7 @@ export default {
                     height: 30rpx;
                 }
                 uni-text {
-                    color: #008DFF;
+                    color: #008dff;
                     margin-left: 50rpx;
                 }
                 &.empty {
@@ -169,7 +163,7 @@ export default {
                 }
             }
             .avatar {
-                background: #008DFF;
+                background: #008dff;
                 width: 80rpx;
                 height: 80rpx;
                 border-radius: 50%;

@@ -1,26 +1,26 @@
-import Vue from "vue";
-import Vuex from "vuex";
-import user from "./modules/user";
-import base from "./modules/base";
-import contact from "./modules/contact";
-import conversation from "./modules/conversation";
-import message from "./modules/message";
-import incomingCall from "./modules/incomingCall";
-import getters from "./getters";
-import createPersistedState from "vuex-persistedstate";
+import Vue from 'vue';
+import Vuex from 'vuex';
+import user from './modules/user';
+import base from './modules/base';
+import contact from './modules/contact';
+import conversation from './modules/conversation';
+import message from './modules/message';
+import incomingCall from './modules/incomingCall';
+import getters from './getters';
+import createPersistedState from 'vuex-persistedstate';
 
 const vuexPersisted = createPersistedState({
     storage: {
-        getItem: (key) => uni.getStorageSync(key),
+        getItem: key => uni.getStorageSync(key),
         setItem: (key, value) => uni.setStorageSync(key, value),
-        removeItem: (key) => uni.removeStorageSync(key)
+        removeItem: key => uni.removeStorageSync(key)
     },
-    reducer (state) {
+    reducer(state) {
         const { user, conversation, contact } = state;
         const { keyBoardHeight } = base;
         const { authData, isProd, selfInfo, userList } = user;
         const { conversationList } = conversation;
-        const { friendList, blackList, groupList} = contact;
+        const { friendList, blackList, groupList } = contact;
         return {
             user: {
                 authData,
@@ -52,7 +52,7 @@ const store = new Vuex.Store({
         contact,
         conversation,
         message,
-        incomingCall,
+        incomingCall
     },
     getters,
     plugins: [vuexPersisted]

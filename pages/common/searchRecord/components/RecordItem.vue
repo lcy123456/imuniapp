@@ -9,20 +9,17 @@
         <view class="right_box">
             <view class="flex justify-between">
                 <view class="name_box">
-                    <text v-html="isMessage ? showName : lightTextStr(showName)" />
-                    <text>{{ source.memberCount ? `(${source.memberCount})` : '' }}</text>
+                    <text
+                        v-html="isMessage ? showName : lightTextStr(showName)"
+                    />
+                    <text>{{
+                        source.memberCount ? `(${source.memberCount})` : ''
+                    }}</text>
                 </view>
-                <text
-                    v-if="isMessage"
-                    class="fz-26 text-grey"
-                >
+                <text v-if="isMessage" class="fz-26 text-grey">
                     {{ dayjs(source.sendTime).format('MM/DD') }}
                 </text>
-                <u-icon
-                    v-if="showIcon"
-                    name="arrow-right"
-                    size="20"
-                />
+                <u-icon v-if="showIcon" name="arrow-right" size="20" />
             </view>
             <view
                 v-if="(source.conversationID || isMessage) && !isContact"
@@ -50,12 +47,11 @@ import { SessionType } from 'openim-uniapp-polyfill';
 import { lightTextStr } from '@/util/common';
 import { RecordTypeMap } from '@/constant';
 import dayjs from 'dayjs';
-import { parseAt, parseEmoji } from "@/util/imCommon";
-import { MessageType } from "openim-uniapp-polyfill";
+import { parseAt, parseEmoji } from '@/util/imCommon';
+import { MessageType } from 'openim-uniapp-polyfill';
 import { DecryptoAES } from '@/util/crypto';
 
 export default {
-
     components: {
         MyAvatar
     },
@@ -78,39 +74,49 @@ export default {
         }
     },
 
-    data () {
+    data() {
         return {
             dayjs: Object.freeze(dayjs),
-            SessionType: Object.freeze(SessionType),
+            SessionType: Object.freeze(SessionType)
         };
     },
     computed: {
-        isGroup () {
-            return this.type === RecordTypeMap.Group || this.source.conversationType === SessionType.WorkingGroup;
+        isGroup() {
+            return (
+                this.type === RecordTypeMap.Group ||
+                this.source.conversationType === SessionType.WorkingGroup
+            );
         },
-        isMessage () {
+        isMessage() {
             return this.type === RecordTypeMap.Message;
         },
-        isContact () {
+        isContact() {
             return this.type === RecordTypeMap.Contact;
         },
-        showName () {
-            const { remark, nickname, groupName, showName, senderNickname } = this.source;
-            return remark || nickname || groupName || showName || senderNickname;
-        },
+        showName() {
+            const { remark, nickname, groupName, showName, senderNickname } =
+                this.source;
+            return (
+                remark || nickname || groupName || showName || senderNickname
+            );
+        }
     },
 
-    mounted () {
-        
-    },
+    mounted() {},
 
     methods: {
-        lightTextStr (text) {
+        lightTextStr(text) {
             return lightTextStr(text, this.keyword);
         },
-        getContent (source) {
+        getContent(source) {
             let text = '';
-            const { contentType, quoteElem, atTextElem, textElem, senderNickname } = source;
+            const {
+                contentType,
+                quoteElem,
+                atTextElem,
+                textElem,
+                senderNickname
+            } = source;
             // TODO：解密文本
             if (contentType === MessageType.QuoteMessage) {
                 text = parseEmoji(DecryptoAES(quoteElem?.text));
@@ -123,8 +129,8 @@ export default {
                 text = senderNickname + '：' + text;
             }
             return text;
-        },
-    },
+        }
+    }
 };
 </script>
 

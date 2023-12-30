@@ -1,12 +1,7 @@
 <template>
     <view class="err_message_container bg_container">
-        <view>
-            [暂未支持的消息类型]
-        </view>
-        <MessageReadState
-            :message="message"
-            :is-sender="isSender"
-        />
+        <view> [暂未支持的消息类型] </view>
+        <MessageReadState :message="message" :is-sender="isSender" />
     </view>
 </template>
 
@@ -27,10 +22,8 @@ export default {
             default: false
         }
     },
-    data () {
-        return {
-
-        };
+    data() {
+        return {};
     }
 };
 </script>

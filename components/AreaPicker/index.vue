@@ -10,36 +10,35 @@
 </template>
 
 <script>
-import { areaCode } from "./areaCode";
+import { areaCode } from './areaCode';
 export default {
-    data () {
+    data() {
         return {
             show: false,
-            defaultIndex: [0],
+            defaultIndex: [0]
         };
     },
     computed: {
-        columns () {
-            const list = areaCode.map((i) => {
+        columns() {
+            const list = areaCode.map(i => {
                 return { label: `${i.label} +${i.value}`, value: i.value };
             });
             return [list];
-        },
+        }
     },
     methods: {
-        init () {
+        init() {
             this.show = true;
         },
-        confirm ({ value }) {
+        confirm({ value }) {
             const item = value[0];
-            this.$emit("chooseArea", item.value);
+            this.$emit('chooseArea', item.value);
             this.show = false;
         },
-        cancel () {
+        cancel() {
             this.show = false;
-        },
-    },
+        }
+    }
 };
 </script>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

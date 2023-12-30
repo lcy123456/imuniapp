@@ -19,38 +19,30 @@ export default {
     props: {
         src: {
             type: String,
-            default: ""
+            default: ''
         },
         mode: {
             type: String,
-            default: "aspectFill"
+            default: 'aspectFill'
         },
         width: {
             type: String,
-            default: "100%"
+            default: '100%'
         },
         height: {
             type: String,
-            default: "100%"
+            default: '100%'
         }
     },
 
-    data () {
-        return {
-            
-        };
+    data() {
+        return {};
     },
 
-    mounted () {
-        
-    },
+    mounted() {},
 
-    methods: {
-        
-    },
+    methods: {}
 };
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

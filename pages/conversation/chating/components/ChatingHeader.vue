@@ -13,22 +13,13 @@
             全部删除
         </view> -->
         <template slot="center">
-            <view
-                v-if="isMultipleMsg"
-                class="ff-bold"
-            >
+            <view v-if="isMultipleMsg" class="ff-bold">
                 已选中{{ checkedMsgIds.length }}条
             </view>
-            <view
-                v-else
-                class="conversation_info"
-            >
+            <view v-else class="conversation_info">
                 <view class="title">
                     {{ storeCurrentConversation.showName }}
-                    <text
-                        v-if="typingText"
-                        class="typing-text"
-                    >
+                    <text v-if="typingText" class="typing-text">
                         {{ typingText }}
                     </text>
                 </view>
@@ -36,28 +27,25 @@
                     v-if="isSingle"
                     class="flex justify-center fz-24 text-grey align-center"
                 >
-                    <view :class="['w-12', 'h-12', 'br-12', isOnline ? 'bg-primary' : 'bg-inverse']" />
+                    <view
+                        :class="[
+                            'w-12',
+                            'h-12',
+                            'br-12',
+                            isOnline ? 'bg-primary' : 'bg-inverse'
+                        ]"
+                    />
                     <text class="ml-10">
                         {{ onlineStr }}
                     </text>
                 </view>
-                <view
-                    v-else-if="isWorkingGroup"
-                    class="fz-24 text-grey"
-                >
+                <view v-else-if="isWorkingGroup" class="fz-24 text-grey">
                     {{ groupMemberCount }}
                 </view>
             </view>
         </template>
-        <view
-            slot="more" 
-            class="right_action"
-        >
-            <view
-                v-if="isMultipleMsg"
-                class="primary"
-                @click="handleMultiple"
-            >
+        <view slot="more" class="right_action">
+            <view v-if="isMultipleMsg" class="primary" @click="handleMultiple">
                 取消
             </view>
             <MyAvatar
@@ -83,10 +71,10 @@
 
 <script>
 import CustomNavBar from '@/components/CustomNavBar';
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex';
 import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
-import { getDesignatedUserOnlineState } from "@/util/imCommon";
+import { getDesignatedUserOnlineState } from '@/util/imCommon';
 import { MessageMenuTypes } from '@/constant';
 
 export default {
@@ -98,44 +86,53 @@ export default {
     props: {
         isMultipleMsg: {
             type: Boolean,
-            default: false,
+            default: false
         },
         checkedMsgIds: {
             type: Array,
             default: () => []
         }
     },
-    data () {
+    data() {
         return {
             isOnline: false,
-            onlineStr: "离线",
+            onlineStr: '离线',
             typingText: ''
         };
     },
     computed: {
         ...mapGetters([
-            'storeCurrentConversation', 
-            'storeCurrentConversationID', 
-            'storeCurrentGroup', 
+            'storeCurrentConversation',
+            'storeCurrentConversationID',
+            'storeCurrentGroup',
             'storeCurrentMemberInGroup'
         ]),
-        userID () {
+        userID() {
             return this.storeCurrentConversation.userID;
         },
-        isSingle () {
-            return this.storeCurrentConversation.conversationType === SessionType.Single;
+        isSingle() {
+            return (
+                this.storeCurrentConversation.conversationType ===
+                SessionType.Single
+            );
         },
-        isWorkingGroup () {
-            return this.storeCurrentConversation.conversationType === SessionType.WorkingGroup;
+        isWorkingGroup() {
+            return (
+                this.storeCurrentConversation.conversationType ===
+                SessionType.WorkingGroup
+            );
         },
-        isNotify () {
-            return this.storeCurrentConversation.conversationType === SessionType.Notification;
+        isNotify() {
+            return (
+                this.storeCurrentConversation.conversationType ===
+                SessionType.Notification
+            );
         },
-        groupMemberCount () {
+        groupMemberCount() {
             return `${this.storeCurrentGroup?.memberCount ?? 0}位成员`;
-        },
+        }
     },
-    created () {
+    created() {
         uni.$on('setStatus', this.setStatus);
         this.setIMListener();
         this.getOnlineState();
@@ -143,49 +140,51 @@ export default {
             this.getOnlineState();
         }, 3000);
     },
-    beforeDestroy () {
+    beforeDestroy() {
         clearInterval(this.timer);
         clearInterval(this.timer2);
         uni.$off('setStatus', this.setStatus);
     },
     methods: {
-        setStatus (str) {
+        setStatus(str) {
             this.typingText = str;
             clearTimeout(this.timer2);
             this.timer2 = setTimeout(() => {
                 this.typingText = '';
             }, 2000);
         },
-        async getOnlineState () {
+        async getOnlineState() {
             try {
-                const { onlineStr, status } = await getDesignatedUserOnlineState(this.userID);
-                this.isOnline = status === "online";
+                const { onlineStr, status } =
+                    await getDesignatedUserOnlineState(this.userID);
+                this.isOnline = status === 'online';
                 this.onlineStr = onlineStr;
             } catch (err) {
                 this.isOnline = false;
             }
         },
-        setIMListener () {
+        setIMListener() {
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnUserStatusChanged,
                 this.userStatusChangedHandler
             );
         },
-        userStatusChangedHandler () {
+        userStatusChangedHandler() {},
+        showInfo() {
+            uni.$u.route(
+                `/pages/common/userCard/index?sourceID=${this.userID}&from=chating`
+            );
         },
-        showInfo () {
-            uni.$u.route(`/pages/common/userCard/index?sourceID=${this.userID}&from=chating`);
-        },
-        goSetting () {
+        goSetting() {
             uni.$u.route('/pages/conversation/groupSettings/index');
         },
-        handleMultipleDelAll () {
+        handleMultipleDelAll() {
             uni.$emit('multiple_message', {
                 show: true,
                 type: MessageMenuTypes.DelAll
             });
         },
-        handleMultiple () {
+        handleMultiple() {
             uni.$emit('multiple_message', {
                 show: false
             });
@@ -195,39 +194,39 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .header-avatar {
-        /deep/ uni-text {
-            font-size: 24rpx!important;
+.header-avatar {
+    /deep/ uni-text {
+        font-size: 24rpx !important;
+    }
+}
+.typing-text {
+    margin-left: 20rpx;
+}
+.chating_header {
+    padding: 0 30rpx;
+    .conversation_info {
+        text-align: center;
+
+        .title {
+            @include nomalEllipsis();
+            max-width: 380rpx;
+            font-size: 34rpx;
+            font-weight: 500;
+            font-family: MiSans-Medium;
         }
     }
-    .typing-text {
-        margin-left: 20rpx;
+
+    .right_action {
+        margin-right: 30rpx;
+        @include vCenterBox();
+
+        // .action_item {
+        // 	padding: 12rpx;
+        // }
+
+        // .u-icon {
+        // 	margin-left: 12rpx;
+        // }
     }
-	.chating_header {
-        padding: 0 30rpx;
-		.conversation_info {
-			text-align: center;
-
-			.title {
-				@include nomalEllipsis();
-				max-width: 380rpx;
-				font-size: 34rpx;
-				font-weight: 500;
-				font-family: MiSans-Medium;
-			}
-		}
-
-		.right_action {
-            margin-right: 30rpx;
-			@include vCenterBox();
-
-			// .action_item {
-			// 	padding: 12rpx;
-			// }
-
-			// .u-icon {
-			// 	margin-left: 12rpx;
-			// }
-		}
-	}
+}
 </style>

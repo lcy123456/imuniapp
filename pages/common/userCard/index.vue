@@ -1,13 +1,7 @@
 <template>
     <Page>
-        <view
-            class="user_card_container"
-            @click="closeAll"
-        >
-            <CustomNavBar
-                title=""
-                is-bg-color2
-            />
+        <view class="user_card_container" @click="closeAll">
+            <CustomNavBar title="" is-bg-color2 />
 
             <view class="base_info">
                 <MyAvatar
@@ -36,11 +30,12 @@
                         class="flex feat-item w-210 h-130 bg-color br-30 flex-column justify-evenly align-center"
                         @click.stop="infoMenusClick(item)"
                     >
-                        <view
-                            class="w-50 h-54"
-                        >
+                        <view class="w-50 h-54">
                             <image
-                                :class="['w-' + (item.w || 50), 'h-' + (item.h || 54)]"
+                                :class="[
+                                    'w-' + (item.w || 50),
+                                    'h-' + (item.h || 54)
+                                ]"
                                 :src="item.icon"
                             />
                         </view>
@@ -50,11 +45,13 @@
                         <view v-if="item.idx === 2">
                             <more-feat
                                 ref="moreFeat"
-                                :options="[{
-                                    icon: '/static/images/user_card_group.png',
-                                    text: '建立群组',
-                                    id: 1
-                                }]"
+                                :options="[
+                                    {
+                                        icon: '/static/images/user_card_group.png',
+                                        text: '建立群组',
+                                        id: 1
+                                    }
+                                ]"
                                 :source-i-d="sourceID"
                                 @callBack="callBack"
                             />
@@ -75,9 +72,9 @@
                     :switch-value="isBlacked"
                     @switch="blackChange"
                 />
-                <view 
+                <view
                     class="flex justify-center h-130 bg-color br-30 align-center error"
-                    @click="()=>showConfirm=true"
+                    @click="() => (showConfirm = true)"
                 >
                     解除好友关系
                 </view>
@@ -95,32 +92,22 @@
                     class="action_item"
                     @click="toDesignatedConversation"
                 >
-                    <img
-                        src="static/images/user_card_message.png"
-                        alt=""
-                    >
+                    <img src="static/images/user_card_message.png" alt="" />
                     <text>发消息</text>
                 </view>
-                <view
-                    v-if="!isFriend"
-                    class="action_item"
-                    @click="toAddFriend"
-                >
-                    <img
-                        src="static/images/user_card_add.png"
-                        alt=""
-                    >
+                <view v-if="!isFriend" class="action_item" @click="toAddFriend">
+                    <img src="static/images/user_card_add.png" alt="" />
                     <text>添加好友</text>
                 </view>
             </view>
-        
+
             <u-modal
                 :content="`确定要解除与${sourceUserInfo.nickname}的好友关系吗？`"
                 async-close
                 :show="showConfirm"
                 show-cancel-button
                 @confirm="confirmRemove"
-                @cancel="() => showConfirm = false"
+                @cancel="() => (showConfirm = false)"
             />
         </view>
     </Page>
@@ -132,7 +119,7 @@ import { CommonIsAllow, CustomMarkType, RecordFormMap } from '@/constant';
 import {
     getSourceUserInfo,
     getDesignatedUserOnlineState,
-    navigateToDesignatedConversation,
+    navigateToDesignatedConversation
 } from '@/util/imCommon';
 import IMSDK, { SessionType, IMMethods } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
@@ -148,7 +135,7 @@ export default {
         SettingItem,
         MoreFeat
     },
-    data () {
+    data() {
         return {
             moreIndex: 0,
             sourceID: '',
@@ -160,12 +147,12 @@ export default {
                 {
                     idx: 0,
                     title: '备注',
-                    icon: require('static/images/profile_menu_info.png'),
+                    icon: require('static/images/profile_menu_info.png')
                 },
                 {
                     idx: 1,
                     title: '更多资料',
-                    icon: require('static/images/profile_menu_account.png'),
+                    icon: require('static/images/profile_menu_account.png')
                 },
                 {
                     idx: 2,
@@ -173,7 +160,7 @@ export default {
                     icon: require('static/images/common_more_active.png'),
                     w: 42,
                     h: 10
-                },
+                }
             ],
             timeMenus: [
                 {
@@ -198,44 +185,44 @@ export default {
                     style: {
                         color: '#EC4B37'
                     }
-                },
+                }
             ],
             blackLoading: false,
-            showConfirm: false,
+            showConfirm: false
         };
     },
     computed: {
-        ...mapGetters([
-            'storeFriendList',
-            'storeBlackList',
-            'storeAppConfig',
-        ]),
-        isFriend () {
+        ...mapGetters(['storeFriendList', 'storeBlackList', 'storeAppConfig']),
+        isFriend() {
             return (
                 this.storeFriendList.findIndex(
-                    (friend) => friend.userID === this.sourceID
+                    friend => friend.userID === this.sourceID
                 ) !== -1
             );
         },
-        getShowName () {
+        getShowName() {
             let suffix = '';
             if (this.sourceUserInfo.remark) {
                 suffix = `(${this.sourceUserInfo.remark})`;
             }
-            return this.sourceUserInfo.nickname ? this.sourceUserInfo.nickname + suffix : '';
+            return this.sourceUserInfo.nickname
+                ? this.sourceUserInfo.nickname + suffix
+                : '';
         },
-        isBlacked () {
-            return this.storeBlackList.some(black => black.userID === this.sourceID);
+        isBlacked() {
+            return this.storeBlackList.some(
+                black => black.userID === this.sourceID
+            );
         },
-        showSendMessage () {
+        showSendMessage() {
             // const businessAllow =
             //     this.storeAppConfig.allowSendMsgNotFriend ===
             //     CommonIsAllow.Allow;
             // return businessAllow ? businessAllow : this.isFriend;
             return true;
-        },
+        }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { sourceID, sourceInfo, from } = options;
         if (sourceID) {
             try {
@@ -255,40 +242,40 @@ export default {
         this.getOnlineState();
         this.setIMListener();
     },
-    onUnload () {
+    onUnload() {
         this.disposeIMListener();
     },
     methods: {
-        closeAll () {
+        closeAll() {
             this.$refs.moreFeat[0].setMoreIndex(0);
         },
-        callBack (item) {
+        callBack(item) {
             if (item.id === 1) {
                 this.createGroup();
             }
         },
-        async handleGetUserInfo () {
+        async handleGetUserInfo() {
             const res = await getSourceUserInfo(this.sourceID);
             this.sourceUserInfo = res;
         },
-        async getOnlineState () {
+        async getOnlineState() {
             getDesignatedUserOnlineState(this.sourceID)
-                .then((res) => {
+                .then(res => {
                     const { onlineStr, status } = res;
-                    this.isOnline = status === "online";
+                    this.isOnline = status === 'online';
                     this.onlineStr = onlineStr;
                 })
                 .catch(() => (this.isOnline = false));
         },
-        toAddFriend () {
+        toAddFriend() {
             uni.$u.route('/pages/common/sendAddRequest/index', {
                 isGroup: false,
                 sourceID: this.sourceID,
                 isScan: false,
-                notNeedVerification: false,
+                notNeedVerification: false
             });
         },
-        toDesignatedConversation () {
+        toDesignatedConversation() {
             if (this.from === 'chating') {
                 uni.navigateBack();
             } else {
@@ -298,65 +285,68 @@ export default {
                 ).catch(() => uni.$u.toast('获取会话信息失败'));
             }
         },
-        copyID () {
+        copyID() {
             uni.setClipboardData({
                 data: this.sourceID,
                 success: () => {
                     uni.$u.toast('复制成功');
-                },
+                }
             });
         },
-        infoMenusClick ({ idx }) {
+        infoMenusClick({ idx }) {
             const sourceInfo = JSON.stringify(this.sourceUserInfo);
             let url = '';
             switch (idx) {
-            case 0:
-                url = `/pages/common/markOrIDPage/index?type=${CustomMarkType.Remark}&sourceInfo=${sourceInfo}`;
-                uni.navigateTo({ url });
-                break;
-            case 1:
-                url = `/pages/common/detailsFileds/index?sourceInfo=${sourceInfo}`;
-                uni.navigateTo({ url });
-                break;
-            case 2:
-                this.moreIndex = this.$refs.moreFeat[0].moreIndex === 1 ? 0 : 1;
-                this.$refs.moreFeat[0].setMoreIndex(this.moreIndex);
-                break;
+                case 0:
+                    url = `/pages/common/markOrIDPage/index?type=${CustomMarkType.Remark}&sourceInfo=${sourceInfo}`;
+                    uni.navigateTo({ url });
+                    break;
+                case 1:
+                    url = `/pages/common/detailsFileds/index?sourceInfo=${sourceInfo}`;
+                    uni.navigateTo({ url });
+                    break;
+                case 2:
+                    this.moreIndex =
+                        this.$refs.moreFeat[0].moreIndex === 1 ? 0 : 1;
+                    this.$refs.moreFeat[0].setMoreIndex(this.moreIndex);
+                    break;
             }
         },
-        createGroup () {
+        createGroup() {
             const checkedMemberList = JSON.stringify([
                 {
                     userID: this.sourceID,
                     faceURL: this.sourceUserInfo.faceURL,
-                    nickname: this.sourceUserInfo.nickname,
-                },
+                    nickname: this.sourceUserInfo.nickname
+                }
             ]);
             const url = `/pages/common/createGroup/index?checkedMemberList=${checkedMemberList}`;
             uni.navigateTo({ url });
         },
-        async handleRecord () {
+        async handleRecord() {
             try {
                 const { data } = await IMSDK.asyncApi(
                     IMSDK.IMMethods.GetOneConversation,
                     IMSDK.uuid(),
                     {
                         sessionType: SessionType.Single,
-                        sourceID: this.sourceID,
+                        sourceID: this.sourceID
                     }
                 );
                 uni.$u.route('/pages/common/searchRecord/recordDetail/index', {
                     conversation: encodeURIComponent(JSON.stringify(data)),
-                    from: RecordFormMap.Contact,
+                    from: RecordFormMap.Contact
                 });
             } catch {
                 uni.$u.toast('获取会话信息失败');
             }
         },
-        async blackChange (isBlack) {
+        async blackChange(isBlack) {
             this.blackLoading = true;
             try {
-                const funcName = isBlack ? IMSDK.IMMethods.AddBlack : IMSDK.IMMethods.RemoveBlack;
+                const funcName = isBlack
+                    ? IMSDK.IMMethods.AddBlack
+                    : IMSDK.IMMethods.RemoveBlack;
                 await IMSDK.asyncApi(funcName, IMSDK.uuid(), this.sourceID);
                 this.$toast('操作成功');
                 this.$store.dispatch('contact/getBlacklist');
@@ -366,9 +356,13 @@ export default {
             }
             this.blackLoading = false;
         },
-        async confirmRemove () {
+        async confirmRemove() {
             try {
-                await IMSDK.asyncApi(IMSDK.IMMethods.DeleteFriend, IMSDK.uuid(), this.sourceID);
+                await IMSDK.asyncApi(
+                    IMSDK.IMMethods.DeleteFriend,
+                    IMSDK.uuid(),
+                    this.sourceID
+                );
                 this.$store.dispatch('contact/getFriendList');
                 this.$toast('操作成功');
             } catch (err) {
@@ -377,27 +371,27 @@ export default {
             }
             this.showConfirm = false;
         },
-        friendInfoChangeHandler ({ data }) {
+        friendInfoChangeHandler({ data }) {
             if (data.userID === this.sourceID) {
                 this.sourceUserInfo = {
                     ...this.sourceUserInfo,
-                    ...data,
+                    ...data
                 };
             }
         },
-        setIMListener () {
+        setIMListener() {
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnFriendInfoChanged,
                 this.friendInfoChangeHandler
             );
         },
-        disposeIMListener () {
+        disposeIMListener() {
             IMSDK.unsubscribe(
                 IMSDK.IMEvents.OnFriendInfoChanged,
                 this.friendInfoChangeHandler
             );
-        },
-    },
+        }
+    }
 };
 </script>
 

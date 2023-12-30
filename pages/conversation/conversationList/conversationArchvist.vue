@@ -1,17 +1,8 @@
 <template>
     <Page>
-        <view
-            class="conversation_container"
-            @click="closeAllSwipe"
-        >
-            <CustomNavBar
-                title="已归档对话"
-                is-bg-color2
-            />
-            <view
-                class="px-20 pt-10 pb-20 bg-grey"
-                @click="handleToSearch"
-            >
+        <view class="conversation_container" @click="closeAllSwipe">
+            <CustomNavBar title="已归档对话" is-bg-color2 />
+            <view class="px-20 pt-10 pb-20 bg-grey" @click="handleToSearch">
                 <uni-search-bar
                     v-model="keyword"
                     bg-color="#fff"
@@ -26,13 +17,10 @@
                 scroll-y
                 :upper-threshold="0"
             >
-                <uni-swipe-action
-                    ref="swipeWrapperRef"
-                    class="swipe_wrapper"
-                >
+                <uni-swipe-action ref="swipeWrapperRef" class="swipe_wrapper">
                     <ConversationItem
                         v-for="item in showConversationList"
-                        :key="`${(item.conversationID)}-ConversationItem-archvist`"
+                        :key="`${item.conversationID}-ConversationItem-archvist`"
                         :source="item"
                         :is-disabled="isDisabledSwipe"
                         @closeAllSwipe="closeAllSwipe"
@@ -53,7 +41,7 @@ export default {
         CustomNavBar,
         ConversationItem
     },
-    data () {
+    data() {
         return {
             keyword: '',
             refreshing: false,
@@ -69,7 +57,7 @@ export default {
             'storeUserID',
             'storeCurrentConversationID'
         ]),
-        showConversationList () {
+        showConversationList() {
             const isArchvistList = [];
             this.storeConversationList.forEach(item => {
                 try {
@@ -82,16 +70,18 @@ export default {
                 }
             });
             return isArchvistList;
-        },
-    },
-    methods: {
-        handleToSearch () {
-            uni.$u.route('/pages/common/searchRecord/index?searchType=archvist');
-        },
-        closeAllSwipe () {
-            this.$refs.swipeWrapperRef.closeAll();
         }
     },
+    methods: {
+        handleToSearch() {
+            uni.$u.route(
+                '/pages/common/searchRecord/index?searchType=archvist'
+            );
+        },
+        closeAllSwipe() {
+            this.$refs.swipeWrapperRef.closeAll();
+        }
+    }
 };
 </script>
 

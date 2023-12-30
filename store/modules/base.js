@@ -1,6 +1,10 @@
 import { pinList } from '@/api/pinToTop';
 import { getUnreadMsgCount } from '@/api/message';
-import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting } from '@/util/permission.js';
+import {
+    requestAndroidPermission,
+    judgeIosPermission,
+    gotoAppPermissionSetting
+} from '@/util/permission.js';
 const state = {
     pinList: [],
     connectingStatus: '',
@@ -20,56 +24,53 @@ const state = {
 };
 
 const mutations = {
-    SET_THIRD_DATA (state, data) {
+    SET_THIRD_DATA(state, data) {
         state.thirdData = data;
     },
-    SET_PIN_LIST (state, list) {
+    SET_PIN_LIST(state, list) {
         state.pinList = list;
     },
-    SET_CONNECTING_STATUS (state, value) {
+    SET_CONNECTING_STATUS(state, value) {
         state.connectingStatus = value;
     },
-    SET_KEYBOARD_HEIGHT (state, value) {
+    SET_KEYBOARD_HEIGHT(state, value) {
         state.keyBoardHeight = value;
     },
-    SET_IS_SHOW_KEYBOARD (state, boo) {
+    SET_IS_SHOW_KEYBOARD(state, boo) {
         state.isShowkeyBoard = boo;
     },
-    SET_TIP_STATUS (state, boo) {
+    SET_TIP_STATUS(state, boo) {
         state.isShowTip = boo;
     },
-    SET_UNREAD_MAP (state, map) {
+    SET_UNREAD_MAP(state, map) {
         state.unreadMap = map;
         if (map.count) {
             uni.setTabBarBadge({
                 index: 2,
-                text: map.count < 99 ? map.count + "" : "99+",
+                text: map.count < 99 ? map.count + '' : '99+'
             });
         } else {
             uni.removeTabBarBadge({
-                index: 2,
+                index: 2
             });
         }
     }
 };
 
 const actions = {
-    async getUnreadMsgCount ({
-        rootState,
-        commit
-    }) {
+    async getUnreadMsgCount({ rootState, commit }) {
         try {
             const data = await getUnreadMsgCount({
-                userID: rootState.user.userList.map(item => item.userID).filter(userID => userID !== rootState.user.authData.userID)
+                userID: rootState.user.userList
+                    .map(item => item.userID)
+                    .filter(userID => userID !== rootState.user.authData.userID)
             });
             commit('SET_UNREAD_MAP', data || {});
         } catch (e) {
             console.log(e, '获取未读数据失败');
         }
     },
-    async pinList ({
-        commit
-    }, conversationID) {
+    async pinList({ commit }, conversationID) {
         try {
             const data = await pinList({
                 conversationID,
@@ -83,7 +84,7 @@ const actions = {
             console.log(e, '获取置顶列表失败');
         }
     },
-    async hasCameraPermissions () {
+    async hasCameraPermissions() {
         const isIOS = uni.$u.os() === 'ios';
         let hasCamera = false;
 
@@ -91,13 +92,15 @@ const actions = {
             const cameraResult = judgeIosPermission('camera');
             hasCamera = cameraResult;
         } else {
-            const cameraResult = await requestAndroidPermission('android.permission.CAMERA');
+            const cameraResult = await requestAndroidPermission(
+                'android.permission.CAMERA'
+            );
             hasCamera = cameraResult === 1;
         }
 
         if (!hasCamera) {
             uni.showModal({
-                title: "使用摄像头",
+                title: '使用摄像头',
                 content: '想访问您的摄像头',
                 success: res => {
                     if (res.confirm) gotoAppPermissionSetting();
@@ -108,10 +111,9 @@ const actions = {
     }
 };
 
-
 export default {
     namespaced: true,
     state,
     mutations,
-    actions,
+    actions
 };

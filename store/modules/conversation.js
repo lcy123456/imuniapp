@@ -14,13 +14,13 @@ const state = {
 };
 
 const mutations = {
-    SET_CONVERSATION_UNREAD (state, number) {
+    SET_CONVERSATION_UNREAD(state, number) {
         state.conversationUnread = number;
     },
-    SET_IS_SCROLL_WAY (state, boo) {
+    SET_IS_SCROLL_WAY(state, boo) {
         state.isScrollWay = boo;
     },
-    SET_CONVERSATION_LIST (state, list) {
+    SET_CONVERSATION_LIST(state, list) {
         list = list.map(item => {
             return {
                 ...item,
@@ -29,60 +29,60 @@ const mutations = {
         });
         state.conversationList = [...list];
     },
-    SET_LAST_CONVERSATION (state, obj) {
+    SET_LAST_CONVERSATION(state, obj) {
         state.lastConversation = obj;
     },
-    SET_CONVERSATION (state, list) {
+    SET_CONVERSATION(state, list) {
         state.conversationList = [...list];
     },
-    SET_CONVERSATION_MEDIA_LIST (state, list) {
+    SET_CONVERSATION_MEDIA_LIST(state, list) {
         state.conversationMediaList = [...list];
     },
-    SET_CURRENT_CONVERSATION (state, conversation) {
+    SET_CURRENT_CONVERSATION(state, conversation) {
         state.currentConversation = {
-            ...conversation,
+            ...conversation
         };
     },
-    SET_UNREAD_COUNT (state, count) {
+    SET_UNREAD_COUNT(state, count) {
         if (count) {
             uni.setTabBarBadge({
                 index: 0,
-                text: count < 99 ? count + '' : '99+',
+                text: count < 99 ? count + '' : '99+'
             });
         } else {
             uni.removeTabBarBadge({
-                index: 0,
+                index: 0
             });
         }
         plus.runtime.setBadgeNumber(count || 0);
         state.unReadCount = count;
     },
-    SET_CURRENT_GROUP (state, group) {
+    SET_CURRENT_GROUP(state, group) {
         state.currentGroup = {
-            ...group,
+            ...group
         };
     },
-    SET_CURRENT_MEMBER_IN_GROUP (state, member) {
+    SET_CURRENT_MEMBER_IN_GROUP(state, member) {
         state.currentMemberInGroup = {
-            ...member,
+            ...member
         };
-    },
+    }
 };
 
 const actions = {
-    async getConversationList ({ state, commit }, isFirstPage = true) {
+    async getConversationList({ state, commit }, isFirstPage = true) {
         try {
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetConversationListSplit,
                 uuidv4(),
                 {
                     offset: isFirstPage ? 0 : state.conversationList.length,
-                    count: 999,
+                    count: 999
                 }
             );
             commit('SET_CONVERSATION_LIST', [
                 ...(isFirstPage ? [] : state.conversationList),
-                ...data,
+                ...data
             ]);
             return [...data];
         } catch (e) {
@@ -90,39 +90,39 @@ const actions = {
             return [];
         }
     },
-    delConversationByCID ({ state, commit }, conversationID) {
+    delConversationByCID({ state, commit }, conversationID) {
         const tmpList = [...state.conversationList];
         const idx = tmpList.findIndex(
-            (conversation) => conversation.conversationID === conversationID
+            conversation => conversation.conversationID === conversationID
         );
         if (idx > -1) {
             tmpList.splice(idx, 1);
             commit('SET_CONVERSATION_LIST', tmpList);
         }
     },
-    getCurrentGroup ({ commit }, groupID) {
+    getCurrentGroup({ commit }, groupID) {
         IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupsInfo, uuidv4(), [
-            groupID,
+            groupID
         ]).then(({ data }) => {
             commit('SET_CURRENT_GROUP', data[0] ?? {});
         });
     },
-    getCurrentMemberInGroup ({ commit, rootState }, groupID) {
+    getCurrentMemberInGroup({ commit, rootState }, groupID) {
         IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo, uuidv4(), {
             groupID,
-            userIDList: [rootState.user.selfInfo.userID],
+            userIDList: [rootState.user.selfInfo.userID]
         }).then(({ data }) => {
             commit('SET_CURRENT_MEMBER_IN_GROUP', data[0] ?? {});
         });
     },
-    getUnReadCount ({ commit }) {
+    getUnReadCount({ commit }) {
         IMSDK.asyncApi(IMSDK.IMMethods.GetTotalUnreadMsgCount, uuidv4()).then(
-            (res) => {
+            res => {
                 commit('SET_UNREAD_COUNT', res.data);
             }
         );
     },
-    updateCurrentMemberInGroup ({ commit, state }, memberInfo) {
+    updateCurrentMemberInGroup({ commit, state }, memberInfo) {
         if (
             memberInfo.groupID === state.currentMemberInGroup.groupID &&
             memberInfo.userID === state.currentMemberInGroup.userID
@@ -130,16 +130,16 @@ const actions = {
             commit('SET_CURRENT_MEMBER_IN_GROUP', memberInfo);
         }
     },
-    resetConversationState ({ commit }) {
+    resetConversationState({ commit }) {
         commit('SET_CURRENT_MEMBER_IN_GROUP', {});
         commit('SET_CURRENT_GROUP', {});
         commit('SET_CURRENT_CONVERSATION', {});
-    },
+    }
 };
 
 export default {
     namespaced: true,
     state,
     mutations,
-    actions,
+    actions
 };

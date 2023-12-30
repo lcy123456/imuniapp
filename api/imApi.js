@@ -2,19 +2,19 @@ import store from '@/store';
 import { v4 as uuidv4 } from 'uuid';
 
 // 在线状态
-export const getOnlineStateFromSvr = (userID) =>
+export const getOnlineStateFromSvr = userID =>
     uni.$u?.http.post(
         '/user/get_users_online_status',
         JSON.stringify({
-            userIDs: [userID],
+            userIDs: [userID]
         }),
         {
             custom: {
-                isIMApi: true,
+                isIMApi: true
             },
             header: {
-                token: store.getters.storeIMToken,
-            },
+                token: store.getters.storeIMToken
+            }
         }
     );
 
@@ -23,15 +23,15 @@ export const getRtcInvitaion = () =>
     uni.$u?.http.post(
         '/third/get_rtc_invitation_start_app',
         JSON.stringify({
-            operationID: uuidv4(),
+            operationID: uuidv4()
         }),
         {
             custom: {
-                isIMApi: true,
+                isIMApi: true
             },
             header: {
-                token: store.getters.storeIMToken,
-            },
+                token: store.getters.storeIMToken
+            }
         }
     );
 
@@ -39,15 +39,15 @@ export const getAllTags = () =>
     uni.$u?.http.post(
         '/office/get_user_tags',
         JSON.stringify({
-            operationID: uuidv4(),
+            operationID: uuidv4()
         }),
         {
             custom: {
-                isIMApi: true,
+                isIMApi: true
             },
             header: {
-                token: store.getters.storeIMToken,
-            },
+                token: store.getters.storeIMToken
+            }
         }
     );
 
@@ -57,68 +57,68 @@ export const createTag = (tagName, userIDList) =>
         JSON.stringify({
             tagName,
             userIDList,
-            operationID: uuidv4(),
+            operationID: uuidv4()
         }),
         {
             custom: {
-                isIMApi: true,
+                isIMApi: true
             },
             header: {
-                token: store.getters.storeIMToken,
-            },
+                token: store.getters.storeIMToken
+            }
         }
     );
 
-export const deleteTag = (tagID) =>
+export const deleteTag = tagID =>
     uni.$u?.http.post(
         '/office/delete_tag',
         JSON.stringify({
             tagID,
-            operationID: uuidv4(),
+            operationID: uuidv4()
         }),
         {
             custom: {
-                isIMApi: true,
+                isIMApi: true
             },
             header: {
-                token: store.getters.storeIMToken,
-            },
+                token: store.getters.storeIMToken
+            }
         }
     );
 
 // tagID, increaseUserIDList, reduceUserIDList, newName;
-export const updateTag = (options) =>
+export const updateTag = options =>
     uni.$u?.http.post(
         '/office/set_tag',
         JSON.stringify({
             ...options,
-            operationID: uuidv4(),
+            operationID: uuidv4()
         }),
         {
             custom: {
-                isIMApi: true,
+                isIMApi: true
             },
             header: {
-                token: store.getters.storeIMToken,
-            },
+                token: store.getters.storeIMToken
+            }
         }
     );
 
 //   tagList, userList, groupList, senderPlatformID, content;
-export const massMessage = (options) =>
+export const massMessage = options =>
     uni.$u?.http.post(
         '/office/send_msg_to_tag',
         JSON.stringify({
             ...options,
-            operationID: uuidv4(),
+            operationID: uuidv4()
         }),
         {
             custom: {
-                isIMApi: true,
+                isIMApi: true
             },
             header: {
-                token: store.getters.storeIMToken,
-            },
+                token: store.getters.storeIMToken
+            }
         }
     );
 
@@ -128,14 +128,14 @@ export const massList = (pageNumber, showNumber = 20) =>
         JSON.stringify({
             pageNumber,
             showNumber,
-            operationID: uuidv4(),
+            operationID: uuidv4()
         }),
         {
             custom: {
-                isIMApi: true,
+                isIMApi: true
             },
             header: {
-                token: store.getters.storeIMToken,
-            },
+                token: store.getters.storeIMToken
+            }
         }
     );

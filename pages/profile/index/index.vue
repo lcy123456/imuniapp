@@ -34,15 +34,11 @@
                     @click="profileMenuClick(item)"
                 >
                     <view class="menu_left">
-                        <image
-                            class="w-38 h-38"
-                            :src="item.icon"
-                            mode=""
-                        />
+                        <image class="w-38 h-38" :src="item.icon" mode="" />
                         <text>{{ item.title }}</text>
                     </view>
                     <view class="flex align-center">
-                        <view  
+                        <view
                             v-if="item.idx === 2 && unreadMap.count"
                             class="base-count"
                         >
@@ -77,53 +73,53 @@ import MyAvatar from '@/components/MyAvatar/index.vue';
 
 export default {
     components: {
-        MyAvatar,
+        MyAvatar
     },
-    data () {
+    data() {
         return {
             showComfirm: false,
             profileMenus: [
                 {
                     idx: 0,
                     title: '我的信息',
-                    icon: require('static/images/profile_menu_info.png'),
+                    icon: require('static/images/profile_menu_info.png')
                 },
                 {
                     idx: 2,
                     title: '账号设置',
-                    icon: require('static/images/profile_menu_account.png'),
+                    icon: require('static/images/profile_menu_account.png')
                 },
                 {
                     idx: 3,
                     title: '我的收藏',
-                    icon: require('static/images/profile_menu_favorite.png'),
+                    icon: require('static/images/profile_menu_favorite.png')
                 },
                 {
                     idx: 4,
                     title: '关于我们',
-                    icon: require('static/images/profile_menu_about.png'),
+                    icon: require('static/images/profile_menu_about.png')
                 },
                 {
                     idx: 5,
                     title: '退出登录',
-                    icon: require('static/images/profile_menu_logout.png'),
-                },
-            ],
+                    icon: require('static/images/profile_menu_logout.png')
+                }
+            ]
         };
     },
     computed: {
         ...mapGetters({
             selfInfo: 'storeSelfInfo',
             unreadMap: 'storeUnreadMap'
-        }),
+        })
     },
     methods: {
-        toSelfQr () {
+        toSelfQr() {
             uni.navigateTo({
-                url: `/pages/common/userOrGroupQrCode/index`,
+                url: `/pages/common/userOrGroupQrCode/index`
             });
         },
-        copyID () {
+        copyID() {
             uni.setClipboardData({
                 data: this.selfInfo.userID,
                 success: () => {
@@ -134,41 +130,41 @@ export default {
                 }
             });
         },
-        profileMenuClick ({ idx }) {
+        profileMenuClick({ idx }) {
             switch (idx) {
-            case 0:
-                uni.navigateTo({
-                    url: '/pages/profile/selfInfo/index',
-                });
-                break;
-            case 1:
-                uni.navigateTo({
-                    url: '/pages/profile/messageNotification/index',
-                });
-                break;
-            case 2:
-                uni.navigateTo({
-                    url: '/pages/profile/accountSetting/index',
-                });
-                break;
-            case 3:
-                uni.navigateTo({
-                    url: '/pages/profile/favorite/index',
-                });
-                break;
-            case 4:
-                uni.navigateTo({
-                    url: '/pages/profile/about/index',
-                });
-                break;
-            case 5:
-                this.showComfirm = true;
-                break;
-            default:
-                break;
+                case 0:
+                    uni.navigateTo({
+                        url: '/pages/profile/selfInfo/index'
+                    });
+                    break;
+                case 1:
+                    uni.navigateTo({
+                        url: '/pages/profile/messageNotification/index'
+                    });
+                    break;
+                case 2:
+                    uni.navigateTo({
+                        url: '/pages/profile/accountSetting/index'
+                    });
+                    break;
+                case 3:
+                    uni.navigateTo({
+                        url: '/pages/profile/favorite/index'
+                    });
+                    break;
+                case 4:
+                    uni.navigateTo({
+                        url: '/pages/profile/about/index'
+                    });
+                    break;
+                case 5:
+                    this.showComfirm = true;
+                    break;
+                default:
+                    break;
             }
         },
-        async logoutConfirm () {
+        async logoutConfirm() {
             await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
             this.$store.commit('user/SET_AUTH_DATA', {});
             this.showComfirm = false;
@@ -176,10 +172,10 @@ export default {
                 url: '/pages/login/index'
             });
         },
-        closeModal () {
+        closeModal() {
             this.showComfirm = false;
-        },
-    },
+        }
+    }
 };
 </script>
 

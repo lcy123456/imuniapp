@@ -5,7 +5,7 @@ import IMSDK, {
     MessageType,
     SessionType,
     MessageReceiveOptType,
-    GroupAtType,
+    GroupAtType
 } from 'openim-uniapp-polyfill';
 import { idsGetConversationID } from '@/util/imCommon';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
@@ -15,7 +15,7 @@ import { IMLogin, conversationSort } from '@/util/imCommon';
 import {
     PageEvents,
     UpdateMessageTypes,
-    AudioVideoRenderTypes,
+    AudioVideoRenderTypes
 } from '@/constant';
 import { videoGetToken } from '@/api/incoming';
 import { thirdConfig } from '@/api/';
@@ -54,7 +54,7 @@ export default {
             IMSDK.asyncApi(
                 IMSDK.IMMethods.SetAppBackgroundStatus,
                 IMSDK.uuid(),
-                false,
+                false
             );
         } catch (err) {
             //
@@ -66,7 +66,7 @@ export default {
         IMSDK.asyncApi(
             IMSDK.IMMethods.SetAppBackgroundStatus,
             IMSDK.uuid(),
-            true,
+            true
         );
         // uni.unPreloadPage({url: "/pages/conversation/webrtc/index"});
     },
@@ -77,7 +77,7 @@ export default {
             isInitSDK: false,
             isHide: false,
             payload: false,
-            innerAudioContext: null,
+            innerAudioContext: null
         };
     },
     computed: {
@@ -100,15 +100,15 @@ export default {
             'storeIsIncomingCallLoading',
             'storeIncomingCallMessage',
             'storeIsLoginStatus',
-            'storeCurrentConversationID',
+            'storeCurrentConversationID'
         ]),
         contactBadgeRely() {
             return {
                 recvFriendApplications: this.storeRecvFriendApplications,
                 recvGroupApplications: this.storeRecvGroupApplications,
-                userKey: this.storeCurrentUserID,
+                userKey: this.storeCurrentUserID
             };
-        },
+        }
     },
     watch: {
         contactBadgeRely: {
@@ -116,46 +116,46 @@ export default {
                 const {
                     recvFriendApplications,
                     recvGroupApplications,
-                    userKey,
+                    userKey
                 } = newValue;
                 if (!userKey) return;
                 let unHandleFriendApplicationNum =
                     recvFriendApplications.filter(
-                        application => application.handleResult === 0,
+                        application => application.handleResult === 0
                     ).length;
                 let unHandleGroupApplicationNum = recvGroupApplications.filter(
-                    application => application.handleResult === 0,
+                    application => application.handleResult === 0
                 ).length;
                 const total =
                     unHandleFriendApplicationNum + unHandleGroupApplicationNum;
                 if (total) {
                     uni.setTabBarBadge({
                         index: 1,
-                        text: total < 99 ? total + '' : '99+',
+                        text: total < 99 ? total + '' : '99+'
                     });
                 } else {
                     uni.removeTabBarBadge({
-                        index: 1,
+                        index: 1
                     });
                 }
                 plus.runtime.setBadgeNumber(total || 0);
                 this.$store.commit(
                     'contact/SET_UNHANDLE_FRIEND_APPLICATION_NUM',
-                    unHandleFriendApplicationNum,
+                    unHandleFriendApplicationNum
                 );
                 this.$store.commit(
                     'contact/SET_UNHANDLE_GROUP_APPLICATION_NUM',
-                    unHandleGroupApplicationNum,
+                    unHandleGroupApplicationNum
                 );
             },
-            deep: true,
-        },
+            deep: true
+        }
     },
     methods: {
         ...mapActions('message', [
             'pushNewMessage',
             'updateOneMessage',
-            'deleteMessages',
+            'deleteMessages'
         ]),
         ...mapActions('conversation', ['updateCurrentMemberInGroup']),
         ...mapActions('contact', [
@@ -172,7 +172,7 @@ export default {
             'pushNewRecvGroupApplition',
             'updateRecvGroupApplition',
             'pushNewSentGroupApplition',
-            'updateSentGroupApplition',
+            'updateSentGroupApplition'
         ]),
         ...mapActions('incomingCall', ['appearLoadingCall']),
 
@@ -183,7 +183,7 @@ export default {
                     this.$store.commit('user/SET_AUTH_DATA', {});
                     // Igexin.unbindAlias(this.storeCurrentUserID)
                     uni.reLaunch({
-                        url: '/pages/login/index',
+                        url: '/pages/login/index'
                     });
                 });
             };
@@ -191,7 +191,7 @@ export default {
                 console.log(errCode);
                 this.$store.commit(
                     'base/SET_CONNECTING_STATUS',
-                    '网络异常，请检查网络',
+                    '网络异常，请检查网络'
                 );
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnConnecting, data => {
@@ -229,7 +229,7 @@ export default {
 
                 uni.$emit(
                     PageEvents.ClickPushMessage,
-                    this.payload.conversationID,
+                    this.payload.conversationID
                 );
                 uni.$emit('reloadMore');
                 this.payload = false;
@@ -244,24 +244,24 @@ export default {
             IMSDK.subscribe(IMSDK.IMEvents.OnSyncServerStart, syncStartHandler);
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnSyncServerFinish,
-                syncFinishHandler,
+                syncFinishHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnSyncServerFailed,
-                syncFailedHandler,
+                syncFailedHandler
             );
 
             // self
             const selfInfoUpdateHandler = ({ data }) => {
                 this.$store.commit('user/SET_SELF_INFO', {
                     ...this.storeSelfInfo,
-                    ...data,
+                    ...data
                 });
             };
 
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnSelfInfoUpdated,
-                selfInfoUpdateHandler,
+                selfInfoUpdateHandler
             );
 
             // message
@@ -317,13 +317,13 @@ export default {
                         item.msgIDList.forEach(msgID => {
                             this.updateOneMessage({
                                 message: {
-                                    clientMsgID: msgID,
+                                    clientMsgID: msgID
                                 },
                                 type: UpdateMessageTypes.KeyWords,
                                 keyWords: {
                                     key: 'isRead',
-                                    value: true,
-                                },
+                                    value: true
+                                }
                             });
                         });
                 });
@@ -335,15 +335,15 @@ export default {
                         item.msgIDList.forEach(msgID => {
                             this.updateOneMessage({
                                 message: {
-                                    clientMsgID: msgID,
+                                    clientMsgID: msgID
                                 },
                                 type: UpdateMessageTypes.KeyWords,
                                 keyWords: [
                                     {
                                         key: 'isRead',
-                                        value: true,
-                                    },
-                                ],
+                                        value: true
+                                    }
+                                ]
                             });
                         });
                 });
@@ -359,39 +359,39 @@ export default {
                     keyWords: [
                         {
                             key: 'contentType',
-                            value: MessageType.RevokeMessage,
+                            value: MessageType.RevokeMessage
                         },
                         {
                             key: 'notificationElem',
                             value: {
-                                detail: JSON.stringify(revokedMessage),
-                            },
-                        },
-                    ],
+                                detail: JSON.stringify(revokedMessage)
+                            }
+                        }
+                    ]
                 });
             };
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnRecvNewMessages,
-                newMessagesHandler,
+                newMessagesHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnRecvC2CReadReceipt,
-                c2cReadReceiptHandler,
+                c2cReadReceiptHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnRecvGroupReadReceipt,
-                groupReadReceiptHandler,
+                groupReadReceiptHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnNewRecvMessageRevoked,
-                newRecvMessageRevokedHandler,
+                newRecvMessageRevokedHandler
             );
 
             // friend
             const friendInfoChangeHandler = ({ data }) => {
                 console.log(data);
                 this.updateFriendInfo({
-                    friendInfo: data,
+                    friendInfo: data
                 });
             };
             const friendAddedHandler = ({ data }) => {
@@ -400,18 +400,18 @@ export default {
             const friendDeletedHander = ({ data }) => {
                 this.updateFriendInfo({
                     friendInfo: data,
-                    isRemove: true,
+                    isRemove: true
                 });
             };
 
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnFriendInfoChanged,
-                friendInfoChangeHandler,
+                friendInfoChangeHandler
             );
             IMSDK.subscribe(IMSDK.IMEvents.OnFriendAdded, friendAddedHandler);
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnFriendDeleted,
-                friendDeletedHander,
+                friendDeletedHander
             );
 
             // blacklist
@@ -421,7 +421,7 @@ export default {
             const blackDeletedHandler = ({ data }) => {
                 this.updateBlackInfo({
                     blackInfo: data,
-                    isRemove: true,
+                    isRemove: true
                 });
             };
 
@@ -435,12 +435,12 @@ export default {
             const joinedGroupDeletedHandler = ({ data }) => {
                 this.updateGroupInfo({
                     groupInfo: data,
-                    isRemove: true,
+                    isRemove: true
                 });
             };
             const groupInfoChangedHandler = ({ data }) => {
                 this.updateGroupInfo({
-                    groupInfo: data,
+                    groupInfo: data
                 });
             };
             const groupMemberInfoChangedHandler = ({ data }) => {
@@ -449,19 +449,19 @@ export default {
 
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnJoinedGroupAdded,
-                joinedGroupAddedHandler,
+                joinedGroupAddedHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnJoinedGroupDeleted,
-                joinedGroupDeletedHandler,
+                joinedGroupDeletedHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnGroupInfoChanged,
-                groupInfoChangedHandler,
+                groupInfoChangedHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnGroupMemberInfoChanged,
-                groupMemberInfoChangedHandler,
+                groupMemberInfoChangedHandler
             );
 
             // application
@@ -477,11 +477,11 @@ export default {
                 const isRecv = data.toUserID === this.storeCurrentUserID;
                 if (isRecv) {
                     this.updateRecvFriendApplition({
-                        application: data,
+                        application: data
                     });
                 } else {
                     this.updateSentFriendApplition({
-                        application: data,
+                        application: data
                     });
                 }
             };
@@ -497,11 +497,11 @@ export default {
                 const isRecv = data.userID !== this.storeCurrentUserID;
                 if (isRecv) {
                     this.updateRecvGroupApplition({
-                        application: data,
+                        application: data
                     });
                 } else {
                     this.updateSentGroupApplition({
-                        application: data,
+                        application: data
                     });
                 }
             };
@@ -513,27 +513,27 @@ export default {
 
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnFriendApplicationAdded,
-                friendApplicationNumHandler,
+                friendApplicationNumHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnFriendApplicationAccepted,
-                friendApplicationAccessHandler,
+                friendApplicationAccessHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnFriendApplicationRejected,
-                friendApplicationAccessHandler,
+                friendApplicationAccessHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnGroupApplicationAdded,
-                groupApplicationNumHandler,
+                groupApplicationNumHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnGroupApplicationAccepted,
-                groupApplicationAccessHandler,
+                groupApplicationAccessHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnGroupApplicationRejected,
-                groupApplicationAccessHandler,
+                groupApplicationAccessHandler
             );
             IMSDK.subscribe(IMSDK.IMEvents.OnMsgDeleted, msgDeletedHandller);
 
@@ -547,7 +547,7 @@ export default {
             const newConversationHandler = ({ data }) => {
                 console.log(
                     'newConversationHandlernewConversationHandler-newConversationHandler',
-                    data,
+                    data
                 );
                 if (this.storeIsSyncing) {
                     return;
@@ -555,13 +555,13 @@ export default {
                 const result = [...data, ...this.storeConversationList];
                 this.$store.commit(
                     'conversation/SET_CONVERSATION_LIST',
-                    conversationSort(result),
+                    conversationSort(result)
                 );
             };
             const conversationChangedHandler = ({ data }) => {
                 console.log(
                     'conversationChangedHandler-conversationChangedHandler-----',
-                    data,
+                    data
                 );
                 if (this.storeIsSyncing) {
                     return;
@@ -569,39 +569,39 @@ export default {
                 let filterArr = [];
                 const chids = data.map(ch => ch.conversationID);
                 filterArr = this.storeConversationList.filter(
-                    tc => !chids.includes(tc.conversationID),
+                    tc => !chids.includes(tc.conversationID)
                 );
                 const idx = data.findIndex(
                     c =>
                         c.conversationID ===
-                        this.storeCurrentConversation.conversationID,
+                        this.storeCurrentConversation.conversationID
                 );
                 if (idx !== -1) {
                     this.$store.commit(
                         'conversation/SET_CURRENT_CONVERSATION',
-                        data[idx],
+                        data[idx]
                     );
                 }
 
                 const result = [...data, ...filterArr];
                 this.$store.commit(
                     'conversation/SET_CONVERSATION_LIST',
-                    conversationSort(result),
+                    conversationSort(result)
                 );
                 this.setTipMessage(data[0]);
             };
 
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnTotalUnreadMessageCountChanged,
-                totalUnreadCountChangedHandler,
+                totalUnreadCountChangedHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnNewConversation,
-                newConversationHandler,
+                newConversationHandler
             );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnConversationChanged,
-                conversationChangedHandler,
+                conversationChangedHandler
             );
         },
         setTipMessage(source) {
@@ -622,7 +622,7 @@ export default {
             if (tipStatus) {
                 this.$store.commit(
                     'conversation/SET_LAST_CONVERSATION',
-                    source,
+                    source
                 );
                 this.$store.commit('base/SET_TIP_STATUS', false);
                 setTimeout(() => {
@@ -644,8 +644,8 @@ export default {
                         dataDir: path, // 数据存储路径
                         logLevel: 6,
                         logFilePath: path,
-                        isLogStandardOutput: true,
-                    },
+                        isLogStandardOutput: true
+                    }
                 );
                 if (!flag) {
                     uni.$u.toast('初始化IMSDK失败！');
@@ -686,7 +686,7 @@ export default {
                 AudioVideoRenderTypes.includes(message.contentType) &&
                 data.type &&
                 [AudioVideoType.Video, AudioVideoType.Audio].includes(
-                    data.type,
+                    data.type
                 ) &&
                 data.status
             );
@@ -710,7 +710,7 @@ export default {
                 if (
                     ![
                         MessageType.TypingMessage,
-                        MessageType.RevokeMessage,
+                        MessageType.RevokeMessage
                     ].includes(newServerMsg.contentType)
                 ) {
                     if (this.storeHasMoreAfterMessage) {
@@ -718,7 +718,7 @@ export default {
                         let conversationUnread = this.conversationUnread + 1;
                         this.$store.commit(
                             'conversation/SET_CONVERSATION_UNREAD',
-                            conversationUnread,
+                            conversationUnread
                         );
                         return;
                     }
@@ -727,7 +727,7 @@ export default {
                         let conversationUnread = this.conversationUnread + 1;
                         this.$store.commit(
                             'conversation/SET_CONVERSATION_UNREAD',
-                            conversationUnread,
+                            conversationUnread
                         );
                     }
                     this.setEditMsg(newServerMsg);
@@ -735,11 +735,13 @@ export default {
                     uni.$u.debounce(this.markConversationAsRead, 2000);
                     if (this.storeIsShowSetEnd) return;
                     setTimeout(() =>
-                        uni.$emit(PageEvents.ScrollToBottom, { isRecv: true }),
+                        uni.$emit(PageEvents.ScrollToBottom, {
+                            isRecv: true
+                        })
                     );
                 } else if (
                     [MessageType.TypingMessage].includes(
-                        newServerMsg.contentType,
+                        newServerMsg.contentType
                     )
                 ) {
                     // 正在输入..
@@ -750,7 +752,7 @@ export default {
             if (newServerMsg.contentType === AudioVideoStatus.groupDone) {
                 try {
                     const data = JSON.parse(
-                        newServerMsg.notificationElem.detail,
+                        newServerMsg.notificationElem.detail
                     );
                     if (
                         idsGetConversationID(newServerMsg) !==
@@ -759,7 +761,7 @@ export default {
                         return;
                     uni.$emit('incoming_message_callback', {
                         ...newServerMsg,
-                        customStatus: data.status,
+                        customStatus: data.status
                     });
                     // uni.$u.toast(customStatusTextMap[data.status]);
                 } catch (err) {
@@ -779,11 +781,11 @@ export default {
                     try {
                         const { token } = await videoGetToken({
                             recvID: this.storeUserID,
-                            conversationID: idsGetConversationID(newServerMsg),
+                            conversationID: idsGetConversationID(newServerMsg)
                         });
                         this.$store.commit(
                             'incomingCall/SET_INCOMING_CALL_TOKEN',
-                            token,
+                            token
                         );
                         this.appearLoadingCall(newServerMsg);
                     } catch (err) {
@@ -796,7 +798,7 @@ export default {
                         AudioVideoStatus.Done,
                         AudioVideoStatus.Cancel,
                         AudioVideoStatus.Reject,
-                        AudioVideoStatus.NotAnswered,
+                        AudioVideoStatus.NotAnswered
                         // AudioVideoStatus.Busy
                     ].includes(customStatus)
                 ) {
@@ -807,7 +809,7 @@ export default {
                         return;
                     uni.$emit('incoming_message_callback', {
                         ...newServerMsg,
-                        customStatus,
+                        customStatus
                     });
                     // uni.$u.toast(customStatusTextMap[customStatus]);
                 }
@@ -841,13 +843,13 @@ export default {
             IMSDK.asyncApi(
                 IMSDK.IMMethods.MarkConversationMessageAsRead,
                 IMSDK.uuid(),
-                this.storeCurrentConversation.conversationID,
+                this.storeCurrentConversation.conversationID
             );
         },
         getAudio({ src = '', sessionCategory = 'playback' }) {
             this.audioSrc = src;
             this.innerAudioContext = plus.audio.createPlayer({
-                src,
+                src
             });
             /** * ambient模式在iOS端默认带有跟随系统铃声模式的行为，iOS端默认值为soloAmbient * iOS端默认情况下为soloAmbient，但偶现有打开playback，即出现了之前静音模式下也播放铃声的问题 * ambient支持多音频混合，故不会打断正在播放的音乐 */
             this.innerAudioContext.setSessionCategory(sessionCategory);
@@ -859,10 +861,10 @@ export default {
                 plus.android.importClass('android.media.AudioManager');
                 let main = plus.android.runtimeMainActivity(); // 获取应用主Activity实例对象
                 let Context = plus.android.importClass(
-                    'android.content.Context',
+                    'android.content.Context'
                 ); // 全局上下文
                 this.audioManager = main.getSystemService(
-                    Context.AUDIO_SERVICE,
+                    Context.AUDIO_SERVICE
                 );
             }
             this.innerAudioContext.addEventListener('ended', () => {
@@ -902,7 +904,7 @@ export default {
             if (!src) return;
             this.getAudio({
                 src,
-                sessionCategory,
+                sessionCategory
             });
         },
         handleStopAudio(src) {
@@ -922,7 +924,7 @@ export default {
                         await bindCid({
                             platform: uni.$u.os() === 'ios' ? 1 : 2,
                             userID: this.storeUserID,
-                            cid,
+                            cid
                         });
                     } catch (e) {
                         console.log(e);
@@ -936,8 +938,8 @@ export default {
             let payload = (message && message.payload) || {};
             if (!payload.conversationID || !this.isInitSDK) return;
             uni.$emit(PageEvents.ClickPushMessage, payload.conversationID);
-        },
-    },
+        }
+    }
 };
 </script>
 

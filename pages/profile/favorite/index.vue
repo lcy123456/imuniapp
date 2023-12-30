@@ -1,10 +1,7 @@
 <template>
     <Page>
         <view class="favorite_container">
-            <CustomNavBar
-                title="我的收藏"
-                is-bg-color2
-            />
+            <CustomNavBar title="我的收藏" is-bg-color2 />
             <z-paging
                 ref="pagingRef"
                 :fixed="false"
@@ -33,14 +30,14 @@
 
 <script>
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
-import ItemCell from "./components/ItemCell.vue";
+import ItemCell from './components/ItemCell.vue';
 
 export default {
     components: {
         CustomNavBar,
-        ItemCell,
+        ItemCell
     },
-    data () {
+    data() {
         return {
             favoriteList: [
                 {
@@ -59,11 +56,11 @@ export default {
                     idx: 5
                 }
             ],
-            isDisabled: false,
+            isDisabled: false
         };
     },
     computed: {
-        swipeAction () {
+        swipeAction() {
             let action = [
                 {
                     text: '删除该收藏',
@@ -72,44 +69,39 @@ export default {
                         iconSize: '40rpx',
                         fontSize: '28rpx',
                         backgroundColor: '#E75E58',
-                        padding: '26rpx 40rpx',
+                        padding: '26rpx 40rpx'
                     }
-                },
+                }
             ];
             return action;
-        },
+        }
     },
-    onLoad () {
-      
-    },
+    onLoad() {},
     methods: {
-        async queryList () {
-        },
-        closeAllSwipe () {
+        async queryList() {},
+        closeAllSwipe() {
             this.$refs.swipeWrapperRef.closeAll();
         },
-        swipeActionClick ({}) {
-        }
+        swipeActionClick({}) {}
     }
 };
 </script>
 
 <style lang="scss" scoped>
 .favorite_container {
-  @include colBox(false);
-  background-color: #EFF1F4;
-  height: 100vh;
-  overflow-y: hidden;
-
+    @include colBox(false);
+    background-color: #eff1f4;
+    height: 100vh;
+    overflow-y: hidden;
 }
 
 .z-paging-content {
-  flex: 1;
+    flex: 1;
 }
 
 /deep/.uni-swipe_button-group {
     .uni-swipe_button {
-        height: 90rpx!important;
+        height: 90rpx !important;
         padding: 0 40rpx !important;
         display: flex;
         justify-content: space-evenly;

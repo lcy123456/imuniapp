@@ -1,9 +1,6 @@
 <template>
     <!--增加video标签支持，并循环添加-->
-    <view
-        :class="node.classStr"
-        :style="node.styleStr"
-    >
+    <view :class="node.classStr" :style="node.styleStr">
         <video
             :class="node.classStr"
             :style="node.styleStr"
@@ -17,7 +14,7 @@
 export default {
     name: 'WxParseVideo',
     props: {
-        node: {},
-    },
+        node: {}
+    }
 };
 </script>

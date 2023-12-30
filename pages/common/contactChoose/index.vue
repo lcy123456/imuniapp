@@ -1,10 +1,7 @@
 <template>
     <Page>
         <view class="contact_choose_container">
-            <CustomNavBar
-                title="选择成员"
-                is-bg-color2
-            />
+            <CustomNavBar title="选择成员" is-bg-color2 />
 
             <view class="search_box">
                 <MyAvatar
@@ -57,9 +54,7 @@ import { mapGetters } from 'vuex';
 import { ContactChooseTypes } from '@/constant';
 import { formatChooseData } from '@/util/common';
 import { businessSearchUserInfo } from '@/api/login';
-import IMSDK, {
-    SessionType,
-} from 'openim-uniapp-polyfill';
+import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import ChooseIndexList from '@/components/ChooseIndexList/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
@@ -68,9 +63,9 @@ export default {
     components: {
         CustomNavBar,
         MyAvatar,
-        ChooseIndexList,
+        ChooseIndexList
     },
-    data () {
+    data() {
         return {
             SessionType: Object.freeze(SessionType),
             keyword: '',
@@ -92,15 +87,15 @@ export default {
         //     );
         //     return formatChooseData(newList);
         // },
-        checkUserIDList () {
-            return this.checkFriendList.map((v) => v.userID);
+        checkUserIDList() {
+            return this.checkFriendList.map(v => v.userID);
         },
-        showCheckFriendList () {
+        showCheckFriendList() {
             return this.checkFriendList.slice(-6);
         }
     },
     watch: {
-        async keyword () {
+        async keyword() {
             if (this.keyword) {
                 uni.$u.throttle(() => this.businessSearchUserInfo(), 200);
             } else {
@@ -108,77 +103,92 @@ export default {
             }
         }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { type, groupID, checkUserIDList } = options;
         this.type = type;
         this.groupID = groupID;
         const userIdList = checkUserIDList ? JSON.parse(checkUserIDList) : [];
-        this.checkFriendList = this.storeFriendList.filter(v => userIdList.includes(v.userID));
+        this.checkFriendList = this.storeFriendList.filter(v =>
+            userIdList.includes(v.userID)
+        );
         this.showFriendList = formatChooseData(this.storeFriendList);
         if (this.type === ContactChooseTypes.Invite) {
             this.checkDisabledUser();
         }
     },
     methods: {
-        async businessSearchUserInfo () {
-            const pagination = {pageNumber: 1, showNumber: 20};
-            const {
-                total,
-                users
-            } = await businessSearchUserInfo(this.keyword, pagination);
+        async businessSearchUserInfo() {
+            const pagination = { pageNumber: 1, showNumber: 20 };
+            const { total, users } = await businessSearchUserInfo(
+                this.keyword,
+                pagination
+            );
             if (total > 0) {
-                const {
-                    data
-                } = await IMSDK.asyncApi(IMSDK.IMMethods.GetUsersInfo, IMSDK.uuid(), users.map(user => user.userID));
-                this.showFriendList = formatChooseData(data.map(item => item.friendInfo ?? item.publicInfo ?? {}));
+                const { data } = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetUsersInfo,
+                    IMSDK.uuid(),
+                    users.map(user => user.userID)
+                );
+                this.showFriendList = formatChooseData(
+                    data.map(item => item.friendInfo ?? item.publicInfo ?? {})
+                );
             }
         },
-        checkDisabledUser () {
+        checkDisabledUser() {
             const friendIDList = this.storeFriendList.map(
-                (friend) => friend.userID
+                friend => friend.userID
             );
             IMSDK.asyncApi(
                 IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,
                 IMSDK.uuid(),
                 {
                     groupID: this.groupID,
-                    userIDList: friendIDList,
+                    userIDList: friendIDList
                 }
             ).then(({ data }) => {
                 const friendList = data;
                 console.log('this.disabledUserIDList----datadata', data);
-                IMSDK.asyncApi(IMSDK.IMMethods.GetGroupMemberList, IMSDK.uuid(), {
-                    groupID: this.groupID,
-                    filter: 0,
-                    offset: 0,
-                    count: 500
-                }).then(({
-                    data
-                }) => {
+                IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetGroupMemberList,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.groupID,
+                        filter: 0,
+                        offset: 0,
+                        count: 500
+                    }
+                ).then(({ data }) => {
                     // this.groupMemberList = [...memberList];
-                    this.disabledUserIDList = data.concat(friendList).map((member) => member.userID);
-                    console.log('this.disabledUserIDList----', this.disabledUserIDList);
+                    this.disabledUserIDList = data
+                        .concat(friendList)
+                        .map(member => member.userID);
+                    console.log(
+                        'this.disabledUserIDList----',
+                        this.disabledUserIDList
+                    );
                 });
             });
         },
-        updateCheckedUser (val) {
-            const idx = this.checkFriendList.findIndex(v => v.userID === val.userID);
+        updateCheckedUser(val) {
+            const idx = this.checkFriendList.findIndex(
+                v => v.userID === val.userID
+            );
             if (idx > -1) {
                 this.checkFriendList.splice(idx, 1);
             } else {
                 this.checkFriendList.push(val);
             }
         },
-        confirm () {
+        confirm() {
             let pages = getCurrentPages();
             let prevPage = pages[pages.length - 2];
             prevPage.$vm.getCheckUsers(this.checkFriendList);
 
             uni.navigateBack({
-                delta: 1,
+                delta: 1
             });
-        },
-    },
+        }
+    }
 };
 </script>
 

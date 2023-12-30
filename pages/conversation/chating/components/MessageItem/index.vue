@@ -3,13 +3,16 @@
         <view
             v-if="!isNoticeMessage"
             class="message_item"
-            :class="{ message_item_self: isSender, positionActive: positionMsgID === source.clientMsgID }"
+            :class="{
+                message_item_self: isSender,
+                positionActive: positionMsgID === source.clientMsgID
+            }"
             @click="handleMultiple"
         >
             <view
                 v-show="isMultipleMsg"
                 class="check_wrap"
-                :class="{'check_wrap_active':isChecked}"
+                :class="{ check_wrap_active: isChecked }"
             >
                 <u-icon
                     v-show="isChecked"
@@ -35,10 +38,7 @@
                     />
                 </EventDom>
                 <view class="message_container">
-                    <view 
-                        v-if="!(isSingle || isSender)"
-                        class="message_sender"
-                    >
+                    <view v-if="!(isSingle || isSender)" class="message_sender">
                         <text>{{ source.senderNickname }}</text>
                     </view>
                     <MessageContentWrap
@@ -81,81 +81,84 @@
 import IMSDK, {
     IMMethods,
     MessageStatus,
-    SessionType,
+    SessionType
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import ChatingList from '../ChatingList.vue';
 import MessageContentWrap from './MessageContentWrap.vue';
 // import MessageReadState from './MessageReadState.vue';
-import { noticeMessageTypes, UpdateMessageTypes, MessageMenuTypes } from '@/constant';
+import {
+    noticeMessageTypes,
+    UpdateMessageTypes,
+    MessageMenuTypes
+} from '@/constant';
 import { tipMessaggeFormat, offlinePushInfo } from '@/util/imCommon';
-
 
 export default {
     components: {
         MyAvatar,
-        MessageContentWrap,
+        MessageContentWrap
         // MessageReadState,
     },
     props: {
         source: {
             required: true,
-            type: Object,
+            type: Object
         },
         isSender: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isShowMenuFlag: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isMultipleMsg: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isChecked: {
             type: Boolean,
-            default: false,
+            default: false
         },
         positionMsgID: {
             type: String,
             default: ''
         }
     },
-    data () {
+    data() {
         return {
             islongPress: false,
-            conversationID: '',
+            conversationID: ''
         };
     },
     computed: {
-        isSingle () {
+        isSingle() {
             return this.source.sessionType === SessionType.Single;
         },
-        isSuccessMessage () {
+        isSuccessMessage() {
             return this.source.status === MessageStatus.Succeed;
         },
-        isFailedMessage () {
+        isFailedMessage() {
             return this.source.status === MessageStatus.Failed;
         },
-        showSending () {
+        showSending() {
             return (
                 this.source.status === MessageStatus.Sending &&
                 !this.sendingDelay
             );
         },
-        isNoticeMessage () {
+        isNoticeMessage() {
             return noticeMessageTypes.includes(this.source.contentType);
         },
-        getNoticeContent () {
+        getNoticeContent() {
             return tipMessaggeFormat(
                 this.source,
                 this.$store.getters.storeCurrentUserID
             );
-        },
+        }
     },
-    mounted () {
+    mounted() {
         // this.$emit('messageItemRender', this.source.clientMsgID);
         this.isReadObserver();
         this.setSendingDelay();
@@ -163,34 +166,34 @@ export default {
             this.$store.getters.storeCurrentConversation.conversationID;
     },
     methods: {
-        avatarLongpress () {
+        avatarLongpress() {
             const atUsersInfo = {
                 atUserID: this.source.sendID,
                 groupNickname: this.source.senderNickname
             };
             uni.$emit('setAtMember', atUsersInfo);
         },
-        reSendMessage () {
+        reSendMessage() {
             this.$store.dispatch('message/updateOneMessage', {
                 message: this.source,
                 type: UpdateMessageTypes.KeyWords,
                 keyWords: [
                     {
                         key: 'status',
-                        value: MessageStatus.Sending,
-                    },
-                ],
+                        value: MessageStatus.Sending
+                    }
+                ]
             });
             IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                 recvID: this.source.recvID,
                 groupID: this.source.groupID,
                 message: this.source,
-                offlinePushInfo,
+                offlinePushInfo
             })
                 .then(({ data }) => {
                     this.$store.dispatch('message/updateOneMessage', {
                         message: data,
-                        isSuccess: true,
+                        isSuccess: true
                     });
                 })
                 .catch(({ data, errCode }) => {
@@ -201,29 +204,30 @@ export default {
                         keyWords: [
                             {
                                 key: 'status',
-                                value: MessageStatus.Failed,
+                                value: MessageStatus.Failed
                             },
                             {
                                 key: 'errCode',
-                                value: errCode,
-                            },
-                        ],
+                                value: errCode
+                            }
+                        ]
                     });
                 });
         },
-        setSendingDelay () {
+        setSendingDelay() {
             if (this.source.status === MessageStatus.Sending) {
                 setTimeout(() => {
                     this.sendingDelay = false;
                 }, 2000);
             }
         },
-        isReadObserver () {
+        isReadObserver() {
             if (
                 this.isSender ||
                 this.source.isRead === true ||
                 this.source.sessionType !== SessionType.Single
-            ) return;
+            )
+                return;
 
             const observer = uni.createIntersectionObserver(ChatingList);
             observer
@@ -246,10 +250,10 @@ export default {
                                                 .storeCurrentConversation
                                                 .conversationID,
                                         clientMsgIDList: [
-                                            this.source.clientMsgID,
-                                        ],
+                                            this.source.clientMsgID
+                                        ]
                                     }
-                                // eslint-disable-next-line vue/no-mutating-props
+                                    // eslint-disable-next-line vue/no-mutating-props
                                 ).then(() => (this.source.isRead = true));
                             }
 
@@ -258,26 +262,28 @@ export default {
                     }
                 );
         },
-        showInfo () {
+        showInfo() {
             if (this.isSender) return;
             const sourceInfo = {
                 nickname: this.source.senderNickname,
                 faceURL: this.source.senderFaceUrl
             };
             uni.$u.route(
-                `/pages/common/userCard/index?sourceID=${this.source.sendID}&sourceInfo=${JSON.stringify(sourceInfo)}`
+                `/pages/common/userCard/index?sourceID=${
+                    this.source.sendID
+                }&sourceInfo=${JSON.stringify(sourceInfo)}`
             );
             uni.hideKeyboard();
         },
-        async handleLongPress () {
+        async handleLongPress() {
             if (!this.isShowMenuFlag) return;
             this.getMsgRect();
         },
-        getMsgRect () {
+        getMsgRect() {
             uni.createSelectorQuery()
                 .in(this)
                 .select('.message_content_wrap')
-                .boundingClientRect((res) => {
+                .boundingClientRect(res => {
                     this.$emit('menuRect', {
                         ...res,
                         message: this.source
@@ -285,15 +291,15 @@ export default {
                 })
                 .exec();
         },
-        handleMultiple () {
+        handleMultiple() {
             if (!this.isMultipleMsg) return;
             uni.$emit('multiple_message', {
                 show: true,
                 message: this.source,
                 type: MessageMenuTypes.Checked
             });
-        },
-    },
+        }
+    }
 };
 </script>
 
@@ -301,7 +307,7 @@ export default {
 .message_item {
     display: flex;
     padding: 16rpx 30rpx;
-    
+
     &.positionActive {
         animation: bgBlink 2s 0.3s;
     }
@@ -315,7 +321,7 @@ export default {
         @include centerBox();
 
         &_active {
-            background-color: #1D6BED;
+            background-color: #1d6bed;
             border: none;
         }
     }
@@ -330,13 +336,13 @@ export default {
         .my_avatar {
             margin-right: 24rpx;
         }
-    
+
         .message_container {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             max-width: 80%;
-    
+
             /deep/.message_content_wrap .message_content_container {
                 display: flex;
                 flex-direction: column;
@@ -350,21 +356,20 @@ export default {
                 margin-bottom: 6rpx;
             }
         }
-    
+
         .message_send_state {
             align-self: center;
             @include centerBox();
             margin-left: 12rpx;
             width: 48rpx;
             height: 48rpx;
-    
+
             image {
                 width: 16px;
                 height: 16px;
             }
         }
     }
-
 
     &_self {
         justify-content: space-between;
@@ -373,7 +378,7 @@ export default {
             .message_container {
                 align-items: flex-end;
 
-                /deep/ .message_content_wrap .message_content_container{
+                /deep/ .message_content_wrap .message_content_container {
                     align-items: flex-end;
                     // .bg_container {
                     //     background-color: #c5e3ff !important;
@@ -388,7 +393,7 @@ export default {
         }
     }
 }
-@keyframes  bgBlink{
+@keyframes bgBlink {
     from {
         background-color: rgba($uni-color-primary, 1);
     }
@@ -417,6 +422,4 @@ export default {
     font-size: 0.85rem;
     color: #999;
 }
-
-
 </style>

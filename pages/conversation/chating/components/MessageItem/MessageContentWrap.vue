@@ -34,7 +34,7 @@
             />
             <VoiceMessageRender
                 v-if="showVoiceMessageRender"
-                :message="message" 
+                :message="message"
                 :is-sender="isSender"
             />
             <ErrorMessageRender
@@ -70,7 +70,7 @@ import VoiceMessageRender from './VoiceMessageRender.vue';
 import ErrorMessageRender from './ErrorMessageRender.vue';
 import MessageReadState from './MessageReadState.vue';
 import ChatQuote from '@/components/ChatQuote';
-import { 
+import {
     TextRenderTypes,
     MediaRenderTypes,
     FileRenderTypes,
@@ -78,7 +78,6 @@ import {
     AudioVideoRenderTypes
 } from '@/constant';
 import { AudioVideoType } from '@/enum';
-
 
 export default {
     components: {
@@ -90,13 +89,13 @@ export default {
         MergeMessageRender,
         VoiceMessageRender,
         ErrorMessageRender,
-        ChatQuote,
+        ChatQuote
     },
 
     props: {
         isMultipleMsg: {
             type: Boolean,
-            default: false,
+            default: false
         },
         message: {
             type: Object,
@@ -112,13 +111,13 @@ export default {
         }
     },
 
-    data () {
+    data() {
         return {
             MessageType: Object.freeze(MessageType)
         };
     },
     computed: {
-        showAudioVideoRender () {
+        showAudioVideoRender() {
             let data = {};
             try {
                 const customElemData = this.message.customElem.data;
@@ -127,32 +126,38 @@ export default {
                 // console.log('err---err', this.message);
                 return false;
             }
-            return AudioVideoRenderTypes.includes(this.message.contentType) && data.type && [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type);
+            return (
+                AudioVideoRenderTypes.includes(this.message.contentType) &&
+                data.type &&
+                [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type)
+            );
         },
-        showErrorRender () {
-            return !this.showTextRender &&
+        showErrorRender() {
+            return (
+                !this.showTextRender &&
                 !this.showMediaRender &&
                 !this.showFileRender &&
                 !this.showMergeRender &&
                 !this.showAudioVideoRender &&
-                !this.showVoiceMessageRender;
+                !this.showVoiceMessageRender
+            );
         },
-        showVoiceMessageRender () {
+        showVoiceMessageRender() {
             return this.message.contentType === MessageType.VoiceMessage;
         },
-        showTextRender () {
+        showTextRender() {
             return TextRenderTypes.includes(this.message.contentType);
         },
-        showMediaRender () {
+        showMediaRender() {
             return MediaRenderTypes.includes(this.message.contentType);
         },
-        showFileRender () {
+        showFileRender() {
             return FileRenderTypes.includes(this.message.contentType);
         },
-        showMergeRender () {
+        showMergeRender() {
             return MergeRenderTypes.includes(this.message.contentType);
         },
-        getQuoteElem () {
+        getQuoteElem() {
             if (this.message.contentType === MessageType.QuoteMessage) {
                 return this.message.quoteElem;
             }
@@ -163,15 +168,13 @@ export default {
         }
     },
 
-    mounted () {
-        
-    },
+    mounted() {},
 
     methods: {
-        setPositionMsgID (message) {
+        setPositionMsgID(message) {
             uni.$emit('setPositionMsgID', message.clientMsgID);
-        },
-    },
+        }
+    }
 };
 </script>
 

@@ -71,7 +71,7 @@ import { MessageMenuTypes } from '@/constant';
 import IMSDK, {
     IMMethods,
     MessageType,
-    SessionType,
+    SessionType
 } from 'openim-uniapp-polyfill';
 import PinToTop from './components/pinToTop.vue';
 import JoinGroupCall from './components/JoinGroupCall.vue';
@@ -85,11 +85,11 @@ export default {
         MessageMenu,
         SetEnd,
         PinToTop,
-        JoinGroupCall,
+        JoinGroupCall
     },
     provide() {
         return {
-            getSearchRecordMedia: this.getSearchRecordMedia,
+            getSearchRecordMedia: this.getSearchRecordMedia
         };
     },
     data() {
@@ -116,9 +116,9 @@ export default {
             menuState: {
                 visible: false,
                 paterRect: {},
-                message: {},
+                message: {}
             },
-            imgList: [],
+            imgList: []
         };
     },
     computed: {
@@ -131,11 +131,11 @@ export default {
             'storePinList',
             'storeHasMoreAfterMessage',
             'storeKeyBoardHeight',
-            'storeIsShowkeyBoard',
+            'storeIsShowkeyBoard'
         ]),
         checkedMsg() {
             return this.storeHistoryMessageList.filter(v =>
-                this.checkedMsgIds.includes(v.clientMsgID),
+                this.checkedMsgIds.includes(v.clientMsgID)
             );
         },
         isWorkingGroup() {
@@ -143,7 +143,7 @@ export default {
                 this.storeCurrentConversation.conversationType ===
                 SessionType.WorkingGroup
             );
-        },
+        }
     },
     onLoad(options) {
         const { back2Tab, clientMsgID } = options;
@@ -163,9 +163,9 @@ export default {
     onUnload() {
         markConversationAsRead(
             {
-                ...this.$store.getters.storeCurrentConversation,
+                ...this.$store.getters.storeCurrentConversation
             },
-            true,
+            true
         );
         this.resetConversationState();
         this.resetMessageState();
@@ -234,11 +234,11 @@ export default {
                 uni.$emit(PageEvents.ScrollToBottom);
             } else {
                 const index = this.storeHistoryMessageList.findIndex(
-                    item => item.clientMsgID === positionMsgID,
+                    item => item.clientMsgID === positionMsgID
                 );
                 if (this.positionMsgID && index > -1) {
                     this.$refs.chatingListRef.scrollToAnchor(
-                        `auchor-${positionMsgID}`,
+                        `auchor-${positionMsgID}`
                     );
                 } else {
                     this.reloadChatingList();
@@ -268,12 +268,12 @@ export default {
                 searchTimePosition: 0,
                 searchTimePeriod: 0,
                 pageIndex: 1,
-                count: 999,
+                count: 999
             };
             const { data } = await IMSDK.asyncApi(
                 IMMethods.SearchLocalMessages,
                 IMSDK.uuid(),
-                params,
+                params
             );
             let imgList = data.searchResultItems?.[0]?.messageList || [];
             this.imgList = imgList.map(v => {
@@ -284,9 +284,9 @@ export default {
                     poster: [
                         pictureElem?.sourcePicture.url,
                         pictureElem?.sourcePath,
-                        v.localEx,
+                        v.localEx
                     ],
-                    type: 'image',
+                    type: 'image'
                 };
                 if (isVideo) {
                     map = {
@@ -294,9 +294,9 @@ export default {
                         poster: [
                             videoElem?.snapshotUrl,
                             videoElem?.snapshotPath,
-                            v.localEx,
+                            v.localEx
                         ],
-                        type: 'video',
+                        type: 'video'
                     };
                 }
                 return map;
@@ -304,7 +304,7 @@ export default {
             this.imgList.reverse();
             this.$store.commit(
                 'conversation/SET_CONVERSATION_MEDIA_LIST',
-                this.imgList,
+                this.imgList
             );
         },
         chatingTouchStart() {
@@ -334,7 +334,7 @@ export default {
         menuRect(res) {
             this.menuState.paterRect = {
                 ...res,
-                message: undefined,
+                message: undefined
             };
             this.menuState.message = res.message;
             this.menuState.visible = true;
@@ -349,7 +349,7 @@ export default {
                     break;
                 case MessageMenuTypes.Checked:
                     const index = this.checkedMsgIds.indexOf(
-                        message.clientMsgID,
+                        message.clientMsgID
                     );
                     if (index > -1) {
                         this.checkedMsgIds.splice(index, 1);
@@ -384,8 +384,8 @@ export default {
                         {
                             messageList: this.checkedMsg,
                             title: `${this.storeSelfInfo.nickname}与${this.storeCurrentConversation.showName}的聊天记录`,
-                            summaryList: [],
-                        },
+                            summaryList: []
+                        }
                     );
                     this.handleForward(res);
                     break;
@@ -402,8 +402,8 @@ export default {
                         {
                             conversationID:
                                 this.storeCurrentConversation.conversationID,
-                            clientMsgID: message.clientMsgID,
-                        },
+                            clientMsgID: message.clientMsgID
+                        }
                     );
                 }
                 // uni.$u.toast('删除成功');
@@ -420,7 +420,7 @@ export default {
                 }
             });
             uni.$u.route('/pages/common/msgForward/index', {
-                message: encodeURIComponent(JSON.stringify(temp)),
+                message: encodeURIComponent(JSON.stringify(temp))
             });
         },
         hideMultipleMsg() {
@@ -431,34 +431,34 @@ export default {
         },
         goLink({ url }) {
             plus.runtime.openURL(url);
-        },
-    },
+        }
+    }
 };
 </script>
 
 <script module="chatRender" lang="renderjs">
 export default {
-	mounted () {
-           this.bindEvent();
-       },
-       methods: {
-           bindEvent () {
-               document.querySelector(`.chating_container`).addEventListener('click', (event) => {
-                   const target = event.target;
-                   if (target.getAttribute('data-url')) {
-                       this.$ownerInstance.callMethod('goLink', {
-                           url: target.getAttribute('data-url')
-                       });
-                   }
-                   if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
-                       this.$ownerInstance.callMethod('goPerson', {
-                           id: target.getAttribute('data-at')
-                       });
-                   }
-               });
-           }
-       }
-}
+    mounted () {
+            this.bindEvent();
+        },
+        methods: {
+            bindEvent () {
+                document.querySelector(`.chating_container`).addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (target.getAttribute('data-url')) {
+                        this.$ownerInstance.callMethod('goLink', {
+                            url: target.getAttribute('data-url')
+                        });
+                    }
+                    if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
+                        this.$ownerInstance.callMethod('goPerson', {
+                            id: target.getAttribute('data-at')
+                        });
+                    }
+                });
+            }
+        }
+    }
 </script>
 <style lang="scss" scoped>
 .chating_container {

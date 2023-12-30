@@ -1,9 +1,5 @@
 <template>
-    <view
-        class="row_item"
-        :class="{'arrow_right':arrow}"
-        @click="click"
-    >
+    <view class="row_item" :class="{ arrow_right: arrow }" @click="click">
         <view class="title">
             <text>{{ lable }}</text>
         </view>
@@ -11,19 +7,14 @@
             <text>{{ content }}</text>
         </view>
         <slot>
-            <u-icon
-                v-if="arrow"
-                name="arrow-right"
-                color="#999"
-                size="20"
-            />
+            <u-icon v-if="arrow" name="arrow-right" color="#999" size="20" />
         </slot>
     </view>
 </template>
 
 <script>
 export default {
-    name: "",
+    name: '',
     components: {},
     props: {
         lable: String,
@@ -33,13 +24,11 @@ export default {
             default: false
         }
     },
-    data () {
-        return {
-
-        };
+    data() {
+        return {};
     },
     methods: {
-        click () {
+        click() {
             this.$emit('click');
         }
     }
@@ -47,17 +36,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.row_item {
-		@include vCenterBox();
-		padding: 24rpx 44rpx;
+.row_item {
+    @include vCenterBox();
+    padding: 24rpx 44rpx;
+}
 
-	}
-	
-	.title {
-		margin-right: 24rpx;
-	}
+.title {
+    margin-right: 24rpx;
+}
 
-	.arrow_right {
-		justify-content: space-between;
-	}
+.arrow_right {
+    justify-content: space-between;
+}
 </style>

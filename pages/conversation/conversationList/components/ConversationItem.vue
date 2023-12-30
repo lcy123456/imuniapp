@@ -1,6 +1,6 @@
 <template>
     <uni-swipe-action-item
-        :key="`${(source.conversationID)}-swipe-action-item`"
+        :key="`${source.conversationID}-swipe-action-item`"
         :right-options="getSwipeActions || []"
         :disabled="isDisabled"
         :threshold="50"
@@ -29,14 +29,13 @@
                             v-if="messagePrefix"
                             class="lastest_msg_prefix"
                             :class="{
-                                lastest_msg_prefix_active: needActivePerfix || source.draftText,
+                                lastest_msg_prefix_active:
+                                    needActivePerfix || source.draftText
                             }"
                         >
                             {{ messagePrefix }}
                         </text>
-                        <text
-                            class="lastest_msg_content"
-                        >
+                        <text class="lastest_msg_content">
                             {{ html2Text(latestMessage) }}
                         </text>
                     </view>
@@ -64,7 +63,7 @@
 import IMSDK, {
     GroupAtType,
     MessageReceiveOptType,
-    SessionType,
+    SessionType
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { html2Text, draftText2Text } from '@/util/common';
@@ -72,33 +71,30 @@ import { mapGetters } from 'vuex';
 import {
     parseMessageByType,
     formatConversionTime,
-    prepareConversationState,
+    prepareConversationState
 } from '@/util/imCommon';
 import { setConversations } from '@/api/conversation';
 
 export default {
     components: {
-        MyAvatar,
+        MyAvatar
     },
     props: {
         source: {
             type: Object,
-            default: () => {},
+            default: () => {}
         },
         isDisabled: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
-    data () {
+    data() {
         return {};
     },
     computed: {
-        ...mapGetters([
-            'storeCurrentUserID',
-            'storeCurrentConversation'
-        ]),
-        messagePrefix () {
+        ...mapGetters(['storeCurrentUserID', 'storeCurrentConversation']),
+        messagePrefix() {
             if (html2Text(draftText2Text(this.source.draftText))) {
                 return '[草稿]';
             }
@@ -109,25 +105,26 @@ export default {
             }
             if (this.needActivePerfix) {
                 switch (this.source.groupAtType) {
-                case GroupAtType.AtAll:
-                    prefix = '[所有人]';
-                    break;
-                case GroupAtType.AtMe:
-                    prefix = '[有人@你]';
-                    break;
-                case GroupAtType.AtAllAtMe:
-                    prefix = '[有人@你]';
-                    break;
-                case GroupAtType.AtGroupNotice:
-                    prefix = '[群公告]';
-                    break;
+                    case GroupAtType.AtAll:
+                        prefix = '[所有人]';
+                        break;
+                    case GroupAtType.AtMe:
+                        prefix = '[有人@你]';
+                        break;
+                    case GroupAtType.AtAllAtMe:
+                        prefix = '[有人@你]';
+                        break;
+                    case GroupAtType.AtGroupNotice:
+                        prefix = '[群公告]';
+                        break;
                 }
             }
 
             return prefix;
         },
-        latestMessage () {
-            if (html2Text(draftText2Text(this.source.draftText))) return draftText2Text(this.source.draftText);
+        latestMessage() {
+            if (html2Text(draftText2Text(this.source.draftText)))
+                return draftText2Text(this.source.draftText);
             if (this.source.latestMsg === '') return '';
             let parsedMessage;
             try {
@@ -138,24 +135,24 @@ export default {
             if (!parsedMessage) return '';
             return parseMessageByType(parsedMessage);
         },
-        needActivePerfix () {
+        needActivePerfix() {
             return this.source.groupAtType !== GroupAtType.AtNormal;
         },
-        latestMessageTime () {
+        latestMessageTime() {
             return this.source.latestMsgSendTime
                 ? formatConversionTime(this.source.latestMsgSendTime)
                 : '';
         },
-        notAccept () {
+        notAccept() {
             return this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
         },
-        isGroup () {
+        isGroup() {
             return this.source.conversationType === SessionType.WorkingGroup;
         },
-        isNotify () {
+        isNotify() {
             return this.source.conversationType === SessionType.Notification;
         },
-        isArchvist () {
+        isArchvist() {
             try {
                 const attachedInfo = JSON.parse(this.source.attachedInfo);
                 return attachedInfo.archvist === 1;
@@ -163,60 +160,69 @@ export default {
                 return false;
             }
         },
-        getSwipeActions () {
-            const notAccept = this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
+        getSwipeActions() {
+            const notAccept =
+                this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
             let actions = [
                 {
                     text: `${notAccept ? '打开' : '关闭'}通知`,
-                    icon: `/static/images/conversation_${notAccept ? 'accept' : 'not_accept_white' }.png`,
+                    icon: `/static/images/conversation_${
+                        notAccept ? 'accept' : 'not_accept_white'
+                    }.png`,
                     style: {
-                        backgroundColor: '#e39f4e',
-                    },
+                        backgroundColor: '#e39f4e'
+                    }
                 },
                 {
                     text: `${this.source.isPinned ? '取消' : ''}置顶`,
-                    icon: `/static/images/conversation${this.source.isPinned ? '_not' : ''}_pinned.png`,
+                    icon: `/static/images/conversation${
+                        this.source.isPinned ? '_not' : ''
+                    }_pinned.png`,
                     style: {
-                        backgroundColor: '#4ee36f',
-                    },
+                        backgroundColor: '#4ee36f'
+                    }
                 },
                 {
                     text: '删除',
                     icon: `/static/images/conversation_del.png`,
                     style: {
-                        backgroundColor: '#ec4b37',
+                        backgroundColor: '#ec4b37'
                     }
                 },
                 {
                     text: `${this.isArchvist ? '取消归档' : '归档'}`,
-                    icon: `/static/images/archive${this.isArchvist ? '_not' : ''}.svg`,
+                    icon: `/static/images/archive${
+                        this.isArchvist ? '_not' : ''
+                    }.svg`,
                     style: {
-                        backgroundColor: '#37A0EC',
+                        backgroundColor: '#37A0EC'
                     }
-                },
+                }
             ];
             if (this.source.unreadCount > 0) {
                 actions.unshift({
                     text: '标记已读',
                     icon: `/static/images/conversation_read.png`,
                     style: {
-                        backgroundColor: '#3478f5',
+                        backgroundColor: '#3478f5'
                     }
                 });
             }
             return actions;
-        },
+        }
     },
     methods: {
         html2Text,
-        clickConversationItem () {
+        clickConversationItem() {
             if (this.source.isArchvistItem) {
-                uni.$u.route('pages/conversation/conversationList/conversationArchvist');
+                uni.$u.route(
+                    'pages/conversation/conversationList/conversationArchvist'
+                );
             } else {
                 prepareConversationState(this.source);
             }
         },
-        async clickConversationMenu ({ index }) {
+        async clickConversationMenu({ index }) {
             this.$loading('加载中');
             const noUnRead = this.getSwipeActions.length === 4;
 
@@ -224,31 +230,33 @@ export default {
             if (noUnRead) tempIndex += 1;
 
             switch (tempIndex) {
-            case 0:
-                await this.handleAsRead();
-                break;
-            case 1:
-                await this.handleAccept();
-                break;
-            case 2:
-                await this.handlePin();
-                break;
-            case 3:
-                await this.handleDel();
-                break;
-            case 4:
-                await this.handleArchive();
+                case 0:
+                    await this.handleAsRead();
+                    break;
+                case 1:
+                    await this.handleAccept();
+                    break;
+                case 2:
+                    await this.handlePin();
+                    break;
+                case 3:
+                    await this.handleDel();
+                    break;
+                case 4:
+                    await this.handleArchive();
             }
             this.$hideLoading();
             this.$emit('closeAllSwipe');
         },
-        async handleArchive () {
+        async handleArchive() {
             try {
-                const archvist = this.source.attachedInfo && JSON.parse(this.source.attachedInfo).archvist === 1 ? 2 : 1;
+                const archvist =
+                    this.source.attachedInfo &&
+                    JSON.parse(this.source.attachedInfo).archvist === 1
+                        ? 2
+                        : 1;
                 await setConversations({
-                    userIDs: [
-                        this.storeCurrentUserID
-                    ],
+                    userIDs: [this.storeCurrentUserID],
                     conversation: {
                         conversationID: this.source.conversationID,
                         conversationType: this.source.conversationType,
@@ -263,7 +271,7 @@ export default {
                 console.log(err);
             }
         },
-        async handleAsRead () {
+        async handleAsRead() {
             try {
                 return await IMSDK.asyncApi(
                     IMSDK.IMMethods.MarkConversationMessageAsRead,
@@ -274,17 +282,23 @@ export default {
                 uni.$u.toast('已读失败');
             }
         },
-        async handleAccept () {
+        async handleAccept() {
             try {
-                return await IMSDK.asyncApi(IMSDK.IMMethods.SetConversationRecvMessageOpt, IMSDK.uuid(), {
-                    conversationID: this.source.conversationID,
-                    opt: this.notAccept ? MessageReceiveOptType.Nomal : MessageReceiveOptType.NotNotify,
-                });
+                return await IMSDK.asyncApi(
+                    IMSDK.IMMethods.SetConversationRecvMessageOpt,
+                    IMSDK.uuid(),
+                    {
+                        conversationID: this.source.conversationID,
+                        opt: this.notAccept
+                            ? MessageReceiveOptType.Nomal
+                            : MessageReceiveOptType.NotNotify
+                    }
+                );
             } catch {
                 uni.$u.toast('通知失败');
             }
         },
-        async handleDel () {
+        async handleDel() {
             try {
                 const res = await IMSDK.asyncApi(
                     IMSDK.IMMethods.DeleteConversationAndDeleteAllMsg,
@@ -300,12 +314,16 @@ export default {
                 uni.$u.toast('删除失败');
             }
         },
-        async handlePin () {
+        async handlePin() {
             try {
-                return await IMSDK.asyncApi(IMSDK.IMMethods.PinConversation, IMSDK.uuid(), {
-                    conversationID: this.source.conversationID,
-                    isPinned: !this.source.isPinned,
-                });
+                return await IMSDK.asyncApi(
+                    IMSDK.IMMethods.PinConversation,
+                    IMSDK.uuid(),
+                    {
+                        conversationID: this.source.conversationID,
+                        isPinned: !this.source.isPinned
+                    }
+                );
             } catch {
                 uni.$u.toast('置顶失败');
             }
@@ -323,7 +341,7 @@ export default {
 
     .left_info {
         @include btwBox();
-        
+
         /deep/.u-avatar {
             border-radius: 30rpx;
             overflow: hidden;
@@ -351,7 +369,7 @@ export default {
                     margin-right: 6rpx;
 
                     &_active {
-                        color: red
+                        color: red;
                     }
                 }
 

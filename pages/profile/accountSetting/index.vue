@@ -2,10 +2,7 @@
 <template>
     <Page>
         <view class="page_container">
-            <CustomNavBar
-                title="账号设置"
-                is-bg-color2
-            />
+            <CustomNavBar title="账号设置" is-bg-color2 />
 
             <view class="info_wrap">
                 <SettingItem
@@ -35,7 +32,7 @@
             :default-index="defaultIndex"
             @confirm="confirm"
             @change="changeHandler"
-            @cancel="show = false;"
+            @cancel="show = false"
         />
     </Page>
 </template>
@@ -53,73 +50,75 @@ export default {
         SettingItem,
         addUser
     },
-    data () {
+    data() {
         return {
             loading: false,
             show: false,
             defaultIndex: [],
-            columns: [[
+            columns: [
+                [
+                    {
+                        id: 1,
+                        label: '提示声一',
+                        value: '/static/audio/voice1.mp3'
+                    },
+                    {
+                        id: 2,
+                        label: '提示声二',
+                        value: '/static/audio/voice2.mp3'
+                    },
+                    {
+                        id: 3,
+                        label: '提示声三',
+                        value: '/static/audio/voice3.mp3'
+                    },
+                    {
+                        id: 4,
+                        label: '提示声四',
+                        value: '/static/audio/voice4.mp3'
+                    }
+                ]
+            ],
+            options: [
                 {
-                    id: 1,
-                    label: '提示声一',
-                    value: '/static/audio/voice1.mp3'
-                },
-                {
-                    id: 2,
-                    label: '提示声二',
-                    value: '/static/audio/voice2.mp3'
-                },
-                {
-                    id: 3,
-                    label: '提示声三',
-                    value: '/static/audio/voice3.mp3'
-                },
-                {
-                    id: 4,
-                    label: '提示声四',
-                    value: '/static/audio/voice4.mp3'
-                },
-            ]],
-            options: [{
-                icon: '/static/images/chating_message_del.png',
-                style: {
-                    backgroundColor: '#f00',
+                    icon: '/static/images/chating_message_del.png',
+                    style: {
+                        backgroundColor: '#f00'
+                    }
                 }
-            }]
+            ]
         };
     },
     computed: {
-        ...mapGetters([
-            "storeSelfInfo"
-        ]),
-        globalOptEnable () {
-            return this.storeSelfInfo.globalRecvMsgOpt !== MessageReceiveOptType.Nomal;
+        ...mapGetters(['storeSelfInfo']),
+        globalOptEnable() {
+            return (
+                this.storeSelfInfo.globalRecvMsgOpt !==
+                MessageReceiveOptType.Nomal
+            );
         }
     },
-    created () {
-    },
+    created() {},
     methods: {
-        setDefaultIndex () {
-            const index = this.columns[0].findIndex(item => item.value === uni.getStorageSync('voice'));
+        setDefaultIndex() {
+            const index = this.columns[0].findIndex(
+                item => item.value === uni.getStorageSync('voice')
+            );
             this.defaultIndex = index === -1 ? [0] : [index];
         },
-        changeHandler (e) {
-            const {
-                value
-            } = e;
+        changeHandler(e) {
+            const { value } = e;
             const item = value[0];
             uni.$emit('play_audio', item.value);
         },
-        confirm (e) {
-            const {
-                value
-            } = e;
+        confirm(e) {
+            const { value } = e;
             const item = value[0];
             uni.setStorageSync('voice', item.value);
             this.show = false;
             uni.$u.toast('设置成功');
         },
-        checkoutVoice () {
+        checkoutVoice() {
             this.setDefaultIndex();
             this.show = true;
             this.$nextTick(() => {
@@ -127,35 +126,39 @@ export default {
                 uni.$emit('play_audio', item.value);
             });
         },
-        toBlockList () {
+        toBlockList() {
             uni.navigateTo({
                 url: '/pages/profile/blockList/index'
             });
         },
-        switchGlobalOpt (flag) {
+        switchGlobalOpt(flag) {
             this.loading = true;
             IMSDK.asyncApi(
-                IMSDK.IMMethods.SetGlobalRecvMessageOpt, 
-                IMSDK.uuid(), 
-                flag ? MessageReceiveOptType.NotNotify : MessageReceiveOptType.Nomal
-            ).finally(() => {
-                this.loading = false;
-            }).catch(() => {
-                uni.$u.toast('设置失败');
-            });
+                IMSDK.IMMethods.SetGlobalRecvMessageOpt,
+                IMSDK.uuid(),
+                flag
+                    ? MessageReceiveOptType.NotNotify
+                    : MessageReceiveOptType.Nomal
+            )
+                .finally(() => {
+                    this.loading = false;
+                })
+                .catch(() => {
+                    uni.$u.toast('设置失败');
+                });
         }
     }
 };
 </script>
 
 <style lang="scss" scoped>
-	.page_container {
-		background-color: $uni-bg-color-grey;
+.page_container {
+    background-color: $uni-bg-color-grey;
 
-		.info_wrap {
-			background-color: $uni-bg-color;
-			margin: 40rpx;
-            border-radius: 30rpx;
-		}
-	}
+    .info_wrap {
+        background-color: $uni-bg-color;
+        margin: 40rpx;
+        border-radius: 30rpx;
+    }
+}
 </style>

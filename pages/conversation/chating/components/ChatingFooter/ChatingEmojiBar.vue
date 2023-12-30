@@ -17,11 +17,7 @@
                     mode="aspectFit"
                     @click="handleSendEmoji(emoji)"
                 />
-                <view
-                    v-for="v in 10" 
-                    :key="v"
-                    class="emoji_item_temp"
-                />
+                <view v-for="v in 10" :key="v" class="emoji_item_temp" />
             </swiper-item>
             <swiper-item class="chat_gifs_bar">
                 <uni-search-bar
@@ -31,9 +27,7 @@
                     @confirm="handleGetGifs(true)"
                     @cancel="handleSearchCancle"
                 />
-                <Empty
-                    v-if="gifsData.length === 0"
-                />
+                <Empty v-if="gifsData.length === 0" />
                 <scroll-view
                     v-else
                     class="chat_gifs_container"
@@ -48,25 +42,19 @@
                         mode="aspectFit"
                         @click="handleSendGif(v)"
                     />
+                    <view v-for="v in 10" :key="v" class="gif_item_temp" />
                     <view
-                        v-for="v in 10" 
-                        :key="v"
-                        class="gif_item_temp"
-                    />
-                    <view :class="`w-full ${gifsData.length === 0 && 'absolute t-0'}`">
+                        :class="`w-full ${
+                            gifsData.length === 0 && 'absolute t-0'
+                        }`"
+                    >
                         <u-loading-icon v-show="gifLoading" />
                     </view>
                 </scroll-view>
             </swiper-item>
             <swiper-item class="chat_gifs_bar">
-                <Empty
-                    v-if="emoticonsList.length === 0"
-                />
-                <scroll-view
-                    v-else
-                    class="chat_gifs_container"
-                    scroll-y
-                >
+                <Empty v-if="emoticonsList.length === 0" />
+                <scroll-view v-else class="chat_gifs_container" scroll-y>
                     <view
                         v-for="(v, i) in emoticonsList"
                         :key="v + i"
@@ -80,12 +68,12 @@
                             @click="handleSendEmoticons(v)"
                         />
                     </view>
+                    <view v-for="v in 4" :key="v" class="gif_item" />
                     <view
-                        v-for="v in 4" 
-                        :key="v"
-                        class="gif_item"
-                    />
-                    <view :class="`w-full ${gifsData.length === 0 && 'absolute t-0'}`">
+                        :class="`w-full ${
+                            gifsData.length === 0 && 'absolute t-0'
+                        }`"
+                    >
                         <u-loading-icon v-show="gifLoading" />
                     </view>
                 </scroll-view>
@@ -105,9 +93,9 @@
 </template>
 
 <script>
-import { getGifsSearch } from "@/api/index.js";
-import emojis from "@/common/emojis.js";
-import MyImage from "@/components/MyImage";
+import { getGifsSearch } from '@/api/index.js';
+import emojis from '@/common/emojis.js';
+import MyImage from '@/components/MyImage';
 
 const limit = 25;
 
@@ -115,7 +103,7 @@ export default {
     components: {
         MyImage
     },
-    data () {
+    data() {
         return {
             showActionSheet: false,
             actionSheetMenu: [
@@ -130,7 +118,7 @@ export default {
             ],
             current: 0,
             emojiList: Object.freeze(emojis),
-            keyword: "",
+            keyword: '',
             emoticonsList: [],
             gifScrollEnd: false,
             gifLoading: false,
@@ -139,7 +127,7 @@ export default {
         };
     },
     computed: {
-        getHeight () {
+        getHeight() {
             const { current } = this;
             let height = '300rpx';
             if (current === 1 || current === 2) {
@@ -150,12 +138,12 @@ export default {
             };
         }
     },
-    created () {
+    created() {
         uni.$on('undateEmoticons', this.getEmoticonsList);
         this.getEmoticonsList();
     },
     methods: {
-        selectClick ({ type }) {
+        selectClick({ type }) {
             if (type === 0) {
                 const list = [...this.emoticonsList];
                 list.splice(this.index, 1);
@@ -166,23 +154,25 @@ export default {
                 this.showActionSheet = false;
             }
         },
-        handleLongpress (item, index) {
+        handleLongpress(item, index) {
             this.showActionSheet = true;
             this.index = index;
         },
-        getEmoticonsList () {
-            this.emoticonsList = uni.getStorageSync('emoticonsList') ? JSON.parse(uni.getStorageSync('emoticonsList')) : [];
+        getEmoticonsList() {
+            this.emoticonsList = uni.getStorageSync('emoticonsList')
+                ? JSON.parse(uni.getStorageSync('emoticonsList'))
+                : [];
         },
-        handleSwiperChange ({detail}) {
+        handleSwiperChange({ detail }) {
             this.current = detail.current;
         },
-        handleSendEmoji (emoji) {
+        handleSendEmoji(emoji) {
             this.$emit('emojiClick', emoji);
         },
-        handleSearchCancle () {
+        handleSearchCancle() {
             this.gifsData = [];
         },
-        async handleGetGifs (isInit) {
+        async handleGetGifs(isInit) {
             if (isInit) this.gifScrollEnd = false;
             if (this.gifScrollEnd) return;
             this.gifLoading = true;
@@ -198,11 +188,11 @@ export default {
             // console.log('getGifs', res);
             this.gifLoading = false;
         },
-        handleSendGif (v) {
+        handleSendGif(v) {
             const original = v.images.original;
             this.$emit('sendGif', original);
         },
-        handleSendEmoticons (v) {
+        handleSendEmoticons(v) {
             this.$emit('sendGif', {
                 url: v
             });
@@ -232,7 +222,6 @@ export default {
             width: 80rpx;
             height: 0;
         }
-
     }
     .chat_gifs_bar {
         display: flex;

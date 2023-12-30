@@ -15,7 +15,7 @@
 import wxDiscode from './wxDiscode';
 import HTMLParser from './htmlparser';
 
-function makeMap (str) {
+function makeMap(str) {
     const obj = {};
     const items = str.split(',');
     for (let i = 0; i < items.length; i += 1) obj[items[i]] = true;
@@ -23,21 +23,25 @@ function makeMap (str) {
 }
 
 // Block Elements - HTML 5
-const block = makeMap('br,code,address,article,applet,aside,audio,blockquote,button,canvas,center,dd,del,dir,div,dl,dt,fieldset,figcaption,figure,footer,form,frameset,h1,h2,h3,h4,h5,h6,header,hgroup,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,output,p,pre,section,script,table,tbody,td,tfoot,th,thead,tr,ul,video');
+const block = makeMap(
+    'br,code,address,article,applet,aside,audio,blockquote,button,canvas,center,dd,del,dir,div,dl,dt,fieldset,figcaption,figure,footer,form,frameset,h1,h2,h3,h4,h5,h6,header,hgroup,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,output,p,pre,section,script,table,tbody,td,tfoot,th,thead,tr,ul,video'
+);
 
 // Inline Elements - HTML 5
-const inline = makeMap('a,abbr,acronym,applet,b,basefont,bdo,big,button,cite,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var');
+const inline = makeMap(
+    'a,abbr,acronym,applet,b,basefont,bdo,big,button,cite,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var'
+);
 
 // Elements that you can, intentionally, leave open
 // (and which close themselves)
 const closeSelf = makeMap('colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr');
 
-function removeDOCTYPE (html) {
+function removeDOCTYPE(html) {
     const isDocument = /<body.*>([^]*)<\/body>/.test(html);
     return isDocument ? RegExp.$1 : html;
 }
 
-function trimHtml (html) {
+function trimHtml(html) {
     return html
         .replace(/<!--.*?-->/gi, '')
         .replace(/\/\*.*?\*\//gi, '')
@@ -46,18 +50,18 @@ function trimHtml (html) {
         .replace(/<style[^]*<\/style>/gi, '');
 }
 
-function getScreenInfo () {
+function getScreenInfo() {
     const screen = {};
     wx.getSystemInfo({
-        success: (res) => {
+        success: res => {
             screen.width = res.windowWidth;
             screen.height = res.windowHeight;
-        },
+        }
     });
     return screen;
 }
 
-function html2json (html, customHandler, imageProp, host) {
+function html2json(html, customHandler, imageProp, host) {
     // 处理字符串
     html = removeDOCTYPE(html);
     html = trimHtml(html);
@@ -66,19 +70,19 @@ function html2json (html, customHandler, imageProp, host) {
     const bufArray = [];
     const results = {
         nodes: [],
-        imageUrls: [],
+        imageUrls: []
     };
 
     const screen = getScreenInfo();
-    function Node (tag) {
+    function Node(tag) {
         this.node = 'element';
         this.tag = tag;
-		
+
         this.$screen = screen;
     }
 
     HTMLParser(html, {
-        start (tag, attrs, unary) {
+        start(tag, attrs, unary) {
             // node for this element
             const node = new Node(tag);
 
@@ -145,7 +149,7 @@ function html2json (html, customHandler, imageProp, host) {
                 let imgUrl = node.attr.src;
                 imgUrl = wxDiscode.urlToHttpUrl(imgUrl, imageProp.domain);
                 Object.assign(node.attr, imageProp, {
-                    src: imgUrl || '',
+                    src: imgUrl || ''
                 });
                 if (imgUrl) {
                     results.imageUrls.push(imgUrl);
@@ -166,17 +170,20 @@ function html2json (html, customHandler, imageProp, host) {
                     'large',
                     'x-large',
                     'xx-large',
-                    '-webkit-xxx-large',
+                    '-webkit-xxx-large'
                 ];
                 const styleAttrs = {
                     color: 'color',
                     face: 'font-family',
-                    size: 'font-size',
+                    size: 'font-size'
                 };
                 if (!node.styleStr) node.styleStr = '';
-                Object.keys(styleAttrs).forEach((key) => {
+                Object.keys(styleAttrs).forEach(key => {
                     if (node.attr[key]) {
-                        const value = key === 'size' ? fontSize[node.attr[key] - 1] : node.attr[key];
+                        const value =
+                            key === 'size'
+                                ? fontSize[node.attr[key] - 1]
+                                : node.attr[key];
                         node.styleStr += `${styleAttrs[key]}: ${value};`;
                     }
                 });
@@ -204,7 +211,7 @@ function html2json (html, customHandler, imageProp, host) {
                 bufArray.unshift(node);
             }
         },
-        end (tag) {
+        end(tag) {
             // merge into parent tag
             const node = bufArray.shift();
             if (node.tag !== tag) {
@@ -231,12 +238,12 @@ function html2json (html, customHandler, imageProp, host) {
                 parent.nodes.push(node);
             }
         },
-        chars (text) {
+        chars(text) {
             if (!text.trim()) return;
 
             const node = {
                 node: 'text',
-                text,
+                text
             };
 
             if (customHandler.chars) {
@@ -252,7 +259,7 @@ function html2json (html, customHandler, imageProp, host) {
                 }
                 parent.nodes.push(node);
             }
-        },
+        }
     });
 
     return results;

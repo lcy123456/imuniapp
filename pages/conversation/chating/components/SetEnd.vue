@@ -1,12 +1,6 @@
 <template>
-    <view
-        class="set-end"
-        @click="setPositionMsgID('')"
-    >
-        <view
-            v-if="conversationUnread"
-            class="unread"
-        >
+    <view class="set-end" @click="setPositionMsgID('')">
+        <view v-if="conversationUnread" class="unread">
             {{ conversationUnread < 100 ? conversationUnread : '99+' }}
         </view>
         <image src="/static/images/set-end.png" />
@@ -15,17 +9,17 @@
 <script>
 import { mapGetters } from 'vuex';
 export default {
-    data () {
+    data() {
         return {};
     },
     computed: {
-        ...mapGetters(['conversationUnread']),
+        ...mapGetters(['conversationUnread'])
     },
     methods: {
-        setPositionMsgID () {
+        setPositionMsgID() {
             uni.$emit('setPositionMsgID', '');
-        },
-    },
+        }
+    }
 };
 </script>
 <style lang="scss" scoped>

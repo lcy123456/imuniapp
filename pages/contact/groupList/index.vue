@@ -1,10 +1,7 @@
 <template>
     <Page>
         <view class="group_list_container">
-            <CustomNavBar
-                title="我的群组"
-                is-bg-color2
-            >
+            <CustomNavBar title="我的群组" is-bg-color2>
                 <view
                     slot="more"
                     class="mr-30 primary ff-medium fz-30"
@@ -26,16 +23,13 @@
             </view>
 
             <view class="bg-color px-30 py-28">
-                <MyTabs
-                    :list="tabList"
-                    @change="tabsChange"
-                />
+                <MyTabs :list="tabList" @change="tabsChange" />
             </view>
             <view class="pane_row">
                 <view
                     class="pane_transform"
                     :style="{
-                        transform: `translateX(${isMyCreate ? '0' : '-100%'})`,
+                        transform: `translateX(${isMyCreate ? '0' : '-100%'})`
                     }"
                 >
                     <view class="pane_content">
@@ -50,10 +44,7 @@
                                 <GroupItem :group-info="group" />
                             </u-list-item>
                         </u-list>
-                        <u-empty
-                            v-else
-                            mode="list"
-                        />
+                        <u-empty v-else mode="list" />
                     </view>
                     <view class="pane_content">
                         <u-list
@@ -67,10 +58,7 @@
                                 <GroupItem :group-info="group" />
                             </u-list-item>
                         </u-list>
-                        <u-empty
-                            v-else
-                            mode="list"
-                        />
+                        <u-empty v-else mode="list" />
                     </view>
                 </view>
             </view>
@@ -88,23 +76,23 @@ export default {
     components: {
         CustomNavBar,
         MyTabs,
-        GroupItem,
+        GroupItem
     },
-    data () {
+    data() {
         return {
             keyword: '',
             tabList: [
                 { label: '我创建的', value: 0 },
-                { label: '我加入的', value: 1 },
+                { label: '我加入的', value: 1 }
             ],
-            isMyCreate: true,
+            isMyCreate: true
         };
     },
     computed: {
         ...mapGetters(['storeGroupList', 'storeCurrentUserID']),
-        getMyCreateGroupList () {
+        getMyCreateGroupList() {
             return this.storeGroupList.filter(
-                (group) => group.ownerUserID === this.storeCurrentUserID
+                group => group.ownerUserID === this.storeCurrentUserID
             );
         },
         // getListHeight () {
@@ -114,24 +102,24 @@ export default {
         //     const titleBar = 32;
         //     return uni.getWindowInfo().safeArea.height - statusBar - searchBar - tabAndNavBar - titleBar;
         // },
-        getMyJoinedGroupList () {
+        getMyJoinedGroupList() {
             // console.log(this.storeGroupList.filter(group => group.ownerUserID !== this.storeCurrentUserID));
             return this.storeGroupList.filter(
-                (group) => group.ownerUserID !== this.storeCurrentUserID
+                group => group.ownerUserID !== this.storeCurrentUserID
             );
-        },
+        }
     },
-    mounted () {},
+    mounted() {},
     methods: {
-        tabsChange ({ value }) {
+        tabsChange({ value }) {
             this.isMyCreate = value === 0;
         },
-        toCreateGroup () {
+        toCreateGroup() {
             uni.navigateTo({
-                url: `/pages/common/createGroup/index`,
+                url: `/pages/common/createGroup/index`
             });
-        },
-    },
+        }
+    }
 };
 </script>
 

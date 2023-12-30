@@ -19,7 +19,7 @@ import defaultAvatars from '@/common/defaultAvatars.js';
 import defaultGroupIcon from 'static/images/contact_my_group.png';
 import defaultNotifyIcon from 'static/images/default_notify_icon.png';
 export default {
-    name: "MyAvatar",
+    name: 'MyAvatar',
     props: {
         src: {
             type: String,
@@ -50,13 +50,13 @@ export default {
             default: ''
         }
     },
-    data () {
+    data() {
         return {
             avatarText: undefined
         };
     },
     computed: {
-        getAvatarUrl () {
+        getAvatarUrl() {
             if (this.isNotify) {
                 return defaultNotifyIcon;
             }
@@ -68,28 +68,29 @@ export default {
             }
             return '';
         },
-        getDdefaultUrl () {
+        getDdefaultUrl() {
             return this.isGroup ? defaultGroupIcon : undefined;
         }
     },
     watch: {
-        desc () {
+        desc() {
             this.errorHandle();
         }
     },
     methods: {
-        errorHandle () {
-            this.avatarText = this.desc ? this.desc.slice(this.desc.length > 1 ? -2 : -1) : '未知';
+        errorHandle() {
+            this.avatarText = this.desc
+                ? this.desc.slice(this.desc.length > 1 ? -2 : -1)
+                : '未知';
         },
-        click () {
+        click() {
             this.$emit('click');
         },
-        longpress () {
+        longpress() {
             this.$emit('longpress');
         }
-    },
+    }
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

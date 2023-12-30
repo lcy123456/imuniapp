@@ -1,14 +1,8 @@
 <template>
-    <view
-        class="action_item"
-        @click="onClick"
-    >
+    <view class="action_item" @click="onClick">
         <slot name="icon">
             <view class="action_icon">
-                <image
-                    :src="action.icon"
-                    mode=""
-                />
+                <image :src="action.icon" mode="" />
             </view>
         </slot>
 
@@ -26,17 +20,15 @@
 
 <script>
 export default {
-    name: "",
+    name: '',
     props: {
         action: Object
     },
-    data () {
-        return {
-
-        };
+    data() {
+        return {};
     },
     methods: {
-        onClick () {
+        onClick() {
             this.$emit('click', this.action);
         }
     }
@@ -44,45 +36,44 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.action_item {
-		@include vCenterBox();
-		padding: 20rpx 30rpx;
+.action_item {
+    @include vCenterBox();
+    padding: 20rpx 30rpx;
 
-		.action_icon {
-			width: 30px;
-			height: 30px;
+    .action_icon {
+        width: 30px;
+        height: 30px;
 
-			image {
-				max-width: 100%;
-				max-height: 100%;
-			}
-		}
+        image {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    }
 
-		.action_details {
-			@include colBox(false);
-			margin-left: 20rpx;
-			width: 100%;
-			position: relative;
+    .action_details {
+        @include colBox(false);
+        margin-left: 20rpx;
+        width: 100%;
+        position: relative;
 
-			.title {
-                font-size: 28rpx;
-				font-weight: 500;
-				margin-bottom: 10rpx;
-			}
+        .title {
+            font-size: 28rpx;
+            font-weight: 500;
+            margin-bottom: 10rpx;
+        }
 
-			.desc {
-				font-size: 24rpx;
-				color: $uni-text-color-grey;
-			}
+        .desc {
+            font-size: 24rpx;
+            color: $uni-text-color-grey;
+        }
 
-			.bottom_line {
-				height: 1px;
-				width: 100%;
-				background-color: #F0F0F0;
-				position: absolute;
-				bottom: -20rpx;
-			}
-
-		}
-	}
+        .bottom_line {
+            height: 1px;
+            width: 100%;
+            background-color: #f0f0f0;
+            position: absolute;
+            bottom: -20rpx;
+        }
+    }
+}
 </style>
