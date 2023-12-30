@@ -2,7 +2,7 @@
     <view
         id="chating_container"
         class="chating_container"
-        :style="{height: height, transition: transition}"
+        :style="{ height: height, transition: transition }"
         @touchstart="handleHideMenu"
     >
         <!-- <video id="screenshare-video" autoplay playsinline></video> -->
@@ -36,9 +36,7 @@
             :checked-msg-ids="checkedMsgIds"
             @sendInit="setPositionMsgID('')"
         />
-        <SetEnd
-            v-show="storeIsShowSetEnd"
-        />
+        <SetEnd v-show="storeIsShowSetEnd" />
         <!-- <u-loading-page :loading="initLoading" /> -->
         <view style="height: 0">
             <transition name="fade">
@@ -70,13 +68,15 @@ import ChatingList from './components/ChatingList.vue';
 import MessageMenu from './components/MessageMenu';
 import { markConversationAsRead } from '@/util/imCommon';
 import { MessageMenuTypes } from '@/constant';
-import IMSDK, { IMMethods, MessageType, SessionType } from 'openim-uniapp-polyfill';
+import IMSDK, {
+    IMMethods,
+    MessageType,
+    SessionType,
+} from 'openim-uniapp-polyfill';
 import PinToTop from './components/pinToTop.vue';
 import JoinGroupCall from './components/JoinGroupCall.vue';
-import { PageEvents } from "@/constant";
-import {
-    MediaRenderTypes,
-} from '@/constant';
+import { PageEvents } from '@/constant';
+import { MediaRenderTypes } from '@/constant';
 export default {
     components: {
         ChatingHeader,
@@ -85,14 +85,14 @@ export default {
         MessageMenu,
         SetEnd,
         PinToTop,
-        JoinGroupCall
+        JoinGroupCall,
     },
-    provide () {
+    provide() {
         return {
-            getSearchRecordMedia: this.getSearchRecordMedia
+            getSearchRecordMedia: this.getSearchRecordMedia,
         };
     },
-    data () {
+    data() {
         return {
             test: false,
             isShowNotification: false,
@@ -116,9 +116,9 @@ export default {
             menuState: {
                 visible: false,
                 paterRect: {},
-                message: {}
+                message: {},
             },
-            imgList: []
+            imgList: [],
         };
     },
     computed: {
@@ -131,18 +131,21 @@ export default {
             'storePinList',
             'storeHasMoreAfterMessage',
             'storeKeyBoardHeight',
-            'storeIsShowkeyBoard'
+            'storeIsShowkeyBoard',
         ]),
-        checkedMsg () {
-            return this.storeHistoryMessageList.filter((v) =>
-                this.checkedMsgIds.includes(v.clientMsgID)
+        checkedMsg() {
+            return this.storeHistoryMessageList.filter(v =>
+                this.checkedMsgIds.includes(v.clientMsgID),
             );
         },
-        isWorkingGroup () {
-            return this.storeCurrentConversation.conversationType === SessionType.WorkingGroup;
-        }
+        isWorkingGroup() {
+            return (
+                this.storeCurrentConversation.conversationType ===
+                SessionType.WorkingGroup
+            );
+        },
     },
-    onLoad (options) {
+    onLoad(options) {
         const { back2Tab, clientMsgID } = options;
         this.back2Tab = !!JSON.parse(back2Tab);
         this.clientMsgID = clientMsgID;
@@ -157,12 +160,12 @@ export default {
         this.getSearchRecordMedia();
         this.getPinList();
     },
-    onUnload () {
+    onUnload() {
         markConversationAsRead(
             {
                 ...this.$store.getters.storeCurrentConversation,
             },
-            true
+            true,
         );
         this.resetConversationState();
         this.resetMessageState();
@@ -175,14 +178,14 @@ export default {
         uni.$off('inputFocus', this.inputFocus);
         this.$store.commit('base/SET_PIN_LIST', []);
     },
-    onHide () {
+    onHide() {
         this.isHide = true;
         this.isShowkeyBoard = this.storeIsShowkeyBoard;
         if (this.storeIsShowkeyBoard) {
             uni.$emit('inputFocus');
         }
     },
-    onShow () {
+    onShow() {
         this.isHide = false;
         if (this.isShowkeyBoard) {
             uni.$emit('setInputFocus');
@@ -192,46 +195,57 @@ export default {
         ...mapActions('message', ['resetMessageState']),
         ...mapActions('conversation', ['resetConversationState']),
         ...mapActions('base', ['pinList']),
-        inputBlur () {
+        inputBlur() {
             if (this.isHide) return;
             this.transition = 'all 0.2s';
             this.height = '100%';
         },
-        inputFocus () {
+        inputFocus() {
             if (uni.$u.os() !== 'ios') return;
             this.transition = 'all 0.239s';
-            this.height = this.storeKeyBoardHeight ? uni.getSystemInfoSync().windowHeight - this.storeKeyBoardHeight + 'px' : '100%';
+            this.height = this.storeKeyBoardHeight
+                ? uni.getSystemInfoSync().windowHeight -
+                  this.storeKeyBoardHeight +
+                  'px'
+                : '100%';
         },
-        async handleHideMenu () {
+        async handleHideMenu() {
             if (!this.storeIsShowSetEnd) {
                 this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
             }
             this.menuState.visible = false;
         },
-        async getPinList () {
+        async getPinList() {
             let conversationID = this.storeCurrentConversation.conversationID;
             this.pinList(conversationID);
-            
         },
-        scroll () {
+        scroll() {
             this.handleHideMenu();
             // uni.hideKeyboard();
         },
-        setPositionMsgID (positionMsgID, seq) {
+        setPositionMsgID(positionMsgID, seq) {
             this.positionMsgID = positionMsgID;
             this.$refs.chatingListRef.setPositionMsgID(this.positionMsgID, seq);
-            if (!this.storeHasMoreAfterMessage && !this.positionMsgID && this.storeHistoryMessageList.length <= 120) {
+            if (
+                !this.storeHasMoreAfterMessage &&
+                !this.positionMsgID &&
+                this.storeHistoryMessageList.length <= 120
+            ) {
                 uni.$emit(PageEvents.ScrollToBottom);
             } else {
-                const index = this.storeHistoryMessageList.findIndex(item => item.clientMsgID === positionMsgID);
+                const index = this.storeHistoryMessageList.findIndex(
+                    item => item.clientMsgID === positionMsgID,
+                );
                 if (this.positionMsgID && index > -1) {
-                    this.$refs.chatingListRef.scrollToAnchor(`auchor-${positionMsgID}`);
+                    this.$refs.chatingListRef.scrollToAnchor(
+                        `auchor-${positionMsgID}`,
+                    );
                 } else {
                     this.reloadChatingList();
                 }
             }
         },
-        reloadChatingList () {
+        reloadChatingList() {
             const pages = getCurrentPages();
             const currentPage = pages[pages.length - 1];
             const page = currentPage.route;
@@ -239,13 +253,13 @@ export default {
                 this.$refs.chatingListRef.init();
             }
         },
-        updatePin (map) {
+        updatePin(map) {
             this.notificationText = map.text;
             this.notificationIcon = map.icon;
             this.isShowNotification = true;
             this.getPinList();
         },
-        async getSearchRecordMedia () {
+        async getSearchRecordMedia() {
             let conversationID = this.storeCurrentConversation.conversationID;
             const params = {
                 conversationID: conversationID,
@@ -259,114 +273,125 @@ export default {
             const { data } = await IMSDK.asyncApi(
                 IMMethods.SearchLocalMessages,
                 IMSDK.uuid(),
-                params
+                params,
             );
             let imgList = data.searchResultItems?.[0]?.messageList || [];
-            this.imgList = imgList.map((v) => {
+            this.imgList = imgList.map(v => {
                 const { contentType, pictureElem, videoElem } = v;
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
                     url: pictureElem?.sourcePicture.url,
-                    poster: [pictureElem?.sourcePicture.url, pictureElem?.sourcePath, v.localEx],
+                    poster: [
+                        pictureElem?.sourcePicture.url,
+                        pictureElem?.sourcePath,
+                        v.localEx,
+                    ],
                     type: 'image',
                 };
                 if (isVideo) {
                     map = {
                         url: videoElem.videoUrl,
-                        poster: [videoElem?.snapshotUrl, videoElem?.snapshotPath, v.localEx],
+                        poster: [
+                            videoElem?.snapshotUrl,
+                            videoElem?.snapshotPath,
+                            v.localEx,
+                        ],
                         type: 'video',
                     };
                 }
                 return map;
             });
             this.imgList.reverse();
-            this.$store.commit('conversation/SET_CONVERSATION_MEDIA_LIST', this.imgList);
+            this.$store.commit(
+                'conversation/SET_CONVERSATION_MEDIA_LIST',
+                this.imgList,
+            );
         },
-        chatingTouchStart () {
+        chatingTouchStart() {
             this.footerOutsideFlag += 1;
         },
-        chatingTouchEnd () {
+        chatingTouchEnd() {
             // uni.$emit("inputBlur");
             // uni.hideKeyboard();
         },
-        chatingTouchMove () {
+        chatingTouchMove() {
             // uni.hideKeyboard();
         },
-        getEl (el) {
-            return new Promise((resolve) => {
+        getEl(el) {
+            return new Promise(resolve => {
                 const query = uni.createSelectorQuery().in(this);
                 query
                     .select(el)
-                    .boundingClientRect((data) => {
+                    .boundingClientRect(data => {
                         resolve(data);
                     })
                     .exec();
             });
         },
-        initSuccess () {
+        initSuccess() {
             this.initLoading = false;
         },
-        menuRect (res) {
+        menuRect(res) {
             this.menuState.paterRect = {
                 ...res,
-                message: undefined
+                message: undefined,
             };
             this.menuState.message = res.message;
             this.menuState.visible = true;
             // uni.hideKeyboard();
         },
-        async handleMultipleMessage ({ show, message, type = '' }) {
+        async handleMultipleMessage({ show, message, type = '' }) {
             this.chatingTouchStart();
             this.isMultipleMsg = show;
             switch (type) {
-            case MessageMenuTypes.Init:
-                this.checkedMsgIds = [message.clientMsgID];
-                break;
-            case MessageMenuTypes.Checked:
-                const index = this.checkedMsgIds.indexOf(
-                    message.clientMsgID
-                );
-                if (index > -1) {
-                    this.checkedMsgIds.splice(index, 1);
-                } else {
-                    this.checkedMsgIds.push(message.clientMsgID);
-                }
-                break;
-            case MessageMenuTypes.DelAll:
-                if (this.checkedMsg.length === 0) return;
-                if (this.isWorkingGroup) {
-                    let isAllMyMsg = true;
-                    this.checkedMsg.forEach(msg => {
-                        if (msg.sendID !== this.storeSelfInfo.userID) {
-                            isAllMyMsg = false;
+                case MessageMenuTypes.Init:
+                    this.checkedMsgIds = [message.clientMsgID];
+                    break;
+                case MessageMenuTypes.Checked:
+                    const index = this.checkedMsgIds.indexOf(
+                        message.clientMsgID,
+                    );
+                    if (index > -1) {
+                        this.checkedMsgIds.splice(index, 1);
+                    } else {
+                        this.checkedMsgIds.push(message.clientMsgID);
+                    }
+                    break;
+                case MessageMenuTypes.DelAll:
+                    if (this.checkedMsg.length === 0) return;
+                    if (this.isWorkingGroup) {
+                        let isAllMyMsg = true;
+                        this.checkedMsg.forEach(msg => {
+                            if (msg.sendID !== this.storeSelfInfo.userID) {
+                                isAllMyMsg = false;
+                            }
+                        });
+                        if (!isAllMyMsg) {
+                            uni.$u.toast('无法删除其他人的消息');
+                            break;
                         }
-                    });
-                    if (!isAllMyMsg) {
-                        uni.$u.toast('无法删除其他人的消息');
-                        break;
                     }
-                }
-                this.handleMsgDel(this.checkedMsg);
-                break;
-            case MessageMenuTypes.Del:
-                this.handleMsgDel([message]);
-                break;
-            case MessageMenuTypes.ForwardAll:
-                if (this.checkedMsg.length === 0) return;
-                const res = await IMSDK.asyncApi(
-                    IMMethods.CreateMergerMessage,
-                    IMSDK.uuid(),
-                    {
-                        messageList: this.checkedMsg,
-                        title: `${this.storeSelfInfo.nickname}与${this.storeCurrentConversation.showName}的聊天记录`,
-                        summaryList: [],
-                    }
-                );
-                this.handleForward(res);
-                break;
+                    this.handleMsgDel(this.checkedMsg);
+                    break;
+                case MessageMenuTypes.Del:
+                    this.handleMsgDel([message]);
+                    break;
+                case MessageMenuTypes.ForwardAll:
+                    if (this.checkedMsg.length === 0) return;
+                    const res = await IMSDK.asyncApi(
+                        IMMethods.CreateMergerMessage,
+                        IMSDK.uuid(),
+                        {
+                            messageList: this.checkedMsg,
+                            title: `${this.storeSelfInfo.nickname}与${this.storeCurrentConversation.showName}的聊天记录`,
+                            summaryList: [],
+                        },
+                    );
+                    this.handleForward(res);
+                    break;
             }
         },
-        async handleMsgDel (msgArr) {
+        async handleMsgDel(msgArr) {
             try {
                 // this.$loading('删除中');
                 for (let i = 0; i < msgArr.length; i++) {
@@ -378,7 +403,7 @@ export default {
                             conversationID:
                                 this.storeCurrentConversation.conversationID,
                             clientMsgID: message.clientMsgID,
-                        }
+                        },
                     );
                 }
                 // uni.$u.toast('删除成功');
@@ -387,7 +412,7 @@ export default {
                 // uni.$u.toast('删除失败');
             }
         },
-        async handleForward (msg) {
+        async handleForward(msg) {
             let temp = JSON.parse(JSON.stringify(msg));
             temp.mergeElem.multiMessage.forEach(v => {
                 if (v.contentType === MessageType.QuoteMessage) {
@@ -398,44 +423,42 @@ export default {
                 message: encodeURIComponent(JSON.stringify(temp)),
             });
         },
-        hideMultipleMsg () {
+        hideMultipleMsg() {
             this.isMultipleMsg = false;
         },
-        goPerson ({ id }) {
-            uni.$u.route(
-                `/pages/common/userCard/index?sourceID=${id}`
-            );
+        goPerson({ id }) {
+            uni.$u.route(`/pages/common/userCard/index?sourceID=${id}`);
         },
-        goLink ({ url }) {
+        goLink({ url }) {
             plus.runtime.openURL(url);
-        }
-    }
+        },
+    },
 };
 </script>
 
 <script module="chatRender" lang="renderjs">
-	export default {
-		mounted () {
-            this.bindEvent();
-        },
-        methods: {
-            bindEvent () {
-                document.querySelector(`.chating_container`).addEventListener('click', (event) => {
-                    const target = event.target;
-                    if (target.getAttribute('data-url')) {
-                        this.$ownerInstance.callMethod('goLink', {
-                            url: target.getAttribute('data-url')
-                        });
-                    }
-                    if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
-                        this.$ownerInstance.callMethod('goPerson', {
-                            id: target.getAttribute('data-at')
-                        });
-                    }
-                });
-            }
-        }
-	}
+export default {
+	mounted () {
+           this.bindEvent();
+       },
+       methods: {
+           bindEvent () {
+               document.querySelector(`.chating_container`).addEventListener('click', (event) => {
+                   const target = event.target;
+                   if (target.getAttribute('data-url')) {
+                       this.$ownerInstance.callMethod('goLink', {
+                           url: target.getAttribute('data-url')
+                       });
+                   }
+                   if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
+                       this.$ownerInstance.callMethod('goPerson', {
+                           id: target.getAttribute('data-at')
+                       });
+                   }
+               });
+           }
+       }
+}
 </script>
 <style lang="scss" scoped>
 .chating_container {
@@ -466,7 +489,6 @@ export default {
             }
         }
     }
-    
 
     .fade-leave,
     .fade-enter-to {

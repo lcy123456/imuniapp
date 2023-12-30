@@ -13,17 +13,14 @@ Vue.use(uView);
 import Page from '@/components/Page';
 Vue.component('Page', Page);
 
-
-
 Vue.prototype.$store = store;
 Vue.use(MyPlugin);
-
 
 Vue.config.productionTip = false;
 App.mpType = 'app';
 const app = new Vue({
     store,
-    ...App
+    ...App,
 });
 
 // 引入请求封装
