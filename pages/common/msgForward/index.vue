@@ -180,7 +180,7 @@ export default {
                             console.log('发送信息。。。。需要重新new');
                             let pages = getCurrentPages();
                             let prevPage = pages[pages.length - 2];
-                            await prevPage.$vm.getPositionMsgID('');
+                            await prevPage.$vm.setPositionMsgID('');
                         }
                         this.pushNewMessage(message);
                     }

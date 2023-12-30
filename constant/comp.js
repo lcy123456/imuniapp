@@ -26,6 +26,7 @@ export const MessageMenuTypes = {
     Checked: 'checked',
     Edit: 'edit',
     ReadCount: 'readCount',
+    Favorite: 'favorite',
 };
 
 export const ContactMenuTypes = {

@@ -88,6 +88,10 @@ export default {
         checkedMsgIds: {
             type: Array,
             default: () => []
+        },
+        clientMsgID: {
+            type: String,
+            default: ''
         }
     },
     data () {
@@ -135,6 +139,7 @@ export default {
     },
     mounted () {
         this.conversationID = this.storeCurrentConversation.conversationID;
+        this.positionMsgID = this.clientMsgID;
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
         uni.$on('reloadMore', this.reloadMore);
         this.init();
@@ -189,7 +194,7 @@ export default {
                             count: parseInt(count / 2)
                         });
                         this.animation = true;
-                        this.scrollToAnchor(`auchor-${positionMsgID}`, false);
+                        this.scrollToAnchor(`auchor-${positionMsgID}`);
                     } else {
                         this.scrollToBottom({ initPage: true });
                     }
@@ -199,8 +204,7 @@ export default {
             }
             setTimeout(() => {
                 this.messageLoadState.loading = false;
-            }, 1000);
-            // this.messageLoadState.loading = false;
+            }, 500);
         },
         handleTouchstart () {
             this.isShowMenuFlag = true;
@@ -257,8 +261,7 @@ export default {
         reloadMore () {
             this.loadMessageList({ isLoadMore: false, isReverse: false, isSyncing: true });
         },
-        async scrollToAnchor (auchor, isAnimation = true) {
-            !isAnimation && this.closeScrollAnimation();
+        async scrollToAnchor (auchor) {
             this.isReverse = false;
             await this.$nextTick();
             setTimeout(() => {
@@ -291,30 +294,9 @@ export default {
                                 this.animation = true;
                             }, 200);
                         }
-                        // setTimeout(() => {
-                        //     this.setMessageMaxLength();
-                        // }, 200);
                     })
                     .exec();
             }, 200);
-        },
-        setMessageMaxLength () {
-            const {
-                messageList,
-            } = this.storeHistoryMessageMap[this.conversationID];
-            if (messageList.length > 120) {
-                this.$store.commit('message/SET_HISTORY_MESSAGE_MAP', {
-                    ...this.storeHistoryMessageMap, 
-                    [this.conversationID]: {
-                        messageList: messageList.slice(messageList.length - 120, messageList.length),
-                        hasMore: true
-                    }
-                });
-            }
-        },
-        closeScrollAnimation () {
-            this.withAnimation = false;
-            setTimeout(() => (this.withAnimation = true), 500);
         },
         menuRect (res) {
             this.$emit('menuRect', res);

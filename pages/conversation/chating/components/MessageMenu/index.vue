@@ -65,10 +65,13 @@
         >
             <view
                 :style="{height: menuItemHight + 'px'}"
-                class="message_menu_item"
+                class="message_menu_item back"
                 @touchstart.stop
                 @touchend.prevent.stop="back('first')"
-            >🔙 返回</view>
+            >
+                <image src="@/static/images/back.png" />
+                <text>返回</text>
+            </view>
             <view v-if="secondTemplate === 'readCount'">
                 <ReadUserList
                     :user-list="userList"
@@ -231,6 +234,12 @@ export default {
                     visible: true,
                 },
                 {
+                    type: MessageMenuTypes.Favorite,
+                    title: '收藏',
+                    icon: '/static/images/chating_message_favorite.svg',
+                    visible: true,
+                },
+                {
                     type: MessageMenuTypes.Del,
                     title: '删除',
                     icon: '/static/images/chating_message_del.png',
@@ -257,7 +266,6 @@ export default {
     watch: {
         visible: {
             handler () {
-                console.log('===this.visible', this.visible);
                 if (this.visible) {
                     this.getMsgID();
                 } else {
@@ -278,13 +286,17 @@ export default {
             try {
                 this.userList = [];
                 const { chatLogs } = await getMsgID({
-                    clientMsgID: this.message.clientMsgID
+                    clientMsgID: this.message.clientMsgID,
+                    groupID: this.message.groupID,
+                    sendID: this.message.sendID,
+                    sessionType: this.message.sessionType,
                 });
-                this.attachedInfo = chatLogs && chatLogs[0] ? JSON.parse(chatLogs[0].attachedInfo) : {};
+                if (chatLogs && chatLogs[0] && chatLogs[0].attachedInfo) {
+                    this.attachedInfo = JSON.parse(chatLogs[0].attachedInfo);
+                }
                 if (!this.attachedInfo.groupHasReadInfo.hasReadUids) return;
                 this.userList = await getUserListInfo(this.attachedInfo.groupHasReadInfo.hasReadUids);
                 this.userList = this.userList.map(user => user.publicInfo);
-                console.log('---attachedInfo--attachedInfo', this.userList);
             } catch (err) {
                 console.log(err);
             }
@@ -309,6 +321,9 @@ export default {
                 break;
             case MessageMenuTypes.Forward:
                 this.handleForward();
+                break;
+            case MessageMenuTypes.Favorite:
+                this.handleFavorite();
                 break;
             case MessageMenuTypes.Reply:
                 uni.$emit('active_message', {
@@ -336,6 +351,9 @@ export default {
                 break;
             }
             this.$emit('close');
+        },
+        handleFavorite () {
+            console.log('handleFavorite-handleFavorite');
         },
         addEmoticons () {
             const { pictureElem, videoElem } = this.message;
@@ -525,6 +543,12 @@ export default {
         padding: 0 15px;
         @include btwBox();
         border-bottom: 1px solid $uni-border-color;
+        &.back {
+            justify-content: left;
+            uni-text {
+                margin-left: 20rpx;
+            }
+        }
 
         image {
             width: 19px;

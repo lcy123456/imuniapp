@@ -86,7 +86,7 @@ export default {
     },
     methods: {
         handleToSearch () {
-            uni.$u.route('/pages/common/searchRecord/index');
+            uni.$u.route('/pages/common/searchRecord/index?searchType=archvist');
         },
         closeAllSwipe () {
             this.$refs.swipeWrapperRef.closeAll();

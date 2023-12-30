@@ -61,9 +61,6 @@ import searchUser from 'static/images/contact_add_search_user.png';
 import {
     businessSearchUserInfo
 } from '@/api/login';
-import {
-    filterEmptyValue
-} from '@/util/common';
 
 export default {
     components: {

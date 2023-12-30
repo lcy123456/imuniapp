@@ -53,7 +53,7 @@
                 v-if="getQuoteElem && getQuoteElem.quoteMessage"
                 :message="getQuoteElem.quoteMessage"
                 show-detail
-                @click.native="getPositionMsgID(getQuoteElem.quoteMessage)"
+                @click.native="setPositionMsgID(getQuoteElem.quoteMessage)"
             />
         </view>
     </view>
@@ -168,8 +168,8 @@ export default {
     },
 
     methods: {
-        getPositionMsgID (message) {
-            uni.$emit('getPositionMsgID', message.clientMsgID);
+        setPositionMsgID (message) {
+            uni.$emit('setPositionMsgID', message.clientMsgID);
         },
     },
 };

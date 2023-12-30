@@ -13,7 +13,7 @@
         <PinToTop
             ref="pin"
             :list="storePinList"
-            @setPositionMsgID="getPositionMsgID"
+            @setPositionMsgID="setPositionMsgID"
         />
         <JoinGroupCall />
         <chating-list
@@ -22,6 +22,7 @@
             :menu-outside-flag="menuOutsideFlag"
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
+            :client-msg-i-d="clientMsgID"
             @scroll="scroll"
             @touchstart="chatingTouchStart"
             @touchend="chatingTouchEnd"
@@ -33,23 +34,11 @@
             :is-multiple-msg="isMultipleMsg"
             :footer-outside-flag="footerOutsideFlag"
             :checked-msg-ids="checkedMsgIds"
-            @sendInit="getPositionMsgID('')"
+            @sendInit="setPositionMsgID('')"
         />
-        <view
+        <SetEnd
             v-show="storeIsShowSetEnd"
-            class="set-end"
-            @click="getPositionMsgID('')"
-        >
-            <view
-                v-if="conversationUnread"
-                class="unread"
-            >
-                {{ conversationUnread < 100 ? conversationUnread : '99+' }}
-            </view>
-            <image
-                src="/static/images/set-end.png"
-            />
-        </view>
+        />
         <!-- <u-loading-page :loading="initLoading" /> -->
         <view style="height: 0">
             <transition name="fade">
@@ -76,6 +65,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import ChatingHeader from './components/ChatingHeader.vue';
 import ChatingFooter from './components/ChatingFooter/index.vue';
+import SetEnd from './components/SetEnd.vue';
 import ChatingList from './components/ChatingList.vue';
 import MessageMenu from './components/MessageMenu';
 import { markConversationAsRead } from '@/util/imCommon';
@@ -93,6 +83,7 @@ export default {
         ChatingFooter,
         ChatingList,
         MessageMenu,
+        SetEnd,
         PinToTop,
         JoinGroupCall
     },
@@ -111,6 +102,7 @@ export default {
             updateChatKey: '',
             updatePinKey: '',
             transition: '',
+            clientMsgID: '',
             listHeight: 0,
             isHide: false,
             footerOutsideFlag: 0,
@@ -138,7 +130,6 @@ export default {
             'storeIsShowSetEnd',
             'storePinList',
             'storeHasMoreAfterMessage',
-            'conversationUnread',
             'storeKeyBoardHeight',
             'storeIsShowkeyBoard'
         ]),
@@ -154,12 +145,12 @@ export default {
     onLoad (options) {
         const { back2Tab, clientMsgID } = options;
         this.back2Tab = !!JSON.parse(back2Tab);
-        this.positionMsgID = clientMsgID;
+        this.clientMsgID = clientMsgID;
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
         uni.$on('deleteMsg', this.handleMsgDel);
         uni.$on('reloadChatingList', this.reloadChatingList);
-        uni.$on('getPositionMsgID', this.getPositionMsgID);
+        uni.$on('setPositionMsgID', this.setPositionMsgID);
         uni.$on('inputBlur', this.inputBlur);
         uni.$on('inputFocus', this.inputFocus);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
@@ -179,7 +170,7 @@ export default {
         uni.$off('forward_finish', this.hideMultipleMsg);
         uni.$off('deleteMsg', this.handleMsgDel);
         uni.$off('reloadChatingList', this.reloadChatingList);
-        uni.$off('getPositionMsgID', this.getPositionMsgID);
+        uni.$off('setPositionMsgID', this.setPositionMsgID);
         uni.$off('inputBlur', this.inputBlur);
         uni.$off('inputFocus', this.inputFocus);
         this.$store.commit('base/SET_PIN_LIST', []);
@@ -215,10 +206,6 @@ export default {
             if (!this.storeIsShowSetEnd) {
                 this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
             }
-            // const res = await getEl.call(this, '.message_menu_container');
-            // if (res) {
-            //     this.menuState.visible = false;
-            // }
             this.menuState.visible = false;
         },
         async getPinList () {
@@ -230,7 +217,7 @@ export default {
             this.handleHideMenu();
             // uni.hideKeyboard();
         },
-        getPositionMsgID (positionMsgID, seq) {
+        setPositionMsgID (positionMsgID, seq) {
             this.positionMsgID = positionMsgID;
             this.$refs.chatingListRef.setPositionMsgID(this.positionMsgID, seq);
             if (!this.storeHasMoreAfterMessage && !this.positionMsgID && this.storeHistoryMessageList.length <= 120) {
@@ -461,30 +448,6 @@ export default {
         width: 400px;
         height: 400px;
         border: 1px solid red;
-    }
-    .set-end {
-        position: fixed;
-        bottom: 130px;
-        right: 20px;
-                uni-image {
-            width: 100rpx;
-            height: 100rpx;
-        }
-        .unread {
-            width: 60rpx;
-            height: 60rpx;
-            line-height: 60rpx;
-            text-align: center;
-            background: rgba(0, 141, 255, 1);
-            color: #fff;
-            border-radius: 50%;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            top: -40rpx;
-            z-index: 9;
-            font-size: 12px;
-        }
     }
     .mutiple_action_container {
         display: flex;

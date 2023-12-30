@@ -28,12 +28,9 @@ export const businessGetUserInfo = (userID) => uni.$u?.http.post('/user/find/ful
     }
 });
 
-export const businessSearchUserInfo = (keyword) => uni.$u?.http.post('/user/search/full', JSON.stringify({
+export const businessSearchUserInfo = (keyword, pagination = {pageNumber: 1, showNumber: 10}) => uni.$u?.http.post('/user/search/full', JSON.stringify({
     keyword,
-    pagination: {
-        pageNumber: 1,
-        showNumber: 10,
-    }
+    pagination
 }), {
     header: {
         token: store.getters.storeBusinessToken

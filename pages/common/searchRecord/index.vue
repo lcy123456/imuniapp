@@ -68,14 +68,39 @@ export default {
         return {
             moreType: '',
             keyword: '',
+            searchType: '',
             conversationID: '',
             recordList: [],
             showList: []
         };
     },
     computed: {
-        ...mapGetters(['storeFriendList', 'storeGroupList']),
+        ...mapGetters(['storeFriendList', 'storeGroupList', 'storeConversationList']),
+        isArchvistList () {
+            const isArchvistList = [];
+            this.storeConversationList.forEach(item => {
+                try {
+                    const attachedInfo = JSON.parse(item.attachedInfo);
+                    if (attachedInfo.archvist === 1) {
+                        isArchvistList.push(item);
+                    }
+                } catch (err) {
+                    //
+                }
+            });
+            return isArchvistList;
+        },
+        isArchvist () {
+            return this.searchType === 'archvist';
+        },
         showFriendList () {
+            if (this.isArchvist) {
+                return this.isArchvistList.filter(
+                    (v) => 
+                        !v.groupID &&
+                        v.showName.includes(this.keyword)
+                );
+            }
             return this.storeFriendList.filter(
                 (v) =>
                     v.nickname.includes(this.keyword) ||
@@ -83,6 +108,13 @@ export default {
             );
         },
         showGroupList () {
+            if (this.isArchvist) {
+                return this.isArchvistList.filter(
+                    (v) => 
+                        v.groupID &&
+                        v.showName.includes(this.keyword)
+                );
+            }
             return this.storeGroupList.filter((v) =>
                 v.groupName.includes(this.keyword)
             );
@@ -93,41 +125,59 @@ export default {
             if (!this.keyword) {
                 this.showList = [];
             }
-            this.throttleSearchRecord();
+            uni.$u.debounce(this.throttleSearchRecord, 300);
         },
     },
 
     onLoad (options) {
-        const { type = '', keyword = '' } = options;
+        const { type = '', keyword = '', searchType = '' } = options;
         this.moreType = type;
         this.keyword = keyword;
+        this.searchType = searchType;
     },
 
     methods: {
         handleCancel () {
             uni.navigateBack();
         },
-        async getSearchRecord () {
-            const params = {
-                conversationID: this.conversationID,
-                keywordList: [this.keyword],
-                messageTypeList: [],
-                searchTimePosition: 0,
-                searchTimePeriod: 0,
-                pageIndex: 1,
-                // count: this.moreType ? 999 : 3,
-                count: 0,
-            };
-            const { data } = await IMSDK.asyncApi(
-                IMMethods.SearchLocalMessages,
-                IMSDK.uuid(),
-                params
-            );
-            this.recordList = data.searchResultItems || [];
-            this.handleData();
+        async getSearchRecord (item, index, length) {
+            try {
+                const params = {
+                    conversationID: item ? item.conversationID : this.conversationID,
+                    keywordList: [this.keyword],
+                    messageTypeList: [],
+                    searchTimePosition: 0,
+                    searchTimePeriod: 0,
+                    pageIndex: 1,
+                    // count: this.moreType ? 999 : 3,
+                    count: 999,
+                };
+                const { data } = await IMSDK.asyncApi(
+                    IMMethods.SearchLocalMessages,
+                    IMSDK.uuid(),
+                    params
+                );
+                if (length) {
+                    this.recordList = (data.searchResultItems || []).concat(this.recordList);
+                } else {
+                    this.recordList = data.searchResultItems || [];
+                }
+                if ((length && length - 1 === index) || !length) {
+                    this.handleData();
+                }
+            } catch (err) {
+                console.log('getSearchRecord-err', err);
+            }
         },
         throttleSearchRecord () {
-            uni.$u.debounce(this.getSearchRecord, 300);
+            if (this.isArchvist) {
+                this.recordList = [];
+                this.isArchvistList.forEach((item, index) => {
+                    this.getSearchRecord(item, index, this.isArchvistList.length);
+                });
+            } else {
+                this.getSearchRecord();
+            }
         },
         handleData () {
             let _list = [];
@@ -152,12 +202,12 @@ export default {
             this.showList = _list.filter((v) =>
                 this.moreType ? v.type === this.moreType : true
             );
-            // console.log('show', this.showList);
         },
         handleMore (type) {
             uni.$u.route('/pages/common/searchRecord/index', {
                 type,
                 keyword: this.keyword,
+                searchType: this.searchType
             });
         },
         handleItemClick (type, v) {

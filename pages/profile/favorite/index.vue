@@ -12,22 +12,20 @@
                 default-page-size="20"
                 :show-loading-more-no-more-view="false"
                 @query="queryList"
-                @refresherTouchmove="refresherTouchmove"
-                @refresherTouchend="refresherTouchend"
             >
-                <u-swipe-action ref="swipeWrapperRef">
-                    <u-swipe-action-item
+                <uni-swipe-action ref="swipeWrapperRef">
+                    <uni-swipe-action-item
                         v-for="item in favoriteList"
                         :key="item.idx"
                         :index="item.idx"
-                        :options="swipeAction"
+                        :right-options="swipeAction"
                         :disabled="isDisabled"
                         :threshold="50"
                         @click="swipeActionClick"
                     >
                         <ItemCell :source="item" />
-                    </u-swipe-action-item>
-                </u-swipe-action>
+                    </uni-swipe-action-item>
+                </uni-swipe-action>
             </z-paging>
         </view>
     </Page>
@@ -68,13 +66,12 @@ export default {
         swipeAction () {
             let action = [
                 {
-                    text: '删除',
+                    text: '删除该收藏',
                     icon: `/static/images/conversation_del.png`,
                     style: {
                         iconSize: '40rpx',
                         fontSize: '28rpx',
                         backgroundColor: '#E75E58',
-                        borderRadius: '50rpx',
                         padding: '26rpx 40rpx',
                     }
                 },
@@ -87,14 +84,6 @@ export default {
     },
     methods: {
         async queryList () {
-        },
-        refresherTouchmove () {
-            this.isDisabled = true;
-        },
-        refresherTouchend () {
-            setTimeout(() => {
-                this.isDisabled = false;
-            }, 500);
         },
         closeAllSwipe () {
             this.$refs.swipeWrapperRef.closeAll();
@@ -118,11 +107,25 @@ export default {
   flex: 1;
 }
 
-/deep/ .u-swipe-action{
-  background-color: #EFF1F4;
-}
-
-/deep/ .u-swipe-action-item {
-  margin-bottom: 30rpx;
+/deep/.uni-swipe_button-group {
+    .uni-swipe_button {
+        height: 90rpx!important;
+        padding: 0 40rpx !important;
+        display: flex;
+        justify-content: space-evenly;
+        border-radius: 45rpx;
+        margin: auto 20rpx;
+        .u-icon {
+            width: 50rpx;
+            height: 50rpx;
+            .u-icon__img {
+                width: 100% !important;
+                height: 100% !important;
+            }
+        }
+        .uni-swipe_button-text {
+            font-size: 28rpx !important;
+        }
+    }
 }
 </style>

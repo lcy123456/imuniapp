@@ -121,12 +121,12 @@ export default {
     },
     methods: {
         async businessSearchUserInfo () {
+            const pagination = {pageNumber: 1, showNumber: 20};
             const {
                 total,
                 users
-            } = await businessSearchUserInfo(this.keyword);
+            } = await businessSearchUserInfo(this.keyword, pagination);
             if (total > 0) {
-                console.log('users--', users);
                 const {
                     data
                 } = await IMSDK.asyncApi(IMSDK.IMMethods.GetUsersInfo, IMSDK.uuid(), users.map(user => user.userID));
