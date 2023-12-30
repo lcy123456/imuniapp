@@ -87,11 +87,11 @@ export default {
         PinToTop,
         JoinGroupCall
     },
-    provide() {
-        return {
-            getSearchRecordMedia: this.getSearchRecordMedia
-        };
-    },
+    // provide() {
+    //     return {
+    //         getSearchRecordMedia: this.getSearchRecordMedia
+    //     };
+    // },
     data() {
         return {
             test: false,
@@ -156,6 +156,7 @@ export default {
         uni.$on('setPositionMsgID', this.setPositionMsgID);
         uni.$on('inputBlur', this.inputBlur);
         uni.$on('inputFocus', this.inputFocus);
+        uni.$on('getSearchRecordMedia', this.getSearchRecordMedia);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
         this.getSearchRecordMedia();
         this.getPinList();
@@ -176,6 +177,7 @@ export default {
         uni.$off('setPositionMsgID', this.setPositionMsgID);
         uni.$off('inputBlur', this.inputBlur);
         uni.$off('inputFocus', this.inputFocus);
+        uni.$off('getSearchRecordMedia', this.getSearchRecordMedia);
         this.$store.commit('base/SET_PIN_LIST', []);
     },
     onHide() {
@@ -259,32 +261,36 @@ export default {
             this.isShowNotification = true;
             this.getPinList();
         },
-        async getSearchRecordMedia() {
-            let conversationID = this.storeCurrentConversation.conversationID;
-            const params = {
-                conversationID: conversationID,
-                keywordList: [],
-                messageTypeList: MediaRenderTypes,
-                searchTimePosition: 0,
-                searchTimePeriod: 0,
-                pageIndex: 1,
-                count: 999
-            };
-            const { data } = await IMSDK.asyncApi(
-                IMMethods.SearchLocalMessages,
-                IMSDK.uuid(),
-                params
-            );
-            let imgList = data.searchResultItems?.[0]?.messageList || [];
-            this.imgList = imgList.map(v => {
-                const { contentType, pictureElem, videoElem } = v;
+        async getSearchRecordMedia(list) {
+            let imgList = list;
+            if (!list) {
+                let conversationID =
+                    this.storeCurrentConversation.conversationID;
+                const params = {
+                    conversationID,
+                    keywordList: [],
+                    messageTypeList: MediaRenderTypes,
+                    searchTimePosition: 0,
+                    searchTimePeriod: 0,
+                    pageIndex: 1,
+                    count: 999
+                };
+                const { data } = await IMSDK.asyncApi(
+                    IMMethods.SearchLocalMessages,
+                    IMSDK.uuid(),
+                    params
+                );
+                imgList = data.searchResultItems?.[0]?.messageList || [];
+            }
+            this.imgList = imgList.map(message => {
+                const { contentType, pictureElem, videoElem } = message;
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
                     url: pictureElem?.sourcePicture.url,
                     poster: [
                         pictureElem?.sourcePicture.url,
                         pictureElem?.sourcePath,
-                        v.localEx
+                        message.localEx
                     ],
                     type: 'image'
                 };
@@ -294,14 +300,14 @@ export default {
                         poster: [
                             videoElem?.snapshotUrl,
                             videoElem?.snapshotPath,
-                            v.localEx
+                            message.localEx
                         ],
                         type: 'video'
                     };
                 }
                 return map;
             });
-            this.imgList.reverse();
+            !list && this.imgList.reverse();
             this.$store.commit(
                 'conversation/SET_CONVERSATION_MEDIA_LIST',
                 this.imgList

@@ -28,7 +28,9 @@
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import MessageContentWrap from '@/pages/conversation/chating/components/MessageItem/MessageContentWrap.vue';
-
+import { MessageType } from 'openim-uniapp-polyfill';
+import { MediaRenderTypes } from '@/constant';
+import { unix } from 'dayjs';
 export default {
     components: {
         CustomNavBar,
@@ -50,15 +52,26 @@ export default {
         },
         multiMessage() {
             return this.mergeElem.multiMessage || [];
+        },
+        showMediaRender() {
+            return MediaRenderTypes.includes(this.message.contentType);
         }
     },
 
     onLoad(params) {
         const { message } = params;
         this.message = JSON.parse(decodeURIComponent(message));
+        this.getSearchRecordMedia();
     },
 
-    methods: {}
+    methods: {
+        getSearchRecordMedia() {
+            const imgList = this.multiMessage.filter(message =>
+                MediaRenderTypes.includes(message.contentType)
+            );
+            uni.$emit('getSearchRecordMedia', imgList);
+        }
+    }
 };
 </script>
 

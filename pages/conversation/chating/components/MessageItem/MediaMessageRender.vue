@@ -41,7 +41,6 @@ import IMSDK, { MessageType } from 'openim-uniapp-polyfill';
 import { mapGetters } from 'vuex';
 export default {
     name: '',
-    inject: ['getSearchRecordMedia'],
     props: {
         message: {
             type: Object,
@@ -102,7 +101,7 @@ export default {
     },
     methods: {
         async clickMediaItem() {
-            await this.getSearchRecordMedia();
+            await uni.$emit('getSearchRecordMedia');
             const i = this.storeConversationMediaList.findIndex(item =>
                 item.poster.includes(this.imgUrl)
             );
