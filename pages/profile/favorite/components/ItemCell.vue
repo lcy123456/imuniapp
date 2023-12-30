@@ -97,6 +97,7 @@ export default {
     border-radius: 10rpx;
     padding: 30rpx;
     background-color: #ffffff;
+    margin: 20rpx;
 }
 
 .unit_cell {

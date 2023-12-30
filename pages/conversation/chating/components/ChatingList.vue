@@ -39,7 +39,7 @@
                         :is-reverse="isReverse"
                         :type="
                             (!isReverse && index === 0) ||
-                                (isReverse && index === messageList.length - 1)
+                            (isReverse && index === messageList.length - 1)
                                 ? 'first'
                                 : ''
                         "
@@ -333,8 +333,8 @@ export default {
                         this.scrollTop = this.isReverse
                             ? res.height + Math.random()
                             : initPage
-                                ? 0
-                                : Math.random();
+                              ? 0
+                              : Math.random();
                     })
                     .exec();
             }, 200);

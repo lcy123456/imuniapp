@@ -30,7 +30,6 @@ module.exports = {
         'no-tabs': 'off',
         'prefer-promise-reject-errors': [0, { allowEmptyReject: false }],
         'vue/html-indent': ['error', 4],
-        indent: [2, 4, { SwitchCase: 1 }],
         'comma-style': [2, 'last'],
         'no-mixed-spaces-and-tabs': [2, false],
         'no-var': 1,

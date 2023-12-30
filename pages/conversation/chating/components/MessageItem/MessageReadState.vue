@@ -46,6 +46,9 @@ export default {
         };
     },
     computed: {
+        messageChange() {
+            return [this.message.pinMap];
+        },
         isEdit() {
             try {
                 const ex = JSON.parse(this.message.ex);
@@ -86,6 +89,14 @@ export default {
             return this.message.isRead || this.isGroupRead
                 ? `/static/images/read.svg`
                 : `/static/images/unread.svg`;
+        }
+    },
+    watch: {
+        messageChange(newVal, oldVal) {
+            if (JSON.stringify(newVal) === JSON.stringify(oldVal)) return;
+            setTimeout(() => {
+                this.$emit('getReadWidth');
+            }, 200);
         }
     }
 };

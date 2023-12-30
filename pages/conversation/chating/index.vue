@@ -445,26 +445,26 @@ export default {
 <script module="chatRender" lang="renderjs">
 export default {
     mounted () {
-            this.bindEvent();
-        },
-        methods: {
-            bindEvent () {
-                document.querySelector(`.chating_container`).addEventListener('click', (event) => {
-                    const target = event.target;
-                    if (target.getAttribute('data-url')) {
-                        this.$ownerInstance.callMethod('goLink', {
-                            url: target.getAttribute('data-url')
-                        });
-                    }
-                    if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
-                        this.$ownerInstance.callMethod('goPerson', {
-                            id: target.getAttribute('data-at')
-                        });
-                    }
-                });
-            }
+        this.bindEvent();
+    },
+    methods: {
+        bindEvent () {
+            document.querySelector(`.chating_container`).addEventListener('click', (event) => {
+                const target = event.target;
+                if (target.getAttribute('data-url')) {
+                    this.$ownerInstance.callMethod('goLink', {
+                        url: target.getAttribute('data-url')
+                    });
+                }
+                if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
+                    this.$ownerInstance.callMethod('goPerson', {
+                        id: target.getAttribute('data-at')
+                    });
+                }
+            });
         }
     }
+}
 </script>
 <style lang="scss" scoped>
 .chating_container {
