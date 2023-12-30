@@ -24,7 +24,6 @@
             class="read-content"
             :message="message"
             :is-sender="isSender"
-            @getReadWidth="getReadWidth"
         />
     </view>
 </template>
@@ -68,9 +67,7 @@ export default {
         }
     },
     data() {
-        return {
-            readWidth: 0
-        };
+        return {};
     },
     computed: {
         clientMsgID() {
@@ -113,7 +110,37 @@ export default {
             const { senderNickname } = this.message;
             const baseText = !this.isQuote
                 ? `
-            <view class="base-box hide-css" style="width: ${this.readWidth}px"></view>
+            <view class="base-box hide-css">
+                <img
+                    style="display: ${this.message.pinMap ? 'inherit' : 'none'}"
+                    class="pined"
+                    src="/static/images/pin2.png"
+                />
+                <div class="text read_state ${
+                    this.isSender ? 'isSender' : 'notisSender'
+                } ${this.message.pinMap ? 'isPin' : ''}">
+                    <text
+                        style="display: ${this.isEdit ? 'inline' : 'none'}"
+                        class="edit"
+                    >
+                        ${'已编辑 '}
+                    </text>
+                    00:00
+                </div>
+                <img
+                    style="display: ${this.isSender ? 'inherit' : 'none'}"
+                    class="read"
+                    src="/static/images/message_issend.png"
+                />
+                <div
+                    style="display: ${
+                        this.isSender && this.isGroupRead ? 'inherit' : 'none'
+                    }"
+                    class="text"
+                >
+                    0人
+                </div>
+            </view>
             `
                 : ``;
             let text = this.text;
@@ -124,22 +151,7 @@ export default {
         }
     },
     created() {},
-    mounted() {
-        this.getReadWidth();
-    },
-    methods: {
-        getReadWidth() {
-            uni.createSelectorQuery()
-                .in(this)
-                .select('.read-state-css')
-                .boundingClientRect(res => {
-                    if (res) {
-                        this.readWidth = res.width;
-                    }
-                })
-                .exec();
-        }
-    }
+    methods: {}
 };
 </script>
 
