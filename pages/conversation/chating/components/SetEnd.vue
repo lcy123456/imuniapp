@@ -9,28 +9,23 @@
         >
             {{ conversationUnread < 100 ? conversationUnread : '99+' }}
         </view>
-        <image
-            src="/static/images/set-end.png"
-        />
+        <image src="/static/images/set-end.png" />
     </view>
 </template>
 <script>
 import { mapGetters } from 'vuex';
 export default {
     data () {
-        return {
-        };
+        return {};
     },
     computed: {
-        ...mapGetters([
-            'conversationUnread'
-        ])
+        ...mapGetters(['conversationUnread']),
     },
     methods: {
         setPositionMsgID () {
             uni.$emit('setPositionMsgID', '');
-        }
-    }
+        },
+    },
 };
 </script>
 <style lang="scss" scoped>
@@ -38,7 +33,7 @@ export default {
     position: fixed;
     bottom: 130px;
     right: 20px;
-            uni-image {
+    uni-image {
         width: 100rpx;
         height: 100rpx;
     }

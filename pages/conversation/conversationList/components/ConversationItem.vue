@@ -35,7 +35,8 @@
                             {{ messagePrefix }}
                         </text>
                         <text
-                            class="lastest_msg_content">
+                            class="lastest_msg_content"
+                        >
                             {{ html2Text(latestMessage) }}
                         </text>
                     </view>

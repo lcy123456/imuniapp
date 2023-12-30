@@ -1,0 +1,23 @@
+{
+    "editor.fontSize": 14, // 代码字体大小
+    "prettier.printWidth": 50, // 书写代码宽度
+    "editor.tabSize": 4, // tab 大小
+    "prettier.useTabs": true, // 使用tab缩进
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode", // 使用prettier作为格式化插件
+    "javascript.updateImportsOnFileMove.enabled": "always", //js重命名文件自动更新路径
+    //js自动格式化程序为prettier-eslint
+    "[javascript]": {
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+    },
+    "[vue]": {
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+    },
+    // #每次保存的时候自动格式化
+    // 自动修复
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "prettier.bracketSpacing": true
+    // "editor.formatOnType": true, //键入一行后自动格式化
+}
