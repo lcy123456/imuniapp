@@ -6,6 +6,7 @@
                 :message="message"
                 :is-success-message="isSuccessMessage"
                 :is-sender="isSender"
+                :only-message="onlyMessage"
             />
             <MediaMessageRender
                 v-if="showMediaRender"
@@ -36,6 +37,7 @@
                 v-if="showVoiceMessageRender"
                 :message="message"
                 :is-sender="isSender"
+                :only-message="onlyMessage"
             />
             <ErrorMessageRender
                 v-if="showErrorRender"
@@ -44,7 +46,10 @@
                 :is-sender="isSender"
             />
             <MessageReadState
-                v-if="showMediaRender || showFileRender || showMergeRender"
+                v-if="
+                    (showMediaRender || showFileRender || showMergeRender) &&
+                    !onlyMessage
+                "
                 class="read-state"
                 :is-sender="isSender"
                 :message="message"
@@ -100,6 +105,10 @@ export default {
         message: {
             type: Object,
             default: () => ({})
+        },
+        onlyMessage: {
+            type: Boolean,
+            default: false
         },
         isSender: {
             type: Boolean,

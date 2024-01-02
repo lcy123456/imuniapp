@@ -181,8 +181,7 @@ export default {
             // if (process.env.NODE_ENV === 'development') {
             this.loginInfo.phoneNumber =
                 uni.getStorageSync('lastPhoneNumber') || '';
-            this.loginInfo.areaCode =
-                uni.getStorageSync('lastAreaCode') || '86';
+            this.loginInfo.areaCode = uni.getStorageSync('lastAreaCode') || '1';
             // } else {
             //     this.loginInfo.phoneNumber = '';
             //     this.loginInfo.password = '';

@@ -29,7 +29,6 @@ module.exports = {
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-tabs': 'off',
         'prefer-promise-reject-errors': [0, { allowEmptyReject: false }],
-        'vue/html-indent': ['error', 4],
         'comma-style': [2, 'last'],
         'no-mixed-spaces-and-tabs': [2, false],
         'no-var': 1,

@@ -73,6 +73,7 @@ import IMSDK, {
     MessageType,
     SessionType
 } from 'openim-uniapp-polyfill';
+import { collect } from '@/api/message';
 import PinToTop from './components/pinToTop.vue';
 import JoinGroupCall from './components/JoinGroupCall.vue';
 import { PageEvents } from '@/constant';
@@ -87,11 +88,6 @@ export default {
         PinToTop,
         JoinGroupCall
     },
-    // provide() {
-    //     return {
-    //         getSearchRecordMedia: this.getSearchRecordMedia
-    //     };
-    // },
     data() {
         return {
             test: false,
@@ -157,6 +153,7 @@ export default {
         uni.$on('inputBlur', this.inputBlur);
         uni.$on('inputFocus', this.inputFocus);
         uni.$on('getSearchRecordMedia', this.getSearchRecordMedia);
+        uni.$on('handleFavorite', this.handleFavorite);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
         this.getSearchRecordMedia();
         this.getPinList();
@@ -178,6 +175,7 @@ export default {
         uni.$off('inputBlur', this.inputBlur);
         uni.$off('inputFocus', this.inputFocus);
         uni.$off('getSearchRecordMedia', this.getSearchRecordMedia);
+        uni.$off('handleFavorite', this.handleFavorite);
         this.$store.commit('base/SET_PIN_LIST', []);
     },
     onHide() {
@@ -282,36 +280,7 @@ export default {
                 );
                 imgList = data.searchResultItems?.[0]?.messageList || [];
             }
-            this.imgList = imgList.map(message => {
-                const { contentType, pictureElem, videoElem } = message;
-                const isVideo = contentType === MessageType.VideoMessage;
-                let map = {
-                    url: pictureElem?.sourcePicture.url,
-                    poster: [
-                        pictureElem?.sourcePicture.url,
-                        pictureElem?.sourcePath,
-                        message.localEx
-                    ],
-                    type: 'image'
-                };
-                if (isVideo) {
-                    map = {
-                        url: videoElem.videoUrl,
-                        poster: [
-                            videoElem?.snapshotUrl,
-                            videoElem?.snapshotPath,
-                            message.localEx
-                        ],
-                        type: 'video'
-                    };
-                }
-                return map;
-            });
-            !list && this.imgList.reverse();
-            this.$store.commit(
-                'conversation/SET_CONVERSATION_MEDIA_LIST',
-                this.imgList
-            );
+            uni.$emit('setMediaList', imgList, list ? '' : 'reverse');
         },
         chatingTouchStart() {
             this.footerOutsideFlag += 1;
@@ -382,6 +351,9 @@ export default {
                 case MessageMenuTypes.Del:
                     this.handleMsgDel([message]);
                     break;
+                case MessageMenuTypes.Favorite:
+                    this.handleMultipleFavorite();
+                    break;
                 case MessageMenuTypes.ForwardAll:
                     if (this.checkedMsg.length === 0) return;
                     const res = await IMSDK.asyncApi(
@@ -396,6 +368,52 @@ export default {
                     this.handleForward(res);
                     break;
             }
+        },
+        async handleFavorite(message) {
+            try {
+                await collect({
+                    content: JSON.stringify(message)
+                });
+                uni.$u.toast('收藏成功');
+            } catch (err) {
+                console.log(err);
+                uni.$u.toast('收藏失败，请重试');
+            }
+        },
+        handleMultipleFavorite() {
+            const message = {
+                clientMsgID: '',
+                serverMsgID: '',
+                createTime: +new Date(),
+                sendTime: +new Date(),
+                sessionType: this.isWorkingGroup ? 3 : 1,
+                sendID: '',
+                recvID: '',
+                msgFrom: 100,
+                contentType: MessageType.MergeMessage,
+                senderPlatformID: 1,
+                senderNickname: this.storeSelfInfo.nickname,
+                senderFaceUrl: this.storeSelfInfo.faceURL,
+                seq: 0,
+                isRead: true,
+                status: 2,
+                mergeElem: {
+                    title: `${this.storeSelfInfo.nickname}与${this.storeCurrentConversation.showName}的聊天记录`,
+                    multiMessage: this.checkedMsg
+                },
+                attachedInfoElem: {
+                    groupHasReadInfo: {
+                        hasReadCount: 0,
+                        groupMemberCount: 0
+                    },
+                    isPrivateChat: false,
+                    burnDuration: 0,
+                    hasReadTime: 0,
+                    isEncryption: false,
+                    inEncryptStatus: false
+                }
+            };
+            this.handleFavorite(message);
         },
         async handleMsgDel(msgArr) {
             try {

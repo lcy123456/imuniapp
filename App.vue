@@ -40,6 +40,7 @@ export default {
         });
         uni.$on('play_audio', this.handlePlayAudio);
         uni.$on('stop_audio', this.handleStopAudio);
+        uni.$on('setMediaList', this.setMediaList);
         this.timer = setInterval(() => {
             if (!this.$store.getters.storeIMToken) return;
             this.getUnreadMsgCount();
@@ -933,6 +934,38 @@ export default {
                 });
             }, 3000);
             // plus.push.addEventListener('click', this._handlePush);
+        },
+        setMediaList(list, type = '') {
+            let imgList = list.map(message => {
+                const { contentType, pictureElem, videoElem } = message;
+                const isVideo = contentType === MessageType.VideoMessage;
+                let map = {
+                    url: pictureElem?.sourcePicture.url,
+                    poster: [
+                        pictureElem?.sourcePicture.url,
+                        pictureElem?.sourcePath,
+                        message.localEx
+                    ],
+                    type: 'image'
+                };
+                if (isVideo) {
+                    map = {
+                        url: videoElem.videoUrl,
+                        poster: [
+                            videoElem?.snapshotUrl,
+                            videoElem?.snapshotPath,
+                            message.localEx
+                        ],
+                        type: 'video'
+                    };
+                }
+                return map;
+            });
+            type === 'reverse' && imgList.reverse();
+            this.$store.commit(
+                'conversation/SET_CONVERSATION_MEDIA_LIST',
+                imgList
+            );
         },
         _handlePush(message) {
             let payload = (message && message.payload) || {};

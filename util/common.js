@@ -295,3 +295,10 @@ export const getNewText = (newStr, oldStr) => {
         text
     };
 };
+
+export const getPageRoute = () => {
+    const pages = getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    const page = currentPage.route;
+    return page;
+};

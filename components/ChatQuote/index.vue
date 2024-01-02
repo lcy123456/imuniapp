@@ -86,6 +86,8 @@ export default {
                     return '[视频]';
                 case MessageType.FileMessage:
                     return '[文件]';
+                case MessageType.VoiceMessage:
+                    return '[语音]';
                 case MessageType.MergeMessage:
                     if (this.originType === 'merge_record') {
                         return '[聊天记录]';

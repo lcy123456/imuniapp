@@ -130,10 +130,7 @@
             @select="selectClick"
             @close="showActionSheet = false"
         />
-        <Notification
-            v-model="isShowNotification"
-            text="消息已发出，但对方拒收了！"
-        />
+        <Notification v-model="isShowNotification" :text="notificationText" />
         <GoupMemberListPop v-model="isShowAt" @confirm="setAtMember" />
     </view>
 </template>
@@ -249,6 +246,7 @@ export default {
             customEditorCtx: null,
             isShowAt: false,
             isShowNotification: false,
+            notificationText: '',
             inputHtml: '',
             oldText: '',
             editorblurtime: '',
@@ -395,24 +393,24 @@ export default {
                     message = message
                         ? message
                         : await IMSDK.asyncApi(
-                            IMMethods.CreateQuoteMessage,
-                            IMSDK.uuid(),
-                            {
-                                text: EncryptoAES(text),
-                                message:
+                              IMMethods.CreateQuoteMessage,
+                              IMSDK.uuid(),
+                              {
+                                  text: EncryptoAES(text),
+                                  message:
                                       this.activeMessage.quoteElem.quoteMessage
-                            }
-                        );
+                              }
+                          );
                 } else if (contentType === MessageType.AtTextMessage) {
                     atTextElem.text = EncryptoAES(text);
                 } else {
                     message = message
                         ? message
                         : await IMSDK.asyncApi(
-                            IMMethods.CreateTextMessage,
-                            IMSDK.uuid(),
-                            EncryptoAES(text)
-                        );
+                              IMMethods.CreateTextMessage,
+                              IMSDK.uuid(),
+                              EncryptoAES(text)
+                          );
                 }
                 const { createTime, sendTime, clientMsgID, sessionType, seq } =
                     this.activeMessage;
@@ -609,6 +607,7 @@ export default {
                 const { data, errCode } = err;
                 console.log('发送失败', data, errCode, err);
                 if (errCode === 1302) {
+                    this.notificationText = '消息已发出，但对方拒收了！';
                     this.isShowNotification = true;
                 }
                 this.updateOneMessage({

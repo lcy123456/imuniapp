@@ -33,6 +33,7 @@
             <text>{{ durationText }}''</text>
         </view>
         <MessageReadState
+            v-if="!onlyMessage"
             :class="['message-read', !isSender ? 'left' : '']"
             :message="message"
             :is-sender="isSender"
@@ -57,6 +58,10 @@ export default {
             default: () => ({})
         },
         isSender: {
+            type: Boolean,
+            default: false
+        },
+        onlyMessage: {
             type: Boolean,
             default: false
         }

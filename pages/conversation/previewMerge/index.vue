@@ -28,9 +28,7 @@
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import MessageContentWrap from '@/pages/conversation/chating/components/MessageItem/MessageContentWrap.vue';
-import { MessageType } from 'openim-uniapp-polyfill';
 import { MediaRenderTypes } from '@/constant';
-import { unix } from 'dayjs';
 export default {
     components: {
         CustomNavBar,
@@ -101,5 +99,19 @@ export default {
             }
         }
     }
+}
+
+/deep/ .voice_message_container {
+    margin: 10rpx;
+    .voice-box {
+        // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+        border: 1px solid #dedede57;
+    }
+}
+/deep/ .file_message_container {
+    // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+    border: 1px solid #dedede57;
+    margin: 10rpx;
+    width: calc(100% - 10rpx) !important;
 }
 </style>

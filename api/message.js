@@ -32,3 +32,33 @@ export const getMsgID = params =>
             token: store.getters.storeIMToken
         }
     });
+// 设置收藏
+export const collect = params =>
+    uni.$u?.http.post('/msg/collect', JSON.stringify(params), {
+        custom: {
+            isIMApi: false
+        },
+        header: {
+            token: store.getters.storeBusinessToken
+        }
+    });
+// 获取收藏列表
+export const collectList = params =>
+    uni.$u?.http.post('/msg/collect/list', JSON.stringify(params), {
+        custom: {
+            isIMApi: false
+        },
+        header: {
+            token: store.getters.storeBusinessToken
+        }
+    });
+// 删除收藏
+export const collectCancel = params =>
+    uni.$u?.http.post('/msg/collect/cancel', JSON.stringify(params), {
+        custom: {
+            isIMApi: false
+        },
+        header: {
+            token: store.getters.storeBusinessToken
+        }
+    });

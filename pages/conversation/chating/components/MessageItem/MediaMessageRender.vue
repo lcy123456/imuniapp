@@ -36,7 +36,7 @@
 
 <script>
 import { secFormat } from '@/util/imCommon';
-import { getPurePath } from '@/util/common';
+import { getPurePath, getPageRoute } from '@/util/common';
 import IMSDK, { MessageType } from 'openim-uniapp-polyfill';
 import { mapGetters } from 'vuex';
 export default {
@@ -101,7 +101,17 @@ export default {
     },
     methods: {
         async clickMediaItem() {
-            await uni.$emit('getSearchRecordMedia');
+            const page = getPageRoute();
+            if ([`pages/conversation/chating/index`].includes(page)) {
+                await uni.$emit('getSearchRecordMedia');
+                setTimeout(() => {
+                    this.goPreviewMedia();
+                }, 200);
+                return;
+            }
+            this.goPreviewMedia();
+        },
+        goPreviewMedia() {
             const i = this.storeConversationMediaList.findIndex(item =>
                 item.poster.includes(this.imgUrl)
             );

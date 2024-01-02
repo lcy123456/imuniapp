@@ -19,7 +19,7 @@
         /> -->
         <view v-html="getContent" />
         <MessageReadState
-            v-if="isShowTime"
+            v-if="isShowTime && !onlyMessage"
             :id="`MessageReadState-${message.clientMsgID}`"
             class="read-content"
             :message="message"
@@ -62,6 +62,10 @@ export default {
             default: true
         },
         isQuote: {
+            type: Boolean,
+            default: false
+        },
+        onlyMessage: {
             type: Boolean,
             default: false
         }
@@ -150,7 +154,7 @@ export default {
             return `${text}${baseText}`;
         }
     },
-    created() {},
+    mounted() {},
     methods: {}
 };
 </script>

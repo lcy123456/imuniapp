@@ -326,7 +326,7 @@ export default {
                     this.handleForward();
                     break;
                 case MessageMenuTypes.Favorite:
-                    this.handleFavorite();
+                    this.handleFavorite(this.message);
                     break;
                 case MessageMenuTypes.Reply:
                     uni.$emit('active_message', {
@@ -355,8 +355,8 @@ export default {
             }
             this.$emit('close');
         },
-        handleFavorite() {
-            console.log('handleFavorite-handleFavorite');
+        async handleFavorite(message) {
+            uni.$emit('handleFavorite', message);
         },
         addEmoticons() {
             const { pictureElem, videoElem } = this.message;

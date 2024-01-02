@@ -4,14 +4,17 @@
         bg-color="rgba(255,255,255, .8)"
         :route="!isMultipleMsg"
     >
-        <!-- <view
+        <view
             v-if="isMultipleMsg"
             slot="left"
-            :class="['ml-30', checkedMsgIds.length === 0 ? 'text-grey' : 'primary']"
-            @click="handleMultipleDelAll"
+            :class="[
+                'ml-30',
+                checkedMsgIds.length === 0 ? 'text-grey' : 'primary'
+            ]"
+            @click="handleMultipleFavorite"
         >
-            全部删除
-        </view> -->
+            收藏
+        </view>
         <template slot="center">
             <view v-if="isMultipleMsg" class="ff-bold">
                 已选中{{ checkedMsgIds.length }}条
@@ -171,6 +174,7 @@ export default {
         },
         userStatusChangedHandler() {},
         showInfo() {
+            ``;
             uni.$u.route(
                 `/pages/common/userCard/index?sourceID=${this.userID}&from=chating`
             );
@@ -182,6 +186,12 @@ export default {
             uni.$emit('multiple_message', {
                 show: true,
                 type: MessageMenuTypes.DelAll
+            });
+        },
+        handleMultipleFavorite() {
+            uni.$emit('multiple_message', {
+                show: true,
+                type: MessageMenuTypes.Favorite
             });
         },
         handleMultiple() {
