@@ -42,28 +42,28 @@ export default {
                     idx: 0,
                     type: ContactMenuTypes.NewFriend,
                     title: '新的朋友',
-                    icon: require('static/images/contact_new_friend.png'),
+                    icon: '/static/images/contact_new_friend.svg',
                     badge: this.storeUnHandleFriendApplicationNum
                 },
                 {
                     idx: 1,
                     type: ContactMenuTypes.NewGroup,
                     title: '新的群聊',
-                    icon: require('static/images/contact_new_group.png'),
+                    icon: '/static/images/contact_new_group.svg',
                     badge: this.storeUnHandleGroupApplicationNum
                 },
                 {
                     idx: 2,
                     type: ContactMenuTypes.MyFriend,
                     title: '我的好友',
-                    icon: require('static/images/contact_my_friend.png'),
+                    icon: '/static/images/contact_my_friend.svg',
                     badge: 0
                 },
                 {
                     idx: 3,
                     type: ContactMenuTypes.MyGroup,
                     title: '我的群组',
-                    icon: require('static/images/contact_my_group.png'),
+                    icon: '/static/images/contact_my_group.svg',
                     badge: 0
                 }
                 // {

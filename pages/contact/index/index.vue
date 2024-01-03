@@ -9,7 +9,7 @@
             <CustomNavBar :show-left="false" is-bg-color2 title="通讯录">
                 <view slot="more" class="mr-30" @click="contactAddClick">
                     <image
-                        src="@/static/images/common_circle_add.png"
+                        src="@/static/images/common_circle_add.svg"
                         class="w-44 h-44"
                     />
                 </view>

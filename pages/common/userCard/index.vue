@@ -147,17 +147,17 @@ export default {
                 {
                     idx: 0,
                     title: '备注',
-                    icon: require('static/images/profile_menu_info.png')
+                    icon: '/static/images/profile_menu_info.svg'
                 },
                 {
                     idx: 1,
                     title: '更多资料',
-                    icon: require('static/images/profile_menu_account.png')
+                    icon: '/static/images/profile_menu_account.svg'
                 },
                 {
                     idx: 2,
                     title: '更多',
-                    icon: require('static/images/common_more_active.png'),
+                    icon: '/static/images/common_more_active.svg',
                     w: 42,
                     h: 10
                 }

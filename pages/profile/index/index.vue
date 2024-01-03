@@ -82,27 +82,27 @@ export default {
                 {
                     idx: 0,
                     title: '我的信息',
-                    icon: require('static/images/profile_menu_info.png')
+                    icon: require('static/images/profile_menu_info.svg')
                 },
                 {
                     idx: 2,
                     title: '账号设置',
-                    icon: require('static/images/profile_menu_account.png')
+                    icon: require('static/images/profile_menu_account.svg')
                 },
                 {
                     idx: 3,
                     title: '我的收藏',
-                    icon: require('static/images/profile_menu_favorite.png')
+                    icon: require('static/images/profile_menu_favorite.svg')
                 },
                 {
                     idx: 4,
                     title: '关于我们',
-                    icon: require('static/images/profile_menu_about.png')
+                    icon: require('static/images/profile_menu_about.svg')
                 },
                 {
                     idx: 5,
                     title: '退出登录',
-                    icon: require('static/images/profile_menu_logout.png')
+                    icon: require('static/images/profile_menu_logout.svg')
                 }
             ]
         };

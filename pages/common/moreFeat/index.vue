@@ -30,7 +30,7 @@
             >
                 <image
                     :class="['w-38', 'h-35']"
-                    :src="'/static/images/back_time.png'"
+                    :src="'/static/images/back_time.svg'"
                 />
                 <text class="ml-20"> 返回 </text>
             </view>

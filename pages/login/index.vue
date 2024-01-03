@@ -3,10 +3,7 @@
         <view class="login">
             <view class="navbar-height-all" />
             <view class="box-logo" @click="chooseDomain">
-                <image
-                    class="logo w-130 h-120"
-                    src="/static/images/logo@2x.png"
-                />
+                <image class="logo w-130 h-120" src="/static/images/logo.png" />
                 <image class="w-249 h-37" src="/static/images/logo_name.png" />
             </view>
             <u-form
@@ -19,7 +16,7 @@
                 <u-form-item prop="phoneNumber">
                     <view class="phoneNumber_areacode" @click="showPicker">
                         <u--image
-                            src="/static/images/logo@2x.png"
+                            src="/static/images/logo.png"
                             width="58rpx"
                             height="58rpx"
                             shape="circle"

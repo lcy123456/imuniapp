@@ -16,7 +16,7 @@
                 <view class="more_icon mr-30" @click="showMore">
                     <image
                         class="w-44 h-44"
-                        src="/static/images/common_circle_add.png"
+                        src="/static/images/common_circle_add.svg"
                     />
                 </view>
             </template>
@@ -70,22 +70,22 @@ export default {
                 {
                     idx: 3,
                     title: '创建群聊',
-                    icon: require('static/images/more_create_group.png')
+                    icon: '/static/images/more_create_group.svg'
                 },
                 {
                     idx: 2,
                     title: '加入群聊',
-                    icon: require('static/images/more_add_group.png')
+                    icon: '/static/images/more_add_group.svg'
                 },
                 {
                     idx: 1,
                     title: '搜索好友',
-                    icon: require('static/images/more_add_friend.png')
+                    icon: '/static/images/more_add_friend.svg'
                 },
                 {
                     idx: 0,
                     title: '扫一扫',
-                    icon: require('static/images/more_qr.png')
+                    icon: '/static/images/more_qr.svg'
                 }
             ]
         };

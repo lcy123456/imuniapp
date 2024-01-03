@@ -48,13 +48,13 @@ export default {
                     idx: 0,
                     title: '创建群聊',
                     desc: '创建群聊，全面使用司聊',
-                    icon: require('static/images/contact_add_create_group.png')
+                    icon: require('static/images/contact_add_create_group.svg')
                 },
                 {
                     idx: 1,
                     title: '加入群聊',
                     desc: '与成员一起沟通协作',
-                    icon: require('static/images/contact_add_join_group.png')
+                    icon: require('static/images/contact_add_join_group.svg')
                 }
             ],
             friendActionMenus: [
@@ -62,13 +62,13 @@ export default {
                     idx: 0,
                     title: '搜索好友',
                     desc: '通过ID号搜索添加',
-                    icon: require('static/images/contact_add_search_user.png')
+                    icon: '/static/images/contact_add_search_user.svg'
                 },
                 {
                     idx: 1,
                     title: '扫一扫',
                     desc: '扫描二维码名片',
-                    icon: require('static/images/contact_add_qr_user.png')
+                    icon: require('static/images/contact_add_qr_user.svg')
                 }
             ]
         };

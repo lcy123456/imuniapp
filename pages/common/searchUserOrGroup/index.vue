@@ -47,8 +47,8 @@ import IMSDK from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 
 import searchGroup from 'static/images/contact_add_join_group.png';
-import searchUser from 'static/images/contact_add_search_user.png';
 import { businessSearchUserInfo } from '@/api/login';
+const searchUser = '/static/images/contact_add_search_user.svg';
 
 export default {
     components: {

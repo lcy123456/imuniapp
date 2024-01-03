@@ -60,7 +60,7 @@
                 @touchstart.stop
                 @touchend.prevent.stop="back('first')"
             >
-                <image src="@/static/images/back.png" />
+                <image src="/static/images/back.svg" />
                 <text>返回</text>
             </view>
             <view v-if="secondTemplate === 'readCount'">
@@ -170,26 +170,25 @@ export default {
                 {
                     type: MessageMenuTypes.ReadCount,
                     title: '',
-                    icon: '/static/images/chating_message_gif.png',
                     visible: this.isSender && this.isGroup,
                     template: 'readCount'
                 },
                 {
                     type: MessageMenuTypes.AddEmoticons,
                     title: '添加到表情',
-                    icon: '/static/images/chating_message_gif.png',
+                    icon: '/static/images/chating_message_gif.svg',
                     visible: this.showMediaRender
                 },
                 {
                     type: MessageMenuTypes.Forward,
                     title: '转发',
-                    icon: '/static/images/chating_message_forward.png',
+                    icon: '/static/images/chating_message_forward.svg',
                     visible: true
                 },
                 {
                     type: MessageMenuTypes.Pin,
                     title: '置顶',
-                    icon: '/static/images/pin.png',
+                    icon: '/static/images/pin.svg',
                     visible:
                         !this.message.pinMap &&
                         !notPinTypes.includes(this.message.contentType)
@@ -197,7 +196,7 @@ export default {
                 {
                     type: MessageMenuTypes.PinCancel,
                     title: '取消置顶',
-                    icon: '/static/images/cancel-pin.png',
+                    icon: '/static/images/cancel-pin.svg',
                     visible:
                         this.message.pinMap &&
                         !notPinTypes.includes(this.message.contentType)
@@ -205,13 +204,13 @@ export default {
                 {
                     type: MessageMenuTypes.Reply,
                     title: '回复',
-                    icon: '/static/images/chating_message_reply.png',
+                    icon: '/static/images/chating_message_reply.svg',
                     visible: true
                 },
                 {
                     type: MessageMenuTypes.Edit,
                     title: '编辑',
-                    icon: '/static/images/chating_message_edit.png',
+                    icon: '/static/images/chating_message_edit.svg',
                     visible:
                         TextRenderTypes.includes(this.message.contentType) &&
                         this.isMyMsg
@@ -219,19 +218,19 @@ export default {
                 {
                     type: MessageMenuTypes.Copy,
                     title: '复制',
-                    icon: '/static/images/chating_message_copy.png',
+                    icon: '/static/images/chating_message_copy.svg',
                     visible: TextRenderTypes.includes(this.message.contentType)
                 },
                 {
                     type: MessageMenuTypes.Revoke,
                     title: '撤回',
-                    icon: '/static/images/chating_message_revoke.png',
+                    icon: '/static/images/chating_message_revoke.svg',
                     visible: this.isSender
                 },
                 {
                     type: MessageMenuTypes.Multiple,
                     title: '多选',
-                    icon: '/static/images/chating_message_multiple.png',
+                    icon: '/static/images/chating_message_multiple.svg',
                     visible: true
                 },
                 {
@@ -243,7 +242,7 @@ export default {
                 {
                     type: MessageMenuTypes.Del,
                     title: '删除',
-                    icon: '/static/images/chating_message_del.png',
+                    icon: '/static/images/chating_message_del.svg',
                     visible: this.isMyMsg || this.isSingle
                 }
             ].filter(v => v.visible);
@@ -429,7 +428,7 @@ export default {
                 });
                 this.$emit('updatePin', {
                     type: 'success',
-                    icon: `/static/images/pin.png`,
+                    icon: `/static/images/pin.svg`,
                     text: '消息内容已置顶'
                 });
             } catch (err) {
@@ -444,7 +443,7 @@ export default {
                 });
                 this.$emit('updatePin', {
                     type: 'fail',
-                    icon: `/static/images/cancel-pin.png`,
+                    icon: `/static/images/cancel-pin.svg`,
                     text: '已取消置顶'
                 });
             } catch (err) {

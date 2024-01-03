@@ -66,7 +66,7 @@
                 <view class="member_title">
                     <view class="member_desc" @click="inviteMember">
                         <image
-                            src="/static/images/contact_add_search_user.png"
+                            src="/static/images/contact_add_search_user.svg"
                             class="w-44 h-44"
                         />
                         <text class="ml-20 primary"> 邀请新成员 </text>

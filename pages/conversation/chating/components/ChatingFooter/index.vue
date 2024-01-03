@@ -20,14 +20,14 @@
                 <image
                     :src="`/static/images/chating_message_del_${
                         checkedMsgIds.length === 0 ? 'grey' : 'active'
-                    }.png`"
+                    }.svg`"
                     class="w-44 h-44"
                     @click="handleMultiple(MessageMenuTypes.DelAll)"
                 />
                 <image
                     :src="`/static/images/chating_message_forward_${
                         checkedMsgIds.length === 0 ? 'grey' : 'active'
-                    }.png`"
+                    }.svg`"
                     class="w-44 h-44"
                     @click="handleMultiple(MessageMenuTypes.ForwardAll)"
                 />
@@ -60,21 +60,21 @@
                     <view class="flex align-center">
                         <image
                             class="w-48 h-48"
-                            src="/static/images/chating_footer_emoji.png"
+                            src="/static/images/chating_footer_emoji.svg"
                             @click="updateEmojiBar"
                         />
                         <image
                             class="w-48 h-48 mx-20"
-                            src="/static/images/chating_footer_add.png"
+                            src="/static/images/chating_footer_add.svg"
                             @click.prevent="updateActionBar"
                         />
                         <image
                             class="w-48 h-48"
                             :src="`/static/images/${
                                 recordVisible
-                                    ? 'chating_footer_audio'
-                                    : 'chating_footer_audio_recording'
-                            }.png`"
+                                    ? 'chating_footer_audio_recording'
+                                    : 'chating_footer_audio'
+                            }.svg`"
                             @click="updateRecordBar"
                         />
                     </view>

@@ -16,8 +16,8 @@
 
 <script>
 import defaultAvatars from '@/common/defaultAvatars.js';
-import defaultGroupIcon from 'static/images/contact_my_group.png';
-import defaultNotifyIcon from 'static/images/default_notify_icon.png';
+import defaultNotifyIcon from '@/static/images/default_notify_icon.png';
+const defaultGroupIcon = '/static/images/contact_my_group.svg';
 export default {
     name: 'MyAvatar',
     props: {

@@ -2,7 +2,7 @@
     <view class="file_message_container bg_container" @click="clickFileItem">
         <image
             class="flex-shrink mr-20 w-84 h-84"
-            src="@/static/images/chating_message_file.png"
+            src="/static/images/chating_message_file.svg"
         />
         <view class="flex right flex-column">
             <text class="nomalEllipsis">

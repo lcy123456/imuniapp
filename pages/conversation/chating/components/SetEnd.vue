@@ -3,7 +3,7 @@
         <view v-if="conversationUnread" class="unread">
             {{ conversationUnread < 100 ? conversationUnread : '99+' }}
         </view>
-        <image src="/static/images/set-end.png" />
+        <image src="/static/images/set-end.svg" />
     </view>
 </template>
 <script>
