@@ -101,6 +101,14 @@ export const isEdit = message => {
         return false;
     }
 };
+export const isLike = message => {
+    try {
+        const ex = JSON.parse(message.ex);
+        return ex.giveLike;
+    } catch (err) {
+        return false;
+    }
+};
 
 export const parseAt = (atel, type) => {
     let mstr = atel.text;

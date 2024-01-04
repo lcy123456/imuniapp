@@ -422,7 +422,6 @@ export default {
                     seq,
                     createTime: createTime,
                     sendTime: sendTime,
-                    isEditClientMsgID: this.activeMessage.clientMsgID,
                     ex: JSON.stringify({
                         type: 'edit',
                         clientMsgID: clientMsgID

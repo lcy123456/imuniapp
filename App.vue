@@ -692,20 +692,6 @@ export default {
                 data.status
             );
         },
-
-        setEditMsg(msg) {
-            try {
-                const ex = JSON.parse(msg.ex) || {};
-                if (ex.type === 'edit') {
-                    msg.isEditClientMsgID = ex.clientMsgID;
-                    return msg;
-                }
-            } catch (err) {
-                console.log(err);
-            }
-            return 'myMsg';
-        },
-
         async handleNewMessage(newServerMsg) {
             if (this.inCurrentConversation(newServerMsg)) {
                 if (
@@ -731,7 +717,6 @@ export default {
                             conversationUnread
                         );
                     }
-                    this.setEditMsg(newServerMsg);
                     this.pushNewMessage(newServerMsg);
                     uni.$u.debounce(this.markConversationAsRead, 2000);
                     if (this.storeIsShowSetEnd) return;

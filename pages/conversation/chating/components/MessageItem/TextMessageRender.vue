@@ -18,6 +18,10 @@
             :content="getContent"
         /> -->
         <view v-html="getContent" />
+        <view v-if="giveLike && giveLike.length" class="give-like-box">
+            <MessageGiveLikeState :message="message" :is-sender="isSender" />
+            <view v-html="baseText"></view>
+        </view>
         <MessageReadState
             v-if="isShowTime && !onlyMessage"
             :id="`MessageReadState-${message.clientMsgID}`"
@@ -33,12 +37,14 @@ import { parseAt, parseEmoji, parseLink } from '@/util/imCommon';
 import { MessageType } from 'openim-uniapp-polyfill';
 import { DecryptoAES } from '@/util/crypto';
 import MessageReadState from './MessageReadState.vue';
+import MessageGiveLikeState from './MessageGiveLikeState.vue';
 import { SessionType } from 'openim-uniapp-polyfill';
 
 export default {
     name: 'TextMessageRender',
     components: {
-        MessageReadState
+        MessageReadState,
+        MessageGiveLikeState
     },
     props: {
         message: {
@@ -74,6 +80,15 @@ export default {
         return {};
     },
     computed: {
+        giveLike() {
+            try {
+                const ex = JSON.parse(this.message.ex);
+                return ex.giveLike;
+            } catch (err) {
+                // console.log(err);
+            }
+            return [];
+        },
         clientMsgID() {
             return this.message.clientMsgID;
         },
@@ -110,9 +125,8 @@ export default {
             text = text.replace(/\n/g, '<br>');
             return text;
         },
-        getContent() {
-            const { senderNickname } = this.message;
-            const baseText = !this.isQuote
+        baseText() {
+            return !this.isQuote
                 ? `
             <view class="base-box hide-css">
                 <img
@@ -147,11 +161,14 @@ export default {
             </view>
             `
                 : ``;
+        },
+        getContent() {
+            const { senderNickname } = this.message;
             let text = this.text;
             if (this.showNickname) {
                 text = senderNickname + '：' + text;
             }
-            return `${text}${baseText}`;
+            return `${text}${this.baseText}`;
         }
     },
     mounted() {},
@@ -166,11 +183,13 @@ export default {
 .text_message_container {
     overflow: hidden;
     word-break: break-all;
-    display: flex;
     align-items: flex-end;
     user-select: none;
     -webkit-user-select: none;
     position: relative;
+}
+.give-like-box {
+    display: flex;
 }
 /deep/.read-content {
     position: absolute;

@@ -1,7 +1,7 @@
 import IMSDK from 'openim-uniapp-polyfill';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateMessageTypes } from '@/constant';
-import { idsGetConversationID, isEdit } from '@/util/imCommon';
+import { idsGetConversationID, isEdit, isLike } from '@/util/imCommon';
 
 const state = {
     historyMessageMap: {}
@@ -141,7 +141,7 @@ const actions = {
         }
         const obj = state.historyMessageMap[conversationID];
         let msgList = [];
-        if (!isEdit(message)) {
+        if (!isEdit(message) && !isLike(message)) {
             msgList = [...(obj?.messageList || []), message];
         } else {
             // 编辑消息
@@ -162,12 +162,14 @@ const actions = {
                     }
                 });
                 let i = index === -1 ? obj.messageList.length : index;
+                console.log('pushNewMessage-pushNewMessage', i);
                 msgList = [
                     ...(obj?.messageList || []).slice(0, i),
                     message,
                     ...(obj?.messageList || []).slice(i)
                 ];
             }
+            console.log('msgList-msgList', msgList);
         }
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
@@ -208,22 +210,24 @@ const actions = {
         });
     },
     deleteMessages({ commit, state, rootState }, messages) {
-        let conversationID =
-            rootState.conversation.currentConversation.conversationID;
-        if (!conversationID) {
-            conversationID = idsGetConversationID(messages[0]);
-        }
-
-        const obj = state.historyMessageMap[conversationID];
-        const tmpList = [...obj.messageList];
-        console.log('删除的------', messages);
-        messages.forEach(v => {
-            const idx = tmpList.findIndex(j => j.clientMsgID === v.clientMsgID);
-            if (idx !== -1) {
-                tmpList.splice(idx, 1);
-            }
-        });
         setTimeout(() => {
+            let conversationID =
+                rootState.conversation.currentConversation.conversationID;
+            if (!conversationID) {
+                conversationID = idsGetConversationID(messages[0]);
+            }
+
+            const obj = state.historyMessageMap[conversationID];
+            const tmpList = [...obj.messageList];
+            console.log('删除的------', messages);
+            messages.forEach(v => {
+                const idx = tmpList.findIndex(
+                    j => j.clientMsgID === v.clientMsgID
+                );
+                if (idx !== -1) {
+                    tmpList.splice(idx, 1);
+                }
+            });
             commit('SET_HISTORY_MESSAGE_MAP', {
                 ...state.historyMessageMap,
                 [conversationID]: {
@@ -231,7 +235,7 @@ const actions = {
                     messageList: [...tmpList]
                 }
             });
-        }, 0);
+        }, 100);
     },
     resetMessageState({ commit }) {
         // commit('SET_HISTORY_MESSAGE_LIST', []);

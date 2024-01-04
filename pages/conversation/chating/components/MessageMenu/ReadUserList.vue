@@ -7,16 +7,22 @@
             @click.stop="showInfo(user)"
         >
             <view class="user_item">
-                <my-avatar
-                    :key="user.userID"
-                    :desc="user.nickname"
-                    :src="user.faceURL"
-                    :font-size="12"
-                    size="28"
-                    shape="circle"
-                    :class="['avatar']"
-                />
-                <text>{{ user.nickname }}</text>
+                <view class="left">
+                    <my-avatar
+                        :key="user.userID"
+                        :desc="user.nickname"
+                        :src="user.faceURL"
+                        :font-size="12"
+                        size="28"
+                        shape="circle"
+                        :class="['avatar']"
+                    />
+                    <text>{{ user.nickname }}</text>
+                    <image src="/static/images/read_white.svg" />
+                </view>
+                <view class="right">
+                    <image src="/static/like/support.png" />
+                </view>
             </view>
         </view>
     </view>
@@ -52,18 +58,39 @@ export default {
 </script>
 <style lang="scss" scoped>
 .read-user-list {
-    max-height: 500px;
+    max-height: 160px;
     overflow: scroll;
+    border-radius: 15px;
+    padding: 0 20rpx;
+    background-color: rgba($uni-bg-color-inverse, 0.6);
+    margin-top: 20rpx;
     border-radius: 15px;
     .user_item {
         padding: 10px 15px;
         display: flex;
         align-items: center;
-        border-bottom: 1px solid #fff;
-        uni-text {
-            font-size: 24rpx;
-            margin-left: 10rpx;
-            @include ellipsisWithLine(1);
+        justify-content: space-between;
+        .left {
+            display: flex;
+            align-items: center;
+            uni-text {
+                font-size: 24rpx;
+                margin-left: 10rpx;
+                @include ellipsisWithLine(1);
+            }
+            uni-image {
+                width: 38rpx;
+                height: 24rpx;
+                margin-left: 10rpx;
+            }
+        }
+        .right {
+            display: flex;
+            align-items: center;
+            uni-image {
+                width: 54rpx;
+                height: 54rpx;
+            }
         }
     }
 }

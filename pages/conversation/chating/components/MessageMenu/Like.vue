@@ -5,7 +5,7 @@
             :key="item.key"
             class="item"
             @touchstart.stop
-            @click.stop="like(item)"
+            @touchend.prevent.stop="like(item)"
         >
             <image :src="`/static/like/${item.key}.png`" />
         </view>

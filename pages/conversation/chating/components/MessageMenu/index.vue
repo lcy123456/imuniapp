@@ -8,15 +8,26 @@
         }"
     >
         <Like :like-list="likeList" @like="like" />
-        <view class="read-box">
+        <view
+            v-if="attachedInfo.groupHasReadInfo.hasReadCount"
+            class="read-box"
+            @touchstart.stop
+            @touchend.prevent.stop="showAllRead"
+        >
             <view class="left">
                 <image src="/static/images/read_white.svg" />
-                <text v-if="attachedInfo.groupHasReadInfo.hasReadCount">
+                <text>
                     {{ attachedInfo.groupHasReadInfo.hasReadCount }}人已读
                 </text>
             </view>
             <view class="right">
-                <image src="/static/images/read-down.svg" />
+                <image
+                    :class="{
+                        rotate:
+                            steps !== 'first' && secondTemplate === 'readCount'
+                    }"
+                    src="/static/images/read-down.svg"
+                />
             </view>
         </view>
         <view v-if="steps === 'first'" class="message_menu">
@@ -66,25 +77,15 @@
             </view>
         </view>
         <view v-else>
-            <!-- <view
-                :style="{ height: menuItemHight + 'px' }"
-                class="message_menu_item back"
-                @touchstart.stop
-                @touchend.prevent.stop="back('first')"
-            >
-                <image src="/static/images/back.svg" />
-                <text>返回</text>
-            </view> -->
             <view v-if="secondTemplate === 'readCount'">
                 <ReadUserList :user-list="userList" />
             </view>
         </view>
     </view>
-    <!-- <u-modal :show="show" :title="title" :content='content'></u-modal> -->
 </template>
 
 <script>
-import MyAvatar from '@/components/MyAvatar/index.vue';
+// import MyAvatar from '@/components/MyAvatar/index.vue';
 import ReadUserList from './ReadUserList.vue';
 import Like from './Like.vue';
 import { getMsgID, giveLikeEmoji } from '@/api/message';
@@ -109,7 +110,6 @@ const notPinTypes = [MessageType.CustomMessage];
 
 export default {
     components: {
-        MyAvatar,
         ReadUserList,
         Like
     },
@@ -190,7 +190,10 @@ export default {
             const { windowHeight } = uni.getSystemInfoSync();
             const menuHight =
                 this.menuItemHight * Math.ceil(this.menuList.length / 5) +
-                uni.upx2px(90 + 20);
+                uni.upx2px(100 + 20) +
+                (this.attachedInfo.groupHasReadInfo.hasReadCount
+                    ? uni.upx2px(100 + 20)
+                    : 0);
             const minTop = 0;
             const maxTop =
                 windowHeight -
@@ -349,15 +352,11 @@ export default {
             }
         },
         showAllRead() {
-            if (!this.attachedInfo?.groupHasReadInfo?.hasReadCount) return;
-            // this.steps = 'second';
-            // this.secondTemplate = 'readCount';
+            this.steps = this.steps === 'second' ? 'first' : 'second';
+            this.secondTemplate = 'readCount';
         },
         async menuClick({ type }) {
             switch (type) {
-                case MessageMenuTypes.ReadCount:
-                    this.showAllRead();
-                    return;
                 case MessageMenuTypes.AddEmoticons:
                     this.addEmoticons();
                     break;
@@ -595,6 +594,7 @@ export default {
                     groupID,
                     emoji
                 });
+                this.$emit('close');
             } catch (err) {
                 console.log('err-err', err);
                 uni.$u.toast('点赞失败');
@@ -613,10 +613,14 @@ export default {
     z-index: 999999;
     color: $uni-text-color-inverse;
     .read-box {
-        height: 90rpx;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
+        border-radius: 45rpx;
+        background: rgba(0, 0, 0, 0.6);
+        height: 100rpx;
+        padding: 20rpx;
+        margin-top: 20rpx;
         .left {
             display: flex;
             align-items: center;
@@ -624,11 +628,18 @@ export default {
                 width: 38rpx;
                 height: 24rpx;
             }
+            uni-text {
+                color: #fff;
+                margin-left: 20rpx;
+            }
         }
         .right {
             uni-image {
                 width: 50rpx;
                 height: 50rpx;
+            }
+            .rotate {
+                transform: rotate(180deg);
             }
         }
     }

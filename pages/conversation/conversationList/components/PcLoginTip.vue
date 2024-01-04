@@ -14,12 +14,12 @@
 <script>
 import { PlatformMap } from '@/enum';
 export default {
-    name: 'ChatHeader',
+    name: 'PcLoginTip',
     components: {},
     props: {
         platformID: {
-            type: String,
-            default: ''
+            type: Number,
+            default: 0
         }
     },
     data() {

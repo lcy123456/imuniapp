@@ -46,9 +46,9 @@ export default {
         };
     },
     computed: {
-        messageChange() {
-            return [this.message.pinMap];
-        },
+        // messageChange() {
+        //     return [this.message.pinMap];
+        // },
         isEdit() {
             try {
                 const ex = JSON.parse(this.message.ex);
@@ -92,12 +92,12 @@ export default {
         }
     },
     watch: {
-        messageChange(newVal, oldVal) {
-            if (JSON.stringify(newVal) === JSON.stringify(oldVal)) return;
-            setTimeout(() => {
-                this.$emit('getReadWidth');
-            }, 200);
-        }
+        // messageChange(newVal, oldVal) {
+        //     if (JSON.stringify(newVal) === JSON.stringify(oldVal)) return;
+        //     setTimeout(() => {
+        //         this.$emit('getReadWidth');
+        //     }, 200);
+        // }
     }
 };
 </script>
