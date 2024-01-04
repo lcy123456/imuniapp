@@ -3,8 +3,8 @@
         <view class="top">
             <image src="/static/images/scan-login-icon.png" />
             <text
-            >{{ platformID ? '' : '登录'
-            }}{{ PlatformMap[platformID] || '客户' }}端</text
+                >{{ platformID ? '' : '登录'
+                }}{{ PlatformMap[platformID] || '客户' }}端</text
             >
         </view>
         <view v-if="platformID" class="btns">

@@ -33,9 +33,9 @@
             >
                 {{
                     item.remark ||
-                        item.nickname ||
-                        item.groupName ||
-                        item.showName
+                    item.nickname ||
+                    item.groupName ||
+                    item.showName
                 }}
             </text>
             <view>

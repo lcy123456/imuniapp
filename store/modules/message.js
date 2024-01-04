@@ -59,8 +59,8 @@ const actions = {
                         isInit && !positionMsgID
                             ? false
                             : typeof hasAfterMore === 'undefined'
-                                ? true
-                                : hasAfterMore,
+                              ? true
+                              : hasAfterMore,
                     lastMinSeq: lastMinSeq
                 }
             });

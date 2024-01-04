@@ -57,7 +57,7 @@
                                 :key="item.userID"
                                 :is-group="
                                     item.conversationType ===
-                                        SessionType.WorkingGroup
+                                    SessionType.WorkingGroup
                                 "
                                 :src="item.faceURL"
                                 :desc="item.showName"

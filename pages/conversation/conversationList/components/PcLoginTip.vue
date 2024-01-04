@@ -3,9 +3,9 @@
         <view class="flex box">
             <image src="/static/images/scan-login-icon.png" />
             <text
-            >已在{{
-                PlatformMap[platformID] || '客户'
-            }}端登录，手机通知已关闭</text
+                >已在{{
+                    PlatformMap[platformID] || '客户'
+                }}端登录，手机通知已关闭</text
             >
         </view>
     </view>
