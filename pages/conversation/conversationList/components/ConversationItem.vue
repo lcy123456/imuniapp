@@ -1,6 +1,5 @@
 <template>
     <uni-swipe-action-item
-        :key="`${source.conversationID}-swipe-action-item`"
         :right-options="getSwipeActions || []"
         :disabled="isDisabled"
         :threshold="50"

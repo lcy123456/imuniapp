@@ -78,7 +78,7 @@
         </view>
         <view v-else>
             <view v-if="secondTemplate === 'readCount'">
-                <ReadUserList :user-list="userList" />
+                <ReadUserList :user-list="userList" :message="message" />
             </view>
         </view>
     </view>

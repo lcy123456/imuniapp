@@ -102,8 +102,8 @@ export default {
     },
     props: {
         source: {
-            required: true,
-            type: Object
+            type: Object,
+            default: () => ({})
         },
         isSender: {
             type: Boolean,

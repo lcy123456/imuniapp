@@ -164,9 +164,9 @@ const actions = {
                 let i = index === -1 ? obj.messageList.length : index;
                 console.log('pushNewMessage-pushNewMessage', i);
                 msgList = [
-                    ...(obj?.messageList || []).slice(0, i),
+                    ...msgList.slice(0, i),
                     message,
-                    ...(obj?.messageList || []).slice(i)
+                    ...msgList.slice(i)
                 ];
             }
             console.log('msgList-msgList', msgList);
@@ -210,32 +210,30 @@ const actions = {
         });
     },
     deleteMessages({ commit, state, rootState }, messages) {
-        setTimeout(() => {
-            let conversationID =
-                rootState.conversation.currentConversation.conversationID;
-            if (!conversationID) {
-                conversationID = idsGetConversationID(messages[0]);
-            }
+        // setTimeout(() => {
+        let conversationID =
+            rootState.conversation.currentConversation.conversationID;
+        if (!conversationID) {
+            conversationID = idsGetConversationID(messages[0]);
+        }
 
-            const obj = state.historyMessageMap[conversationID];
-            const tmpList = [...obj.messageList];
-            console.log('删除的------', messages);
-            messages.forEach(v => {
-                const idx = tmpList.findIndex(
-                    j => j.clientMsgID === v.clientMsgID
-                );
-                if (idx !== -1) {
-                    tmpList.splice(idx, 1);
-                }
-            });
-            commit('SET_HISTORY_MESSAGE_MAP', {
-                ...state.historyMessageMap,
-                [conversationID]: {
-                    ...obj,
-                    messageList: [...tmpList]
-                }
-            });
-        }, 100);
+        const obj = state.historyMessageMap[conversationID];
+        const tmpList = [...obj.messageList];
+        console.log('删除的------', messages);
+        messages.forEach(v => {
+            const idx = tmpList.findIndex(j => j.clientMsgID === v.clientMsgID);
+            if (idx !== -1) {
+                tmpList.splice(idx, 1);
+            }
+        });
+        commit('SET_HISTORY_MESSAGE_MAP', {
+            ...state.historyMessageMap,
+            [conversationID]: {
+                ...obj,
+                messageList: [...tmpList]
+            }
+        });
+        // }, 100);
     },
     resetMessageState({ commit }) {
         // commit('SET_HISTORY_MESSAGE_LIST', []);

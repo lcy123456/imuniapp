@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { SessionType } from 'openim-uniapp-polyfill';
 import { giveLikeEmoji } from '@/api/message';
 export default {
     name: 'MessageGiveLikeState',
@@ -33,6 +34,9 @@ export default {
         return {};
     },
     computed: {
+        isGroup() {
+            return this.message.sessionType !== SessionType.Single;
+        },
         giveLike() {
             try {
                 const ex = JSON.parse(this.message.ex);
@@ -91,13 +95,13 @@ export default {
     }
     .like-box {
         height: 58rpx;
-        background: #008dff;
         border-radius: 29rpx;
         opacity: 1;
         display: flex;
         align-items: center;
-        padding: 8rpx 25rpx 8rpx 8rpx;
         margin-right: 10rpx;
+        padding: 8rpx 25rpx 8rpx 8rpx;
+        background: #008dff;
         uni-image {
             width: 50rpx;
             height: 50rpx;

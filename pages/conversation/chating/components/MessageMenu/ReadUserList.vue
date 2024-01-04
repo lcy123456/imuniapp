@@ -20,8 +20,8 @@
                     <text>{{ user.nickname }}</text>
                     <image src="/static/images/read_white.svg" />
                 </view>
-                <view class="right">
-                    <image src="/static/like/support.png" />
+                <view v-if="getLike(user.userID)" class="right">
+                    <image :src="`/static/like/${getLike(user.userID)}.png`" />
                 </view>
             </view>
         </view>
@@ -35,12 +35,32 @@ export default {
         MyAvatar
     },
     props: {
+        message: {
+            type: Object,
+            default: () => ({})
+        },
         userList: {
             type: Array,
             default: () => []
         }
     },
+    computed: {
+        giveLike() {
+            try {
+                const ex = JSON.parse(this.message.ex);
+                return ex.giveLike;
+            } catch (err) {
+                console.log(err);
+            }
+            return [];
+        }
+    },
     methods: {
+        getLike(userID) {
+            const map = this.giveLike.find(item => item.uid === userID);
+            if (map) return map.key;
+            return '';
+        },
         showInfo(user) {
             const sourceInfo = {
                 nickname: user.nickname,

@@ -29,11 +29,10 @@
                 <view
                     v-for="(item, index) in messageList"
                     :id="`auchor-${item.clientMsgID}`"
-                    :key="`auchor-${item.clientMsgID}`"
+                    :key="index"
                     :class="{ isrotate: isReverse }"
                 >
                     <BetweenTime
-                        :key="`auchor${item.clientMsgID}-BetweenTime`"
                         :msg-before="isReverse ? item : messageList[index - 1]"
                         :msg-after="isReverse ? messageList[index + 1] : item"
                         :is-reverse="isReverse"
@@ -45,7 +44,6 @@
                         "
                     />
                     <MessageItemRender
-                        :key="`auchor${item.clientMsgID}-MessageItemRender`"
                         :source="item"
                         :is-sender="item.sendID === storeCurrentUserID"
                         :is-show-menu-flag="isShowMenuFlag"
@@ -127,8 +125,7 @@ export default {
             'storeHasMoreMessage',
             'storeHasMoreAfterMessage',
             'storeIsShowSetEnd',
-            'storeCurrentUserID',
-            'storeHistoryMessageMap'
+            'storeCurrentUserID'
         ]),
         loadMoreStatus() {
             if (!this.storeHasMoreMessage) {
@@ -137,6 +134,12 @@ export default {
             return this.messageLoadState.loading ? 'loading' : 'loadmore';
         },
         messageList() {
+            console.log(
+                'message---------------',
+                this.isReverse
+                    ? this.storeHistoryMessageListReverse
+                    : this.storeHistoryMessageList
+            );
             return this.isReverse
                 ? this.storeHistoryMessageListReverse
                 : this.storeHistoryMessageList;
