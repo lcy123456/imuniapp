@@ -4,13 +4,6 @@
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode", // 使用prettier作为格式化插件
     "javascript.updateImportsOnFileMove.enabled": "always", //js重命名文件自动更新路径
-    //js自动格式化程序为prettier-eslint
-    "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[vue]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
     // 自动修复
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true

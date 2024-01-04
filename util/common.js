@@ -1,5 +1,6 @@
 import PinYin from './pinyin';
 import { AllType } from '@/enum';
+import { pinyin } from 'pinyin-pro';
 
 export const html2Text = (html, type) => {
     if (!html) {
@@ -107,7 +108,7 @@ export const formatChooseData = (data, key = 'nickname') => {
         }
     };
 
-    const arraySearch = (l1, l2) => {
+    const arraySearch = l1 => {
         for (let name in PinYin) {
             if (PinYin[name].indexOf(l1) != -1) {
                 return ucfirst(name);
@@ -265,6 +266,70 @@ export const lightTextStr = (str, key) => {
         },
         'g'
     );
+};
+export const colors = {
+    A: '#3498db', // 水宝蓝
+    B: '#2ecc71', // 翡翠绿
+    C: '#e74c3c', // 大红
+    D: '#f39c12', // 橙黄
+    E: '#1abc9c', // 蓝绿
+    F: '#9b59b6', // 紫色
+    G: '#27ae60', // 薄荷绿
+    H: '#e67e22', // 砖橙
+    I: '#34495e', // 暗灰蓝
+    J: '#d35400', // 南瓜橙
+    K: '#3498db', // 亮蓝
+    L: '#2ecc71', // 新翠
+    N: '#e74c3c', // 火焰红
+    M: '#f39c12', // 高光橙
+    O: '#1abc9c', // 海绿
+    P: '#9b59b6', // 翠紫
+    Q: '#27ae60', // 草绿
+    R: '#e67e22', // 橙黄
+    S: '#34495e', // 黑蓝
+    T: '#d35400', // 橙红
+    U: '#3498db', // 蔚蓝
+    V: '#2ecc71', // 苍翠
+    W: '#e74c3c', // 绛红
+    X: '#f39c12', // 金黄
+    Y: '#1abc9c', // 蓝绿
+    Z: '#9b59b6' // 紫色
+};
+export const adjustColor = (hex, adjustment, alpha = 1) => {
+    hex = hex.replace(/^#/, '');
+
+    const bigint = parseInt(hex, 16);
+    let r = (bigint >> 16) & 255;
+    let g = (bigint >> 8) & 255;
+    let b = bigint & 255;
+
+    r = Math.max(0, Math.min(255, r + adjustment));
+    g = Math.max(0, Math.min(255, g + adjustment));
+    b = Math.max(0, Math.min(255, b + adjustment));
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+export const getFirstCharacter = str => {
+    const trimmedStr = str.trim();
+    if (trimmedStr.length === 0) {
+        return 'A';
+    } else {
+        const firstStr = trimmedStr.charAt(0);
+        if (/^[0-9]/.test(firstStr)) {
+            return String.fromCharCode('A'.charCodeAt(0) + Number(firstStr));
+        }
+
+        if (/^[\u4e00-\u9fa5]/.test(firstStr)) {
+            const pinyinArray = pinyin(firstStr, {
+                pattern: 'first',
+                toneType: 'none',
+                type: 'array'
+            });
+            return pinyinArray[0].toUpperCase();
+        }
+
+        return firstStr.toUpperCase();
+    }
 };
 
 export const getNewText = (newStr, oldStr) => {

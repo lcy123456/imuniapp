@@ -2,12 +2,24 @@
     <view
         class="message_menu_container"
         :style="{
-            width: menuWidth + 'px',
+            width: getWidth + 'px',
             left: getLeft + 'px',
             top: getTop + 'px'
         }"
     >
-        <view v-if="steps === 'first'">
+        <Like :like-list="likeList" @like="like" />
+        <view class="read-box">
+            <view class="left">
+                <image src="/static/images/read_white.svg" />
+                <text v-if="attachedInfo.groupHasReadInfo.hasReadCount">
+                    {{ attachedInfo.groupHasReadInfo.hasReadCount }}人已读
+                </text>
+            </view>
+            <view class="right">
+                <image src="/static/images/read-down.svg" />
+            </view>
+        </view>
+        <view v-if="steps === 'first'" class="message_menu">
             <view
                 v-for="item in menuList"
                 :key="item.title"
@@ -18,10 +30,10 @@
                 @touchend.prevent="menuClick(item)"
             >
                 <view v-if="!item.template" class="base-box">
-                    <text>{{ item.title }}</text>
                     <image :src="item.icon" alt="" srcset="" />
+                    <text>{{ item.title }}</text>
                 </view>
-                <template v-if="item.template === 'readCount'">
+                <!-- <template v-if="item.template === 'readCount'">
                     <view class="readCount">
                         <image
                             class="read"
@@ -50,11 +62,11 @@
                             />
                         </view>
                     </view>
-                </template>
+                </template> -->
             </view>
         </view>
         <view v-else>
-            <view
+            <!-- <view
                 :style="{ height: menuItemHight + 'px' }"
                 class="message_menu_item back"
                 @touchstart.stop
@@ -62,7 +74,7 @@
             >
                 <image src="/static/images/back.svg" />
                 <text>返回</text>
-            </view>
+            </view> -->
             <view v-if="secondTemplate === 'readCount'">
                 <ReadUserList :user-list="userList" />
             </view>
@@ -74,7 +86,8 @@
 <script>
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import ReadUserList from './ReadUserList.vue';
-import { getMsgID } from '@/api/message';
+import Like from './Like.vue';
+import { getMsgID, giveLikeEmoji } from '@/api/message';
 import { html2Text } from '@/util/common';
 import { parseAt, getUserListInfo } from '@/util/imCommon';
 import { mapGetters, mapActions } from 'vuex';
@@ -97,7 +110,8 @@ const notPinTypes = [MessageType.CustomMessage];
 export default {
     components: {
         MyAvatar,
-        ReadUserList
+        ReadUserList,
+        Like
     },
     props: {
         message: {
@@ -118,12 +132,35 @@ export default {
             steps: 'first',
             secondTemplate: '',
             menuWidth: 200,
-            menuItemHight: 40,
+            menuItemHight: 80,
             attachedInfo: {
                 groupHasReadInfo: {},
                 hasReadUids: []
             },
             userList: [],
+            likeList: [
+                {
+                    key: 'support'
+                },
+                {
+                    key: 'love'
+                },
+                {
+                    key: 'face_1'
+                },
+                {
+                    key: 'face_2'
+                },
+                {
+                    key: 'face_3'
+                },
+                {
+                    key: 'face_4'
+                },
+                {
+                    key: 'face_5'
+                }
+            ],
             systemInfo: uni.getSystemInfoSync()
         };
     },
@@ -137,15 +174,23 @@ export default {
         isSender() {
             return this.paterRect.right > uni.getWindowInfo().windowWidth - 30;
         },
+        getWidth() {
+            const { windowWidth } = uni.getSystemInfoSync();
+            return windowWidth * 0.9;
+        },
         getLeft() {
-            const { left, right } = this.paterRect;
-            if (this.isSender) return right - 200;
-            return left;
+            // const { left, right } = this.paterRect;
+            // if (this.isSender) return right - 200;
+            // return left;
+            const { windowWidth } = uni.getSystemInfoSync();
+            return (windowWidth - this.getWidth) / 2;
         },
         getTop() {
             const { top, bottom } = this.paterRect;
             const { windowHeight } = uni.getSystemInfoSync();
-            const menuHight = this.menuItemHight * this.menuList.length;
+            const menuHight =
+                this.menuItemHight * Math.ceil(this.menuList.length / 5) +
+                uni.upx2px(90 + 20);
             const minTop = 0;
             const maxTop =
                 windowHeight -
@@ -167,12 +212,12 @@ export default {
         },
         menuList() {
             return [
-                {
-                    type: MessageMenuTypes.ReadCount,
-                    title: '',
-                    visible: this.isSender && this.isGroup,
-                    template: 'readCount'
-                },
+                // {
+                //     type: MessageMenuTypes.ReadCount,
+                //     title: '',
+                //     visible: this.isSender && this.isGroup,
+                //     template: 'readCount'
+                // },
                 {
                     type: MessageMenuTypes.AddEmoticons,
                     title: '添加到表情',
@@ -304,8 +349,9 @@ export default {
             }
         },
         showAllRead() {
-            this.steps = 'second';
-            this.secondTemplate = 'readCount';
+            if (!this.attachedInfo?.groupHasReadInfo?.hasReadCount) return;
+            // this.steps = 'second';
+            // this.secondTemplate = 'readCount';
         },
         async menuClick({ type }) {
             switch (type) {
@@ -536,6 +582,23 @@ export default {
                 return DecryptoAES(quoteElem.text);
             }
             return DecryptoAES(textElem.content);
+        },
+        async like(emoji) {
+            try {
+                const { clientMsgID, serverMsgID, sendID, recvID, groupID } =
+                    this.message;
+                await giveLikeEmoji({
+                    clientMsgID,
+                    serverMsgID,
+                    sendID,
+                    recvID,
+                    groupID,
+                    emoji
+                });
+            } catch (err) {
+                console.log('err-err', err);
+                uni.$u.toast('点赞失败');
+            }
         }
     }
 };
@@ -544,20 +607,44 @@ export default {
 <style scoped lang="scss">
 .message_menu_container {
     // width: 200px;
-    background-color: rgba($uni-bg-color-inverse, 0.6);
-    border-radius: 15px;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 999999;
     color: $uni-text-color-inverse;
+    .read-box {
+        height: 90rpx;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .left {
+            display: flex;
+            align-items: center;
+            uni-image {
+                width: 38rpx;
+                height: 24rpx;
+            }
+        }
+        .right {
+            uni-image {
+                width: 50rpx;
+                height: 50rpx;
+            }
+        }
+    }
+    .message_menu {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0 20rpx;
+        background-color: rgba($uni-bg-color-inverse, 0.6);
+        margin-top: 20rpx;
+        border-radius: 15px;
+    }
 
     .message_menu_item {
-        width: 100%;
+        width: 20%;
         // height: 80rpx;
-        padding: 0 15px;
-        @include btwBox();
-        border-bottom: 1px solid $uni-border-color;
+        padding: 30rpx 10rpx;
         &.back {
             justify-content: left;
             uni-text {
@@ -571,7 +658,18 @@ export default {
         }
         .base-box {
             width: 100%;
-            @include btwBox();
+            uni-image {
+                width: 38rpx;
+                height: 38rpx;
+                display: block;
+                margin: 0 auto;
+            }
+            uni-text {
+                display: block;
+                margin: 0 auto;
+                margin-top: 10rpx;
+                text-align: center;
+            }
         }
         .readCount {
             width: 100%;

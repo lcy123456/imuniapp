@@ -2,12 +2,12 @@
     <u-avatar
         :src="getAvatarUrl"
         :text="getAvatarUrl ? undefined : avatarText"
-        bg-color="#5496EB"
         :default-url="getDdefaultUrl"
         :font-size="fontSize"
         :shape="shape"
         :size="size"
         mode="aspectFill"
+        :style="{ background: bgColor }"
         @longpress="longpress"
         @click="click"
         @onError="errorHandle"
@@ -17,6 +17,7 @@
 <script>
 import defaultAvatars from '@/common/defaultAvatars.js';
 import defaultNotifyIcon from '@/static/images/default_notify_icon.png';
+import { getFirstCharacter, colors, adjustColor } from '@/util/common';
 const defaultGroupIcon = '/static/images/contact_my_group.svg';
 export default {
     name: 'MyAvatar',
@@ -52,7 +53,8 @@ export default {
     },
     data() {
         return {
-            avatarText: undefined
+            avatarText: undefined,
+            bgColor: ''
         };
     },
     computed: {
@@ -82,6 +84,9 @@ export default {
             this.avatarText = this.desc
                 ? this.desc.slice(this.desc.length > 1 ? -2 : -1)
                 : '未知';
+            const hexColor = colors[getFirstCharacter(this.avatarText)];
+            const rgbaColor = adjustColor(hexColor, 30);
+            this.bgColor = `radial-gradient(${hexColor}, ${rgbaColor})`;
         },
         click() {
             this.$emit('click');

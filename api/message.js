@@ -62,3 +62,20 @@ export const collectCancel = params =>
             token: store.getters.storeBusinessToken
         }
     });
+
+// 点赞
+export const giveLikeEmoji = params =>
+    uni.$u?.http.post(
+        '/msg/give_like_emoji',
+        JSON.stringify({
+            ...params
+        }),
+        {
+            custom: {
+                isIMApi: true
+            },
+            header: {
+                token: store.getters.storeIMToken
+            }
+        }
+    );

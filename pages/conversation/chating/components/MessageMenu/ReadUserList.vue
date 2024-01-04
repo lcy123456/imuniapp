@@ -12,7 +12,7 @@
                     :desc="user.nickname"
                     :src="user.faceURL"
                     :font-size="12"
-                    size="36"
+                    size="28"
                     shape="circle"
                     :class="['avatar']"
                 />
@@ -61,6 +61,7 @@ export default {
         align-items: center;
         border-bottom: 1px solid #fff;
         uni-text {
+            font-size: 24rpx;
             margin-left: 10rpx;
             @include ellipsisWithLine(1);
         }
