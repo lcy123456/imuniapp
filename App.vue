@@ -692,6 +692,9 @@ export default {
                 data.status
             );
         },
+        isNewMessage(newServerMsg) {
+            return !isEdit(newServerMsg) && !isLike(newServerMsg);
+        },
         async handleNewMessage(newServerMsg) {
             if (this.inCurrentConversation(newServerMsg)) {
                 if (
@@ -709,7 +712,10 @@ export default {
                         );
                         return;
                     }
-                    if (this.storeIsShowSetEnd) {
+                    if (
+                        this.storeIsShowSetEnd &&
+                        this.isNewMessage(newServerMsg)
+                    ) {
                         // 置底图标显示不滚动到底
                         let conversationUnread = this.conversationUnread + 1;
                         this.$store.commit(
@@ -721,8 +727,7 @@ export default {
                     uni.$u.debounce(this.markConversationAsRead, 2000);
                     if (
                         this.storeIsShowSetEnd ||
-                        isEdit(newServerMsg) ||
-                        isLike(newServerMsg)
+                        !this.isNewMessage(newServerMsg)
                     )
                         return;
                     setTimeout(() =>

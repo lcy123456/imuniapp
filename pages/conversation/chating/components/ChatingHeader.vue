@@ -7,13 +7,15 @@
         <view
             v-if="isMultipleMsg"
             slot="left"
-            :class="[
-                'ml-30',
-                checkedMsgIds.length === 0 ? 'text-grey' : 'primary'
-            ]"
+            :class="['ml-30']"
             @click="handleMultipleFavorite"
         >
-            收藏
+            <image
+                :src="`/static/images/chating_message_favorite_${
+                    checkedMsgIds.length === 0 ? 'grey' : 'active'
+                }.svg`"
+                class="w-44 h-44"
+            />
         </view>
         <template slot="center">
             <view v-if="isMultipleMsg" class="ff-bold">

@@ -31,8 +31,11 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.6);
     border-start-start-radius: 50% 25%;
     border-start-end-radius: 50% 25%;
+    uni-image {
+        margin-top: -40rpx;
+    }
 }
 </style>

@@ -44,11 +44,15 @@ export default {
             this.back();
         },
         async authForceLogout() {
-            await authForceLogout({
-                platformID: this.platformID,
-                userID: this.$store.state.user.selfInfo.userID
-            });
-            this.back();
+            try {
+                await authForceLogout({
+                    platformID: this.platformID,
+                    userID: this.$store.state.user.selfInfo.userID
+                });
+                this.back();
+            } catch (err) {
+                uni.$u.toast('网络异常请重试');
+            }
         },
         back() {
             uni.navigateBack();
