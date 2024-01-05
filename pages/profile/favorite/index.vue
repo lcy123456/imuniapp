@@ -14,15 +14,15 @@
             >
                 <uni-swipe-action ref="swipeWrapperRef">
                     <uni-swipe-action-item
-                        v-for="item in favoriteList"
-                        :key="item.id"
+                        v-for="(item, index) in favoriteList"
+                        :key="index"
                         :index="item.id"
                         :right-options="swipeAction"
                         :disabled="isDisabled"
                         :threshold="50"
                         @click="swipeActionClick($event, item)"
                     >
-                        <ItemCell :source="item.content" />
+                        <ItemCell :source="item" />
                     </uni-swipe-action-item>
                 </uni-swipe-action>
             </z-paging>
@@ -89,6 +89,7 @@ export default {
             const favoriteListIdList = this.favoriteList.map(item => item.id);
             l = l.filter(item => !favoriteListIdList.includes(item.id));
             this.favoriteList = this.favoriteList.concat(l);
+            console.log('this.favoriteList---this.favoriteList', list);
             this.getSearchRecordMedia();
         },
         closeAllSwipe() {

@@ -412,8 +412,15 @@ export default {
                               EncryptoAES(text)
                           );
                 }
-                const { createTime, sendTime, clientMsgID, sessionType, seq } =
-                    this.activeMessage;
+                const {
+                    createTime,
+                    sendTime,
+                    clientMsgID,
+                    sessionType,
+                    seq,
+                    ex
+                } = this.activeMessage;
+                const exMap = ex ? JSON.parse(ex) : {};
                 message = {
                     ...this.activeMessage,
                     ...message,
@@ -423,6 +430,7 @@ export default {
                     createTime: createTime,
                     sendTime: sendTime,
                     ex: JSON.stringify({
+                        ...exMap,
                         type: 'edit',
                         clientMsgID: clientMsgID
                     })

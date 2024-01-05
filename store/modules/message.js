@@ -141,6 +141,9 @@ const actions = {
         }
         const obj = state.historyMessageMap[conversationID];
         let msgList = [];
+        console.log('message------message', {
+            ...message
+        });
         if (!isEdit(message) && !isLike(message)) {
             msgList = [...(obj?.messageList || []), message];
         } else {
@@ -162,12 +165,12 @@ const actions = {
                     }
                 });
                 let i = index === -1 ? obj.messageList.length : index;
-                console.log('pushNewMessage-pushNewMessage', i);
                 msgList = [
-                    ...msgList.slice(0, i),
+                    ...(obj?.messageList || []).slice(0, i),
                     message,
-                    ...msgList.slice(i)
+                    ...(obj?.messageList || []).slice(i)
                 ];
+                console.log('3333-3333', msgList);
             }
             console.log('msgList-msgList', msgList);
         }

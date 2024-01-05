@@ -7,6 +7,7 @@
                 :is-success-message="isSuccessMessage"
                 :is-sender="isSender"
                 :only-message="onlyMessage"
+                :is-show-like="isShowLike"
             />
             <MediaMessageRender
                 v-if="showMediaRender"
@@ -50,7 +51,7 @@
                     (showMediaRender || showFileRender || showMergeRender) &&
                     !onlyMessage
                 "
-                class="read-state"
+                :class="['read-state', giveLike ? 'give-like' : '']"
                 :is-sender="isSender"
                 :message="message"
             />
@@ -61,11 +62,17 @@
                 @click.native="setPositionMsgID(getQuoteElem.quoteMessage)"
             />
         </view>
+        <MessageGiveLikeState
+            v-if="!showTextRender && !onlyMessage"
+            :message="message"
+            :is-sender="isSender"
+        />
     </view>
 </template>
 
 <script>
 import { MessageType } from 'openim-uniapp-polyfill';
+import MessageGiveLikeState from './MessageGiveLikeState.vue';
 import TextMessageRender from './TextMessageRender.vue';
 import AudioVideoMessageRender from './AudioVideoMessageRender.vue';
 import MediaMessageRender from './MediaMessageRender.vue';
@@ -94,6 +101,7 @@ export default {
         MergeMessageRender,
         VoiceMessageRender,
         ErrorMessageRender,
+        MessageGiveLikeState,
         ChatQuote
     },
 
@@ -107,6 +115,10 @@ export default {
             default: () => ({})
         },
         onlyMessage: {
+            type: Boolean,
+            default: false
+        },
+        isShowLike: {
             type: Boolean,
             default: false
         },
@@ -126,6 +138,15 @@ export default {
         };
     },
     computed: {
+        giveLike() {
+            try {
+                const ex = JSON.parse(this.message.ex);
+                return ex.giveLike;
+            } catch (err) {
+                // console.log(err);
+            }
+            return [];
+        },
         showAudioVideoRender() {
             let data = {};
             try {
@@ -204,6 +225,11 @@ export default {
         position: absolute;
         right: 20rpx;
         bottom: 10rpx;
+        border-radius: 30rpx;
+        background: rgba(0, 0, 0, 0.3);
+        /deep/ uni-text {
+            color: #fff !important;
+        }
     }
     .bg_container {
         box-sizing: border-box;

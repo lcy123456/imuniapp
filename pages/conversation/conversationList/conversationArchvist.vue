@@ -19,8 +19,8 @@
             >
                 <uni-swipe-action ref="swipeWrapperRef" class="swipe_wrapper">
                     <ConversationItem
-                        v-for="item in showConversationList"
-                        :key="`${item.conversationID}-ConversationItem-archvist`"
+                        v-for="(item, index) in showConversationList"
+                        :key="index"
                         :source="item"
                         :is-disabled="isDisabledSwipe"
                         @closeAllSwipe="closeAllSwipe"

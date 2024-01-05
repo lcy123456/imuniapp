@@ -1,10 +1,10 @@
 <template>
     <view class="item_cell">
-        <MessageContentWrap :message="source" :only-message="true" />
+        <MessageContentWrap :message="source.content" :only-message="true" />
         <view class="who_panel">
             <text>{{ source.senderNickname }}</text>
             <text>{{
-                new Date(source.sendTime).Format('yyyy-MM-dd hh:mm:ss')
+                new Date(source.createAt).Format('yyyy-MM-dd hh:mm:ss')
             }}</text>
         </view>
     </view>

@@ -4,7 +4,7 @@
             <view
                 v-for="(item, key) in giveLikeMap"
                 :key="key"
-                class="like-box"
+                :class="['like-box', isSelfLike(item) ? 'self' : '']"
                 @click="like(key)"
             >
                 <image class="pined" :src="`/static/like/${key}.png`" />
@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { SessionType } from 'openim-uniapp-polyfill';
 import { giveLikeEmoji } from '@/api/message';
 export default {
@@ -34,6 +35,7 @@ export default {
         return {};
     },
     computed: {
+        ...mapGetters(['storeUserID']),
         isGroup() {
             return this.message.sessionType !== SessionType.Single;
         },
@@ -52,18 +54,23 @@ export default {
                 if (!map[item.key]) {
                     map[item.key] = {
                         num: 0,
-                        uid: '',
-                        time: ''
+                        uidList: [],
+                        timeList: []
                     };
                 }
                 map[item.key].num++;
-                map[item.key].uid = item.uid;
-                map[item.key].time = item.time;
+                map[item.key].uidList = [...map[item.key].uidList, item.uid];
+                map[item.key].timeList = [...map[item.key].timeList, item.time];
             });
             return map;
         }
     },
     methods: {
+        isSelfLike(item) {
+            return (
+                item && item.uidList && item.uidList.includes(this.storeUserID)
+            );
+        },
         async like(emoji) {
             try {
                 const { clientMsgID, serverMsgID, sendID, recvID, groupID } =
@@ -101,15 +108,21 @@ export default {
         align-items: center;
         margin-right: 10rpx;
         padding: 8rpx 25rpx 8rpx 8rpx;
-        background: #008dff;
+        background: rgba(0, 141, 255, 0.1);
         uni-image {
             width: 50rpx;
             height: 50rpx;
         }
         uni-text {
             margin-left: 16rpx;
-            color: #fff;
+            color: #333;
             font-size: 34rpx;
+        }
+        &.self {
+            background: rgba(0, 141, 255, 1);
+            uni-text {
+                color: #fff;
+            }
         }
     }
 }

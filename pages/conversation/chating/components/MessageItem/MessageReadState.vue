@@ -15,12 +15,12 @@
             <text v-if="isEdit" class="edit">
                 {{ '已编辑 ' }}
             </text>
-            {{ new Date(message.createTime).Format('hh:mm') }}
+            {{ new Date(message.sendTime).Format('hh:mm') }}
         </text>
         <image v-if="isSender" :class="getClass" :src="getImg" />
-        <text v-if="isSender && isGroupRead">
+        <!-- <text v-if="isSender && isGroupRead">
             {{ message.attachedInfoElem.groupHasReadInfo.hasReadCount }}人
-        </text>
+        </text> -->
     </view>
 </template>
 
@@ -111,8 +111,8 @@ export default {
 .read_state {
     // font-size: 26rpx;
     font-size: 12px;
-    color: #43d100 !important;
-    margin-left: 20rpx;
+    // color: #43d100 !important;
+    margin: 0 20rpx;
     min-width: 50rpx;
     &.notisSender {
         color: #ccc !important;
@@ -122,14 +122,15 @@ export default {
     }
 }
 uni-text {
-    width: max-content;
+    // width: max-content;
     font-size: 12px;
-    color: #43d100 !important;
+    color: #43d100;
 }
 uni-image {
     width: 26rpx;
     height: 18rpx;
     margin: 0 10rpx;
+    margin-left: -10rpx;
     &.read {
         width: 30rpx;
     }

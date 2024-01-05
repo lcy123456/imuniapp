@@ -7,7 +7,7 @@ import IMSDK, {
     MessageReceiveOptType,
     GroupAtType
 } from 'openim-uniapp-polyfill';
-import { idsGetConversationID } from '@/util/imCommon';
+import { idsGetConversationID, isEdit, isLike } from '@/util/imCommon';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import config from './common/config';
 import { getDbDir, toastWithCallback } from '@/util/common.js';
@@ -719,7 +719,12 @@ export default {
                     }
                     this.pushNewMessage(newServerMsg);
                     uni.$u.debounce(this.markConversationAsRead, 2000);
-                    if (this.storeIsShowSetEnd) return;
+                    if (
+                        this.storeIsShowSetEnd ||
+                        isEdit(newServerMsg) ||
+                        isLike(newServerMsg)
+                    )
+                        return;
                     setTimeout(() =>
                         uni.$emit(PageEvents.ScrollToBottom, {
                             isRecv: true

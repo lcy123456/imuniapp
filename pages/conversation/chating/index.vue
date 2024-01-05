@@ -361,7 +361,11 @@ export default {
                         IMSDK.uuid(),
                         {
                             messageList: this.checkedMsg,
-                            title: `${this.storeSelfInfo.nickname}与${this.storeCurrentConversation.showName}的聊天记录`,
+                            title:
+                                (this.isWorkingGroup
+                                    ? ''
+                                    : `${this.storeSelfInfo.nickname}与`) +
+                                `${this.storeCurrentConversation.showName}的聊天记录`,
                             summaryList: []
                         }
                     );
@@ -372,7 +376,11 @@ export default {
         async handleFavorite(message) {
             try {
                 await collect({
-                    content: JSON.stringify(message)
+                    content: JSON.stringify(message),
+                    senderNickname:
+                        message.contentType === MessageType.MergeMessage
+                            ? this.storeCurrentConversation.showName
+                            : message.senderNickname
                 });
                 uni.$u.toast('收藏成功');
             } catch (err) {
@@ -380,39 +388,20 @@ export default {
                 uni.$u.toast('收藏失败，请重试');
             }
         },
-        handleMultipleFavorite() {
-            const message = {
-                clientMsgID: '',
-                serverMsgID: '',
-                createTime: +new Date(),
-                sendTime: +new Date(),
-                sessionType: this.isWorkingGroup ? 3 : 1,
-                sendID: '',
-                recvID: '',
-                msgFrom: 100,
-                contentType: MessageType.MergeMessage,
-                senderPlatformID: 1,
-                senderNickname: this.storeSelfInfo.nickname,
-                senderFaceUrl: this.storeSelfInfo.faceURL,
-                seq: 0,
-                isRead: true,
-                status: 2,
-                mergeElem: {
-                    title: `${this.storeSelfInfo.nickname}与${this.storeCurrentConversation.showName}的聊天记录`,
-                    multiMessage: this.checkedMsg
-                },
-                attachedInfoElem: {
-                    groupHasReadInfo: {
-                        hasReadCount: 0,
-                        groupMemberCount: 0
-                    },
-                    isPrivateChat: false,
-                    burnDuration: 0,
-                    hasReadTime: 0,
-                    isEncryption: false,
-                    inEncryptStatus: false
+        async handleMultipleFavorite() {
+            const message = await IMSDK.asyncApi(
+                IMMethods.CreateMergerMessage,
+                IMSDK.uuid(),
+                {
+                    messageList: this.checkedMsg,
+                    title:
+                        (this.isWorkingGroup
+                            ? ''
+                            : `${this.storeSelfInfo.nickname}与`) +
+                        `${this.storeCurrentConversation.showName}的聊天记录`,
+                    summaryList: []
                 }
-            };
+            );
             this.handleFavorite(message);
         },
         async handleMsgDel(msgArr) {

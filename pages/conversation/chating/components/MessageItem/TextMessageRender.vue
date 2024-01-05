@@ -18,7 +18,10 @@
             :content="getContent"
         /> -->
         <view v-html="getContent" />
-        <view v-if="giveLike && giveLike.length" class="give-like-box">
+        <view
+            v-if="giveLike && giveLike.length && isShowLike"
+            class="give-like-box"
+        >
             <MessageGiveLikeState :message="message" :is-sender="isSender" />
             <view v-html="baseText"></view>
         </view>
@@ -72,6 +75,10 @@ export default {
             default: false
         },
         onlyMessage: {
+            type: Boolean,
+            default: false
+        },
+        isShowLike: {
             type: Boolean,
             default: false
         }
@@ -150,14 +157,6 @@ export default {
                     class="read"
                     src="/static/images/message_issend.png"
                 />
-                <div
-                    style="display: ${
-                        this.isSender && this.isGroupRead ? 'inherit' : 'none'
-                    }"
-                    class="text"
-                >
-                    0人
-                </div>
             </view>
             `
                 : ``;

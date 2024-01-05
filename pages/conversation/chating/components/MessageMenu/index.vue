@@ -21,6 +21,18 @@
                 </text>
             </view>
             <view class="right">
+                <view class="read-img-list">
+                    <my-avatar
+                        v-for="user of userList.slice(0, 3)"
+                        :key="user.userID"
+                        :desc="user.nickname"
+                        :src="user.faceURL"
+                        :font-size="12"
+                        size="24"
+                        shape="circle"
+                        :class="['avatar']"
+                    />
+                </view>
                 <image
                     :class="{
                         rotate:
@@ -85,7 +97,7 @@
 </template>
 
 <script>
-// import MyAvatar from '@/components/MyAvatar/index.vue';
+import MyAvatar from '@/components/MyAvatar/index.vue';
 import ReadUserList from './ReadUserList.vue';
 import Like from './Like.vue';
 import { getMsgID, giveLikeEmoji } from '@/api/message';
@@ -111,7 +123,8 @@ const notPinTypes = [MessageType.CustomMessage];
 export default {
     components: {
         ReadUserList,
-        Like
+        Like,
+        MyAvatar
     },
     props: {
         message: {
@@ -634,12 +647,39 @@ export default {
             }
         }
         .right {
+            display: flex;
+            align-items: center;
             uni-image {
                 width: 50rpx;
                 height: 50rpx;
             }
             .rotate {
                 transform: rotate(180deg);
+            }
+            .read-img-list {
+                display: flex;
+                position: relative;
+                align-items: center;
+                margin-right: 20rpx;
+                height: 50rpx;
+                .avatar {
+                    border: 1px solid #fff;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    &:nth-child(1) {
+                        right: 0;
+                        z-index: 1;
+                    }
+                    &:nth-child(2) {
+                        right: calc(12px * 1);
+                        z-index: 2;
+                    }
+                    &:nth-child(3) {
+                        right: calc(12px * 2);
+                        z-index: 3;
+                    }
+                }
             }
         }
     }
@@ -691,30 +731,6 @@ export default {
                 width: 26rpx;
                 height: 18rpx;
                 margin: 0 10rpx 0 0;
-            }
-            .read-img-list {
-                display: flex;
-                position: absolute;
-                right: 0;
-                top: 0;
-                .avatar {
-                    border: 1px solid #fff;
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    &:nth-child(1) {
-                        right: 0;
-                        z-index: 1;
-                    }
-                    &:nth-child(2) {
-                        right: calc(12px * 1);
-                        z-index: 2;
-                    }
-                    &:nth-child(3) {
-                        right: calc(12px * 2);
-                        z-index: 3;
-                    }
-                }
             }
         }
     }
