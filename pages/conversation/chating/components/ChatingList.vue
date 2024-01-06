@@ -29,7 +29,7 @@
                 <view
                     v-for="(item, index) in messageList"
                     :id="`auchor-${item.clientMsgID}`"
-                    :key="index"
+                    :key="`auchor-${item.clientMsgID}`"
                     :class="{ isrotate: isReverse }"
                 >
                     <BetweenTime

@@ -331,6 +331,7 @@ export default {
             this.activeMessageShow = false;
             this.activeMessageType === 'edit_message' &&
                 this.customEditorCtx.clear();
+            this.activeMessageType = '';
         },
         async createTextMessage() {
             let message = '';
@@ -987,7 +988,7 @@ export default {
             setTimeout(() => {
                 this.$store.commit('base/SET_IS_SHOW_KEYBOARD', height !== 0);
             }, 300);
-            if (height === 0) return;
+            if (height === 0 || _heightDiff < 0) return;
             setTimeout(() => {
                 this.$store.commit('base/SET_KEYBOARD_HEIGHT', height);
             }, 0);
@@ -1053,7 +1054,7 @@ export default {
             } else {
                 this.$refs.customEditor.editorCtx.insertText({ text: '' });
             }
-            this.activeMessage = message;
+            this.activeMessage = { ...message };
             this.activeMessageShow = !!message;
             this.activeMessageType = type;
         },

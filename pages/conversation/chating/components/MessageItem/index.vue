@@ -31,6 +31,7 @@
                         v-if="!(isSingle || isSender)"
                         :key="`auchor${source.clientMsgID}-MyAvatar`"
                         size="80rpx"
+                        :font-size="14"
                         :desc="source.senderNickname"
                         :src="source.senderFaceUrl"
                         shape="circle"
@@ -42,7 +43,6 @@
                         <text>{{ source.senderNickname }}</text>
                     </view>
                     <MessageContentWrap
-                        :key="`auchor${source.clientMsgID}-MessageContentWrap`"
                         :message="source"
                         :is-multiple-msg="isMultipleMsg"
                         :is-success-message="isSuccessMessage"

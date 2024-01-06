@@ -180,6 +180,10 @@ export default {
             uni.chooseImage({
                 count: 1,
                 sizeType: ['compressed'],
+                crop: {
+                    width: 200,
+                    height: 200
+                },
                 success: async ({ tempFilePaths }) => {
                     const path = tempFilePaths[0];
                     const nameIdx = path.lastIndexOf('/') + 1;

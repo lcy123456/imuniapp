@@ -696,6 +696,7 @@ export default {
             return !isEdit(newServerMsg) && !isLike(newServerMsg);
         },
         async handleNewMessage(newServerMsg) {
+            console.log('newServerMsg--newServerMsg', newServerMsg.clientMsgID);
             if (this.inCurrentConversation(newServerMsg)) {
                 if (
                     ![
@@ -710,31 +711,32 @@ export default {
                             'conversation/SET_CONVERSATION_UNREAD',
                             conversationUnread
                         );
-                        return;
+                    } else {
+                        if (
+                            this.storeIsShowSetEnd &&
+                            this.isNewMessage(newServerMsg)
+                        ) {
+                            // 置底图标显示不滚动到底
+                            let conversationUnread =
+                                this.conversationUnread + 1;
+                            this.$store.commit(
+                                'conversation/SET_CONVERSATION_UNREAD',
+                                conversationUnread
+                            );
+                        }
+                        this.pushNewMessage(newServerMsg);
+                        uni.$u.debounce(this.markConversationAsRead, 2000);
+                        if (
+                            !this.storeIsShowSetEnd &&
+                            this.isNewMessage(newServerMsg)
+                        ) {
+                            setTimeout(() =>
+                                uni.$emit(PageEvents.ScrollToBottom, {
+                                    isRecv: true
+                                })
+                            );
+                        }
                     }
-                    if (
-                        this.storeIsShowSetEnd &&
-                        this.isNewMessage(newServerMsg)
-                    ) {
-                        // 置底图标显示不滚动到底
-                        let conversationUnread = this.conversationUnread + 1;
-                        this.$store.commit(
-                            'conversation/SET_CONVERSATION_UNREAD',
-                            conversationUnread
-                        );
-                    }
-                    this.pushNewMessage(newServerMsg);
-                    uni.$u.debounce(this.markConversationAsRead, 2000);
-                    if (
-                        this.storeIsShowSetEnd ||
-                        !this.isNewMessage(newServerMsg)
-                    )
-                        return;
-                    setTimeout(() =>
-                        uni.$emit(PageEvents.ScrollToBottom, {
-                            isRecv: true
-                        })
-                    );
                 } else if (
                     [MessageType.TypingMessage].includes(
                         newServerMsg.contentType

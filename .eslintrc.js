@@ -50,7 +50,8 @@ module.exports = {
         'vue/no-v-html': 'off',
         'no-async-promise-executor': 0,
         'no-case-declarations': 0,
-        'no-multi-spaces': 'off'
+        'no-multi-spaces': 'off',
+        'comma-dangle': ['error', 'never']
     },
 
     root: true,

@@ -44,7 +44,7 @@ export default {
                 const ex = JSON.parse(this.message.ex);
                 return ex.giveLike;
             } catch (err) {
-                console.log(err);
+                // console.log(err);
             }
             return [];
         },

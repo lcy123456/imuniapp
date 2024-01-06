@@ -27,7 +27,7 @@
                         :key="user.userID"
                         :desc="user.nickname"
                         :src="user.faceURL"
-                        :font-size="12"
+                        :font-size="8"
                         size="24"
                         shape="circle"
                         :class="['avatar']"

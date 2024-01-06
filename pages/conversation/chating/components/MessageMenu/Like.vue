@@ -7,7 +7,7 @@
             @touchstart.stop
             @touchend.prevent.stop="like(item)"
         >
-            <image :src="`/static/like/${item.key}.png`" />
+            <image :src="`/static/like/${item.key}.svg`" />
         </view>
     </view>
 </template>
