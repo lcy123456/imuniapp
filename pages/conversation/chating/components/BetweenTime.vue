@@ -35,16 +35,16 @@ export default {
         getMessageBetweenTime(msgBefore, msgAfter) {
             if (this.type === 'first') {
                 return this.isReverse
-                    ? new Date(msgBefore.sendTime).Format('yyy/MM/dd')
-                    : new Date(msgAfter.sendTime).Format('yyy/MM/dd');
+                    ? new Date(msgBefore.sendTime).Format('yyyy/MM/dd')
+                    : new Date(msgAfter.sendTime).Format('yyyy/MM/dd');
             }
             if (!msgAfter || !msgBefore) return '';
-            let dayBefore = new Date(msgBefore.sendTime).Format('dd');
-            let dayAfter = new Date(msgAfter.sendTime).Format('dd');
+            let dayBefore = new Date(msgBefore.sendTime).Format('yyyy/MM/dd');
+            let dayAfter = new Date(msgAfter.sendTime).Format('yyyy/MM/dd');
             if (dayBefore !== dayAfter) {
                 return this.isReverse
-                    ? new Date(msgBefore.sendTime).Format('yyy/MM/dd')
-                    : new Date(msgAfter.sendTime).Format('yyy/MM/dd');
+                    ? new Date(msgBefore.sendTime).Format('yyyy/MM/dd')
+                    : new Date(msgAfter.sendTime).Format('yyyy/MM/dd');
             }
             return '';
         }

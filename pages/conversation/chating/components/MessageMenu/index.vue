@@ -9,7 +9,7 @@
     >
         <Like :like-list="likeList" @like="like" />
         <view
-            v-if="attachedInfo.groupHasReadInfo.hasReadCount"
+            v-if="attachedInfo.groupHasReadInfo.hasReadCount && isSender"
             class="read-box"
             @touchstart.stop
             @touchend.prevent.stop="showAllRead"
@@ -182,10 +182,12 @@ export default {
             'storeCurrentMemberInGroup',
             'storeCurrentUserID',
             'storeKeyBoardHeight',
-            'storeIsShowkeyBoard'
+            'storeIsShowkeyBoard',
+            'storeUserID'
         ]),
         isSender() {
-            return this.paterRect.right > uni.getWindowInfo().windowWidth - 30;
+            return this.message.sendID === this.storeUserID;
+            // return this.paterRect.right > uni.getWindowInfo().windowWidth - 30;
         },
         getWidth() {
             const { windowWidth } = uni.getSystemInfoSync();
@@ -204,10 +206,11 @@ export default {
             const menuHight =
                 this.menuItemHight * Math.ceil(this.menuList.length / 5) +
                 uni.upx2px(100 + 20) +
-                (this.attachedInfo.groupHasReadInfo.hasReadCount
+                (this.attachedInfo.groupHasReadInfo.hasReadCount &&
+                this.isSender
                     ? uni.upx2px(100 + 20)
                     : 0);
-            const minTop = 0;
+            const minTop = 50;
             const maxTop =
                 windowHeight -
                 menuHight -
