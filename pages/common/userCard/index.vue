@@ -92,11 +92,11 @@
                     class="action_item"
                     @click="toDesignatedConversation"
                 >
-                    <img src="static/images/user_card_message.png" alt="" />
+                    <img src="static/images/send_message.svg" alt="" />
                     <text>发消息</text>
                 </view>
                 <view v-if="!isFriend" class="action_item" @click="toAddFriend">
-                    <img src="static/images/user_card_add.png" alt="" />
+                    <img src="static/images/add_friend.svg" alt="" />
                     <text>添加好友</text>
                 </view>
             </view>
