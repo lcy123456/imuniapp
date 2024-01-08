@@ -141,9 +141,6 @@ const actions = {
         }
         const obj = state.historyMessageMap[conversationID];
         let msgList = [];
-        console.log('message------message', {
-            ...message
-        });
         if (!isEdit(message) && !isLike(message)) {
             msgList = [...(obj?.messageList || []), message];
         } else {
@@ -171,11 +168,9 @@ const actions = {
                     message,
                     ...(obj?.messageList || []).slice(i)
                 ];
-                console.log('3333-3333', msgList);
             } else {
                 msgList[i] = message;
             }
-            console.log('msgList-msgList', msgList);
         }
         commit('SET_HISTORY_MESSAGE_MAP', {
             ...state.historyMessageMap,
