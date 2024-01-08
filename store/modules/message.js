@@ -150,9 +150,10 @@ const actions = {
             // 编辑消息
             let index = -1;
             msgList = [...obj.messageList];
-            if (
-                !msgList.map(v => v.clientMsgID).includes(message.clientMsgID)
-            ) {
+            const i = msgList.findIndex(
+                v => v.clientMsgID === JSON.parse(message.ex).clientMsgID
+            );
+            if (i === -1) {
                 obj.messageList.forEach((item, i) => {
                     const preMsg = obj.messageList[i - 1] || {};
                     const msg = obj.messageList[i] || {};
@@ -171,6 +172,8 @@ const actions = {
                     ...(obj?.messageList || []).slice(i)
                 ];
                 console.log('3333-3333', msgList);
+            } else {
+                msgList[i] = message;
             }
             console.log('msgList-msgList', msgList);
         }

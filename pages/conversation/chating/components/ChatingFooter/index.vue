@@ -578,14 +578,14 @@ export default {
                         ...message
                     });
                     data = m.data;
-                    this.pushNewMessage({
-                        ...message,
-                        recvID: userID,
-                        groupID,
-                        sessionType: userID
-                            ? SessionType.Single
-                            : SessionType.WorkingGroup
-                    });
+                    // this.pushNewMessage({
+                    //     ...message,
+                    //     recvID: userID,
+                    //     groupID,
+                    //     sessionType: userID
+                    //         ? SessionType.Single
+                    //         : SessionType.WorkingGroup
+                    // });
                 } else {
                     const m = await IMSDK.asyncApi(
                         IMMethods.SendMessage,
