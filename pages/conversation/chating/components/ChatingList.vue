@@ -29,7 +29,11 @@
                 <view
                     v-for="(item, index) in messageList"
                     :id="`auchor-${item.clientMsgID}`"
-                    :key="`auchor-${item.clientMsgID}`"
+                    :key="
+                        showTextRender(item)
+                            ? index
+                            : `auchor-${item.clientMsgID}`
+                    "
                     :class="{ isrotate: isReverse }"
                 >
                     <BetweenTime
@@ -73,7 +77,7 @@
 import { mapGetters, mapActions } from 'vuex';
 import MessageItemRender from './MessageItem/index.vue';
 import BetweenTime from './BetweenTime.vue';
-import { PageEvents } from '@/constant';
+import { PageEvents, TextRenderTypes } from '@/constant';
 
 export default {
     name: 'ChatingList',
@@ -134,12 +138,6 @@ export default {
             return this.messageLoadState.loading ? 'loading' : 'loadmore';
         },
         messageList() {
-            console.log(
-                'message---------------',
-                this.isReverse
-                    ? this.storeHistoryMessageListReverse
-                    : this.storeHistoryMessageList
-            );
             return this.isReverse
                 ? this.storeHistoryMessageListReverse
                 : this.storeHistoryMessageList;
@@ -162,6 +160,9 @@ export default {
             'getHistoryMesageList',
             'getHistoryMesageListReverse'
         ]),
+        showTextRender(message) {
+            return TextRenderTypes.includes(message.contentType);
+        },
         init() {
             this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);
             this.loadMessageList({});
