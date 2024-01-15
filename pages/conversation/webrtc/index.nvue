@@ -10,6 +10,7 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
+import { getFirstCharacter, colors, adjustColor } from '@/util/common';
 import {
     PageEvents
 } from '@/constant';
@@ -85,8 +86,14 @@ export default {
                     isCallLoading: this.storeIsIncomingCallLoading,
                     isCallIng: this.storeIsIncomingCallIng,
                     isAnswer: this.storeIsAnswer,
-                    callUserInfo: this.storeIncomingCallUserInfo,
-                    selfUserInfo: selfUserInfo,
+                    callUserInfo: {
+                        ...this.storeIncomingCallUserInfo,
+                        bgColor: this.getBgColor(this.storeIncomingCallUserInfo.nickname)
+                    },
+                    selfUserInfo: {
+                        ...selfUserInfo,
+                        bgColor: this.getBgColor(selfUserInfo.nickname)
+                    },
                     token: this.storeIncomingCallToken,
                     url: this.storeThirdData?.livekit?.url,
                     userID: this.storeUserID
@@ -121,6 +128,11 @@ export default {
             this.isStartMusic = false;
             uni.$emit('stop_audio', '/static/audio/incoming_call_music.mp3');
         },
+        getBgColor (text) {
+            const hexColor = colors[getFirstCharacter(text || '未知')];
+            const rgbaColor = adjustColor(hexColor, 30);
+            return `radial-gradient(${hexColor}, ${rgbaColor})`;
+        },
         async getCheckUsers(list) {
             console.log('---getCheckUsers------getCheckUsers-', list);
             try {
@@ -128,12 +140,10 @@ export default {
                     type: 'invite',
                     userIDs: list.map(user => user.userID)
                 });
-                console.log('邀请成功');
                 this.postMessage(`toast(${JSON.stringify({
                     message: '邀请成功'
                 })})`);
             } catch (err) {
-                console.log('邀请失败', err);
                 this.postMessage(`toast(${JSON.stringify({
                     message: '邀请失败, 请重试'
                 })})`);
@@ -240,14 +250,13 @@ export default {
                 );
                 usersInfo = data[0]?.publicInfo;
             }
-            console.log('-----userJoinCalling', usersInfo);
             
             if (usersInfo) {
                 const map = {
                     ...usersInfo,
+                    bgColor: this.getBgColor(usersInfo.nickname),
                     isGroupUserJoin: true
                 }
-                console.log('uData.publicInfo------uData.publicInfo', usersInfo);
                 console.log('uData.map------uData.map', map);
                 this.postMessage(`uniGroupUserJoinEvent(${JSON.stringify(map)})`);
             }
