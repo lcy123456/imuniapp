@@ -120,7 +120,6 @@ export default {
             scrollIntoView: '',
             scrollTop: 0,
             seq: 0,
-            withAnimation: true,
             isRecvToBottom: true,
             hasNewMessage: false,
             messageLoadState: {
@@ -168,7 +167,8 @@ export default {
     methods: {
         ...mapActions('message', [
             'getHistoryMesageList',
-            'getHistoryMesageListReverse'
+            'getHistoryMesageListReverse',
+            'setLessMessageList'
         ]),
         showTextRender(message) {
             return TextRenderTypes.includes(message.contentType);
@@ -200,7 +200,6 @@ export default {
             };
             try {
                 if (isLoadMore) {
-                    this.animation = true;
                     await this[
                         !isReverse
                             ? 'getHistoryMesageList'
@@ -237,14 +236,13 @@ export default {
                             isInit: true,
                             count: parseInt(count / 2)
                         });
-                        this.animation = true;
                         this.scrollToAnchor(`auchor-${positionMsgID}`);
                     } else {
                         this.scrollToBottom({ initPage: true });
                     }
                 }
             } catch (e) {
-                this.animation = true;
+                console.log(e);
             }
             setTimeout(() => {
                 this.messageLoadState.loading = false;
@@ -293,7 +291,9 @@ export default {
                     this.storeHasMoreAfterMessage
                 ) {
                     this.isReverse = false;
-                    this.scrollToBottom();
+                    this.scrollToBottom({
+                        changeRotate: true
+                    });
                     this.isInReverse = true;
                     setTimeout(() => {
                         this.loadMessageList({
@@ -356,7 +356,7 @@ export default {
                     .exec();
             }, 200);
         },
-        async scrollToBottom({ initPage = false } = {}) {
+        async scrollToBottom({ initPage = false, changeRotate = false } = {}) {
             initPage && this.$emit('initSuccess');
             await this.$nextTick();
             setTimeout(() => {
@@ -367,14 +367,17 @@ export default {
                         this.scrollTop = this.isReverse
                             ? Math.random()
                             : res.height + (initPage ? 0 : Math.random());
-                        if (initPage) {
-                            setTimeout(() => {
-                                this.animation = true;
-                            }, 200);
-                        }
+                        setTimeout(() => {
+                            !changeRotate && this.setMessageList();
+                        }, 500);
                     })
                     .exec();
             }, 200);
+        },
+        setMessageList() {
+            this.setLessMessageList({
+                conversationID: this.conversationID
+            });
         },
         menuRect(res) {
             this.$emit('menuRect', res);

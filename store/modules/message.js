@@ -133,6 +133,24 @@ const actions = {
             return [];
         }
     },
+    setLessMessageList({ commit, state }, params) {
+        const { conversationID } = params;
+        const { messageList: oldMessageList = [] } =
+            state.historyMessageMap[conversationID] || {};
+        const len = 100;
+        if (oldMessageList.length <= len) return;
+        commit('SET_HISTORY_MESSAGE_MAP', {
+            ...state.historyMessageMap,
+            [conversationID]: {
+                ...state.historyMessageMap[conversationID],
+                hasMore: true,
+                messageList: oldMessageList.slice(
+                    oldMessageList.length - 1 - len,
+                    oldMessageList.length - 1 + 200
+                )
+            }
+        });
+    },
     pushNewMessage({ commit, state, rootState }, message) {
         let conversationID =
             rootState.conversation.currentConversation.conversationID;
