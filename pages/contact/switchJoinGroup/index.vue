@@ -39,13 +39,13 @@ export default {
                     idx: 0,
                     title: '扫码加入',
                     desc: '扫描二维码名片',
-                    icon: require('static/images/switch_join_qr.png')
+                    icon: require('static/images/switch_join_qr.svg')
                 },
                 {
                     idx: 1,
                     title: '群ID号加入',
                     desc: '向管理员或团队成员询问ID',
-                    icon: require('static/images/switch_join_id.png')
+                    icon: require('static/images/switch_join_id.svg')
                 }
             ]
         };

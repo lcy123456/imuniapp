@@ -30,7 +30,8 @@ module.exports = () => {
                     '/user/get_users_online_status',
                     '/msg/get_unread_msg_count',
                     '/third/config',
-                    '/auth/get_pc_login_platform'
+                    '/auth/get_pc_login_platform',
+                    '/video/get_room_member'
                 ].includes(config.url)
             ) {
                 console.log('http request：', config);

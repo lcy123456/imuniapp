@@ -275,7 +275,8 @@ export default {
             'storeHasMoreAfterMessage',
             'storeIsIncomingCallLoading',
             'storeIsIncomingCallIng',
-            'storeIncomingIsGroupChat'
+            'storeIncomingIsGroupChat',
+            'storeUserID'
         ]),
         hasContent() {
             return html2Text(this.inputHtml, 1) !== '';
@@ -294,6 +295,7 @@ export default {
         uni.$on('initWebrtc', this.initWebrtc);
         uni.$on('sendMessage', this.sendMessage);
         uni.$on('setInputFocus', this.setInputFocus);
+        uni.$on('createGroupRoom', this.createGroupRoom);
     },
     beforeDestroy() {
         this.disposeSendMessageListener();
@@ -302,6 +304,7 @@ export default {
         uni.$off('initWebrtc', this.initWebrtc);
         uni.$off('sendMessage', this.sendMessage);
         uni.$off('setInputFocus', this.setInputFocus);
+        uni.$off('createGroupRoom', this.createGroupRoom);
         clearInterval(this.timer);
         this.$store.commit('base/SET_IS_SHOW_KEYBOARD', false);
         uni.hideLoading();
@@ -444,22 +447,30 @@ export default {
             return message;
         },
         async getGroupMemberList() {
-            const { userID, groupID } = this.storeCurrentConversation;
-            if (groupID) {
-                await IMSDK.asyncApi(
-                    IMMethods.GetGroupMemberList,
-                    IMSDK.uuid(),
-                    {
-                        groupID,
-                        filter: GroupMemberFilter.All,
-                        offset: 0,
-                        count: 100
-                    }
-                );
-            } else {
-                await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(), [
-                    userID
-                ]);
+            try {
+                const { userID, groupID } = this.storeCurrentConversation;
+                if (groupID) {
+                    const { data } = await IMSDK.asyncApi(
+                        IMMethods.GetGroupMemberList,
+                        IMSDK.uuid(),
+                        {
+                            groupID,
+                            filter: GroupMemberFilter.All,
+                            offset: 0,
+                            count: 300
+                        }
+                    );
+                    return data;
+                } else {
+                    const { data } = await IMSDK.asyncApi(
+                        IMMethods.GetUsersInfo,
+                        IMSDK.uuid(),
+                        [userID]
+                    );
+                    return data;
+                }
+            } catch (err) {
+                return [];
             }
         },
         async createCustomMessage(data) {
@@ -470,7 +481,7 @@ export default {
             );
             return message;
         },
-        async sendCustomMessage(type) {
+        async sendCustomMessage(type, userIDs) {
             this.isLoadingCreateRoom = true;
             try {
                 const message = await this.createCustomMessage({
@@ -479,11 +490,17 @@ export default {
                             type === 'video'
                                 ? AudioVideoType.Video
                                 : AudioVideoType.Audio,
-                        status: AudioVideoStatus.Send
+                        status: AudioVideoStatus.Send,
+                        userIDs: userIDs
+                            ? JSON.stringify({
+                                  userIDs
+                              })
+                            : ''
                     }),
                     extension: '',
                     description: ''
                 });
+                console.log('sendCustomMessage----sendCustomMessage', message);
                 return this.sendAudioVideoMessage(message, type);
             } catch (err) {
                 uni.$u.toast('网络异常，请稍后重试');
@@ -520,6 +537,7 @@ export default {
                             : AudioVideoType.Audio
                 });
                 if (token) {
+                    console.log('token-----token', token);
                     this.$store.commit(
                         'incomingCall/SET_INCOMING_CALL_TOKEN',
                         token
@@ -856,24 +874,43 @@ export default {
             }
         },
         async initWebrtc(type) {
-            uni.showLoading();
-            const { groupID } = this.storeCurrentConversation;
+            const { groupID, userID } = this.storeCurrentConversation;
             if (groupID && this.storeIncomingIsGroupChat) {
-                uni.hideLoading();
                 return uni.$u.toast('群通话正在进行中');
             }
             if (
                 this.storeIsIncomingCallLoading ||
                 this.storeIsIncomingCallIng
             ) {
-                uni.hideLoading();
                 return uni.$u.toast('通话正在进行中');
             }
+            if (!groupID) {
+                this.createRoom(type, [userID]);
+            } else {
+                const showFriendList = await this.getGroupMemberList();
+                const friendList = showFriendList.filter(
+                    user => user.userID !== this.storeUserID
+                );
+                uni.navigateTo({
+                    url: `/pages/common/contactChoose/index?type=initWebrtc&showFriendList=${JSON.stringify(
+                        friendList
+                    )}`
+                });
+            }
+        },
+        createGroupRoom(userList, type) {
+            if (type === 'initWebrtc') {
+                const userIDs = userList.map(user => user.userID);
+                this.createRoom(type, userIDs);
+            }
+        },
+        async createRoom(type, userIDs) {
+            uni.showLoading();
             const hasPermission = await this.reviewPermission();
             if (hasPermission) {
                 try {
-                    await this.getGroupMemberList();
-                    const data = await this.sendCustomMessage(type);
+                    // await this.getGroupMemberList();
+                    const data = await this.sendCustomMessage(type, userIDs);
                     if (typeof data === 'boolean' && !data) {
                         // uni.$u.toast('网络异常，请稍后重试');
                         uni.hideLoading();

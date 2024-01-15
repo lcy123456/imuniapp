@@ -30,13 +30,18 @@
                     v-for="(item, index) in messageList"
                     :id="`auchor-${item.clientMsgID}`"
                     :key="
-                        showTextRender(item)
-                            ? index
+                        !showMediaRender(item)
+                            ? `auchor-${index}-${item.clientMsgID}`
                             : `auchor-${item.clientMsgID}`
                     "
                     :class="{ isrotate: isReverse }"
                 >
                     <BetweenTime
+                        :key="
+                            !showMediaRender(item)
+                                ? `auchor-${index}-${item.clientMsgID}-BetweenTime`
+                                : `auchor-${item.clientMsgID}-BetweenTime`
+                        "
                         :msg-before="isReverse ? item : messageList[index - 1]"
                         :msg-after="isReverse ? messageList[index + 1] : item"
                         :is-reverse="isReverse"
@@ -48,6 +53,11 @@
                         "
                     />
                     <MessageItemRender
+                        :key="
+                            !showMediaRender(item)
+                                ? `auchor-${index}-${item.clientMsgID}-MessageItemRender`
+                                : `auchor-${item.clientMsgID}-MessageItemRender`
+                        "
                         :source="item"
                         :is-sender="item.sendID === storeCurrentUserID"
                         :is-show-menu-flag="isShowMenuFlag"
@@ -77,7 +87,7 @@
 import { mapGetters, mapActions } from 'vuex';
 import MessageItemRender from './MessageItem/index.vue';
 import BetweenTime from './BetweenTime.vue';
-import { PageEvents, TextRenderTypes } from '@/constant';
+import { PageEvents, TextRenderTypes, MediaRenderTypes } from '@/constant';
 
 export default {
     name: 'ChatingList',
@@ -162,6 +172,9 @@ export default {
         ]),
         showTextRender(message) {
             return TextRenderTypes.includes(message.contentType);
+        },
+        showMediaRender(message) {
+            return MediaRenderTypes.includes(message.contentType);
         },
         init() {
             this.$store.commit('conversation/SET_IS_SCROLL_WAY', false);

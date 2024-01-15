@@ -195,6 +195,11 @@ export default {
         ...mapActions('message', ['resetMessageState']),
         ...mapActions('conversation', ['resetConversationState']),
         ...mapActions('base', ['pinList']),
+        getCheckUsers(userList, type) {
+            if (type === 'initWebrtc') {
+                uni.$emit('createGroupRoom', userList, type);
+            }
+        },
         inputBlur() {
             if (this.isHide) return;
             this.transition = 'all 0.2s';

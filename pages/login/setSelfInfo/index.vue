@@ -82,7 +82,8 @@ export default {
     computed: {
         ...mapGetters(['storeClientID']),
         isVerifyOk() {
-            return this.userInfo.faceURL && this.userInfo.nickname;
+            // return this.userInfo.faceURL && this.userInfo.nickname;
+            return this.userInfo.nickname;
         }
     },
     onLoad(options) {

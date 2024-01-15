@@ -9,7 +9,7 @@
     >
         <Like :like-list="likeList" @like="like" />
         <view
-            v-if="attachedInfo.groupHasReadInfo.hasReadCount && isSender"
+            v-if="attachedInfo.groupHasReadInfo.hasReadCount"
             class="read-box"
             @touchstart.stop
             @touchend.prevent.stop="showAllRead"
@@ -56,36 +56,6 @@
                     <image :src="item.icon" alt="" srcset="" />
                     <text>{{ item.title }}</text>
                 </view>
-                <!-- <template v-if="item.template === 'readCount'">
-                    <view class="readCount">
-                        <image
-                            class="read"
-                            :src="
-                                attachedInfo.groupHasReadInfo.hasReadCount
-                                    ? `/static/images/read.svg`
-                                    : `/static/images/unread.svg`
-                            "
-                        />
-                        <text v-if="attachedInfo.groupHasReadInfo.hasReadCount">
-                            {{
-                                attachedInfo.groupHasReadInfo.hasReadCount
-                            }}人已读
-                        </text>
-                        <text v-else> 暂无已读 </text>
-                        <view class="read-img-list">
-                            <my-avatar
-                                v-for="user of userList.slice(0, 3)"
-                                :key="user.userID"
-                                :desc="user.nickname"
-                                :src="user.faceURL"
-                                :font-size="12"
-                                size="24"
-                                shape="circle"
-                                :class="['avatar']"
-                            />
-                        </view>
-                    </view>
-                </template> -->
             </view>
         </view>
         <view v-else>
@@ -206,8 +176,7 @@ export default {
             const menuHight =
                 this.menuItemHight * Math.ceil(this.menuList.length / 5) +
                 uni.upx2px(100 + 20) +
-                (this.attachedInfo.groupHasReadInfo.hasReadCount &&
-                this.isSender
+                (this.attachedInfo.groupHasReadInfo.hasReadCount
                     ? uni.upx2px(100 + 20)
                     : 0);
             const minTop = 50;

@@ -12,7 +12,7 @@ export const videoGetToken = params =>
                 isIMApi: true
             },
             header: {
-                token: store.getters.storeBusinessToken
+                token: store.getters.storeIMToken
             }
         }
     );
@@ -28,7 +28,23 @@ export const videoCreateRoomAndGetToken = params =>
                 isIMApi: true
             },
             header: {
-                token: store.getters.storeBusinessToken
+                token: store.getters.storeIMToken
+            }
+        }
+    );
+// 群聊邀请和踢出
+export const videoSignalInviteOrKickMsg = params =>
+    uni.$u?.http.post(
+        '/video/signal_invite_or_kick_msg',
+        JSON.stringify({
+            ...params
+        }),
+        {
+            custom: {
+                isIMApi: true
+            },
+            header: {
+                token: store.getters.storeIMToken
             }
         }
     );
@@ -44,7 +60,7 @@ export const videoGetRoomMember = params =>
                 isIMApi: true
             },
             header: {
-                token: store.getters.storeBusinessToken
+                token: store.getters.storeIMToken
             }
         }
     );
@@ -61,7 +77,7 @@ export const videoGetOfflineInfo = params =>
                 isIMApi: true
             },
             header: {
-                token: store.getters.storeBusinessToken
+                token: store.getters.storeIMToken
             }
         }
     );
@@ -78,7 +94,7 @@ export const videoSingleChatRefused = params =>
                 isIMApi: true
             },
             header: {
-                token: store.getters.storeBusinessToken
+                token: store.getters.storeIMToken
             }
         }
     );
@@ -93,6 +109,6 @@ export const videoGetLivekitUrl = params =>
             isIMApi: true
         },
         header: {
-            token: store.getters.storeBusinessToken
+            token: store.getters.storeIMToken
         }
     });

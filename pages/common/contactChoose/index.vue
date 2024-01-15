@@ -74,7 +74,8 @@ export default {
             groupID: '',
             checkFriendList: [],
             disabledUserIDList: [],
-            showFriendList: {}
+            showFriendList: {},
+            friendList: []
         };
     },
     computed: {
@@ -99,19 +100,31 @@ export default {
             if (this.keyword) {
                 uni.$u.throttle(() => this.businessSearchUserInfo(), 200);
             } else {
-                this.showFriendList = formatChooseData(this.storeFriendList);
+                this.showFriendList = formatChooseData(this.friendList);
             }
         }
     },
     onLoad(options) {
-        const { type, groupID, checkUserIDList } = options;
+        const {
+            type,
+            groupID,
+            checkUserIDList,
+            showFriendList,
+            disabledUserIDList
+        } = options;
         this.type = type;
         this.groupID = groupID;
+        this.disabledUserIDList = disabledUserIDList
+            ? JSON.parse(disabledUserIDList)
+            : [];
+        this.friendList = showFriendList
+            ? JSON.parse(showFriendList)
+            : this.storeFriendList;
         const userIdList = checkUserIDList ? JSON.parse(checkUserIDList) : [];
-        this.checkFriendList = this.storeFriendList.filter(v =>
+        this.checkFriendList = this.friendList.filter(v =>
             userIdList.includes(v.userID)
         );
-        this.showFriendList = formatChooseData(this.storeFriendList);
+        this.showFriendList = formatChooseData(this.friendList);
         if (this.type === ContactChooseTypes.Invite) {
             this.checkDisabledUser();
         }
@@ -135,9 +148,7 @@ export default {
             }
         },
         checkDisabledUser() {
-            const friendIDList = this.storeFriendList.map(
-                friend => friend.userID
-            );
+            const friendIDList = this.friendList.map(friend => friend.userID);
             IMSDK.asyncApi(
                 IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,
                 IMSDK.uuid(),
@@ -147,7 +158,6 @@ export default {
                 }
             ).then(({ data }) => {
                 const friendList = data;
-                console.log('this.disabledUserIDList----datadata', data);
                 IMSDK.asyncApi(
                     IMSDK.IMMethods.GetGroupMemberList,
                     IMSDK.uuid(),
@@ -162,10 +172,6 @@ export default {
                     this.disabledUserIDList = data
                         .concat(friendList)
                         .map(member => member.userID);
-                    console.log(
-                        'this.disabledUserIDList----',
-                        this.disabledUserIDList
-                    );
                 });
             });
         },
@@ -182,7 +188,7 @@ export default {
         confirm() {
             let pages = getCurrentPages();
             let prevPage = pages[pages.length - 2];
-            prevPage.$vm.getCheckUsers(this.checkFriendList);
+            prevPage.$vm.getCheckUsers(this.checkFriendList, this.type);
 
             uni.navigateBack({
                 delta: 1

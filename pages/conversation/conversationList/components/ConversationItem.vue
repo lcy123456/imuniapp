@@ -18,6 +18,7 @@
                     :src="source.faceURL"
                     :desc="source.showName"
                     size="55"
+                    :font-size="18"
                 />
                 <view class="details">
                     <text class="conversation_name">

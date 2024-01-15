@@ -40,7 +40,8 @@ export default {
             "storeIncomingCallToken",
             "storeIsIncomingConversation",
             "storeBusinessToken",
-            "storeThirdData"
+            "storeThirdData",
+            "storeIMToken"
         ]),
         src () {
             return `/hybrid/html/chat.html`;
@@ -61,11 +62,23 @@ export default {
         uni.$on('incoming_message_callback', this.incomingMessageCallback);
     },
     onShow () {
-        setTimeout(() => {
+        setTimeout(async() => {
             if (this.time !== this.storeIncomingCallCallTime) {
-                const selfUserInfo = {
-                    faceURL: this.storeSelfInfo.faceURL,
-                    nickname: this.storeSelfInfo.nickname,
+                const { groupID } = this.storeIncomingCallMessage;
+                let selfUserInfo = {};
+                if (groupID) {
+                    const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,IMSDK.uuid(), {
+                        groupID,
+                        userIDList: [this.storeUserID]
+                    });
+                    const usersInfo = data[0];
+                    selfUserInfo = {
+                        ...usersInfo
+                    }
+                } else {
+                    selfUserInfo = {
+                        ...this.storeSelfInfo
+                    }
                 }
                 const map = {
                     message: this.storeIncomingCallMessage,
@@ -75,8 +88,11 @@ export default {
                     callUserInfo: this.storeIncomingCallUserInfo,
                     selfUserInfo: selfUserInfo,
                     token: this.storeIncomingCallToken,
-                    url: this.storeThirdData?.livekit?.url
+                    url: this.storeThirdData?.livekit?.url,
+                    userID: this.storeUserID
                 }
+                console.log('-----------------mapmapmapmapmap', map);
+                console.log('-----------------storeSelfInfo', this.storeSelfInfo);
                 this.postMessage(`uniEvent(${JSON.stringify(map)})`);
             }
             this.time = this.storeIncomingCallCallTime;
@@ -105,6 +121,39 @@ export default {
             this.isStartMusic = false;
             uni.$emit('stop_audio', '/static/audio/incoming_call_music.mp3');
         },
+        async getCheckUsers(list) {
+            console.log('---getCheckUsers------getCheckUsers-', list);
+            try {
+                await this.inviteOrKick({
+                    type: 'invite',
+                    userIDs: list.map(user => user.userID)
+                });
+                console.log('邀请成功');
+                this.postMessage(`toast(${JSON.stringify({
+                    message: '邀请成功'
+                })})`);
+            } catch (err) {
+                console.log('邀请失败', err);
+                this.postMessage(`toast(${JSON.stringify({
+                    message: '邀请失败, 请重试'
+                })})`);
+            }
+        },
+        async inviteOrKick ({ type, userIDs }) {
+            const { data } = await uni.$u?.http.post('/video/signal_invite_or_kick_msg', JSON.stringify({
+                userIDs: userIDs,
+                roomName: this.idsGetConversationID(this.storeIncomingCallMessage),
+                type: this.storeIncomingCallMessage.type === 'audio' ? 130 : 131,
+                opType: type === 'invite' ? 1654 : 1655
+            }), {
+                custom: {
+                    isIMApi: true,
+                },
+                header: {
+                    token: this.storeIMToken,
+                }
+            });
+        },
         async handlePostMessage (event) {
             const [data] = event.detail.data
             if(data.goOut) {
@@ -125,6 +174,40 @@ export default {
                     sendTime: +new Date() + 3000
                 });
             }
+            if (data.type === 'invite') {
+                const groupMemberListMap = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetGroupMemberList,
+                    IMSDK.uuid(),
+                    {
+                        groupID: data.groupID,
+                        filter: 0,
+                        offset: 0,
+                        count: 500
+                    }
+                );
+                uni.navigateTo({
+                    url: `/pages/common/contactChoose/index?type=initWebrtc&showFriendList=${JSON.stringify(
+                        groupMemberListMap.data
+                    )}&disabledUserIDList=${JSON.stringify(
+                        data.disabledUserIDList
+                    )}`
+                });
+            }
+            if (data.type === 'kick') {
+                try {
+                    this.inviteOrKick({
+                        type: 'kick',
+                        userIDs: data.userIDs
+                    });
+                    this.postMessage(`toast(${JSON.stringify({
+                        message: '移出成功'
+                    })})`);
+                } catch(err) {
+                    this.postMessage(`toast(${JSON.stringify({
+                        message: '移出失败, 请重试'
+                    })})`);
+                }
+            }
             if(data.isSmall) {
                 // 缩小
                 this.onSmall()
@@ -143,14 +226,29 @@ export default {
         // 群聊场景，用户刚加入群聊
         async userJoinCalling(joinUserID) {
             if(!joinUserID) return;
-
-            const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
-                [joinUserID]
-            );
-            if (usersInfo?.data) {
-                const [uData] = usersInfo.data;
-                const { faceURL, nickname, userID } = uData.publicInfo;
-                const map = { faceURL, nickname, userID, isGroupUserJoin: true }
+            const { groupID } = this.storeIncomingCallMessage;
+            let usersInfo = null;
+            if (groupID) {
+                const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,IMSDK.uuid(), {
+                    groupID,
+                    userIDList: [joinUserID]
+                });
+                usersInfo = data[0];
+            } else {
+                const { data } = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                    [joinUserID]
+                );
+                usersInfo = data[0]?.publicInfo;
+            }
+            console.log('-----userJoinCalling', usersInfo);
+            
+            if (usersInfo) {
+                const map = {
+                    ...usersInfo,
+                    isGroupUserJoin: true
+                }
+                console.log('uData.publicInfo------uData.publicInfo', usersInfo);
+                console.log('uData.map------uData.map', map);
                 this.postMessage(`uniGroupUserJoinEvent(${JSON.stringify(map)})`);
             }
         },
@@ -211,7 +309,7 @@ export default {
             if (sessionType === 3) return;
             if (this.storeIsAnswer) {
                 // 拒绝
-                uni.$u?.http.post('/video/single_chat_refused', JSON.stringify({
+                await uni.$u?.http.post('/video/single_chat_refused', JSON.stringify({
                     sendID,
                     conversationID: this.idsGetConversationID(this.storeIncomingCallMessage)
                 }), {

@@ -371,6 +371,47 @@ export default {
                     ]
                 });
             };
+
+            const customBusinessMessageHandler = ({ data }) => {
+                console.log(
+                    'customBusinessMessageHandler--customBusinessMessageHandler',
+                    data
+                );
+                const { key } = data;
+                let inviteOrKickMap = {};
+                if (['video_invite', 'video_kick'].includes(key)) {
+                    const res = JSON.parse(data.data);
+                    inviteOrKickMap = {
+                        contentType: 110,
+                        customElem: {
+                            data: JSON.stringify({
+                                type: res.type,
+                                status: 1650
+                            })
+                        },
+                        groupID: res.roomName.split('_')[1],
+                        recvID: '',
+                        sessionType: 3,
+                        type: res.type === 130 ? 'audio' : 'video'
+                    };
+                }
+                switch (key) {
+                    case 'video_invite':
+                        this.appearCall(inviteOrKickMap);
+                        break;
+                    case 'video_kick':
+                        this.callOut(inviteOrKickMap, 1655);
+                        setTimeout(() => {
+                            uni.$u.toast('你被移除群聊');
+                        }, 1000);
+                        break;
+                }
+            };
+
+            IMSDK.subscribe(
+                IMSDK.IMEvents.OnRecvCustomBusinessMessage,
+                customBusinessMessageHandler
+            );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnRecvNewMessages,
                 newMessagesHandler
@@ -686,6 +727,7 @@ export default {
             return (
                 AudioVideoRenderTypes.includes(message.contentType) &&
                 data.type &&
+                (!data.userIDs || data.userIDs.includes(this.storeUserID)) &&
                 [AudioVideoType.Video, AudioVideoType.Audio].includes(
                     data.type
                 ) &&
@@ -748,6 +790,7 @@ export default {
             }
             const customStatus = this.isAudioVideoSend(newServerMsg);
             if (newServerMsg.contentType === AudioVideoStatus.groupDone) {
+                // 语音结束
                 try {
                     const data = JSON.parse(
                         newServerMsg.notificationElem.detail
@@ -768,29 +811,7 @@ export default {
             }
             if (customStatus) {
                 if ([AudioVideoStatus.Send].includes(customStatus)) {
-                    if (newServerMsg.sendID === this.storeUserID) return;
-                    if (
-                        this.storeIsIncomingCallLoading ||
-                        this.storeIsIncomingCallIng
-                    ) {
-                        // uni.$u.toast('占线占线');
-                        return false;
-                    }
-                    try {
-                        const { token } = await videoGetToken({
-                            recvID: this.storeUserID,
-                            conversationID: idsGetConversationID(newServerMsg)
-                        });
-                        this.$store.commit(
-                            'incomingCall/SET_INCOMING_CALL_TOKEN',
-                            token
-                        );
-                        this.appearLoadingCall(newServerMsg);
-                    } catch (err) {
-                        console.log(err);
-                        // uni.$u.toast('聊天已过期');
-                        return false;
-                    }
+                    this.appearCall(newServerMsg);
                 } else if (
                     [
                         AudioVideoStatus.Done,
@@ -800,17 +821,46 @@ export default {
                         // AudioVideoStatus.Busy
                     ].includes(customStatus)
                 ) {
-                    if (
-                        idsGetConversationID(newServerMsg) !==
-                        idsGetConversationID(this.storeIncomingCallMessage)
-                    )
-                        return;
-                    uni.$emit('incoming_message_callback', {
-                        ...newServerMsg,
-                        customStatus
-                    });
-                    // uni.$u.toast(customStatusTextMap[customStatus]);
+                    this.callOut(newServerMsg);
                 }
+            }
+        },
+        callOut(newServerMsg, status) {
+            const customStatus = status || this.isAudioVideoSend(newServerMsg);
+            if (
+                idsGetConversationID(newServerMsg) !==
+                idsGetConversationID(this.storeIncomingCallMessage)
+            )
+                return;
+            uni.$emit('incoming_message_callback', {
+                ...newServerMsg,
+                customStatus
+            });
+            // uni.$u.toast(customStatusTextMap[customStatus]);
+        },
+        async appearCall(newServerMsg) {
+            if (newServerMsg.sendID === this.storeUserID) return;
+            if (
+                this.storeIsIncomingCallLoading ||
+                this.storeIsIncomingCallIng
+            ) {
+                // uni.$u.toast('占线占线');
+                return false;
+            }
+            try {
+                const { token } = await videoGetToken({
+                    recvID: this.storeUserID,
+                    conversationID: idsGetConversationID(newServerMsg)
+                });
+                this.$store.commit(
+                    'incomingCall/SET_INCOMING_CALL_TOKEN',
+                    token
+                );
+                this.appearLoadingCall(newServerMsg);
+            } catch (err) {
+                console.log(err);
+                // uni.$u.toast('聊天已过期');
+                return false;
             }
         },
         inCurrentConversation(newServerMsg) {

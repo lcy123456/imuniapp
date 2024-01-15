@@ -32,7 +32,7 @@ export default {
         },
         fontSize: {
             type: Number,
-            default: 18
+            default: 14
         },
         size: {
             type: String,
