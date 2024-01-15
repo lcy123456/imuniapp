@@ -123,17 +123,22 @@ export default {
             return prefix;
         },
         latestMessage() {
-            if (html2Text(draftText2Text(this.source.draftText)))
-                return draftText2Text(this.source.draftText);
-            if (this.source.latestMsg === '') return '';
+            const { conversationType, draftText, latestMsg } = this.source;
+            if (html2Text(draftText2Text(draftText)))
+                return draftText2Text(draftText);
+            if (latestMsg === '') return '';
             let parsedMessage;
             try {
-                parsedMessage = JSON.parse(this.source.latestMsg);
+                parsedMessage = JSON.parse(latestMsg);
             } catch (e) {
                 console.log(e);
             }
             if (!parsedMessage) return '';
-            return parseMessageByType(parsedMessage);
+            return (
+                (conversationType === 3 && parsedMessage.senderNickname
+                    ? `${parsedMessage.senderNickname}: `
+                    : '') + parseMessageByType(parsedMessage)
+            );
         },
         needActivePerfix() {
             return this.source.groupAtType !== GroupAtType.AtNormal;
