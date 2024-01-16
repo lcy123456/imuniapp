@@ -106,10 +106,11 @@
                     <div id="chat-group-css" class="chat-group-css">
                         <div
                             v-for="item of userList"
-                            v-show="!item.hideVideo"
+                            v-show="!item.hideVideo && (!isBigItemUserID || isBigItemUserID === item.userID)"
                             :key="item.userID"
                             :id="`${item.userID}-box`"
-                            class="video-box"
+                            :class="['video-box', item.isShowBig ? 'row' : '']"
+                            @click="showBig(item)"
                         >
                             <div id="myVideo-avatar" class="avatar-box">
                                 <img
@@ -135,8 +136,53 @@
                                 >{{ item.nickname }}</span
                             >
                         </div>
+                        <div
+                            v-if="isBigItemUserID"
+                            id="chat-group-bottom-list"
+                            class="chat-group-bottom-list"
+                        >
+                            <div
+                                v-for="item of userList"
+                                v-show="!item.isShowBig"
+                                :key="item.userID"
+                                :id="`${item.userID}-box`"
+                                class="box"
+                                @click="showBig(item)"
+                            >
+                                <div
+                                    class="avatar-box"
+                                    :style="{background: item.bgColor}"
+                                >
+                                    <img
+                                        v-if="item.faceURL"
+                                        class="avatar-img"
+                                        :src="faceURLHandle(item.faceURL)"
+                                    />
+                                    {{ nicknameHandle(item.nickname) }}
+                                </div>
+                                <div class="bottom">
+                                    <img
+                                        v-show="item.show_microphone_muted_icon"
+                                        src="images/incoming_call_microphone_muted.png"
+                                        :class="['microphone_muted_icon']"
+                                        :id="`${item.userID}-microphone-muted-icon`"
+                                    />
+                                    <img
+                                        v-show="item.show_incoming_call_speaking_icon"
+                                        src="images/incoming_call_speaking.png"
+                                        :class="['incoming_call_speaking_icon']"
+                                        :id="`${item.userID}-incoming-call-speaking-icon`"
+                                    />
+                                    <span>{{ item.nickname || '未知' }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div id="chat-group-list" class="chat-group-list">
+                    <div
+                        v-if="!isBigItemUserID"
+                        id="chat-group-list"
+                        class="chat-group-list"
+                    >
                         <div
                             v-for="item of userList"
                             v-show="item.hideVideo"
@@ -146,7 +192,6 @@
                             @click.stop="item.isShowKick = !item.isShowKick"
                         >
                             <div
-                                id="myVideo-avatar"
                                 class="avatar-box"
                                 :style="{background: item.bgColor}"
                             >
@@ -335,6 +380,15 @@
                         return this.userList.find(
                             user => user.userID !== this.selfUserInfo.userID
                         );
+                    },
+                    isBigItemUserID() {
+                        let userID = null;
+                        this.userList.forEach(user => {
+                            if (user.isShowBig) {
+                                userID = user.userID;
+                            }
+                        });
+                        return userID;
                     }
                 },
                 methods: {
@@ -351,6 +405,17 @@
                         setTimeout(() => {
                             this.isShowToast = false;
                         }, 2000);
+                    },
+                    showBig(item) {
+                        const userList = [...this.userList];
+                        userList.forEach(v => {
+                            if (v.userID === item.userID) {
+                                v.isShowBig = !v.isShowBig;
+                            } else {
+                                v.isShowBig = false;
+                            }
+                        });
+                        this.userList = userList;
                     },
                     getIsOutStatus(item) {
                         const { roleLevel, userID } = item;
@@ -799,7 +864,8 @@
                                             hideVideo: true,
                                             isShowKick: false,
                                             roleLevel:
-                                                this.selfUserInfo.roleLevel
+                                                this.selfUserInfo.roleLevel,
+                                            isShowBig: false
                                         };
                                         userList.push(map);
                                     }
@@ -879,7 +945,8 @@
                                     ? ''
                                     : this.callUserInfo.nickname,
                                 roleLevel: this.callUserInfo.roleLevel,
-                                isShowKick: false
+                                isShowKick: false,
+                                isShowBig: false
                             };
                             userList.push(map);
                         }

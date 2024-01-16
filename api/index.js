@@ -42,3 +42,13 @@ export const thirdConfig = params =>
             token: store.getters.storeBusinessToken
         }
     });
+// 获取 版本更新
+export const appVersion = params =>
+    uni.$u?.http.post('/client_config/app_version', {
+        data: {
+            ...params
+        },
+        header: {
+            token: store.getters.storeBusinessToken
+        }
+    });

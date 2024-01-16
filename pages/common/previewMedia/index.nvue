@@ -16,8 +16,9 @@
                     :show-loading="true"
                     :width="systemInfo.windowWidth + 'px'"
                     :height="systemInfo.windowHeight + 'px'"
-                    mode="aspectFit"
                     :src="v.url"
+                    class="image"
+                    mode="aspectFit"
                     @click="previewImage(v)"
                     @longpress.prevent.native="longpress(0)"
                 >
@@ -84,6 +85,13 @@ export default {
             this.actionSheetMenu = [this.baseList[type], { name: '取消', type: 2 }];
             this.showActionSheet = true;
         },
+        fail() {
+            uni.hideLoading();
+            uni.showToast({
+                title: "保存失败，请稍后重试",
+                icon: "none"
+            });
+        },
         selectClick ({ type }) {
             if (type !== 2) {
                 uni.showLoading();
@@ -101,21 +109,15 @@ export default {
 									});
 								},
 								fail: () => {
-									uni.hideLoading();
-									uni.showToast({
-										title: "保存失败，请稍后重试",
-										icon: "fail"
-									});
+									this.fail();
 								}
 							});
-						}
+						} else {
+                            this.fail();
+                        }
                     },
                     fail: () => {
-                        uni.hideLoading();
-                        uni.showToast({
-                            title: "保存失败，请稍后重试",
-                            icon: "fail"
-                        });
+                        this.fail();
                     }
                 });
             } else {
@@ -143,4 +145,5 @@ export default {
 .swiper_container {
     background-color: $uni-bg-color-inverse;
 }
+
 </style>

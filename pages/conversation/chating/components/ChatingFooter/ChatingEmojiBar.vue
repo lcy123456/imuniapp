@@ -54,15 +54,20 @@
             </swiper-item>
             <swiper-item class="chat_gifs_bar">
                 <Empty v-if="emoticonsList.length === 0" />
-                <scroll-view v-else class="chat_gifs_container" scroll-y>
+                <scroll-view
+                    v-else
+                    class="chat_gifs_container"
+                    scroll-y
+                    @scrolltolower="loadMoreEmoticonsList"
+                >
                     <view
                         v-for="(v, i) in emoticonsList"
-                        :key="v + i"
+                        :key="'emoticonsList-' + v.id"
                         class="gif_item"
                         @longpress="handleLongpress(v, i)"
                     >
                         <MyImage
-                            :src="v"
+                            :src="v.url"
                             class="emoticons-item"
                             mode="aspectFit"
                             @click="handleSendEmoticons(v)"
@@ -71,10 +76,10 @@
                     <view v-for="v in 4" :key="v" class="gif_item" />
                     <view
                         :class="`w-full ${
-                            gifsData.length === 0 && 'absolute t-0'
+                            emoticonsList.length === 0 && 'absolute t-0'
                         }`"
                     >
-                        <u-loading-icon v-show="gifLoading" />
+                        <u-loading-icon v-show="emojiLoading" />
                     </view>
                 </scroll-view>
             </swiper-item>
@@ -94,10 +99,12 @@
 
 <script>
 import { getGifsSearch } from '@/api/index.js';
+import { emojiCollectList, emojiCollectCancel } from '@/api/emoji.js';
 import emojis from '@/common/emojis.js';
 import MyImage from '@/components/MyImage';
 
 const limit = 25;
+const showNumber = 12;
 
 export default {
     components: {
@@ -106,6 +113,8 @@ export default {
     data() {
         return {
             showActionSheet: false,
+            emojisEnd: false,
+            pageNumber: 1,
             actionSheetMenu: [
                 {
                     name: '删除表情',
@@ -139,29 +148,35 @@ export default {
         }
     },
     created() {
-        uni.$on('undateEmoticons', this.getEmoticonsList);
-        this.getEmoticonsList();
+        uni.$on('undateEmoticons', this.emojiCollectList);
+        this.emojiCollectList('init');
     },
     methods: {
-        selectClick({ type }) {
+        async selectClick({ type }) {
             if (type === 0) {
-                const list = [...this.emoticonsList];
-                list.splice(this.index, 1);
-                uni.setStorageSync('emoticonsList', JSON.stringify(list));
-                uni.$emit('undateEmoticons');
-                this.showActionSheet = false;
+                try {
+                    await emojiCollectCancel({
+                        id: this.item.id
+                    });
+                    uni.$u.toast('删除成功');
+                    const l = [...this.emoticonsList];
+                    const index = this.emoticonsList.findIndex(
+                        v => v.id === this.item.id
+                    );
+                    l.splice(index, 1);
+                    this.emoticonsList = l;
+                    this.emojiCollectList();
+                    this.showActionSheet = false;
+                } catch (err) {
+                    uni.$u.toast('删除失败');
+                }
             } else {
                 this.showActionSheet = false;
             }
         },
-        handleLongpress(item, index) {
+        handleLongpress(item) {
             this.showActionSheet = true;
-            this.index = index;
-        },
-        getEmoticonsList() {
-            this.emoticonsList = uni.getStorageSync('emoticonsList')
-                ? JSON.parse(uni.getStorageSync('emoticonsList'))
-                : [];
+            this.item = item;
         },
         handleSwiperChange({ detail }) {
             this.current = detail.current;
@@ -171,6 +186,33 @@ export default {
         },
         handleSearchCancle() {
             this.gifsData = [];
+        },
+        loadMoreEmoticonsList() {
+            if (this.emojisEnd) return;
+            this.pageNumber++;
+            this.emojiCollectList();
+        },
+        async emojiCollectList(type) {
+            if (type === 'init') {
+                this.pageNumber = 1;
+                this.emojisEnd = false;
+            }
+            const pageNumber = this.pageNumber;
+            this.emojiLoading = true;
+            const map = {
+                pagination: {
+                    pageNumber,
+                    showNumber
+                }
+            };
+            const { list } = await emojiCollectList(map);
+            const emoticonsListIdList = this.emoticonsList.map(item => item.id);
+            const l = (list || []).filter(
+                item => !emoticonsListIdList.includes(item.id)
+            );
+            this.emojisEnd = list.length !== showNumber;
+            this.emoticonsList = this.emoticonsList.concat(l);
+            this.emojiLoading = false;
         },
         async handleGetGifs(isInit) {
             if (isInit) this.gifScrollEnd = false;
@@ -185,7 +227,6 @@ export default {
             if (limit > res.data.length) {
                 this.gifScrollEnd = true;
             }
-            // console.log('getGifs', res);
             this.gifLoading = false;
         },
         handleSendGif(v) {
@@ -194,7 +235,7 @@ export default {
         },
         handleSendEmoticons(v) {
             this.$emit('sendGif', {
-                url: v
+                url: v.url
             });
         }
     }

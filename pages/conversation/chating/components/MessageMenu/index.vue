@@ -75,6 +75,7 @@ import { html2Text } from '@/util/common';
 import { parseAt, getUserListInfo } from '@/util/imCommon';
 import { mapGetters, mapActions } from 'vuex';
 import { pin, pinCancel } from '@/api/pinToTop';
+import { emojiCollect } from '@/api/emoji';
 import IMSDK, {
     IMMethods,
     MessageType,
@@ -200,12 +201,6 @@ export default {
         },
         menuList() {
             return [
-                // {
-                //     type: MessageMenuTypes.ReadCount,
-                //     title: '',
-                //     visible: this.isSender && this.isGroup,
-                //     template: 'readCount'
-                // },
                 {
                     type: MessageMenuTypes.AddEmoticons,
                     title: '添加到表情',
@@ -277,6 +272,12 @@ export default {
                     title: '删除',
                     icon: '/static/images/chating_message_del.svg',
                     visible: this.isMyMsg || this.isSingle
+                },
+                {
+                    type: MessageMenuTypes.Save,
+                    title: '保存',
+                    icon: '/static/images/chating_message_save.svg',
+                    visible: this.showMediaRender
                 }
             ].filter(v => v.visible);
         },
@@ -291,6 +292,9 @@ export default {
         },
         isMyMsg() {
             return this.message.sendID === this.storeCurrentUserID;
+        },
+        isVideo() {
+            return this.message.contentType === MessageType.VideoMessage;
         },
         isSingle() {
             return this.message.sessionType === SessionType.Single;
@@ -357,6 +361,9 @@ export default {
                 case MessageMenuTypes.Favorite:
                     this.handleFavorite(this.message);
                     break;
+                case MessageMenuTypes.Save:
+                    this.handleSave(this.message);
+                    break;
                 case MessageMenuTypes.Reply:
                     uni.$emit('active_message', {
                         message: this.message,
@@ -387,38 +394,79 @@ export default {
         async handleFavorite(message) {
             uni.$emit('handleFavorite', message);
         },
-        addEmoticons() {
-            const { pictureElem, videoElem } = this.message;
-            let filePath = pictureElem?.sourcePath;
+        handleSave(message) {
+            const { pictureElem, videoElem } = message;
+            let filePath = pictureElem?.sourcePicture?.url;
             if (this.isVideo) {
-                filePath = videoElem?.snapshotPath;
+                filePath = videoElem.videoUrl;
             }
-            // filePath = localEx || filePath;
-            uni.getFileInfo({
-                filePath,
-                success: () => {
-                    this.saveEmoticons(filePath);
+            function fail() {
+                uni.hideLoading();
+                uni.showToast({
+                    title: '保存失败，请稍后重试',
+                    icon: 'none'
+                });
+            }
+            uni.showLoading();
+            uni.downloadFile({
+                url: filePath,
+                success: res => {
+                    if (res.statusCode === 200) {
+                        uni.saveImageToPhotosAlbum({
+                            filePath: res.tempFilePath,
+                            success: () => {
+                                uni.hideLoading();
+                                uni.showToast({
+                                    title: '保存成功',
+                                    icon: 'success'
+                                });
+                            },
+                            fail: () => {
+                                fail();
+                            }
+                        });
+                    } else {
+                        fail();
+                    }
                 },
                 fail: () => {
-                    filePath = pictureElem?.sourcePicture.url;
-                    if (this.isVideo) {
-                        filePath = videoElem?.snapshotUrl;
-                    }
-                    this.saveEmoticons(filePath);
+                    fail();
                 }
             });
         },
-        saveEmoticons(filePath) {
-            let list = uni.getStorageSync('emoticonsList');
-            list = list ? JSON.parse(list) : [];
-            if (list.length >= 200) {
-                uni.$u.toast('表情添加上限，请删除后添加');
-                return;
+        addEmoticons() {
+            const { pictureElem, videoElem } = this.message;
+            let filePath = pictureElem?.sourcePicture.url;
+            if (this.isVideo) {
+                filePath = videoElem?.snapshotUrl;
             }
-            list.push(filePath);
-            uni.setStorageSync('emoticonsList', JSON.stringify(list));
-            uni.$u.toast('添加成功');
-            uni.$emit('undateEmoticons');
+            this.saveEmoticons(filePath);
+            // filePath = localEx || filePath;
+            // uni.getFileInfo({
+            //     filePath,
+            //     success: () => {
+            //         this.saveEmoticons(filePath);
+            //     },
+            //     fail: () => {
+            //         filePath = pictureElem?.sourcePicture.url;
+            //         if (this.isVideo) {
+            //             filePath = videoElem?.snapshotUrl;
+            //         }
+            //         this.saveEmoticons(filePath);
+            //     }
+            // });
+        },
+        async saveEmoticons(filePath) {
+            try {
+                await emojiCollect({
+                    url: filePath
+                });
+                uni.$u.toast('添加成功');
+                uni.$emit('undateEmoticons', 'init');
+            } catch (err) {
+                console.log('err---err', err);
+                uni.$u.toast('添加失败');
+            }
         },
         getContent() {
             let text = '';

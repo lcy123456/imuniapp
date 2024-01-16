@@ -413,9 +413,13 @@ export default {
 .notice_message_container {
     @include ellipsisWithLine(2);
     text-align: center;
-    margin: 24rpx 48rpx;
+    margin: 24rpx auto;
     // font-size: 24rpx;
     font-size: 0.85rem;
     color: #999;
+    border-radius: 43rpx;
+    // background: rgba(0, 0, 0, 0.25);
+    padding: 4rpx 33rpx;
+    width: max-content;
 }
 </style>

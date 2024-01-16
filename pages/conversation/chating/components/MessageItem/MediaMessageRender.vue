@@ -1,5 +1,6 @@
 <template>
     <view
+        :key="updateKey"
         class="media_message_container"
         :style="{
             height: imageHeight === 'auto' ? imageHeight : imageHeight + 'px'
@@ -14,10 +15,14 @@
             mode="widthFix"
             :src="imgUrl"
             @load="onLoaded"
+            @error="onErrored"
             @click="clickMediaItem"
         >
             <template #loading>
                 <u-loading-icon color="red" />
+            </template>
+            <template #error>
+                <image class="err_img" src="/static/images/reload.svg" />
             </template>
         </u--image>
         <image
@@ -58,6 +63,8 @@ export default {
     data() {
         return {
             imgList: [],
+            updateKey: '',
+            isError: false,
             imageWidth: '300px',
             imageHeight: 240,
             imgUrl: null,
@@ -101,6 +108,10 @@ export default {
     },
     methods: {
         async clickMediaItem() {
+            if (this.isError) {
+                this.updateKey = +new Date();
+                return;
+            }
             const page = getPageRoute();
             if ([`pages/conversation/chating/index`].includes(page)) {
                 await uni.$emit('getSearchRecordMedia');
@@ -127,6 +138,7 @@ export default {
             const { conversationID } = this.storeCurrentConversation;
             const { clientMsgID } = this.message;
             this.imageHeight = 'auto';
+            this.isError = false;
             if (
                 !this.imgUrl.includes('https://') &&
                 !this.imgUrl.includes('http://')
@@ -150,11 +162,14 @@ export default {
                 },
                 fail: () => {}
             });
+        },
+        onErrored() {
+            console.log('c u哦。。。。。。错。。。');
+            this.isError = true;
         }
     }
 };
 </script>
-
 <style lang="scss" scoped>
 .media_message_container {
     position: relative;
@@ -175,6 +190,10 @@ export default {
         bottom: 12rpx;
         right: 24rpx;
         color: #fff;
+    }
+    .err_img {
+        width: 40rpx !important;
+        height: 40rpx !important;
     }
 }
 </style>

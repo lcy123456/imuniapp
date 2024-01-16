@@ -8,6 +8,7 @@ import IMSDK, {
     GroupAtType
 } from 'openim-uniapp-polyfill';
 import { idsGetConversationID, isEdit, isLike } from '@/util/imCommon';
+import fCheckVersion from '@/util/fCheckVersion';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import config from './common/config';
 import { getDbDir, toastWithCallback } from '@/util/common.js';
@@ -46,6 +47,7 @@ export default {
             this.getUnreadMsgCount();
         }, 2000);
         this.thirdConfig();
+        fCheckVersion();
     },
     async onShow() {
         this.num++;
