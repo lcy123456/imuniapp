@@ -3,6 +3,7 @@
         <swiper
             class="swiper_container"
             :current="current"
+            :disable-touch="disableTouch"
             :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
             @change="change"
         >
@@ -11,21 +12,31 @@
                 :key="v.url + '-' + i"
                 :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
             >
-                <u--image
+                <view
                     v-if="v.type === 'image'"
-                    :show-loading="true"
-                    :width="systemInfo.windowWidth + 'px'"
-                    :height="systemInfo.windowHeight + 'px'"
-                    :src="v.url"
-                    class="image"
-                    mode="aspectFit"
-                    @click="previewImage(v)"
-                    @longpress.prevent.native="longpress(0)"
+                    @touchmove="touchmove($event, v, i)"
+                    @touchstart="touchstart($event, v, i)"
+                    @touchend="touchend($event, v, i)"
+                    @click="click($event, v, i)"
                 >
-                    <template #loading>
-                        <u-loading-icon color="red" />
-                    </template>
-                </u--image>
+                    <u--image
+                        :show-loading="true"
+                        :width="(v.width || systemInfo.windowWidth) + 'px'"
+                        :height="(v.height || systemInfo.windowHeight) + 'px'"
+                        :src="v.url"
+                        :style="{
+                            marginLeft: (v.left || 0) + 'px',
+                            marginTop: (v.top || 0)+ 'px'
+                        }"
+                        class="image"
+                        mode="aspectFit"
+                        @longpress.prevent.native="longpress(0)"
+                    >
+                        <template #loading>
+                            <u-loading-icon color="red" />
+                        </template>
+                    </u--image>
+                </view>
                 <video
                     v-else-if="v.type === 'video'"
                     :id="v.url"
@@ -55,7 +66,11 @@ export default {
     data () {
         return {
             list: [],
+            touchMap: [],
             current: 0,
+            clickCount: 0,
+            touchstartCount: 0,
+            disableTouch: false,
             item: null,
             showActionSheet: false,
             baseList: [
@@ -92,6 +107,104 @@ export default {
                 icon: "none"
             });
         },
+        touchstart (event, item) {
+            const { windowWidth, windowHeight } = this.systemInfo;
+            const changedTouches = event.changedTouches;
+            item.width = item.width || windowWidth;
+            item.height = item.height || windowHeight;
+            item.left = item.left > 0 ? 0 : item.left;
+            item.top = item.top > 0 ? 0 : item.top;
+            changedTouches.forEach(m => {
+                this.touchMap[m.identifier] = {
+                    pageX: m.pageX,
+                    pageY: m.pageY,
+                    startX: m.pageX,
+                    startY: m.pageY,
+                    left: item.left,
+                    top: item.top,
+                    width: item.width,
+                    height: item.height,
+                }
+            });
+            if (Object.keys(this.touchMap).length === 2) {
+                const touchIdentifierList = Object.keys(this.touchMap);
+                const touch1 = this.touchMap[touchIdentifierList[0]];
+                const touch2 = this.touchMap[touchIdentifierList[1]];
+                const initialDistance = this.getInitialDistance(touch1, touch2);
+                item.initialDistance = initialDistance;
+            }
+        },
+        touchmove (event, item, index) {
+            const changedTouches = event.changedTouches;
+            const list = [...this.list];
+            const map = list[index];
+            const { windowWidth, windowHeight } = this.systemInfo;
+            const touchIdentifierList = Object.keys(this.touchMap);
+            changedTouches.forEach(m => {
+                this.touchMap[m.identifier] = {
+                    ...(this.touchMap[m.identifier] || {}),
+                    pageX: m.pageX,
+                    pageY: m.pageY
+                }
+            });
+            if (Object.keys(this.touchMap).length === 2) {
+                const touch1 = this.touchMap[touchIdentifierList[0]];
+                const touch2 = this.touchMap[touchIdentifierList[1]];
+                const initialDistance = this.getInitialDistance(touch1, touch2);
+                const proportion = initialDistance / map.initialDistance;
+                const [ centerX, centerY ] = [(touch1.startX + touch2.startX) / 2, (touch1.startY + touch2.startY) / 2]
+                const startX = (centerX - touch1.left) * (1 - proportion);
+                const startY = (centerY - touch1.top) * (1 - proportion);
+                const width = touch1.width * proportion;
+                const height = touch1.height * proportion;
+                if (width >= windowWidth) {
+                    map.left = touch1.left + startX;
+                    map.top = touch1.top + startY;
+                    map.width = width < windowWidth ? windowWidth : width;
+                    map.height = height < windowHeight ? windowHeight : height;
+                }
+                touch1.isScale = true;
+                touch2.isScale = true;
+            } else if (Object.keys(this.touchMap).length === 1) {
+                const touch1 = this.touchMap[touchIdentifierList[0]];
+                const startX = touch1.pageX - touch1.startX;
+                const startY = touch1.pageY - touch1.startY;
+                if (!touch1.isScale) {
+                    map.left = touch1.left + startX > 0 ? 0 : touch1.left + startX;
+                    map.top = touch1.top + startY > 0 ? 0 : touch1.top + startY;
+                    if (map.width + map.left < windowWidth) {
+                        map.left = -(map.width - windowWidth);
+                    }
+                    if (map.height + map.top < windowHeight) {
+                        map.top = -(map.height - windowHeight);
+                    }
+                }
+            }
+            this.list = list;
+            this.disableTouch = item.left < -5 && (item.left + item.width > windowWidth);
+        },
+        touchend (event, item, index) {
+            const changedTouches = event.changedTouches;
+            const touchMap = {...this.touchMap};
+            const { windowWidth, windowHeight } = this.systemInfo;
+            const list = [...this.list];
+            const map = list[index];
+            changedTouches.forEach(m => {
+                delete touchMap[m.identifier];
+            });
+            this.touchMap = touchMap;
+            if (map.width + map.left < windowWidth) {
+                map.left = -(map.width - windowWidth);
+            }
+            if (map.height + map.top < windowHeight) {
+                map.top = -(map.height - windowHeight);
+            }
+            this.list = list;
+            this.disableTouch = item.left < -5 && (item.left + item.width > windowWidth);
+        },
+        getInitialDistance (touch1, touch2) {
+            return Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
+        },
         selectClick ({ type }) {
             if (type !== 2) {
                 uni.showLoading();
@@ -124,18 +237,44 @@ export default {
                 this.showActionSheet = false;
             }
         },
-        previewImage (item) {
-            uni.previewImage({
-                urls: [item.url]
-            });
-        },
         change (e) {
+            const { windowWidth, windowHeight } = this.systemInfo;
             let current = e.detail.current;
             if (this.item.type === 'video') {
                 let video = uni.createVideoContext(this.item.url, this);
                 video && video.pause();
             }
             this.item = this.list[current];
+            const list = [...this.list];
+            list.forEach((item, index) => {
+                this.initImageItem(item);
+            });
+            this.list = list;
+            console.log('change---', this.list);
+        },
+        click (event, item, index) {
+            const { windowWidth, windowHeight } = this.systemInfo;
+            this.clickCount++;
+            console.log('this.clickCount', this.clickCount);
+            if (this.clickCount === 1) {
+                this.timer = setTimeout(function() {
+                    this.clickCount = 0;
+                }, 300);
+            } else if (this.clickCount === 2) {
+                clearTimeout(this.timer);
+                this.clickCount = 0;
+                const list = [...this.list];
+                this.initImageItem(list[index]);
+                this.list = list;
+            }
+        },
+        initImageItem(item) {
+            const { windowWidth, windowHeight } = this.systemInfo;
+            item.width = windowWidth;
+            item.height = windowHeight;
+            item.left = 0;
+            item.top = 0;
+            return item;
         }
     },
 };
@@ -145,5 +284,10 @@ export default {
 .swiper_container {
     background-color: $uni-bg-color-inverse;
 }
-
+.image {
+    // transition: all 1s;
+    // border: 1px solid red;
+    // transform-origin: 0% 0%;
+    // transform: scale(0.5);
+}
 </style>

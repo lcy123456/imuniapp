@@ -1,4 +1,34 @@
 import { idsGetConversationID } from '@/util/imCommon';
+const getStoreHistoryMessageList = (state, type) => {
+    const { message, conversation, base } = state;
+    const { historyMessageMap } = message;
+    const { currentConversation } = conversation;
+    const list =
+        historyMessageMap[currentConversation.conversationID]?.messageList ||
+        [];
+    const pinList = base?.pinList.map(v => v.clientMsgID);
+    const l = JSON.parse(JSON.stringify(list));
+    l.map((msg, i) => {
+        let index = pinList.indexOf(msg.clientMsgID);
+        if (index > -1) {
+            msg.pinMap = base?.pinList[index];
+        }
+        try {
+            if (msg.contentType === 110) {
+                const data = JSON.parse(msg.customElem.data);
+                if (data.status === 1650) {
+                    l[i] = null;
+                }
+            }
+        } catch (err) {
+            //
+        }
+    });
+    if (type) {
+        return l.filter(Boolean).reverse();
+    }
+    return l.filter(Boolean);
+};
 export default {
     storeConversationList: state => state.conversation.conversationList,
     storeConversationMediaList: state =>
@@ -44,58 +74,10 @@ export default {
         return hasAfterMore || isScrollWay;
     },
     storeHistoryMessageList: state => {
-        const { message, conversation, base } = state;
-        const { historyMessageMap } = message;
-        const { currentConversation } = conversation;
-        const list =
-            historyMessageMap[currentConversation.conversationID]
-                ?.messageList || [];
-        const pinList = base?.pinList.map(v => v.clientMsgID);
-        const l = JSON.parse(JSON.stringify(list));
-        l.map((msg, i) => {
-            let index = pinList.indexOf(msg.clientMsgID);
-            if (index > -1) {
-                msg.pinMap = base?.pinList[index];
-            }
-            try {
-                if (msg.contentType === 110) {
-                    const data = JSON.parse(msg.customElem.data);
-                    if (data.status === 1650) {
-                        l[i] = null;
-                    }
-                }
-            } catch (err) {
-                //
-            }
-        });
-        return l.filter(v => v);
+        return getStoreHistoryMessageList(state);
     },
     storeHistoryMessageListReverse: state => {
-        const { message, conversation, base } = state;
-        const { historyMessageMap } = message;
-        const { currentConversation } = conversation;
-        const list =
-            historyMessageMap[currentConversation.conversationID]
-                ?.messageList || [];
-        const pinList = base?.pinList.map(v => v.clientMsgID);
-        const l = JSON.parse(JSON.stringify(list));
-        l.map((msg, i) => {
-            let index = pinList.indexOf(msg.clientMsgID);
-            if (index > -1) {
-                msg.pinMap = base?.pinList[index];
-            }
-            try {
-                if (msg.contentType === 110) {
-                    const data = JSON.parse(msg.customElem.data);
-                    if (data.status === 1650) {
-                        l[i] = null;
-                    }
-                }
-            } catch (err) {
-                //
-            }
-        });
-        return l.filter(v => v).reverse();
+        return getStoreHistoryMessageList(state, 1);
     },
     storeHasMoreMessage: state => {
         const { message, conversation } = state;
