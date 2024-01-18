@@ -464,7 +464,12 @@ export default {
                 uni.$u.toast('添加成功');
                 uni.$emit('undateEmoticons', 'init');
             } catch (err) {
+                const { errCode } = err;
                 console.log('err---err', err);
+                if (errCode === 222) {
+                    uni.$u.toast('重复添加');
+                    return;
+                }
                 uni.$u.toast('添加失败');
             }
         },
