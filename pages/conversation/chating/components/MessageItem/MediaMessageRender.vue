@@ -64,7 +64,7 @@ export default {
         return {
             imgList: [],
             updateKey: '',
-            isError: false,
+            isError: true,
             imageWidth: '300px',
             imageHeight: 240,
             imgUrl: null,

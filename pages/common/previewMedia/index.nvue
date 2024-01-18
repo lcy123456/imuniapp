@@ -43,6 +43,7 @@
                     :src="v.url"
                     :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
                     :poster="v.poster && v.poster[0]"
+                    :show-fullscreen-btn="false"
                     @longpress="longpress(1)"
                 />
             </swiper-item>
