@@ -143,7 +143,8 @@ import {
     getPurePath,
     html2Text,
     getEl,
-    getNewText
+    getNewText,
+    getPageRoute
 } from '@/util/common';
 import {
     offlinePushInfo,
@@ -1014,6 +1015,8 @@ export default {
             const _heightDiff = _sysInfo.screenHeight - _sysInfo.windowHeight;
             const _diff = height - _heightDiff;
             height = _diff > 0 ? _diff : 0;
+            const page = getPageRoute();
+            if (page !== 'pages/conversation/chating/index') return;
             setTimeout(() => {
                 this.$store.commit('base/SET_IS_SHOW_KEYBOARD', height !== 0);
             }, 300);
