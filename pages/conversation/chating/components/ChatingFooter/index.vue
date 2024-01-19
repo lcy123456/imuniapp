@@ -1107,12 +1107,12 @@ export default {
             if (uni.$u.os() === 'ios') {
                 recordResult = judgeIosPermission('record');
             } else {
-                recordResult = await requestAndroidPermission(
-                    'android.permission.RECORD_AUDIO'
-                );
                 timer = setTimeout(() => {
                     isGetPermission = true;
                 }, 200);
+                recordResult = await requestAndroidPermission(
+                    'android.permission.RECORD_AUDIO'
+                );
             }
             clearTimeout(timer);
             if (isGetPermission) return;
