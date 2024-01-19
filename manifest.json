@@ -143,15 +143,15 @@
         "nativePlugins" : {
             "Tuoyun-OpenIMSDK" : {
                 "__plugin_info__" : {
-                    "name" : "OpenIM SDK",
-                    "description" : "OpenIM：由IM技术专家打造的基于 Go 实现的即时通讯（IM）项目，从服务端到客户端SDK开源即时通讯（IM）整体解决方案，可以轻松替代第三方IM云服务，打造具备聊天、社交功能的app。",
+                    "name" : "OpenIMSDK",
+                    "description" : "IM",
                     "platforms" : "Android,iOS",
-                    "url" : "https://ext.dcloud.net.cn/plugin?id=6577",
+                    "url" : "",
                     "android_package_name" : "",
                     "ios_bundle_id" : "",
-                    "isCloud" : true,
-                    "bought" : 1,
-                    "pid" : "6577",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
                     "parameters" : {}
                 }
             }

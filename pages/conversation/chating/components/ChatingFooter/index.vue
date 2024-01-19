@@ -169,7 +169,10 @@ import IMSDK, {
     SessionType,
     GroupMemberFilter
 } from 'openim-uniapp-polyfill';
-import { judgeIosPermission } from '@/util/permission.js';
+import {
+    judgeIosPermission,
+    requestAndroidPermission
+} from '@/util/permission.js';
 import CustomEditor from './CustomEditor.vue';
 import ChatingActionBar from './ChatingActionBar.vue';
 import ChatingEmojiBar from './ChatingEmojiBar.vue';
@@ -1098,7 +1101,14 @@ export default {
         },
         async handleRecorderStart() {
             const { start } = recordVoiceManager();
-            const recordResult = judgeIosPermission('record');
+            let recordResult = null;
+            if (uni.$u.os() === 'ios') {
+                recordResult = judgeIosPermission('record');
+            } else {
+                recordResult = await requestAndroidPermission(
+                    'android.permission.RECORD_AUDIO'
+                );
+            }
             if (recordResult !== 1) {
                 uni.$u.toast('请开通语音权限');
                 return;

@@ -109,6 +109,9 @@ export const isLike = message => {
         return false;
     }
 };
+export const isPin = message => {
+    return message.pinMap;
+};
 
 export const parseAt = (atel, type) => {
     let mstr = atel.text;

@@ -72,7 +72,7 @@ import ReadUserList from './ReadUserList.vue';
 import Like from './Like.vue';
 import { getMsgID, giveLikeEmoji } from '@/api/message';
 import { html2Text } from '@/util/common';
-import { parseAt, getUserListInfo } from '@/util/imCommon';
+import { parseAt, getUserListInfo, isPin } from '@/util/imCommon';
 import { mapGetters, mapActions } from 'vuex';
 import { pin, pinCancel } from '@/api/pinToTop';
 import { emojiCollect } from '@/api/emoji';
@@ -383,6 +383,10 @@ export default {
                     await uni.$emit('deleteMsg', [this.message]);
                     break;
                 case MessageMenuTypes.Edit:
+                    if (isPin(this.message)) {
+                        uni.$u.toast('置顶消息暂不支持编辑');
+                        break;
+                    }
                     uni.$emit('active_message', {
                         message: this.message,
                         type: 'edit_message'
@@ -621,6 +625,10 @@ export default {
             return DecryptoAES(textElem.content);
         },
         async like(emoji) {
+            if (isPin(this.message)) {
+                uni.$u.toast('置顶消息暂不支持点赞');
+                return;
+            }
             try {
                 const { clientMsgID, serverMsgID, sendID, recvID, groupID } =
                     this.message;

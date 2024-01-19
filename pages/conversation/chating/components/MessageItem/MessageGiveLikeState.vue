@@ -18,6 +18,7 @@
 import { mapGetters } from 'vuex';
 import { SessionType } from 'openim-uniapp-polyfill';
 import { giveLikeEmoji } from '@/api/message';
+import { isPin } from '@/util/imCommon';
 export default {
     name: 'MessageGiveLikeState',
     components: {},
@@ -72,6 +73,10 @@ export default {
             );
         },
         async like(emoji) {
+            if (isPin(this.message)) {
+                uni.$u.toast('置顶消息暂不支持点赞');
+                return;
+            }
             try {
                 const { clientMsgID, serverMsgID, sendID, recvID, groupID } =
                     this.message;

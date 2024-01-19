@@ -57,7 +57,10 @@ export const formatInputHtml = html => {
             } `;
         }
         if (img.includes('class="emoji_el"')) {
-            return img.match(customDataReg)[0].slice(23, -1);
+            return img.match(/emojiText=([^"]*)/)
+                ? img.match(/emojiText=([^"]*)/)[1]
+                : '';
+            // return img.match(customDataReg)[0].slice(23, -1);
         }
         return '';
     });
