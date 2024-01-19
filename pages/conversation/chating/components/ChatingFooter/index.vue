@@ -1101,14 +1101,21 @@ export default {
         },
         async handleRecorderStart() {
             const { start } = recordVoiceManager();
+            let timer = null;
             let recordResult = null;
+            let isGetPermission = false;
             if (uni.$u.os() === 'ios') {
                 recordResult = judgeIosPermission('record');
             } else {
                 recordResult = await requestAndroidPermission(
                     'android.permission.RECORD_AUDIO'
                 );
+                timer = setTimeout(() => {
+                    isGetPermission = true;
+                }, 200);
             }
+            clearTimeout(timer);
+            if (isGetPermission) return;
             if (recordResult !== 1) {
                 uni.$u.toast('请开通语音权限');
                 return;
