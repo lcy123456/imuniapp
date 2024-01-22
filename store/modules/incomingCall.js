@@ -1,11 +1,12 @@
-import { requestAndroidPermission, judgeIosPermission, gotoAppPermissionSetting } from '@/util/permission.js';
-import IMSDK, {
-    IMMethods,
-} from "openim-uniapp-polyfill";
+import {
+    requestAndroidPermission,
+    judgeIosPermission,
+    gotoAppPermissionSetting
+} from '@/util/permission.js';
+import IMSDK, { IMMethods } from 'openim-uniapp-polyfill';
 import dayjs from 'dayjs';
 
 const state = {
-    wsUrl: '',
     startTime: '',
     callTime: '',
     timeText: '',
@@ -30,56 +31,53 @@ const state = {
 };
 
 const mutations = {
-    SET_WSURL (state, url) {
-        state.wsUrl = url;
-    },
-    SET_TIME_TEXT (state, val) {
+    SET_TIME_TEXT(state, val) {
         state.timeText = val;
     },
-    SET_INCOMING_CALL_TOKEN (state, value) {
+    SET_INCOMING_CALL_TOKEN(state, value) {
         state.incomingCallToken = value;
     },
-    SET_INCOMING_CALL_USER_INFO (state, value) {
+    SET_INCOMING_CALL_USER_INFO(state, value) {
         state.incomingCallUserInfo = value;
     },
-    SET_INCOMING_CALL_TOP (state, value) {
+    SET_INCOMING_CALL_TOP(state, value) {
         state.isIncomingCallTop = value;
     },
-    SET_IS_INCOMING_CALL_SMALL (state, value) {
+    SET_IS_INCOMING_CALL_SMALL(state, value) {
         state.isIncomingCallSmall = value;
     },
-    SET_IS_ANSWER (state, value) {
+    SET_IS_ANSWER(state, value) {
         state.isAnswer = value;
     },
-    SET_IS_INCOMING_CALL_ING (state, value) {
+    SET_IS_INCOMING_CALL_ING(state, value) {
         state.isIncomingCallIng = value;
     },
-    SET_IS_HANGUP (state, value) {
+    SET_IS_HANGUP(state, value) {
         state.isHangup = value;
     },
-    SET_IS_INCOMING_CALL_LOADING (state, value) {
+    SET_IS_INCOMING_CALL_LOADING(state, value) {
         state.isIncomingCallLoading = value;
     },
-    SET_CALL_TIME (state, value) {
+    SET_CALL_TIME(state, value) {
         state.callTime = value;
     },
-    SET_START_TIME (state, value) {
+    SET_START_TIME(state, value) {
         state.startTime = value;
     },
-    SET_IS_INCOMING_CALL_SMALL_STYLE (state, value) {
+    SET_IS_INCOMING_CALL_SMALL_STYLE(state, value) {
         state.incomingCallSmallStyle = value;
     },
-    SET_IS_INCOMING_CALL_MESSAGE (state, value) {
+    SET_IS_INCOMING_CALL_MESSAGE(state, value) {
         state.incomingCallMessage = value;
     },
-    SET_IS_GROUP_CHAT (state, value) {
+    SET_IS_GROUP_CHAT(state, value) {
         state.isGroupChat = value;
     }
 };
 
 const actions = {
     // 检查麦克风、摄像头权限
-    async reviewPermission () {
+    async reviewPermission() {
         const isIOS = uni.$u.os() === 'ios';
         let hasRecord = false;
         let hasCamera = false;
@@ -91,15 +89,19 @@ const actions = {
             // hasCamera = cameraResult;
             return true;
         } else {
-            const recordResult = await requestAndroidPermission('android.permission.RECORD_AUDIO');
-            const cameraResult = await requestAndroidPermission('android.permission.CAMERA');
+            const recordResult = await requestAndroidPermission(
+                'android.permission.RECORD_AUDIO'
+            );
+            const cameraResult = await requestAndroidPermission(
+                'android.permission.CAMERA'
+            );
             hasRecord = recordResult === 1;
             hasCamera = cameraResult === 1;
         }
 
         if (!hasRecord || !hasCamera) {
             uni.showModal({
-                title: "使用麦克风",
+                title: '使用麦克风',
                 content: '想访问您的麦克风与摄像头',
                 success: res => {
                     if (res.confirm) gotoAppPermissionSetting();
@@ -111,20 +113,26 @@ const actions = {
     },
 
     // 拨打电话
-    async onThrowCall ({
-        commit
-    }, message) {
+    async onThrowCall({ commit }, message) {
         try {
             if (message.sessionType !== 3) {
                 const { recvID } = message;
-                const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                const usersInfo = await IMSDK.asyncApi(
+                    IMMethods.GetUsersInfo,
+                    IMSDK.uuid(),
                     [recvID]
                 );
                 if (usersInfo?.data) {
                     const [uData] = usersInfo.data;
                     const { faceURL, nickname } = uData.publicInfo;
-                    commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
-                    console.log('拨打电话，对方用户信息', { faceURL, nickname });
+                    commit('SET_INCOMING_CALL_USER_INFO', {
+                        faceURL,
+                        nickname
+                    });
+                    console.log('拨打电话，对方用户信息', {
+                        faceURL,
+                        nickname
+                    });
                 }
             }
         } catch (e) {
@@ -138,34 +146,48 @@ const actions = {
     },
 
     // 出现电话，等待接听
-    async appearLoadingCall ({
-        commit
-    }, message) {
+    async appearLoadingCall({ commit }, message) {
         try {
             const isGroupMessage = message.sessionType === 3;
             if (isGroupMessage) {
                 // 群聊
                 const { groupID } = message;
-                const groupInfo = await IMSDK.asyncApi(IMMethods.GetSpecifiedGroupsInfo, IMSDK.uuid(),
+                const groupInfo = await IMSDK.asyncApi(
+                    IMMethods.GetSpecifiedGroupsInfo,
+                    IMSDK.uuid(),
                     [groupID]
                 );
                 if (groupInfo?.data) {
                     const [uData] = groupInfo.data;
                     const { faceURL, groupName } = uData;
-                    commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname: groupName });
-                    console.log('等待接听电话，群信息', { faceURL, nickname: groupName });
+                    commit('SET_INCOMING_CALL_USER_INFO', {
+                        faceURL,
+                        nickname: groupName
+                    });
+                    console.log('等待接听电话，群信息', {
+                        faceURL,
+                        nickname: groupName
+                    });
                 }
             } else {
                 // 单聊
                 const { sendID } = message;
-                const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                const usersInfo = await IMSDK.asyncApi(
+                    IMMethods.GetUsersInfo,
+                    IMSDK.uuid(),
                     [sendID]
                 );
                 if (usersInfo?.data) {
                     const [uData] = usersInfo.data;
                     const { faceURL, nickname } = uData.publicInfo;
-                    commit('SET_INCOMING_CALL_USER_INFO', { faceURL, nickname });
-                    console.log('等待接听电话，对方用户信息', { faceURL, nickname });
+                    commit('SET_INCOMING_CALL_USER_INFO', {
+                        faceURL,
+                        nickname
+                    });
+                    console.log('等待接听电话，对方用户信息', {
+                        faceURL,
+                        nickname
+                    });
                 }
             }
 
@@ -180,20 +202,18 @@ const actions = {
     },
 
     // 缩小
-    async onSmall ({
-        commit
-    }) {
+    async onSmall({ commit }) {
         commit('SET_IS_INCOMING_CALL_SMALL', true);
     },
 
     // 挂断电话
-    async onDangerCall ({ commit, state }) {
+    async onDangerCall({ commit, state }) {
         if (state.isIncomingCallIng) {
             // 正在通话中，挂断代表已完成
             console.log('双方通话中，挂断电话', state.isIncomingCallSmall);
             commit('SET_IS_INCOMING_CALL_SMALL', true);
             commit('SET_IS_HANGUP', true);
-            setTimeout(()=> {
+            setTimeout(() => {
                 console.log('双方通话中，挂断电话，setTimeout（1000）');
                 commit('SET_IS_INCOMING_CALL_SMALL', false);
                 commit('SET_IS_HANGUP', false);
@@ -209,7 +229,7 @@ const actions = {
     },
 
     // 接通电话
-    async onSuccessCall ({ commit }) {
+    async onSuccessCall({ commit }) {
         console.log('onSuccessCall()双方接通电话');
         commit('SET_IS_INCOMING_CALL_SMALL', true);
         commit('SET_INCOMING_CALL_TOP', false);
@@ -223,5 +243,5 @@ export default {
     namespaced: true,
     state,
     mutations,
-    actions,
+    actions
 };

@@ -1,7 +1,6 @@
 <template>
-    <u-swipe-action-item
-        :key="`${(source.conversationID)}-swipe-action-item`"
-        :options="getSwipeActions || []"
+    <uni-swipe-action-item
+        :right-options="getSwipeActions || []"
         :disabled="isDisabled"
         :threshold="50"
         @click="clickConversationMenu"
@@ -19,6 +18,7 @@
                     :src="source.faceURL"
                     :desc="source.showName"
                     size="55"
+                    :font-size="18"
                 />
                 <view class="details">
                     <text class="conversation_name">
@@ -29,7 +29,8 @@
                             v-if="messagePrefix"
                             class="lastest_msg_prefix"
                             :class="{
-                                lastest_msg_prefix_active: needActivePerfix,
+                                lastest_msg_prefix_active:
+                                    needActivePerfix || source.draftText
                             }"
                         >
                             {{ messagePrefix }}
@@ -55,44 +56,46 @@
                 />
             </view>
         </view>
-    </u-swipe-action-item>
+    </uni-swipe-action-item>
 </template>
 
 <script>
 import IMSDK, {
     GroupAtType,
     MessageReceiveOptType,
-    SessionType,
+    SessionType
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
-import { html2Text } from '@/util/common';
+import { html2Text, draftText2Text } from '@/util/common';
+import { mapGetters } from 'vuex';
 import {
     parseMessageByType,
     formatConversionTime,
-    prepareConversationState,
+    prepareConversationState
 } from '@/util/imCommon';
+import { setConversations } from '@/api/conversation';
 
 export default {
     components: {
-        MyAvatar,
+        MyAvatar
     },
     props: {
         source: {
             type: Object,
-            default: () => {},
+            default: () => {}
         },
         isDisabled: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
-    data () {
+    data() {
         return {};
     },
     computed: {
-        messagePrefix () {
-            if (this.source.draftText !== '') {
-                // let text = this.source.draftText;
+        ...mapGetters(['storeCurrentUserID', 'storeCurrentConversation']),
+        messagePrefix() {
+            if (html2Text(draftText2Text(this.source.draftText))) {
                 return '[草稿]';
             }
             let prefix = '';
@@ -100,123 +103,180 @@ export default {
             if (this.notAccept && this.source.unreadCount > 0) {
                 prefix = `[${this.source.unreadCount}条] `;
             }
-            if (this.source.groupID === '8635312407') {
-                console.log('needActivePerfix-needActivePerfix', this.source, this.source.groupAtType, GroupAtType.AtNormal);
-            }
             if (this.needActivePerfix) {
                 switch (this.source.groupAtType) {
-                case GroupAtType.AtAll:
-                    prefix = '[所有人]';
-                    break;
-                case GroupAtType.AtMe:
-                    prefix = '[有人@你]';
-                    break;
-                case GroupAtType.AtAllAtMe:
-                    prefix = '[有人@你]';
-                    break;
-                case GroupAtType.AtGroupNotice:
-                    prefix = '[群公告]';
-                    break;
+                    case GroupAtType.AtAll:
+                        prefix = '[所有人]';
+                        break;
+                    case GroupAtType.AtMe:
+                        prefix = '[有人@你]';
+                        break;
+                    case GroupAtType.AtAllAtMe:
+                        prefix = '[有人@你]';
+                        break;
+                    case GroupAtType.AtGroupNotice:
+                        prefix = '[群公告]';
+                        break;
                 }
             }
 
             return prefix;
         },
-        latestMessage () {
-            if (this.source.latestMsg === '') return '';
+        latestMessage() {
+            const { conversationType, draftText, latestMsg } = this.source;
+            if (html2Text(draftText2Text(draftText)))
+                return draftText2Text(draftText);
+            if (latestMsg === '') return '';
             let parsedMessage;
             try {
-                parsedMessage = JSON.parse(this.source.latestMsg);
+                parsedMessage = JSON.parse(latestMsg);
             } catch (e) {
                 console.log(e);
             }
             if (!parsedMessage) return '';
-            return parseMessageByType(parsedMessage);
+            return (
+                (conversationType === 3 && parsedMessage.senderNickname
+                    ? `${parsedMessage.senderNickname}: `
+                    : '') + parseMessageByType(parsedMessage)
+            );
         },
-        needActivePerfix () {
+        needActivePerfix() {
             return this.source.groupAtType !== GroupAtType.AtNormal;
         },
-        latestMessageTime () {
+        latestMessageTime() {
             return this.source.latestMsgSendTime
                 ? formatConversionTime(this.source.latestMsgSendTime)
                 : '';
         },
-        notAccept () {
+        notAccept() {
             return this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
         },
-        isGroup () {
+        isGroup() {
             return this.source.conversationType === SessionType.WorkingGroup;
         },
-        isNotify () {
+        isNotify() {
             return this.source.conversationType === SessionType.Notification;
         },
-        getSwipeActions () {
-            const notAccept = this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
+        isArchvist() {
+            try {
+                const attachedInfo = JSON.parse(this.source.attachedInfo);
+                return attachedInfo.archvist === 1;
+            } catch (err) {
+                return false;
+            }
+        },
+        getSwipeActions() {
+            const notAccept =
+                this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
             let actions = [
                 {
                     text: `${notAccept ? '打开' : '关闭'}通知`,
-                    icon: `/static/images/conversation_${notAccept ? 'accept' : 'not_accept_white' }.png`,
+                    icon: `/static/images/conversation_${
+                        notAccept ? 'accept' : 'not_accept_white'
+                    }.png`,
                     style: {
-                        backgroundColor: '#e39f4e',
-                    },
+                        backgroundColor: '#e39f4e'
+                    }
                 },
                 {
                     text: `${this.source.isPinned ? '取消' : ''}置顶`,
-                    icon: `/static/images/conversation${this.source.isPinned ? '_not' : ''}_pinned.png`,
+                    icon: `/static/images/conversation${
+                        this.source.isPinned ? '_not' : ''
+                    }_pinned.png`,
                     style: {
-                        backgroundColor: '#4ee36f',
-                    },
+                        backgroundColor: '#4ee36f'
+                    }
                 },
                 {
                     text: '删除',
                     icon: `/static/images/conversation_del.png`,
                     style: {
-                        backgroundColor: '#ec4b37',
+                        backgroundColor: '#ec4b37'
                     }
                 },
+                {
+                    text: `${this.isArchvist ? '取消归档' : '归档'}`,
+                    icon: `/static/images/archive${
+                        this.isArchvist ? '_not' : ''
+                    }.svg`,
+                    style: {
+                        backgroundColor: '#37A0EC'
+                    }
+                }
             ];
             if (this.source.unreadCount > 0) {
                 actions.unshift({
                     text: '标记已读',
                     icon: `/static/images/conversation_read.png`,
                     style: {
-                        backgroundColor: '#3478f5',
+                        backgroundColor: '#3478f5'
                     }
                 });
             }
             return actions;
-        },
+        }
     },
     methods: {
         html2Text,
-        clickConversationItem () {
-            prepareConversationState(this.source);
+        clickConversationItem() {
+            if (this.source.isArchvistItem) {
+                uni.$u.route(
+                    'pages/conversation/conversationList/conversationArchvist'
+                );
+            } else {
+                prepareConversationState(this.source);
+            }
         },
-        async clickConversationMenu ({ index }) {
+        async clickConversationMenu({ index }) {
             this.$loading('加载中');
-            const noUnRead = this.getSwipeActions.length === 3;
+            const noUnRead = this.getSwipeActions.length === 4;
 
             let tempIndex = index;
             if (noUnRead) tempIndex += 1;
 
             switch (tempIndex) {
-            case 0:
-                await this.handleAsRead();
-                break;
-            case 1:
-                await this.handleAccept();
-                break;
-            case 2:
-                await this.handlePin();
-                break;
-            case 3:
-                await this.handleDel();
-                break;
+                case 0:
+                    await this.handleAsRead();
+                    break;
+                case 1:
+                    await this.handleAccept();
+                    break;
+                case 2:
+                    await this.handlePin();
+                    break;
+                case 3:
+                    await this.handleDel();
+                    break;
+                case 4:
+                    await this.handleArchive();
             }
             this.$hideLoading();
             this.$emit('closeAllSwipe');
         },
-        async handleAsRead () {
+        async handleArchive() {
+            try {
+                const archvist =
+                    this.source.attachedInfo &&
+                    JSON.parse(this.source.attachedInfo).archvist === 1
+                        ? 2
+                        : 1;
+                await setConversations({
+                    userIDs: [this.storeCurrentUserID],
+                    conversation: {
+                        conversationID: this.source.conversationID,
+                        conversationType: this.source.conversationType,
+                        groupID: this.source.groupID,
+                        attachedInfo: JSON.stringify({
+                            archvist: archvist
+                        })
+                    }
+                });
+                uni.$u.toast(archvist === 1 ? '设置归档成功' : '取消归档成功');
+            } catch (err) {
+                console.log(err);
+            }
+        },
+        async handleAsRead() {
             try {
                 return await IMSDK.asyncApi(
                     IMSDK.IMMethods.MarkConversationMessageAsRead,
@@ -224,21 +284,26 @@ export default {
                     this.source.conversationID
                 );
             } catch (err) {
-                console.log(err, this.source.conversationID);
                 uni.$u.toast('已读失败');
             }
         },
-        async handleAccept () {
+        async handleAccept() {
             try {
-                return await IMSDK.asyncApi(IMSDK.IMMethods.SetConversationRecvMessageOpt, IMSDK.uuid(), {
-                    conversationID: this.source.conversationID,
-                    opt: this.notAccept ? MessageReceiveOptType.Nomal : MessageReceiveOptType.NotNotify,
-                });
+                return await IMSDK.asyncApi(
+                    IMSDK.IMMethods.SetConversationRecvMessageOpt,
+                    IMSDK.uuid(),
+                    {
+                        conversationID: this.source.conversationID,
+                        opt: this.notAccept
+                            ? MessageReceiveOptType.Nomal
+                            : MessageReceiveOptType.NotNotify
+                    }
+                );
             } catch {
                 uni.$u.toast('通知失败');
             }
         },
-        async handleDel () {
+        async handleDel() {
             try {
                 const res = await IMSDK.asyncApi(
                     IMSDK.IMMethods.DeleteConversationAndDeleteAllMsg,
@@ -254,17 +319,21 @@ export default {
                 uni.$u.toast('删除失败');
             }
         },
-        async handlePin () {
+        async handlePin() {
             try {
-                return await IMSDK.asyncApi(IMSDK.IMMethods.PinConversation, IMSDK.uuid(), {
-                    conversationID: this.source.conversationID,
-                    isPinned: !this.source.isPinned,
-                });
+                return await IMSDK.asyncApi(
+                    IMSDK.IMMethods.PinConversation,
+                    IMSDK.uuid(),
+                    {
+                        conversationID: this.source.conversationID,
+                        isPinned: !this.source.isPinned
+                    }
+                );
             } catch {
                 uni.$u.toast('置顶失败');
             }
         }
-    },
+    }
 };
 </script>
 
@@ -277,7 +346,7 @@ export default {
 
     .left_info {
         @include btwBox();
-        
+
         /deep/.u-avatar {
             border-radius: 30rpx;
             overflow: hidden;
@@ -305,7 +374,7 @@ export default {
                     margin-right: 6rpx;
 
                     &_active {
-                        color: $u-primary;
+                        color: red;
                     }
                 }
 
@@ -343,11 +412,11 @@ export default {
         }
     }
 }
-/deep/.u-swipe-action-item__right__button {
-    width: 142rpx;
-    .u-swipe-action-item__right__button__wrapper {
-        width: 100%;
+/deep/.uni-swipe_button-group {
+    .uni-swipe_button {
+        width: 140rpx;
         padding: 0 20rpx !important;
+        display: flex;
         flex-direction: column !important;
         justify-content: space-evenly;
         .u-icon {
@@ -358,7 +427,7 @@ export default {
                 height: 100% !important;
             }
         }
-        .u-swipe-action-item__right__button__wrapper__text {
+        .uni-swipe_button-text {
             font-size: 26rpx !important;
         }
     }

@@ -10,6 +10,7 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
+import { getFirstCharacter, colors, adjustColor } from '@/util/common';
 import {
     PageEvents
 } from '@/constant';
@@ -40,7 +41,8 @@ export default {
             "storeIncomingCallToken",
             "storeIsIncomingConversation",
             "storeBusinessToken",
-            "storeIncomingCallWsUrl"
+            "storeThirdData",
+            "storeIMToken"
         ]),
         src () {
             return `/hybrid/html/chat.html`;
@@ -55,44 +57,58 @@ export default {
 		}
     },
     onLoad () {
-        console.log('onLoad-onLoad');
     },
     onReady () {
         // uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         uni.$on('incoming_message_callback', this.incomingMessageCallback);
-        console.log('onReady-onReady');
     },
     onShow () {
-        setTimeout(() => {
-            console.log('onshow-onshow', this.storeIncomingCallWsUrl);
+        setTimeout(async() => {
             if (this.time !== this.storeIncomingCallCallTime) {
-                const selfUserInfo = {
-                    faceURL: this.storeSelfInfo.faceURL,
-                    nickname: this.storeSelfInfo.nickname,
+                const { groupID } = this.storeIncomingCallMessage;
+                let selfUserInfo = {};
+                if (groupID) {
+                    const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,IMSDK.uuid(), {
+                        groupID,
+                        userIDList: [this.storeUserID]
+                    });
+                    const usersInfo = data[0];
+                    selfUserInfo = {
+                        ...usersInfo
+                    }
+                } else {
+                    selfUserInfo = {
+                        ...this.storeSelfInfo
+                    }
                 }
                 const map = {
                     message: this.storeIncomingCallMessage,
                     isCallLoading: this.storeIsIncomingCallLoading,
                     isCallIng: this.storeIsIncomingCallIng,
                     isAnswer: this.storeIsAnswer,
-                    callUserInfo: this.storeIncomingCallUserInfo,
-                    selfUserInfo: selfUserInfo,
+                    callUserInfo: {
+                        ...this.storeIncomingCallUserInfo,
+                        bgColor: this.getBgColor(this.storeIncomingCallUserInfo.nickname)
+                    },
+                    selfUserInfo: {
+                        ...selfUserInfo,
+                        bgColor: this.getBgColor(selfUserInfo.nickname)
+                    },
                     token: this.storeIncomingCallToken,
-                    url: this.storeIncomingCallWsUrl
+                    url: this.storeThirdData?.livekit?.url,
+                    userID: this.storeUserID
                 }
+                console.log('-----------------mapmapmapmapmap', map);
+                console.log('-----------------storeSelfInfo', this.storeSelfInfo);
                 this.postMessage(`uniEvent(${JSON.stringify(map)})`);
             }
             this.time = this.storeIncomingCallCallTime;
-            console.log('onShow');
         }, 1000);
     },
     onUnload () {
-        console.log('onUnloadonUnload');
         uni.$off('incoming_message_callback', this.incomingMessageCallback);
     },
     onHide () {
-        console.log('onHideonHideonHide');
-		
         if(this.storeIsIncomingCallLoading) {
 			this.onSmall()
 		}
@@ -111,6 +127,42 @@ export default {
         stopMusic () {
             this.isStartMusic = false;
             uni.$emit('stop_audio', '/static/audio/incoming_call_music.mp3');
+        },
+        getBgColor (text) {
+            const hexColor = colors[getFirstCharacter(text || '未知')];
+            const rgbaColor = adjustColor(hexColor, 30);
+            return `radial-gradient(${hexColor}, ${rgbaColor})`;
+        },
+        async getCheckUsers(list) {
+            console.log('---getCheckUsers------getCheckUsers-', list);
+            try {
+                await this.inviteOrKick({
+                    type: 'invite',
+                    userIDs: list.map(user => user.userID)
+                });
+                this.postMessage(`toast(${JSON.stringify({
+                    message: '邀请成功'
+                })})`);
+            } catch (err) {
+                this.postMessage(`toast(${JSON.stringify({
+                    message: '邀请失败, 请重试'
+                })})`);
+            }
+        },
+        async inviteOrKick ({ type, userIDs }) {
+            const { data } = await uni.$u?.http.post('/video/signal_invite_or_kick_msg', JSON.stringify({
+                userIDs: userIDs,
+                roomName: this.idsGetConversationID(this.storeIncomingCallMessage),
+                type: this.storeIncomingCallMessage.type === 'audio' ? 130 : 131,
+                opType: type === 'invite' ? 1654 : 1655
+            }), {
+                custom: {
+                    isIMApi: true,
+                },
+                header: {
+                    token: this.storeIMToken,
+                }
+            });
         },
         async handlePostMessage (event) {
             const [data] = event.detail.data
@@ -132,6 +184,40 @@ export default {
                     sendTime: +new Date() + 3000
                 });
             }
+            if (data.type === 'invite') {
+                const groupMemberListMap = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetGroupMemberList,
+                    IMSDK.uuid(),
+                    {
+                        groupID: data.groupID,
+                        filter: 0,
+                        offset: 0,
+                        count: 500
+                    }
+                );
+                uni.navigateTo({
+                    url: `/pages/common/contactChoose/index?type=initWebrtc&showFriendList=${JSON.stringify(
+                        groupMemberListMap.data
+                    )}&disabledUserIDList=${JSON.stringify(
+                        data.disabledUserIDList
+                    )}`
+                });
+            }
+            if (data.type === 'kick') {
+                try {
+                    this.inviteOrKick({
+                        type: 'kick',
+                        userIDs: data.userIDs
+                    });
+                    this.postMessage(`toast(${JSON.stringify({
+                        message: '移出成功'
+                    })})`);
+                } catch(err) {
+                    this.postMessage(`toast(${JSON.stringify({
+                        message: '移出失败, 请重试'
+                    })})`);
+                }
+            }
             if(data.isSmall) {
                 // 缩小
                 this.onSmall()
@@ -150,17 +236,29 @@ export default {
         // 群聊场景，用户刚加入群聊
         async userJoinCalling(joinUserID) {
             if(!joinUserID) return;
-            console.log(joinUserID, ' 群聊场景，用户刚加入群聊()=======')
-
-            const usersInfo = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
-                [joinUserID]
-            );
-            if (usersInfo?.data) {
-                const [uData] = usersInfo.data;
-                const { faceURL, nickname, userID } = uData.publicInfo;
-                const map = { faceURL, nickname, userID, isGroupUserJoin: true }
+            const { groupID } = this.storeIncomingCallMessage;
+            let usersInfo = null;
+            if (groupID) {
+                const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,IMSDK.uuid(), {
+                    groupID,
+                    userIDList: [joinUserID]
+                });
+                usersInfo = data[0];
+            } else {
+                const { data } = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                    [joinUserID]
+                );
+                usersInfo = data[0]?.publicInfo;
+            }
+            
+            if (usersInfo) {
+                const map = {
+                    ...usersInfo,
+                    bgColor: this.getBgColor(usersInfo.nickname),
+                    isGroupUserJoin: true
+                }
+                console.log('uData.map------uData.map', map);
                 this.postMessage(`uniGroupUserJoinEvent(${JSON.stringify(map)})`);
-                console.log('加入群聊的用户，用户信息', uData);
             }
         },
         postMessage (str) {
@@ -190,7 +288,6 @@ export default {
             }
         },
         async incomingMessageCallback (data) {
-            console.log('incomingMessageCallback--incomingMessageCallback--incomingMessageCallback', data);
             const { customStatus } = data;
             const map = {
                 isInWebrtc: this.getIsInWebrtc(),
@@ -218,11 +315,10 @@ export default {
         async reject (map) {
             if(this.storeIsIncomingCallIng || map.customStatus || map.isDanger === 'fail') return;
             const { recvID, sendID, groupID, sessionType, customElem } = this.storeIncomingCallMessage;
-            console.log('recvID, sendIDrecvID, sendIDrecvID, sendID', recvID, sendID);
             if (sessionType === 3) return;
             if (this.storeIsAnswer) {
                 // 拒绝
-                uni.$u?.http.post('/video/single_chat_refused', JSON.stringify({
+                await uni.$u?.http.post('/video/single_chat_refused', JSON.stringify({
                     sendID,
                     conversationID: this.idsGetConversationID(this.storeIncomingCallMessage)
                 }), {
@@ -257,7 +353,6 @@ export default {
                     sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
                 });
             }
-            console.log('this.storeIncomingCallMessage');
             const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
                 recvID: recvID,
                 groupID: groupID,
@@ -270,7 +365,6 @@ export default {
                     iOSBadgeCount: true
                 }
             });
-            console.log('data', data);
             this.updateOneMessage({
                 message: data,
                 isSuccess: true,

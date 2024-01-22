@@ -1,10 +1,7 @@
 <template>
     <Page>
         <view class="page_container">
-            <CustomNavBar
-                title="我的信息"
-                is-bg-color2
-            />
+            <CustomNavBar title="我的信息" is-bg-color2 />
 
             <view class="info_wrap">
                 <SettingItem
@@ -48,11 +45,18 @@
                     :content="selfInfo.phoneNumber || '-'"
                 />
                 <SettingItem
+                    :loading="loadingState.isHiddenPhone"
+                    title="隐藏/显示手机号"
+                    :content="getIsHiddenPhone"
+                    show-arrow
+                    @click="updateIsHiddenPhone"
+                />
+                <SettingItem
                     :show-arrow="false"
                     title="邮箱"
                     :content="selfInfo.email || '-'"
                 />
-            <!-- <SettingItem
+                <!-- <SettingItem
                 title="二维码名片"
                 @click="toQrCode"
             >
@@ -70,10 +74,7 @@
                 @click="copyID"
             /> -->
             </view>
-            <view 
-                class="operation-btn error"
-                @click="handleAccountCancel"
-            >
+            <view class="operation-btn error" @click="handleAccountCancel">
                 注销账号
             </view>
 
@@ -104,24 +105,24 @@ export default {
     components: {
         CustomNavBar,
         MyAvatar,
-        SettingItem,
+        SettingItem
     },
-    data () {
+    data() {
         return {
             showDatePicker: false,
             loadingState: {
                 faceURL: false,
                 gender: false,
-                birth: false,
+                birth: false
             },
-            nowDate: Date.now(),
+            nowDate: Date.now()
         };
     },
     computed: {
-        selfInfo () {
+        selfInfo() {
             return this.$store.getters.storeSelfInfo;
         },
-        getGender () {
+        getGender() {
             if (this.selfInfo.gender === 0) {
                 return '保密';
             }
@@ -130,37 +131,59 @@ export default {
             }
             return '女';
         },
-        getBirth () {
+        getIsHiddenPhone() {
+            return this.selfInfo.isHiddenPhone === 1 ? '显示' : '隐藏';
+        },
+        getBirth() {
             const birth = this.selfInfo.birth;
             return birth ? dayjs(birth).format('YYYY-MM-DD') : '-';
-        },
+        }
     },
     methods: {
-        updateNickname () {
+        updateNickname() {
             uni.navigateTo({
-                url: `/pages/common/markOrIDPage/index?type=${CustomMarkType.SelfNickname}&sourceInfo=${JSON.stringify(
-                    this.selfInfo
-                )}`,
+                url: `/pages/common/markOrIDPage/index?type=${
+                    CustomMarkType.SelfNickname
+                }&sourceInfo=${JSON.stringify(this.selfInfo)}`
             });
         },
-        updateGender () {
+        updateGender() {
             uni.showActionSheet({
                 itemList: ['男', '女'],
                 success: async ({ tapIndex }) => {
                     this.loadingState.gender = true;
                     await this.updateSelfInfo(
-                        { gender: tapIndex + 1, },
+                        { gender: tapIndex + 1 },
                         'gender'
                     );
-                },
+                }
             });
         },
-        async updateAvatar () {
-            const permissions = await this.$store.dispatch('base/hasCameraPermissions');
+        updateIsHiddenPhone() {
+            uni.showActionSheet({
+                itemList: ['显示', '隐藏'],
+                success: async ({ tapIndex }) => {
+                    this.loadingState.isHiddenPhone = true;
+                    await this.updateSelfInfo(
+                        { isHiddenPhone: tapIndex + 1 },
+                        'isHiddenPhone'
+                    );
+                    this.$store.dispatch('user/getSelfInfo');
+                }
+            });
+        },
+        async updateAvatar() {
+            const permissions = await this.$store.dispatch(
+                'base/hasCameraPermissions'
+            );
             if (!permissions) return;
             uni.chooseImage({
                 count: 1,
                 sizeType: ['compressed'],
+                crop: {
+                    width: 200,
+                    height: 200
+                },
                 success: async ({ tempFilePaths }) => {
                     const path = tempFilePaths[0];
                     const nameIdx = path.lastIndexOf('/') + 1;
@@ -168,30 +191,29 @@ export default {
                     const fileName = path.slice(nameIdx);
                     const fileType = path.slice(typeIdx);
                     this.loadingState.faceURL = true;
-                    const { data: { url }, } = await IMSDK.asyncApi(
+                    const {
+                        data: { url }
+                    } = await IMSDK.asyncApi(
                         IMSDK.IMMethods.UploadFile,
                         IMSDK.uuid(),
                         {
                             filepath: getPurePath(tempFilePaths[0]),
                             name: fileName,
                             contentType: `image/${fileType}`,
-                            uuid: IMSDK.uuid(),
+                            uuid: IMSDK.uuid()
                         }
                     );
-                    this.updateSelfInfo(
-                        { faceURL: url, },
-                        'faceURL'
-                    );
+                    this.updateSelfInfo({ faceURL: url }, 'faceURL');
                     this.loadingState.faceURL = false;
-                },
+                }
             });
         },
-        toQrCode () {
+        toQrCode() {
             uni.navigateTo({
-                url: `/pages/common/userOrGroupQrCode/index`,
+                url: `/pages/common/userOrGroupQrCode/index`
             });
         },
-        copyID () {
+        copyID() {
             uni.setClipboardData({
                 data: this.selfInfo.userID,
                 success: () => {
@@ -199,14 +221,14 @@ export default {
                     this.$nextTick(() => {
                         uni.$u.toast('复制成功');
                     });
-                },
+                }
             });
         },
-        async updateSelfInfo (data, key) {
+        async updateSelfInfo(data, key) {
             try {
                 await businessInfoUpdate({
                     ...data,
-                    userID: this.selfInfo.userID,
+                    userID: this.selfInfo.userID
                 });
                 await this.$store.dispatch('user/updateBusinessInfo');
                 uni.$u.toast('修改成功');
@@ -216,21 +238,18 @@ export default {
             }
             this.loadingState[key] = false;
         },
-        confirmDate ({ value }) {
+        confirmDate({ value }) {
             this.loadingState.birth = true;
-            this.updateSelfInfo(
-                { birth: value, },
-                'birth'
-            );
+            this.updateSelfInfo({ birth: value }, 'birth');
             this.showDatePicker = false;
         },
-        handleAccountCancel () {
+        handleAccountCancel() {
             uni.$u.route('/pages/common/markOrIDPage/index', {
                 type: CustomMarkType.AccountCancel,
                 sourceInfo: JSON.stringify(this.selfInfo)
             });
         }
-    },
+    }
 };
 </script>
 

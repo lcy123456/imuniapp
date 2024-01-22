@@ -1,5 +1,5 @@
 // HTML 支持的数学符号
-function strNumDiscode (str) {
+function strNumDiscode(str) {
     str = str.replace(/&forall;|&#8704;|&#x2200;/g, '∀');
     str = str.replace(/&part;|&#8706;|&#x2202;/g, '∂');
     str = str.replace(/&exist;|&#8707;|&#x2203;/g, '∃');
@@ -41,7 +41,7 @@ function strNumDiscode (str) {
 }
 
 // HTML 支持的希腊字母
-function strGreeceDiscode (str) {
+function strGreeceDiscode(str) {
     str = str.replace(/&Alpha;|&#913;|&#x391;/g, 'Α');
     str = str.replace(/&Beta;|&#914;|&#x392;/g, 'Β');
     str = str.replace(/&Gamma;|&#915;|&#x393;/g, 'Γ');
@@ -99,8 +99,8 @@ function strGreeceDiscode (str) {
     return str;
 }
 
-function strcharacterDiscode (str) {
-// 加入常用解析
+function strcharacterDiscode(str) {
+    // 加入常用解析
 
     // str = str.replace(/&nbsp;|&#32;|&#x20;/g, "&nbsp;");
     // str = str.replace(/&ensp;|&#8194;|&#x2002;/g, '&ensp;');
@@ -115,18 +115,27 @@ function strcharacterDiscode (str) {
     // str = str.replace(/&lt;|&#60;|&#x3c;/g, '&lt;');
     // str = str.replace(/&gt;|&#62;|&#x3e;/g, '&gt;');
 
-
-
-
-    str = str.replace(/&nbsp;|&#32;|&#x20;/g, "<span class='spaceshow'> </span>");
-    str = str.replace(/&ensp;|&#8194;|&#x2002;/g, '<span class=\'spaceshow\'> </span>');
-    str = str.replace(/&#12288;|&#x3000;/g, '<span class=\'spaceshow\'>　</span>');
-    str = str.replace(/&emsp;|&#8195;|&#x2003;/g, '<span class=\'spaceshow\'> </span>');
-    str = str.replace(/&quot;|&#34;|&#x22;/g, "\"");
+    str = str.replace(
+        /&nbsp;|&#32;|&#x20;/g,
+        "<span class='spaceshow'> </span>"
+    );
+    str = str.replace(
+        /&ensp;|&#8194;|&#x2002;/g,
+        "<span class='spaceshow'> </span>"
+    );
+    str = str.replace(
+        /&#12288;|&#x3000;/g,
+        "<span class='spaceshow'>　</span>"
+    );
+    str = str.replace(
+        /&emsp;|&#8195;|&#x2003;/g,
+        "<span class='spaceshow'> </span>"
+    );
+    str = str.replace(/&quot;|&#34;|&#x22;/g, '"');
     str = str.replace(/&quot;|&#39;|&#x27;/g, "'");
-    str = str.replace(/&acute;|&#180;|&#xB4;/g, "´");
-    str = str.replace(/&times;|&#215;|&#xD7;/g, "×");
-    str = str.replace(/&divide;|&#247;|&#xF7;/g, "÷");
+    str = str.replace(/&acute;|&#180;|&#xB4;/g, '´');
+    str = str.replace(/&times;|&#215;|&#xD7;/g, '×');
+    str = str.replace(/&divide;|&#247;|&#xF7;/g, '÷');
     str = str.replace(/&amp;|&#38;|&#x26;/g, '&');
     str = str.replace(/&lt;|&#60;|&#x3c;/g, '<');
     str = str.replace(/&gt;|&#62;|&#x3e;/g, '>');
@@ -134,7 +143,7 @@ function strcharacterDiscode (str) {
 }
 
 // HTML 支持的其他实体
-function strOtherDiscode (str) {
+function strOtherDiscode(str) {
     str = str.replace(/&OElig;|&#338;|&#x152;/g, 'Œ');
     str = str.replace(/&oelig;|&#339;|&#x153;/g, 'œ');
     str = str.replace(/&Scaron;|&#352;|&#x160;/g, 'Š');
@@ -143,11 +152,26 @@ function strOtherDiscode (str) {
     str = str.replace(/&fnof;|&#402;|&#x192;/g, 'ƒ');
     str = str.replace(/&circ;|&#710;|&#x2c6;/g, 'ˆ');
     str = str.replace(/&tilde;|&#732;|&#x2dc;/g, '˜');
-    str = str.replace(/&thinsp;|$#8201;|&#x2009;/g, '<span class=\'spaceshow\'> </span>');
-    str = str.replace(/&zwnj;|&#8204;|&#x200C;/g, '<span class=\'spaceshow\'>‌</span>');
-    str = str.replace(/&zwj;|$#8205;|&#x200D;/g, '<span class=\'spaceshow\'>‍</span>');
-    str = str.replace(/&lrm;|$#8206;|&#x200E;/g, '<span class=\'spaceshow\'>‎</span>');
-    str = str.replace(/&rlm;|&#8207;|&#x200F;/g, '<span class=\'spaceshow\'>‏</span>');
+    str = str.replace(
+        /&thinsp;|$#8201;|&#x2009;/g,
+        "<span class='spaceshow'> </span>"
+    );
+    str = str.replace(
+        /&zwnj;|&#8204;|&#x200C;/g,
+        "<span class='spaceshow'>‌</span>"
+    );
+    str = str.replace(
+        /&zwj;|$#8205;|&#x200D;/g,
+        "<span class='spaceshow'>‍</span>"
+    );
+    str = str.replace(
+        /&lrm;|$#8206;|&#x200E;/g,
+        "<span class='spaceshow'>‎</span>"
+    );
+    str = str.replace(
+        /&rlm;|&#8207;|&#x200F;/g,
+        "<span class='spaceshow'>‏</span>"
+    );
     str = str.replace(/&ndash;|&#8211;|&#x2013;/g, '–');
     str = str.replace(/&mdash;|&#8212;|&#x2014;/g, '—');
     str = str.replace(/&lsquo;|&#8216;|&#x2018;/g, '‘');
@@ -186,7 +210,7 @@ function strOtherDiscode (str) {
     return str;
 }
 
-function strDiscode (str) {
+function strDiscode(str) {
     str = strNumDiscode(str);
     str = strGreeceDiscode(str);
     str = strcharacterDiscode(str);
@@ -194,7 +218,7 @@ function strDiscode (str) {
     return str;
 }
 
-function urlToHttpUrl (url, domain) {
+function urlToHttpUrl(url, domain) {
     if (/^\/\//.test(url)) {
         return `https:${url}`;
     } else if (/^\//.test(url)) {
@@ -205,5 +229,5 @@ function urlToHttpUrl (url, domain) {
 
 export default {
     strDiscode,
-    urlToHttpUrl,
+    urlToHttpUrl
 };

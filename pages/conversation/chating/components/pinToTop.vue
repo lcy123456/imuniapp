@@ -1,19 +1,16 @@
 <template>
-    <view
-        v-if="isShow && list.length"
-        class="pin-to-top-box"
-    >
+    <view v-if="isShow && list.length" class="pin-to-top-box">
         <view class="index-box">
             <view
                 v-for="(item, index) of list"
                 :key="item.id"
                 :class="['box', index === active ? 'active' : '']"
-                :style="{height: `calc(${100 / list.length * 0.7}rpx - 4rpx)`}"
+                :style="{
+                    height: `calc(${(100 / list.length) * 0.7}rpx - 4rpx)`
+                }"
             />
         </view>
-        <view
-            class="content"
-        >
+        <view class="content">
             <text>置顶消息</text>
             <scroll-view
                 class="scroll_view"
@@ -28,60 +25,39 @@
                     :key="item.id"
                     class="box"
                 >
-                    <text
-                        v-if="showTextRender(item)"
-                        class="text"
-                    >
+                    <text v-if="showTextRender(item)" class="text">
                         {{ html2Text(item.content) }}
                     </text>
-                    <view
-                        v-if="showMediaRender(item)"
-                        class="img-box"
-                    >
-                        <image
-                            :src="item.content"
-                        />
+                    <view v-if="showMediaRender(item)" class="img-box">
+                        <image :src="item.content" />
                     </view>
-                    <view
-                        v-if="showFileRender(item)"
-                        class="file-box"
-                    >
+                    <view v-if="showFileRender(item)" class="file-box">
                         <image
                             src="/static/images/chating_action_file.png"
                             class="content-img"
                         />
-                        <text
-                            class="text"
-                        >
+                        <text class="text">
                             {{ item.content }}
                         </text>
                     </view>
                 </view>
             </scroll-view>
-            <view
-                class="dialog"
-                @click="setTop"
-            />
+            <view class="dialog" @touchend.prevent="setTop" />
         </view>
         <image
             class="close"
             src="/static/images/close.png"
-            @click="isShow = false;"
+            @touchend.prevent="close"
         />
     </view>
 </template>
 
 <script>
 import { html2Text } from '@/util/common';
-import { 
-    TextRenderTypes,
-    MediaRenderTypes,
-    FileRenderTypes
-} from '@/constant';
+import { TextRenderTypes, MediaRenderTypes, FileRenderTypes } from '@/constant';
 export default {
     name: 'PinToTop',
-    components: {
-    },
+    components: {},
     props: {
         isReverse: {
             type: Boolean,
@@ -89,61 +65,64 @@ export default {
         },
         list: {
             type: Array,
-            default: () => ([])
+            default: () => []
         },
         conversationID: {
             type: String,
             default: ''
         }
     },
-    data () {
+    data() {
         return {
             active: 0,
             isShow: true,
             scrollIntoView: ''
         };
     },
-    computed: {
-    },
+    computed: {},
     watch: {
-        list () {
+        list() {
             this.init();
         }
     },
-    mounted () {
+    mounted() {
         setTimeout(() => {
             this.init();
         }, 10);
     },
     methods: {
         html2Text,
-        init () {
+        close() {
+            console.log(33443);
+            this.isShow = false;
+        },
+        init() {
             if (!this.list.length) return;
             this.active = this.list.length - 1;
-            const nextItem = this.list[this.active - 1] || this.list[this.list.length - 1];
+            const nextItem =
+                this.list[this.active - 1] || this.list[this.list.length - 1];
             this.scrollIntoView = 'pin' + nextItem.id;
         },
-        setTop () {
-            this.active = this.active !== 0 ? this.active - 1 : this.list.length - 1;
-            const item = this.list[this.active] || this.list[this.list.length - 1];
-            const nextItem = this.list[this.active - 1] || this.list[this.list.length - 1];
+        setTop() {
+            this.active =
+                this.active !== 0 ? this.active - 1 : this.list.length - 1;
+            const item =
+                this.list[this.active] || this.list[this.list.length - 1];
+            const nextItem =
+                this.list[this.active - 1] || this.list[this.list.length - 1];
             this.scrollIntoView = 'pin' + nextItem.id;
-            console.log('this.list---', this.list);
-            console.log('this.active---', this.active);
-            console.log('item---item', item);
-            console.log('this.scrollIntoView---', this.scrollIntoView);
             this.$emit('setPositionMsgID', item.clientMsgID, item.seq);
         },
-        showTextRender (item) {
+        showTextRender(item) {
             return TextRenderTypes.includes(item.contentType);
         },
-        showMediaRender (item) {
+        showMediaRender(item) {
             return MediaRenderTypes.includes(item.contentType);
         },
-        showFileRender (item) {
+        showFileRender(item) {
             return FileRenderTypes.includes(item.contentType);
         }
-    },
+    }
 };
 </script>
 
@@ -152,8 +131,8 @@ export default {
     width: 100%;
     margin: 0 auto;
     padding: 10rpx 20rpx;
-    color: #3981F8;
-    background: #F4FBFF;
+    color: #3981f8;
+    background: #f4fbff;
     font-size: 26rpx;
     border-radius: 23rpx;
     display: flex;

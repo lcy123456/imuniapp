@@ -13,12 +13,9 @@
                     <view
                         slot="icon"
                         class="custom_icon"
-                        :class="{'custom_icon_id':item.idx === 1}"
+                        :class="{ custom_icon_id: item.idx === 1 }"
                     >
-                        <image
-                            :src="item.icon"
-                            mode=""
-                        />
+                        <image :src="item.icon" mode="" />
                     </view>
                 </action-item>
             </view>
@@ -27,9 +24,7 @@
 </template>
 
 <script>
-import {
-    scanQrCodeResult
-} from '@/util/imCommon';
+import { scanQrCodeResult } from '@/util/imCommon';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import ActionItem from '../contactAdd/ActionItem.vue';
 export default {
@@ -37,27 +32,26 @@ export default {
         CustomNavBar,
         ActionItem
     },
-    data () {
+    data() {
         return {
-            joinGroupMenus: [{
-                idx: 0,
-                title: '扫码加入',
-                desc: '扫描二维码名片',
-                icon: require('static/images/switch_join_qr.png')
-            },
-            {
-                idx: 1,
-                title: '群ID号加入',
-                desc: '向管理员或团队成员询问ID',
-                icon: require('static/images/switch_join_id.png')
-            },
-            ],
+            joinGroupMenus: [
+                {
+                    idx: 0,
+                    title: '扫码加入',
+                    desc: '扫描二维码名片',
+                    icon: require('static/images/switch_join_qr.svg')
+                },
+                {
+                    idx: 1,
+                    title: '群ID号加入',
+                    desc: '向管理员或团队成员询问ID',
+                    icon: require('static/images/switch_join_id.svg')
+                }
+            ]
         };
     },
     methods: {
-        actionClick ({
-            idx
-        }) {
+        actionClick({ idx }) {
             if (idx) {
                 uni.navigateTo({
                     url: '/pages/common/searchUserOrGroup/index?isSearchGroup=true'
@@ -65,9 +59,7 @@ export default {
             } else {
                 uni.scanCode({
                     scanType: ['qrCode'],
-                    success: ({
-                        result
-                    }) => scanQrCodeResult(result)
+                    success: ({ result }) => scanQrCodeResult(result)
                 });
             }
         }
@@ -76,46 +68,46 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.switch_join_container {
-		height: 100vh;
-		background-color: #F8F8F8;
+.switch_join_container {
+    height: 100vh;
+    background-color: #f8f8f8;
 
-		.desc_title {
-			font-size: 24rpx;
-			color: #999;
-			padding: 24rpx 44rpx;
-		}
+    .desc_title {
+        font-size: 24rpx;
+        color: #999;
+        padding: 24rpx 44rpx;
+    }
 
-		.action_row {
-			background-color: #fff;
+    .action_row {
+        background-color: #fff;
 
-			.custom_icon {
-				@include centerBox();
-				width: 44px;
-				min-width: 44px;
-				height: 44px;
-				border-radius: 50%;
-				background-color: #5496EB;
+        .custom_icon {
+            @include centerBox();
+            width: 44px;
+            min-width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #5496eb;
 
-				image {
-					width: 20px;
-					height: 20px;
-				}
+            image {
+                width: 20px;
+                height: 20px;
+            }
 
-				&_id {
-					background-color: #FFC563;
-				}
-			}
+            &_id {
+                background-color: #ffc563;
+            }
+        }
 
-			/deep/ .action_item {
-				align-items: flex-start;
-			}
+        /deep/ .action_item {
+            align-items: flex-start;
+        }
 
-			.action_item:last-child {
-				.bottom_line {
-					height: 0;
-				}
-			}
-		}
-	}
+        .action_item:last-child {
+            .bottom_line {
+                height: 0;
+            }
+        }
+    }
+}
 </style>

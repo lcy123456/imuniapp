@@ -20,6 +20,12 @@
 					}" class="uni-swipe_button button-hock" @touchstart="appTouchStart"
 							@touchend="appTouchEnd($event,index,item,'left')"
 							@click.stop="onClickForPC(index,item,'left')">
+                            <u-icon v-if="item.icon" :name="item.icon"
+                                :color="item.style && item.style.color ? item.style.color : '#ffffff'"
+                                :size="item.iconSize ? $u.addUnit(item.iconSize) : item.style && item.style.fontSize ? $u.getPx(item.style.fontSize) * 1.2 : 17"
+                                :customStyle="{
+                                    marginRight: item.text ? '2px' : 0
+                                }"></u-icon>
 							<text class="uni-swipe_button-text"
 								:style="{color: item.style && item.style.color ? item.style.color : '#FFFFFF',fontSize: item.style && item.style.fontSize ? item.style.fontSize : '16px'}">{{ item.text }}</text>
 						</view>
@@ -34,7 +40,15 @@
 					  backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD'
 					}" class="uni-swipe_button button-hock" @touchstart="appTouchStart"
 							@touchend="appTouchEnd($event,index,item,'right')"
-							@click.stop="onClickForPC(index,item,'right')"><text class="uni-swipe_button-text"
+							@click.stop="onClickForPC(index,item,'right')">
+
+                            <u-icon v-if="item.icon" :name="item.icon"
+                                :color="item.style && item.style.color ? item.style.color : '#ffffff'"
+                                :size="item.iconSize ? $u.addUnit(item.iconSize) : item.style && item.style.fontSize ? $u.getPx(item.style.fontSize) * 1.2 : 17"
+                                :customStyle="{
+                                    marginRight: item.text ? '2px' : 0
+                                }"></u-icon>
+                            <text class="uni-swipe_button-text"
 								:style="{color: item.style && item.style.color ? item.style.color : '#FFFFFF',fontSize: item.style && item.style.fontSize ? item.style.fontSize : '16px'}">{{ item.text }}</text>
 						</view>
 					</slot>

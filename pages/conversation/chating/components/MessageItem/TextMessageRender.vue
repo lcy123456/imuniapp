@@ -1,6 +1,10 @@
 <template>
     <view
-        :class="['text_message_container', 'bg_container' , 'text_message_container_' + message.clientMsgID]"
+        :class="[
+            'text_message_container',
+            'bg_container',
+            'text_message_container_' + message.clientMsgID
+        ]"
         :message="message"
         :change:message="getMessage"
         :text="text"
@@ -14,8 +18,15 @@
             :content="getContent"
         /> -->
         <view v-html="getContent" />
+        <view
+            v-if="giveLike && giveLike.length && isShowLike"
+            class="give-like-box"
+        >
+            <MessageGiveLikeState :message="message" :is-sender="isSender" />
+            <view v-html="baseText"></view>
+        </view>
         <MessageReadState
-            v-if="isShowTime"
+            v-if="isShowTime && !onlyMessage"
             :id="`MessageReadState-${message.clientMsgID}`"
             class="read-content"
             :message="message"
@@ -25,16 +36,18 @@
 </template>
 
 <script>
-import { parseAt, parseEmoji, parseLink } from "@/util/imCommon";
-import { MessageType } from "openim-uniapp-polyfill";
+import { parseAt, parseEmoji, parseLink } from '@/util/imCommon';
+import { MessageType } from 'openim-uniapp-polyfill';
 import { DecryptoAES } from '@/util/crypto';
 import MessageReadState from './MessageReadState.vue';
+import MessageGiveLikeState from './MessageGiveLikeState.vue';
 import { SessionType } from 'openim-uniapp-polyfill';
 
 export default {
-    name: "TextMessageRender",
+    name: 'TextMessageRender',
     components: {
-        MessageReadState
+        MessageReadState,
+        MessageGiveLikeState
     },
     props: {
         message: {
@@ -60,17 +73,33 @@ export default {
         isQuote: {
             type: Boolean,
             default: false
+        },
+        onlyMessage: {
+            type: Boolean,
+            default: false
+        },
+        isShowLike: {
+            type: Boolean,
+            default: false
         }
     },
-    data () {
-        return {
-        };
+    data() {
+        return {};
     },
     computed: {
-        clientMsgID () {
+        giveLike() {
+            try {
+                const ex = JSON.parse(this.message.ex);
+                return ex.giveLike;
+            } catch (err) {
+                // console.log(err);
+            }
+            return [];
+        },
+        clientMsgID() {
             return this.message.clientMsgID;
         },
-        isEdit () {
+        isEdit() {
             try {
                 const ex = JSON.parse(this.message.ex);
                 return ex.type === 'edit';
@@ -78,15 +107,19 @@ export default {
                 return false;
             }
         },
-        isGroupRead () {
+        isGroupRead() {
             try {
-                return this.message.sessionType !== SessionType.Single && this.message.attachedInfoElem.groupHasReadInfo.hasReadCount;
+                return (
+                    this.message.sessionType !== SessionType.Single &&
+                    this.message.attachedInfoElem.groupHasReadInfo.hasReadCount
+                );
             } catch (err) {
                 return false;
             }
         },
-        text () {
-            const { contentType, quoteElem, atTextElem, textElem } = this.message;
+        text() {
+            const { contentType, quoteElem, atTextElem, textElem } =
+                this.message;
             let text = '';
             // TODO：解密文本
             if (contentType === MessageType.QuoteMessage) {
@@ -99,16 +132,18 @@ export default {
             text = text.replace(/\n/g, '<br>');
             return text;
         },
-        getContent () {
-            const { senderNickname } = this.message;
-            const baseText = !this.isQuote ? `
+        baseText() {
+            return !this.isQuote
+                ? `
             <view class="base-box hide-css">
                 <img
                     style="display: ${this.message.pinMap ? 'inherit' : 'none'}"
                     class="pined"
                     src="/static/images/pin2.png"
                 />
-                <div class="text read_state ${this.isSender ? 'isSender' : 'notisSender'} ${this.message.pinMap ? 'isPin' : ''}">
+                <div class="text read_state ${
+                    this.isSender ? 'isSender' : 'notisSender'
+                } ${this.message.pinMap ? 'isPin' : ''}">
                     <text
                         style="display: ${this.isEdit ? 'inline' : 'none'}"
                         class="edit"
@@ -122,25 +157,21 @@ export default {
                     class="read"
                     src="/static/images/message_issend.png"
                 />
-                <div
-                    style="display: ${this.isSender && this.isGroupRead ? 'inherit' : 'none'}"
-                    class="text"
-                >
-                    0人
-                </div>
             </view>
-            ` : ``;
+            `
+                : ``;
+        },
+        getContent() {
+            const { senderNickname } = this.message;
             let text = this.text;
             if (this.showNickname) {
                 text = senderNickname + '：' + text;
             }
-            return `${text}${baseText}`;
-        },
+            return `${text}${this.baseText}`;
+        }
     },
-    created () {
-    },
-    methods: {
-    }
+    mounted() {},
+    methods: {}
 };
 </script>
 
@@ -151,11 +182,13 @@ export default {
 .text_message_container {
     overflow: hidden;
     word-break: break-all;
-    display: flex;
     align-items: flex-end;
     user-select: none;
     -webkit-user-select: none;
     position: relative;
+}
+.give-like-box {
+    display: flex;
 }
 /deep/.read-content {
     position: absolute;
@@ -170,11 +203,11 @@ export default {
     .read_state {
         // font-size: 26rpx;
         font-size: 12px;
-        color: #43D100!important;
+        color: #43d100 !important;
         margin-left: 20rpx;
         min-width: 50rpx;
         &.notisSender {
-            color: #ccc!important;
+            color: #ccc !important;
         }
         &.isPin {
             margin-left: 0;
@@ -183,7 +216,7 @@ export default {
     .text {
         width: max-content;
         font-size: 12px;
-        color: #43D100!important;
+        color: #43d100 !important;
     }
     .read {
         width: 26rpx;

@@ -28,10 +28,7 @@
                         @itemClick="userClick"
                     />
                 </u-list-item>
-                <view
-                    v-show="loadState.loading"
-                    class="member_loading"
-                >
+                <view v-show="loadState.loading" class="member_loading">
                     <u-loading-icon />
                 </view>
             </u-list>
@@ -41,47 +38,47 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import IMSDK, { IMMethods, GroupMemberRole } from "openim-uniapp-polyfill";
+import IMSDK, { IMMethods, GroupMemberRole } from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
-import UserItem from "@/components/UserItem/index.vue";
+import UserItem from '@/components/UserItem/index.vue';
 
 export default {
     components: {
         CustomNavBar,
-        UserItem,
+        UserItem
     },
-    data () {
+    data() {
         return {
-            groupID: "",
+            groupID: '',
             selfInfo: {},
-            keyword: "",
+            keyword: '',
             groupMemberList: [],
             loadState: {
                 hasMore: true,
-                loading: false,
-            },
+                loading: false
+            }
         };
     },
     computed: {
         ...mapGetters(['storeCurrentUserID']),
-        isOwner () {
+        isOwner() {
             return this.selfInfo.roleLevel === GroupMemberRole.Owner;
         },
-        isAdmin () {
+        isAdmin() {
             return this.selfInfo.roleLevel === GroupMemberRole.Admin;
-        },
+        }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { groupID } = options;
         this.groupID = groupID;
         this.handleGetData(groupID);
     },
     methods: {
-        handleGetData () {
+        handleGetData() {
             this.getSelfInfoInGroup();
             this.getMemberList();
         },
-        async getSelfInfoInGroup () {
+        async getSelfInfoInGroup() {
             const { data } = await IMSDK.asyncApi(
                 IMMethods.GetSpecifiedGroupsInfo,
                 IMSDK.uuid(),
@@ -89,36 +86,40 @@ export default {
             );
             this.selfInfo = data[0];
         },
-        async getMemberList () {
+        async getMemberList() {
             try {
                 this.loadState.loading = true;
-                const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetGroupMemberList, IMSDK.uuid(), {
-                    groupID: this.groupID,
-                    filter: 0,
-                    offset: this.groupMemberList.length,
-                    count: 20,
-                });
+                const { data } = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetGroupMemberList,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.groupID,
+                        filter: 0,
+                        offset: this.groupMemberList.length,
+                        count: 20
+                    }
+                );
                 this.groupMemberList = [...this.groupMemberList, ...data];
                 this.loadState.hasMore = data.length === 20;
             } catch (err) {
                 console.log(err);
             }
-            
+
             this.loadState.loading = false;
         },
-        handleCancel () {
+        handleCancel() {
             uni.navigateBack();
         },
-        userClick (member) {
+        userClick(member) {
             let url = '/pages/common/userCard/index';
             if (this.storeCurrentUserID === member.userID) {
                 url = '/pages/profile/selfInfo/index';
             }
             uni.$u.route(url, {
-                sourceID: member.userID,
+                sourceID: member.userID
             });
         },
-        scrolltolower () {
+        scrolltolower() {
             if (this.loadState.hasMore && !this.loadState.loading) {
                 this.getMemberList();
             }
@@ -129,9 +130,8 @@ export default {
 
 <style lang="scss" scoped>
 .group_members_container {
-
-  .member_list {
-    flex: 1;
-  }
+    .member_list {
+        flex: 1;
+    }
 }
 </style>

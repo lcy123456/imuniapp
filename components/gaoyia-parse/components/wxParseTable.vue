@@ -14,33 +14,35 @@ export default {
     props: {
         node: {
             type: Object,
-            default () {
+            default() {
                 return {};
-            },
-        },
+            }
+        }
     },
-    data () {
+    data() {
         return {
             nodes: []
         };
     },
-    mounted () {
+    mounted() {
         this.nodes = this.loadNode([this.node]);
     },
     methods: {
-        loadNode (node) {
+        loadNode(node) {
             let obj = [];
             for (let children of node) {
                 if (children.node == 'element') {
                     let t = {
                         name: children.tag,
                         attrs: {
-                            class: children.classStr,
+                            class: children.classStr
                             // style: children.styleStr,
                         },
-                        children: children.nodes ? this.loadNode(children.nodes) : []
+                        children: children.nodes
+                            ? this.loadNode(children.nodes)
+                            : []
                     };
-					
+
                     obj.push(t);
                 } else if (children.node == 'text') {
                     obj.push({
@@ -55,5 +57,5 @@ export default {
 };
 </script>
 <style>
-	@import url("../parse.css");
+@import url('../parse.css');
 </style>

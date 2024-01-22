@@ -6,6 +6,8 @@
                 :message="message"
                 :is-success-message="isSuccessMessage"
                 :is-sender="isSender"
+                :only-message="onlyMessage"
+                :is-show-like="isShowLike"
             />
             <MediaMessageRender
                 v-if="showMediaRender"
@@ -34,8 +36,9 @@
             />
             <VoiceMessageRender
                 v-if="showVoiceMessageRender"
-                :message="message" 
+                :message="message"
                 :is-sender="isSender"
+                :only-message="onlyMessage"
             />
             <ErrorMessageRender
                 v-if="showErrorRender"
@@ -44,8 +47,11 @@
                 :is-sender="isSender"
             />
             <MessageReadState
-                v-if="showMediaRender || showFileRender || showMergeRender"
-                class="read-state"
+                v-if="
+                    (showMediaRender || showFileRender || showMergeRender) &&
+                    !onlyMessage
+                "
+                :class="['read-state', giveLike ? 'give-like' : '']"
                 :is-sender="isSender"
                 :message="message"
             />
@@ -53,14 +59,20 @@
                 v-if="getQuoteElem && getQuoteElem.quoteMessage"
                 :message="getQuoteElem.quoteMessage"
                 show-detail
-                @click.native="getPositionMsgID(getQuoteElem.quoteMessage)"
+                @click.native="setPositionMsgID(getQuoteElem.quoteMessage)"
             />
         </view>
+        <MessageGiveLikeState
+            v-if="!showTextRender && !onlyMessage"
+            :message="message"
+            :is-sender="isSender"
+        />
     </view>
 </template>
 
 <script>
 import { MessageType } from 'openim-uniapp-polyfill';
+import MessageGiveLikeState from './MessageGiveLikeState.vue';
 import TextMessageRender from './TextMessageRender.vue';
 import AudioVideoMessageRender from './AudioVideoMessageRender.vue';
 import MediaMessageRender from './MediaMessageRender.vue';
@@ -70,7 +82,7 @@ import VoiceMessageRender from './VoiceMessageRender.vue';
 import ErrorMessageRender from './ErrorMessageRender.vue';
 import MessageReadState from './MessageReadState.vue';
 import ChatQuote from '@/components/ChatQuote';
-import { 
+import {
     TextRenderTypes,
     MediaRenderTypes,
     FileRenderTypes,
@@ -78,7 +90,6 @@ import {
     AudioVideoRenderTypes
 } from '@/constant';
 import { AudioVideoType } from '@/enum';
-
 
 export default {
     components: {
@@ -90,17 +101,26 @@ export default {
         MergeMessageRender,
         VoiceMessageRender,
         ErrorMessageRender,
-        ChatQuote,
+        MessageGiveLikeState,
+        ChatQuote
     },
 
     props: {
         isMultipleMsg: {
             type: Boolean,
-            default: false,
+            default: false
         },
         message: {
             type: Object,
             default: () => ({})
+        },
+        onlyMessage: {
+            type: Boolean,
+            default: false
+        },
+        isShowLike: {
+            type: Boolean,
+            default: false
         },
         isSender: {
             type: Boolean,
@@ -112,13 +132,22 @@ export default {
         }
     },
 
-    data () {
+    data() {
         return {
             MessageType: Object.freeze(MessageType)
         };
     },
     computed: {
-        showAudioVideoRender () {
+        giveLike() {
+            try {
+                const ex = JSON.parse(this.message.ex);
+                return ex.giveLike;
+            } catch (err) {
+                // console.log(err);
+            }
+            return [];
+        },
+        showAudioVideoRender() {
             let data = {};
             try {
                 const customElemData = this.message.customElem.data;
@@ -127,32 +156,38 @@ export default {
                 // console.log('err---err', this.message);
                 return false;
             }
-            return AudioVideoRenderTypes.includes(this.message.contentType) && data.type && [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type);
+            return (
+                AudioVideoRenderTypes.includes(this.message.contentType) &&
+                data.type &&
+                [AudioVideoType.Video, AudioVideoType.Audio].includes(data.type)
+            );
         },
-        showErrorRender () {
-            return !this.showTextRender &&
+        showErrorRender() {
+            return (
+                !this.showTextRender &&
                 !this.showMediaRender &&
                 !this.showFileRender &&
                 !this.showMergeRender &&
                 !this.showAudioVideoRender &&
-                !this.showVoiceMessageRender;
+                !this.showVoiceMessageRender
+            );
         },
-        showVoiceMessageRender () {
+        showVoiceMessageRender() {
             return this.message.contentType === MessageType.VoiceMessage;
         },
-        showTextRender () {
+        showTextRender() {
             return TextRenderTypes.includes(this.message.contentType);
         },
-        showMediaRender () {
+        showMediaRender() {
             return MediaRenderTypes.includes(this.message.contentType);
         },
-        showFileRender () {
+        showFileRender() {
             return FileRenderTypes.includes(this.message.contentType);
         },
-        showMergeRender () {
+        showMergeRender() {
             return MergeRenderTypes.includes(this.message.contentType);
         },
-        getQuoteElem () {
+        getQuoteElem() {
             if (this.message.contentType === MessageType.QuoteMessage) {
                 return this.message.quoteElem;
             }
@@ -163,15 +198,13 @@ export default {
         }
     },
 
-    mounted () {
-        
-    },
+    mounted() {},
 
     methods: {
-        getPositionMsgID (message) {
-            uni.$emit('getPositionMsgID', message.clientMsgID);
-        },
-    },
+        setPositionMsgID(message) {
+            uni.$emit('setPositionMsgID', message.clientMsgID);
+        }
+    }
 };
 </script>
 
@@ -192,6 +225,11 @@ export default {
         position: absolute;
         right: 20rpx;
         bottom: 10rpx;
+        border-radius: 30rpx;
+        background: rgba(0, 0, 0, 0.3);
+        /deep/ uni-text {
+            color: #fff !important;
+        }
     }
     .bg_container {
         box-sizing: border-box;

@@ -4,10 +4,7 @@
         @touchstart="onTouchstart($event)"
         @touchend="onTouchend($event)"
     >
-        <view
-            class="content"
-            @click="clickConversationItem"
-        >
+        <view class="content" @click="clickConversationItem">
             <MyAvatar
                 :is-group="isGroup"
                 :is-notify="isNotify"
@@ -24,7 +21,7 @@
                         v-if="messagePrefix"
                         class="lastest_msg_prefix"
                         :class="{
-                            lastest_msg_prefix_active: needActivePerfix,
+                            lastest_msg_prefix_active: needActivePerfix
                         }"
                     >
                         {{ messagePrefix }}
@@ -44,19 +41,15 @@ import IMSDK, {
     GroupAtType,
     MessageType,
     MessageReceiveOptType,
-    SessionType,
+    SessionType
 } from 'openim-uniapp-polyfill';
 import { html2Text } from '@/util/common';
 import {
     parseMessageByType,
     formatConversionTime,
-    prepareConversationState,
+    prepareConversationState
 } from '@/util/imCommon';
-import { 
-    TextRenderTypes,
-    MediaRenderTypes,
-    FileRenderTypes,
-} from '@/constant';
+import { TextRenderTypes, MediaRenderTypes, FileRenderTypes } from '@/constant';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -70,18 +63,16 @@ export default {
             default: () => ({})
         }
     },
-    data () {
+    data() {
         return {
             MessageType: Object.freeze(MessageType),
             startPageY: 0
         };
     },
-    
+
     computed: {
-        ...mapGetters([
-            'storeIsShowTip'
-        ]),
-        messagePrefix () {
+        ...mapGetters(['storeIsShowTip']),
+        messagePrefix() {
             if (this.source.draftText !== '') {
                 // let text = this.source.draftText;
                 return '[草稿]';
@@ -91,29 +82,26 @@ export default {
             if (this.notAccept && this.source.unreadCount > 0) {
                 prefix = `[${this.source.unreadCount}条] `;
             }
-            if (this.source.groupID === '8635312407') {
-                console.log('needActivePerfix-needActivePerfix', this.source, this.source.groupAtType, GroupAtType.AtNormal);
-            }
             if (this.needActivePerfix) {
                 switch (this.source.groupAtType) {
-                case GroupAtType.AtAll:
-                    prefix = '[所有人]';
-                    break;
-                case GroupAtType.AtMe:
-                    prefix = '[有人@你]';
-                    break;
-                case GroupAtType.AtAllAtMe:
-                    prefix = '[有人@你]';
-                    break;
-                case GroupAtType.AtGroupNotice:
-                    prefix = '[群公告]';
-                    break;
+                    case GroupAtType.AtAll:
+                        prefix = '[所有人]';
+                        break;
+                    case GroupAtType.AtMe:
+                        prefix = '[有人@你]';
+                        break;
+                    case GroupAtType.AtAllAtMe:
+                        prefix = '[有人@你]';
+                        break;
+                    case GroupAtType.AtGroupNotice:
+                        prefix = '[群公告]';
+                        break;
                 }
             }
 
             return prefix;
         },
-        latestMessage () {
+        latestMessage() {
             if (this.source.latestMsg === '') return '';
             let parsedMessage;
             try {
@@ -124,26 +112,26 @@ export default {
             if (!parsedMessage) return '';
             return parseMessageByType(parsedMessage);
         },
-        needActivePerfix () {
+        needActivePerfix() {
             return this.source.groupAtType !== GroupAtType.AtNormal;
         },
-        latestMessageTime () {
+        latestMessageTime() {
             return this.source.latestMsgSendTime
                 ? formatConversionTime(this.source.latestMsgSendTime)
                 : '';
         },
-        notAccept () {
+        notAccept() {
             return this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
         },
-        isGroup () {
+        isGroup() {
             return this.source.conversationType === SessionType.WorkingGroup;
         },
-        isNotify () {
+        isNotify() {
             return this.source.conversationType === SessionType.Notification;
-        },
+        }
     },
     watch: {
-        storeIsShowTip () {
+        storeIsShowTip() {
             if (this.storeIsShowTip) {
                 clearTimeout(this.timer);
                 this.timer = setTimeout(() => {
@@ -154,27 +142,27 @@ export default {
     },
     methods: {
         html2Text,
-        hide () {
+        hide() {
             this.$store.commit('base/SET_TIP_STATUS', false);
         },
-        clickConversationItem () {
+        clickConversationItem() {
             this.hide();
             prepareConversationState(this.source);
         },
-        onTouchstart (event) {
+        onTouchstart(event) {
             const [touches] = event.touches;
-            const {pageY} = touches;
+            const { pageY } = touches;
             this.startPageY = pageY;
         },
-        onTouchend (event) {
+        onTouchend(event) {
             const [touches] = event.changedTouches;
-            const {pageY} = touches;
+            const { pageY } = touches;
             const moveY = this.startPageY - pageY;
             if (moveY > 45) {
                 this.hide();
             }
         }
-    },
+    }
 };
 </script>
 
@@ -191,15 +179,15 @@ export default {
     z-index: 999999;
     box-shadow: 5px 2px 2px 0px rgba(0, 0, 0, 0.2);
     &.show {
-        top: 150rpx!important;
+        top: 150rpx !important;
     }
     &.hide {
-        top: -300rpx!important;
+        top: -300rpx !important;
     }
     .content {
         display: flex;
         align-items: center;
-        
+
         /deep/.u-avatar {
             border-radius: 30rpx;
             overflow: hidden;

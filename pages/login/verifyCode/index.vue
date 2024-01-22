@@ -1,13 +1,9 @@
 <template>
     <view class="verify_code">
         <CustomNavBar />
-        <view class="fz-50 mt-100 ff-bold">
-            请输入您的验证码
-        </view>
+        <view class="fz-50 mt-100 ff-bold"> 请输入您的验证码 </view>
         <view class="mb-128">
-            <text class="text-grey">
-                验证码已发送至
-            </text>
+            <text class="text-grey"> 验证码已发送至 </text>
             <text class="primary">
                 {{ `+${userInfo.areaCode} ${userInfo.phoneNumber}` }}
             </text>
@@ -47,49 +43,49 @@ export default {
         CustomNavBar,
         CodeNot
     },
-    data () {
+    data() {
         return {
             codeValue: '',
             count: 60,
             userInfo: {
                 phoneNumber: '',
-                areaCode: '',
+                areaCode: ''
             },
             usedFor: 0
         };
     },
     computed: {
-        isRegister () {
+        isRegister() {
             return SmsUserFor.Register === this.usedFor;
-        },
+        }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { userInfo, usedFor } = options;
         this.userInfo = JSON.parse(userInfo);
         this.usedFor = Number(usedFor);
         this.startCount();
     },
-    onReady () {},
+    onReady() {},
     methods: {
-        async checkCode (value) {
+        async checkCode(value) {
             const options = {
                 phoneNumber: this.userInfo.phoneNumber,
                 areaCode: `+${this.userInfo.areaCode}`,
                 usedFor: SmsUserFor.Register,
-                verifyCode: value,
+                verifyCode: value
             };
             try {
                 await businessVerifyCode(options);
                 uni.$u.route('/pages/login/setPassword/index', {
                     userInfo: JSON.stringify(this.userInfo),
                     codeValue: this.codeValue,
-                    usedFor: this.usedFor,
+                    usedFor: this.usedFor
                 });
             } catch (err) {
                 uni.$u.toast(checkLoginError(err));
             }
         },
-        startCount () {
+        startCount() {
             timer = setInterval(() => {
                 if (this.count > 0) {
                     this.count--;
@@ -98,12 +94,12 @@ export default {
                 }
             }, 1000);
         },
-        async getCodeAgain () {
+        async getCodeAgain() {
             if (this.count === 0) {
                 const options = {
                     phoneNumber: this.userInfo.phoneNumber,
                     areaCode: `+${this.userInfo.areaCode}`,
-                    usedFor: SmsUserFor.Register,
+                    usedFor: SmsUserFor.Register
                 };
                 try {
                     await businessSendSms(options);
@@ -114,8 +110,8 @@ export default {
                     uni.$u.toast('验证码发送失败');
                 }
             }
-        },
-    },
+        }
+    }
 };
 </script>
 <style lang="scss" scoped>

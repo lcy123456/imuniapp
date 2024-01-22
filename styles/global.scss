@@ -282,3 +282,12 @@ image {
 .u-popup__content {
 	overflow: hidden;
 }
+.base-count {
+    background: red;
+    color: #fff;
+    border-radius: 30rpx;
+    padding: 5rpx 10rpx;
+    font-size: 24rpx;
+    min-width: 40rpx;
+    text-align: center;
+}

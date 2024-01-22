@@ -1,8 +1,5 @@
 <template>
-    <view
-        class="merge_message_container bg_container"
-        @click="clickMergeItem"
-    >
+    <view class="merge_message_container bg_container" @click="clickMergeItem">
         <view class="ff-bold">
             {{ message.mergeElem.title }}
         </view>
@@ -11,18 +8,11 @@
             :key="v.clientMsgID"
             class="flex fz-28"
         >
-            <text class="name_box">
-                {{ v.senderNickname }}：
-            </text>
-            <ChatQuote
-                :message="v"
-                origin-type="merge_record"
-            />
+            <text class="name_box"> {{ v.senderNickname }}： </text>
+            <ChatQuote :message="v" origin-type="merge_record" />
         </view>
-        <view class="record_box">
-            聊天记录
-        </view>
-    </view> 
+        <view class="record_box"> 聊天记录 </view>
+    </view>
 </template>
 
 <script>
@@ -30,7 +20,7 @@ import ChatQuote from '@/components/ChatQuote';
 
 export default {
     components: {
-        ChatQuote,
+        ChatQuote
     },
 
     props: {
@@ -39,27 +29,24 @@ export default {
             default: () => ({})
         }
     },
-    data () {
-        return {
-            
-        };
+    data() {
+        return {};
     },
     computed: {
-        multiMessage () {
+        multiMessage() {
             return this.message.mergeElem.multiMessage;
         }
     },
 
-    mounted () {
-    },
+    mounted() {},
 
     methods: {
-        clickMergeItem () {
+        clickMergeItem() {
             uni.$u.route('/pages/conversation/previewMerge/index', {
                 message: encodeURIComponent(JSON.stringify(this.message))
             });
         }
-    },
+    }
 };
 </script>
 
@@ -73,7 +60,7 @@ export default {
         max-width: 200rpx;
         @include nomalEllipsis();
     }
-    
+
     .record_box {
         font-size: 24rpx;
         margin: 10rpx 0 -10rpx 0;

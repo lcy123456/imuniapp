@@ -1,10 +1,7 @@
 <template>
     <Page>
         <view class="contact_choose_container">
-            <CustomNavBar
-                title="选择成员"
-                is-bg-color2
-            />
+            <CustomNavBar title="选择成员" is-bg-color2 />
 
             <view class="search_box">
                 <MyAvatar
@@ -29,6 +26,7 @@
                 </uni-search-bar>
             </view>
             <ChooseIndexList
+                v-if="showFriendList.dataList"
                 class="bg-color"
                 :index-list="showFriendList.indexList"
                 :item-arr="showFriendList.dataList"
@@ -55,9 +53,8 @@
 import { mapGetters } from 'vuex';
 import { ContactChooseTypes } from '@/constant';
 import { formatChooseData } from '@/util/common';
-import IMSDK, {
-    SessionType,
-} from 'openim-uniapp-polyfill';
+import { businessSearchUserInfo } from '@/api/login';
+import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import ChooseIndexList from '@/components/ChooseIndexList/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
@@ -66,9 +63,9 @@ export default {
     components: {
         CustomNavBar,
         MyAvatar,
-        ChooseIndexList,
+        ChooseIndexList
     },
-    data () {
+    data() {
         return {
             SessionType: Object.freeze(SessionType),
             keyword: '',
@@ -77,69 +74,127 @@ export default {
             groupID: '',
             checkFriendList: [],
             disabledUserIDList: [],
+            showFriendList: {},
+            friendList: []
         };
     },
     computed: {
         ...mapGetters(['storeFriendList']),
-        showFriendList () {
-            const newList = this.storeFriendList.filter(
-                (friend) =>
-                    friend.nickname.includes(this.keyword) ||
-                    friend.remark.includes(this.keyword)
-            );
-            return formatChooseData(newList);
+        // showFriendList () {
+        //     const newList = this.storeFriendList.filter(
+        //         (friend) =>
+        //             friend.nickname.includes(this.keyword) ||
+        //             friend.remark.includes(this.keyword)
+        //     );
+        //     return formatChooseData(newList);
+        // },
+        checkUserIDList() {
+            return this.checkFriendList.map(v => v.userID);
         },
-        checkUserIDList () {
-            return this.checkFriendList.map((v) => v.userID);
-        },
-        showCheckFriendList () {
+        showCheckFriendList() {
             return this.checkFriendList.slice(-6);
         }
     },
-    onLoad (options) {
-        const { type, groupID, checkUserIDList } = options;
+    watch: {
+        async keyword() {
+            if (this.keyword) {
+                uni.$u.throttle(() => this.businessSearchUserInfo(), 200);
+            } else {
+                this.showFriendList = formatChooseData(this.friendList);
+            }
+        }
+    },
+    onLoad(options) {
+        const {
+            type,
+            groupID,
+            checkUserIDList,
+            showFriendList,
+            disabledUserIDList
+        } = options;
         this.type = type;
         this.groupID = groupID;
+        this.disabledUserIDList = disabledUserIDList
+            ? JSON.parse(disabledUserIDList)
+            : [];
+        this.friendList = showFriendList
+            ? JSON.parse(showFriendList)
+            : this.storeFriendList;
         const userIdList = checkUserIDList ? JSON.parse(checkUserIDList) : [];
-        this.checkFriendList = this.storeFriendList.filter(v => userIdList.includes(v.userID));
+        this.checkFriendList = this.friendList.filter(v =>
+            userIdList.includes(v.userID)
+        );
+        this.showFriendList = formatChooseData(this.friendList);
         if (this.type === ContactChooseTypes.Invite) {
             this.checkDisabledUser();
         }
     },
     methods: {
-        checkDisabledUser () {
-            const friendIDList = this.storeFriendList.map(
-                (friend) => friend.userID
+        async businessSearchUserInfo() {
+            const pagination = { pageNumber: 1, showNumber: 20 };
+            const { total, users } = await businessSearchUserInfo(
+                this.keyword,
+                pagination
             );
+            if (total > 0) {
+                const { data } = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetUsersInfo,
+                    IMSDK.uuid(),
+                    users.map(user => user.userID)
+                );
+                this.showFriendList = formatChooseData(
+                    data.map(item => item.friendInfo ?? item.publicInfo ?? {})
+                );
+            }
+        },
+        checkDisabledUser() {
+            const friendIDList = this.friendList.map(friend => friend.userID);
             IMSDK.asyncApi(
                 IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,
                 IMSDK.uuid(),
                 {
                     groupID: this.groupID,
-                    userIDList: friendIDList,
+                    userIDList: friendIDList
                 }
             ).then(({ data }) => {
-                this.disabledUserIDList = data.map((member) => member.userID);
+                const friendList = data;
+                IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetGroupMemberList,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.groupID,
+                        filter: 0,
+                        offset: 0,
+                        count: 500
+                    }
+                ).then(({ data }) => {
+                    // this.groupMemberList = [...memberList];
+                    this.disabledUserIDList = data
+                        .concat(friendList)
+                        .map(member => member.userID);
+                });
             });
         },
-        updateCheckedUser (val) {
-            const idx = this.checkFriendList.findIndex(v => v.userID === val.userID);
+        updateCheckedUser(val) {
+            const idx = this.checkFriendList.findIndex(
+                v => v.userID === val.userID
+            );
             if (idx > -1) {
                 this.checkFriendList.splice(idx, 1);
             } else {
                 this.checkFriendList.push(val);
             }
         },
-        confirm () {
+        confirm() {
             let pages = getCurrentPages();
             let prevPage = pages[pages.length - 2];
-            prevPage.$vm.getCheckUsers(this.checkFriendList);
+            prevPage.$vm.getCheckUsers(this.checkFriendList, this.type);
 
             uni.navigateBack({
-                delta: 1,
+                delta: 1
             });
-        },
-    },
+        }
+    }
 };
 </script>
 

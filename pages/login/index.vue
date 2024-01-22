@@ -2,18 +2,9 @@
     <view class="page_container">
         <view class="login">
             <view class="navbar-height-all" />
-            <view
-                class="box-logo"
-                @click="chooseDomain"
-            >
-                <image
-                    class="logo w-130 h-120"
-                    src="/static/images/logo@2x.png"
-                />
-                <image
-                    class="w-249 h-37"
-                    src="/static/images/logo_name.png"
-                />
+            <view class="box-logo" @click="chooseDomain">
+                <image class="logo w-130 h-120" src="/static/images/logo.png" />
+                <image class="w-249 h-37" src="/static/images/logo_name.png" />
             </view>
             <u-form
                 ref="loginForm"
@@ -23,12 +14,9 @@
                 label-width="0"
             >
                 <u-form-item prop="phoneNumber">
-                    <view
-                        class="phoneNumber_areacode"
-                        @click="showPicker"
-                    >
+                    <view class="phoneNumber_areacode" @click="showPicker">
                         <u--image
-                            src="/static/images/logo@2x.png"
+                            src="/static/images/logo.png"
                             width="58rpx"
                             height="58rpx"
                             shape="circle"
@@ -37,10 +25,7 @@
                         <text class="areacode_content">
                             +{{ loginInfo.areaCode }}
                         </text>
-                        <u-icon
-                            class="arrow_down"
-                            name="arrow-down"
-                        />
+                        <u-icon class="arrow_down" name="arrow-down" />
                     </view>
                     <u-input
                         v-model="loginInfo.phoneNumber"
@@ -90,36 +75,32 @@
                 </u-checkbox-group>
                 <text
                     class="detail"
-                    @click="handleGoToPolicy('/pages/login/servicePolicy/index')"
+                    @click="
+                        handleGoToPolicy('/pages/login/servicePolicy/index')
+                    "
                 >
                     服务协议
                 </text>
                 <text>与</text>
                 <text
                     class="detail"
-                    @click="handleGoToPolicy('/pages/login/privacyPolicy/index')"
+                    @click="
+                        handleGoToPolicy('/pages/login/privacyPolicy/index')
+                    "
                 >
                     隐私政策
                 </text>
             </view>
 
-            <AreaPicker
-                ref="AreaPicker"
-                @chooseArea="chooseArea"
-            />
+            <AreaPicker ref="AreaPicker" @chooseArea="chooseArea" />
         </view>
 
         <view class="action_bar">
-            <text
-                class="primary"
-                @click="toRegisterOrForget(SmsUserFor.Reset)"
-            >
+            <text class="primary" @click="toRegisterOrForget(SmsUserFor.Reset)">
                 忘记密码
             </text>
             <view class="mt-43">
-                <text class="text-grey">
-                    没有账号？
-                </text>
+                <text class="text-grey"> 没有账号？ </text>
                 <text
                     class="primary"
                     @click="toRegisterOrForget(SmsUserFor.Register)"
@@ -143,17 +124,17 @@ let timer;
 
 export default {
     components: {
-        AreaPicker,
+        AreaPicker
     },
-    data () {
+    data() {
         return {
             SmsUserFor,
             domainCount: 0,
             loginInfo: {
                 phoneNumber: '',
                 password: '',
-                areaCode: '86',
-                verificationCode: undefined,
+                areaCode: '1',
+                verificationCode: undefined
             },
             checked: [true],
             eying: false,
@@ -164,47 +145,46 @@ export default {
                         type: 'string',
                         required: true,
                         message: '密码不能为空',
-                        trigger: ['blur', 'change'],
-                    },
+                        trigger: ['blur', 'change']
+                    }
                 ],
                 phoneNumber: [
                     {
                         type: 'string',
                         required: true,
                         message: '手机号码不能为空',
-                        trigger: ['blur', 'change'],
-                    },
-                ],
-            },
+                        trigger: ['blur', 'change']
+                    }
+                ]
+            }
         };
     },
     computed: {
         ...mapGetters(['storeClientID', 'storeIsProd']),
-        canLogin () {
+        canLogin() {
             return (
                 this.checked[0] &&
                 this.loginInfo.phoneNumber &&
                 this.loginInfo.password
             );
-        },
+        }
     },
-    onLoad () {
+    onLoad() {
         this.init();
     },
     methods: {
         ...mapMutations('user', ['SET_IS_PROD']),
-        init () {
+        init() {
             // if (process.env.NODE_ENV === 'development') {
             this.loginInfo.phoneNumber =
-				uni.getStorageSync('lastPhoneNumber') || '';
-            this.loginInfo.areaCode =
-				uni.getStorageSync('lastAreaCode') || '86';
+                uni.getStorageSync('lastPhoneNumber') || '';
+            this.loginInfo.areaCode = uni.getStorageSync('lastAreaCode') || '1';
             // } else {
             //     this.loginInfo.phoneNumber = '';
             //     this.loginInfo.password = '';
             // }
         },
-        chooseDomain () {
+        chooseDomain() {
             this.domainCount = this.domainCount + 1;
             clearTimeout(timer);
             if (this.domainCount === 20) {
@@ -215,10 +195,10 @@ export default {
                 this.domainCount = 0;
             }, 2000);
         },
-        updateEye () {
+        updateEye() {
             this.eying = !this.eying;
         },
-        async startLogin () {
+        async startLogin() {
             this.$refs.loginForm.validate().then(async () => {
                 try {
                     this.loading = true;
@@ -243,26 +223,25 @@ export default {
                 }
             });
         },
-        saveLoginInfo () {
+        saveLoginInfo() {
             uni.setStorageSync('lastPhoneNumber', this.loginInfo.phoneNumber);
             uni.setStorageSync('lastAreaCode', this.loginInfo.areaCode);
         },
-        showPicker () {
+        showPicker() {
             this.$refs.AreaPicker.init();
         },
-        chooseArea (areaCode) {
+        chooseArea(areaCode) {
             this.loginInfo.areaCode = areaCode;
         },
-        toRegisterOrForget (val) {
+        toRegisterOrForget(val) {
             uni.$u.route('/pages/login/registerOrForget/index', {
                 usedFor: val
             });
         },
-        handleGoToPolicy (url) {
-            console.log((url));
+        handleGoToPolicy(url) {
             uni.$u.route(url);
         }
-    },
+    }
 };
 </script>
 <style lang="scss" scoped>
@@ -274,7 +253,6 @@ export default {
         padding: 0 30rpx 0;
 
         .loginForm {
-
             .eye {
                 .image {
                     width: 44rpx;
@@ -297,7 +275,7 @@ export default {
 
     .action_bar {
         display: flex;
-		flex-direction: column;
+        flex-direction: column;
         align-items: center;
         margin-bottom: 96rpx;
         font-size: 30rpx;

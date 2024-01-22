@@ -10,5 +10,5 @@ export const PageEvents = {
     CheckForUpdate: 'CheckForUpdate',
     CheckForUpdateResp: 'CheckForUpdateResp',
     NativeCallEnd: 'NativeCallEnd',
-    ClickPushMessage: 'ClickPushMessage',
+    ClickPushMessage: 'ClickPushMessage'
 };

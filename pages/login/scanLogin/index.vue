@@ -1,54 +1,63 @@
 <template>
     <view class="scan-login">
         <view class="top">
-            <image
-                src="/static/images/scan-login-icon.png"
-            />
-            <text>登录WEB端</text>
+            <image src="/static/images/scan-login-icon.png" />
+            <text
+                >{{ platformID ? '' : '登录'
+                }}{{ PlatformMap[platformID] || '客户' }}端</text
+            >
         </view>
-        <view class="btns">
-            <view
-                class="submit"
-                @click="accountScan"
-            >
-                登录
-            </view>
-            <view
-                class="cancel"
-                @click="back"
-            >
-                取消登录
-            </view>
+        <view v-if="platformID" class="btns">
+            <view class="submit" @click="authForceLogout"> 退出登录 </view>
+            <view class="cancel" @click="back"> 取消 </view>
+        </view>
+        <view v-else class="btns">
+            <view class="submit" @click="accountScan"> 登录 </view>
+            <view class="cancel" @click="back"> 取消登录 </view>
         </view>
     </view>
 </template>
 
 <script>
-
 import { accountScan } from '@/api/login';
+import { authForceLogout } from '@/api/login';
+import { PlatformMap } from '@/enum';
 export default {
-    components: {
-    },
-    data () {
+    components: {},
+    data() {
         return {
+            platformID: '',
+            code: '',
+            PlatformMap
         };
     },
-    computed: {
-    },
-    onLoad (options) {
+    computed: {},
+    onLoad(options) {
         this.code = options.code;
+        this.platformID = Number(options.platformID);
     },
     methods: {
-        async accountScan () {
+        async accountScan() {
             await accountScan({
                 code: this.code
             });
             this.back();
         },
-        back () {
+        async authForceLogout() {
+            try {
+                await authForceLogout({
+                    platformID: this.platformID,
+                    userID: this.$store.state.user.selfInfo.userID
+                });
+                this.back();
+            } catch (err) {
+                uni.$u.toast('网络异常请重试');
+            }
+        },
+        back() {
             uni.navigateBack();
         }
-    },
+    }
 };
 </script>
 <style lang="scss" scoped>
@@ -57,7 +66,7 @@ export default {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    
+
     .top {
         uni-image {
             display: block;

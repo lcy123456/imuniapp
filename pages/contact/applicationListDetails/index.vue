@@ -26,61 +26,61 @@ export default {
         CustomNavBar,
         ApplicationItem
     },
-    data () {
+    data() {
         return {
             isGroupApplication: false,
-            isRecv: false,
+            isRecv: false
         };
     },
     computed: {
-        getRenderData () {
-            let getterKey = this.isRecv ? 'storeRecvFriendApplications' : 'storeSentFriendApplications';
+        getRenderData() {
+            let getterKey = this.isRecv
+                ? 'storeRecvFriendApplications'
+                : 'storeSentFriendApplications';
             if (this.isGroupApplication) {
-                getterKey = this.isRecv ? 'storeRecvGroupApplications' : 'storeSentGroupApplications';
+                getterKey = this.isRecv
+                    ? 'storeRecvGroupApplications'
+                    : 'storeSentGroupApplications';
             }
-            return [...this.$store.getters[getterKey]].sort((a, b) => (a.handleResult === 0 ? -1 : 1));
+            return [...this.$store.getters[getterKey]].sort((a, b) =>
+                a.handleResult === 0 ? -1 : 1
+            );
         },
-        getKey () {
-            return (application) => {
+        getKey() {
+            return application => {
                 if (this.isGroupApplication) {
-                    return this.isRecv ? application.userID + application.groupID : application.groupID;
+                    return this.isRecv
+                        ? application.userID + application.groupID
+                        : application.groupID;
                 }
                 return application[this.isRecv ? 'fromUserID' : 'toUserID'];
             };
         },
-        getTitle () {
+        getTitle() {
             if (!this.isRecv) {
                 return '我的申请';
             }
             return this.isGroupApplication ? '群通知' : '好友请求';
         }
     },
-    onLoad (options) {
-        const {
-            isGroupApplication,
-            isRecv
-        } = options;
+    onLoad(options) {
+        const { isGroupApplication, isRecv } = options;
         this.isGroupApplication = JSON.parse(isGroupApplication);
         this.isRecv = JSON.parse(isRecv);
     },
-    methods: {
-
-    }
+    methods: {}
 };
 </script>
 
 <style lang="scss" scoped>
-	.application_list_container {
-		@include colBox(false);
-		height: 100vh;
-		background-color: #F8F8F8;
+.application_list_container {
+    @include colBox(false);
+    height: 100vh;
+    background-color: #f8f8f8;
 
-
-		.application_list {
-			margin-top: 24rpx;
-			flex: 1;
-		}
-
-
-	}
+    .application_list {
+        margin-top: 24rpx;
+        flex: 1;
+    }
+}
 </style>

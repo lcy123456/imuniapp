@@ -17,11 +17,7 @@
                     mode="aspectFit"
                     @click="handleSendEmoji(emoji)"
                 />
-                <view
-                    v-for="v in 10" 
-                    :key="v"
-                    class="emoji_item_temp"
-                />
+                <view v-for="v in 10" :key="v" class="emoji_item_temp" />
             </swiper-item>
             <swiper-item class="chat_gifs_bar">
                 <uni-search-bar
@@ -31,9 +27,7 @@
                     @confirm="handleGetGifs(true)"
                     @cancel="handleSearchCancle"
                 />
-                <Empty
-                    v-if="gifsData.length === 0"
-                />
+                <Empty v-if="gifsData.length === 0" />
                 <scroll-view
                     v-else
                     class="chat_gifs_container"
@@ -48,45 +42,44 @@
                         mode="aspectFit"
                         @click="handleSendGif(v)"
                     />
+                    <view v-for="v in 10" :key="v" class="gif_item_temp" />
                     <view
-                        v-for="v in 10" 
-                        :key="v"
-                        class="gif_item_temp"
-                    />
-                    <view :class="`w-full ${gifsData.length === 0 && 'absolute t-0'}`">
+                        :class="`w-full ${
+                            gifsData.length === 0 && 'absolute t-0'
+                        }`"
+                    >
                         <u-loading-icon v-show="gifLoading" />
                     </view>
                 </scroll-view>
             </swiper-item>
             <swiper-item class="chat_gifs_bar">
-                <Empty
-                    v-if="emoticonsList.length === 0"
-                />
+                <Empty v-if="emoticonsList.length === 0" />
                 <scroll-view
                     v-else
                     class="chat_gifs_container"
                     scroll-y
+                    @scrolltolower="loadMoreEmoticonsList"
                 >
                     <view
                         v-for="(v, i) in emoticonsList"
-                        :key="v + i"
+                        :key="'emoticonsList-' + v.id"
                         class="gif_item"
                         @longpress="handleLongpress(v, i)"
                     >
                         <MyImage
-                            :src="v"
+                            :src="v.url"
                             class="emoticons-item"
                             mode="aspectFit"
                             @click="handleSendEmoticons(v)"
                         />
                     </view>
+                    <view v-for="v in 4" :key="v" class="gif_item" />
                     <view
-                        v-for="v in 4" 
-                        :key="v"
-                        class="gif_item"
-                    />
-                    <view :class="`w-full ${gifsData.length === 0 && 'absolute t-0'}`">
-                        <u-loading-icon v-show="gifLoading" />
+                        :class="`w-full ${
+                            emoticonsList.length === 0 && 'absolute t-0'
+                        }`"
+                    >
+                        <u-loading-icon v-show="emojiLoading" />
                     </view>
                 </scroll-view>
             </swiper-item>
@@ -105,19 +98,23 @@
 </template>
 
 <script>
-import { getGifsSearch } from "@/api/index.js";
-import emojis from "@/common/emojis.js";
-import MyImage from "@/components/MyImage";
+import { getGifsSearch } from '@/api/index.js';
+import { emojiCollectList, emojiCollectCancel } from '@/api/emoji.js';
+import emojis from '@/common/emojis.js';
+import MyImage from '@/components/MyImage';
 
 const limit = 25;
+const showNumber = 12;
 
 export default {
     components: {
         MyImage
     },
-    data () {
+    data() {
         return {
             showActionSheet: false,
+            emojisEnd: false,
+            pageNumber: 1,
             actionSheetMenu: [
                 {
                     name: '删除表情',
@@ -130,7 +127,7 @@ export default {
             ],
             current: 0,
             emojiList: Object.freeze(emojis),
-            keyword: "",
+            keyword: '',
             emoticonsList: [],
             gifScrollEnd: false,
             gifLoading: false,
@@ -139,7 +136,7 @@ export default {
         };
     },
     computed: {
-        getHeight () {
+        getHeight() {
             const { current } = this;
             let height = '300rpx';
             if (current === 1 || current === 2) {
@@ -150,40 +147,74 @@ export default {
             };
         }
     },
-    created () {
-        uni.$on('undateEmoticons', this.getEmoticonsList);
-        this.getEmoticonsList();
+    created() {
+        uni.$on('undateEmoticons', this.emojiCollectList);
+        this.emojiCollectList('init');
     },
     methods: {
-        selectClick ({ type }) {
+        async selectClick({ type }) {
             if (type === 0) {
-                const list = [...this.emoticonsList];
-                list.splice(this.index, 1);
-                uni.setStorageSync('emoticonsList', JSON.stringify(list));
-                uni.$emit('undateEmoticons');
-                this.showActionSheet = false;
+                try {
+                    await emojiCollectCancel({
+                        id: this.item.id
+                    });
+                    uni.$u.toast('删除成功');
+                    const l = [...this.emoticonsList];
+                    const index = this.emoticonsList.findIndex(
+                        v => v.id === this.item.id
+                    );
+                    l.splice(index, 1);
+                    this.emoticonsList = l;
+                    this.emojiCollectList();
+                    this.showActionSheet = false;
+                } catch (err) {
+                    uni.$u.toast('删除失败');
+                }
             } else {
                 this.showActionSheet = false;
             }
         },
-        handleLongpress (item, index) {
+        handleLongpress(item) {
             this.showActionSheet = true;
-            this.index = index;
+            this.item = item;
         },
-        getEmoticonsList () {
-            this.emoticonsList = uni.getStorageSync('emoticonsList') ? JSON.parse(uni.getStorageSync('emoticonsList')) : [];
-            console.log('this.emoticonsListthis.emoticonsList----', this.emoticonsList);
-        },
-        handleSwiperChange ({detail}) {
+        handleSwiperChange({ detail }) {
             this.current = detail.current;
         },
-        handleSendEmoji (emoji) {
+        handleSendEmoji(emoji) {
             this.$emit('emojiClick', emoji);
         },
-        handleSearchCancle () {
+        handleSearchCancle() {
             this.gifsData = [];
         },
-        async handleGetGifs (isInit) {
+        loadMoreEmoticonsList() {
+            if (this.emojisEnd) return;
+            this.pageNumber++;
+            this.emojiCollectList();
+        },
+        async emojiCollectList(type) {
+            if (type === 'init') {
+                this.pageNumber = 1;
+                this.emojisEnd = false;
+            }
+            const pageNumber = this.pageNumber;
+            this.emojiLoading = true;
+            const map = {
+                pagination: {
+                    pageNumber,
+                    showNumber
+                }
+            };
+            const { list } = await emojiCollectList(map);
+            const emoticonsListIdList = this.emoticonsList.map(item => item.id);
+            const l = (list || []).filter(
+                item => !emoticonsListIdList.includes(item.id)
+            );
+            this.emojisEnd = list.length !== showNumber;
+            this.emoticonsList = this.emoticonsList.concat(l);
+            this.emojiLoading = false;
+        },
+        async handleGetGifs(isInit) {
             if (isInit) this.gifScrollEnd = false;
             if (this.gifScrollEnd) return;
             this.gifLoading = true;
@@ -196,16 +227,15 @@ export default {
             if (limit > res.data.length) {
                 this.gifScrollEnd = true;
             }
-            // console.log('getGifs', res);
             this.gifLoading = false;
         },
-        handleSendGif (v) {
+        handleSendGif(v) {
             const original = v.images.original;
             this.$emit('sendGif', original);
         },
-        handleSendEmoticons (v) {
+        handleSendEmoticons(v) {
             this.$emit('sendGif', {
-                url: v
+                url: v.url
             });
         }
     }
@@ -233,7 +263,6 @@ export default {
             width: 80rpx;
             height: 0;
         }
-
     }
     .chat_gifs_bar {
         display: flex;

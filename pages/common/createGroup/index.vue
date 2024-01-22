@@ -1,10 +1,7 @@
 <template>
     <Page>
         <view class="create_group_container">
-            <CustomNavBar
-                title="发起群聊"
-                is-bg-color2
-            />
+            <CustomNavBar title="发起群聊" is-bg-color2 />
 
             <view class="group_base_info">
                 <MyAvatar
@@ -67,7 +64,7 @@ import { ContactChooseTypes } from '@/constant';
 import IMSDK, {
     GroupType,
     IMMethods,
-    SessionType,
+    SessionType
 } from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
@@ -76,40 +73,39 @@ import { getPurePath } from '@/util/common';
 export default {
     components: {
         CustomNavBar,
-        MyAvatar,
+        MyAvatar
     },
-    data () {
+    data() {
         return {
             groupName: '',
             groupFaceUrl: '',
             checkedMemberList: [],
             fileList: [],
-            createLoading: false,
+            createLoading: false
         };
     },
     computed: {
-        disabledNext () {
+        disabledNext() {
             return !this.groupName;
         },
-        checkedIDList () {
+        checkedIDList() {
             return this.checkedMemberList.map(v => v.userID);
         }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { checkedMemberList } = options;
         this.checkedMemberList = checkedMemberList
             ? JSON.parse(checkedMemberList)
             : [];
-        console.log(this.checkedMemberList);
     },
     methods: {
-        toChooseMember () {
+        toChooseMember() {
             uni.$u.route('/pages/common/contactChoose/index', {
                 type: ContactChooseTypes.GetList,
                 checkUserIDList: JSON.stringify(this.checkedIDList)
             });
         },
-        async complateCreate () {
+        async complateCreate() {
             this.createLoading = true;
             const options = {
                 adminUserIDs: [],
@@ -117,11 +113,15 @@ export default {
                 groupInfo: {
                     groupType: GroupType.WorkingGroup,
                     groupName: this.groupName,
-                    faceURL: this.groupFaceUrl,
-                },
+                    faceURL: this.groupFaceUrl
+                }
             };
             try {
-                const {data} = await IMSDK.asyncApi(IMSDK.IMMethods.CreateGroup, IMSDK.uuid(), options);
+                const { data } = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.CreateGroup,
+                    IMSDK.uuid(),
+                    options
+                );
                 this.$toast('创建成功');
                 await navigateToDesignatedConversation(
                     data.groupID,
@@ -133,12 +133,14 @@ export default {
             }
             this.createLoading = false;
         },
-        getCheckUsers (list) {
+        getCheckUsers(list) {
             this.checkedMemberList = [...list];
             setTimeout(this.complateCreate, 500);
         },
-        async chooseImage () {
-            const permissions = await this.$store.dispatch('base/hasCameraPermissions');
+        async chooseImage() {
+            const permissions = await this.$store.dispatch(
+                'base/hasCameraPermissions'
+            );
             if (!permissions) return;
             uni.chooseImage({
                 count: 1,
@@ -152,7 +154,7 @@ export default {
 
                     try {
                         const {
-                            data: { url },
+                            data: { url }
                         } = await IMSDK.asyncApi(
                             IMMethods.UploadFile,
                             IMSDK.uuid(),
@@ -160,7 +162,7 @@ export default {
                                 filepath: getPurePath(tempFilePaths[0]),
                                 name: fileName,
                                 contentType: `image/${fileType}`,
-                                uuid: IMSDK.uuid(),
+                                uuid: IMSDK.uuid()
                             }
                         );
                         this.groupFaceUrl = url;
@@ -170,17 +172,17 @@ export default {
                 },
                 fail: function () {
                     this.showToast('上传失败');
-                },
+                }
             });
         },
-        showToast (message, complete = null) {
+        showToast(message, complete = null) {
             this.$refs.uToast.show({
                 message,
                 duration: 1000,
-                complete,
+                complete
             });
-        },
-    },
+        }
+    }
 };
 </script>
 

@@ -14,7 +14,7 @@ export const getParams = () => {
     };
 };
 
-export const EncryptoAES = (text) => {
+export const EncryptoAES = text => {
     // const { sKey, iv } = getParams();
 
     // let encrypted = CryptoJS.AES.encrypt(text, sKey, {
@@ -27,7 +27,7 @@ export const EncryptoAES = (text) => {
     return text;
 };
 
-export const DecryptoAES = (text) => {
+export const DecryptoAES = text => {
     // const { sKey, iv } = getParams();
 
     // const decrypted = CryptoJS.AES.decrypt(text, sKey, {
@@ -35,7 +35,7 @@ export const DecryptoAES = (text) => {
     //     mode: CryptoJS.mode.CBC,
     //     padding: CryptoJS.pad.Pkcs7,
     // });
-  
+
     // return decrypted.toString(CryptoJS.enc.Utf8);
     return text;
 };

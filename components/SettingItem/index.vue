@@ -8,10 +8,7 @@
             <text>{{ title }}</text>
             <view class="setting_right">
                 <slot name="right" />
-                <text
-                    v-if="content"
-                    class="fz-28 text-grey"
-                >
+                <text v-if="content" class="fz-28 text-grey">
                     {{ content }}
                 </text>
                 <u-switch
@@ -31,10 +28,7 @@
                     class="ml-12"
                 />
             </view>
-            <u-loading-icon
-                v-show="loading"
-                class="loading_icon"
-            />
+            <u-loading-icon v-show="loading" class="loading_icon" />
         </slot>
     </view>
 </template>
@@ -54,40 +48,40 @@ export default {
         },
         showArrow: {
             type: Boolean,
-            default: false,
+            default: false
         },
         showSwitch: {
             type: Boolean,
-            default: false,
+            default: false
         },
         switchValue: {
             type: Boolean,
-            default: false,
+            default: false
         },
         loading: {
             type: Boolean,
-            default: false,
+            default: false
         },
         border: {
             type: Boolean,
-            default: false,
+            default: false
         },
         arrow: {
             type: Boolean,
-            default: true,
-        },
+            default: true
+        }
     },
-    data () {
+    data() {
         return {};
     },
     methods: {
-        onClick () {
+        onClick() {
             this.$emit('click');
         },
-        switchChange (value) {
+        switchChange(value) {
             this.$emit('switch', value);
-        },
-    },
+        }
+    }
 };
 </script>
 

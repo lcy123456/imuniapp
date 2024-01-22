@@ -1,16 +1,13 @@
 <template>
     <u-index-list
         class="user_list"
-        :style="{'height': height}"
+        :style="{ height: height }"
         :index-list="indexList"
         @scrolltolower="scrolltolower"
     >
-        <template v-for="(item,index) in itemArr">
-            <u-index-item :key="index">
-                <u-index-anchor
-                    class="user_anchor"
-                    :text="indexList[index]"
-                />
+        <view v-for="(item, index) in itemArr" :key="index">
+            <u-index-item>
+                <u-index-anchor class="user_anchor" :text="indexList[index]" />
                 <UserItem
                     v-for="cell in item"
                     :key="cell.userID"
@@ -22,14 +19,14 @@
                     @updateCheck="updateCheck"
                 />
             </u-index-item>
-        </template>
+        </view>
     </u-index-list>
 </template>
 
 <script>
-import UserItem from "../UserItem/index.vue";
+import UserItem from '../UserItem/index.vue';
 export default {
-    name: "ChooseIndexList",
+    name: 'ChooseIndexList',
     components: {
         UserItem
     },
@@ -59,19 +56,17 @@ export default {
             default: false
         }
     },
-    data () {
-        return {
-
-        };
+    data() {
+        return {};
     },
     methods: {
-        itemClick (item) {
+        itemClick(item) {
             this.$emit('itemClick', item);
         },
-        updateCheck (item) {
+        updateCheck(item) {
             this.$emit('updateCheck', item);
         },
-        scrolltolower () {
+        scrolltolower() {
             this.$emit('scrolltolower');
         }
     }
@@ -79,17 +74,17 @@ export default {
 </script>
 
 <style scoped lang="scss">
-	.user_list {
-		flex: 1;
-        overflow: hidden;
-		/deep/uni-scroll-view {
-			max-height: 100% !important;
-		}
-	}
+.user_list {
+    flex: 1;
+    overflow: hidden;
+    /deep/uni-scroll-view {
+        max-height: 100% !important;
+    }
+}
 
-	.user_anchor {
-        padding-left: 95rpx;
-        background-color: $uni-bg-color !important;
-		border: none !important;
-	}
+.user_anchor {
+    padding-left: 95rpx;
+    background-color: $uni-bg-color !important;
+    border: none !important;
+}
 </style>

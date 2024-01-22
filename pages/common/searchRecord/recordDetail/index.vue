@@ -16,10 +16,7 @@
                         slot="searchIcon"
                         class="flex align-center"
                     >
-                        <u-icon
-                            name="search"
-                            size="18"
-                        />
+                        <u-icon name="search" size="18" />
                         <text class="primary">
                             {{ conversation.showName }}
                         </text>
@@ -104,14 +101,14 @@ import IMSDK, {
     IMMethods,
     MessageType,
     GroupMemberFilter,
-    GroupMemberRole,
+    GroupMemberRole
 } from 'openim-uniapp-polyfill';
 import {
     RecordFormMap,
     RecordTypeMap,
     TextRenderTypes,
     MediaRenderTypes,
-    FileRenderTypes,
+    FileRenderTypes
 } from '@/constant';
 import { recordToDesignatedConversation } from '@/util/imCommon';
 import MyTabs from '@/components/MyTabs';
@@ -128,9 +125,9 @@ export default {
         MyTabs,
         MediaRender,
         FileRender,
-        GroupMemberSwipe,
+        GroupMemberSwipe
     },
-    data () {
+    data() {
         return {
             RecordFormMap: Object.freeze(RecordFormMap),
             RecordTypeMap: Object.freeze(RecordTypeMap),
@@ -147,38 +144,36 @@ export default {
             from: '',
             groupID: '',
             selfGroupInfo: {},
-            groupMemberList: [],
+            groupMemberList: []
         };
     },
     computed: {
         ...mapGetters(['storeCurrentUserID', 'storeCurrentConversationID']),
-        tabList () {
+        tabList() {
             const arr = [
                 { label: '聊天记录', value: this.TextRenderTypes },
                 { label: '媒体', value: this.MediaRenderTypes },
                 { label: '文件', value: this.FileRenderTypes },
                 ...(this.from === RecordFormMap.Group
                     ? [{ label: '用户', value: UserRenderTypes }]
-                    : []),
+                    : [])
             ];
             return arr;
         },
-        showMemberList () {
-            const res =  this.groupMemberList.filter(v => {
+        showMemberList() {
+            const res = this.groupMemberList.filter(v => {
                 return v.nickname.includes(this.keyword || '');
             });
-            console.log('xxx', res, this.keyword || '');
             return res;
         }
     },
     watch: {
-        keyword () {
+        keyword() {
             this.throttleSearchRecord();
-        },
+        }
     },
 
-    onLoad (options) {
-        console.log(options);
+    onLoad(options) {
         const { conversation, keyword, from, groupID } = options;
         this.conversation = JSON.parse(decodeURIComponent(conversation));
         this.keyword = keyword || '';
@@ -190,10 +185,10 @@ export default {
     },
 
     methods: {
-        handleCancel () {
+        handleCancel() {
             uni.navigateBack();
         },
-        async getSearchRecord () {
+        async getSearchRecord() {
             if (this.tabActive.value === UserRenderTypes) return;
             if (this.tabActive.value === TextRenderTypes && !this.keyword) {
                 this.messageList = [];
@@ -209,7 +204,7 @@ export default {
                 searchTimePosition: 0,
                 searchTimePeriod: 0,
                 pageIndex: 1,
-                count: 999,
+                count: 999
             };
             const { data } = await IMSDK.asyncApi(
                 IMMethods.SearchLocalMessages,
@@ -219,19 +214,19 @@ export default {
             this.messageList = data.searchResultItems?.[0]?.messageList || [];
             // console.log('xxx', data);
         },
-        throttleSearchRecord () {
+        throttleSearchRecord() {
             uni.$u.debounce(this.getSearchRecord, 300);
         },
-        handleItemClick (v) {
+        handleItemClick(v) {
             if (this.storeCurrentConversationID) {
                 // let pages = getCurrentPages();
                 // let prevPage = pages[pages.length - 3];
-                // prevPage.$vm.getPositionMsgID(v?.clientMsgID);
+                // prevPage.$vm.setPositionMsgID(v?.clientMsgID);
                 // console.log('pagespages-----pages', v?.clientMsgID);
                 uni.navigateBack({
                     delta: 2
                 });
-                uni.$emit('getPositionMsgID', v?.clientMsgID);
+                uni.$emit('setPositionMsgID', v?.clientMsgID);
             } else {
                 recordToDesignatedConversation(
                     this.conversation.conversationID,
@@ -240,35 +235,35 @@ export default {
                 );
             }
         },
-        handleMediaClick (index) {
-            const list = this.messageList.map((v) => {
+        handleMediaClick(index) {
+            const list = this.messageList.map(v => {
                 const { contentType, pictureElem, videoElem } = v;
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
                     url: pictureElem?.sourcePicture.url,
-                    type: 'image',
+                    type: 'image'
                 };
                 if (isVideo) {
                     map = {
                         url: videoElem.videoUrl,
                         poster: videoElem.snapshotUrl,
-                        type: 'video',
+                        type: 'video'
                     };
                 }
                 return map;
             });
             uni.$u.route('/pages/common/previewMedia/index', {
                 list: encodeURIComponent(JSON.stringify(list)),
-                current: index,
+                current: index
             });
         },
-        handleMemberChange () {
+        handleMemberChange() {
             let pages = getCurrentPages();
             let prevPage = pages[pages.length - 2];
             prevPage.$vm.handleMemberChange();
             this.getGroupMemberList();
         },
-        handleTabChange (v) {
+        handleTabChange(v) {
             this.messageList = [];
             this.tabActive = v;
             if (v.value === UserRenderTypes) {
@@ -278,35 +273,39 @@ export default {
                 this.getSearchRecord();
             }
         },
-        async getSelfGroupInfo () {
+        async getSelfGroupInfo() {
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,
                 IMSDK.uuid(),
                 {
                     groupID: this.groupID,
-                    userIDList: [this.storeCurrentUserID],
+                    userIDList: [this.storeCurrentUserID]
                 }
             );
             this.selfGroupInfo = data[0];
         },
-        async getGroupMemberList () {
+        async getGroupMemberList() {
             try {
-                const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetGroupMemberList, IMSDK.uuid(), {
-                    groupID: this.groupID,
-                    filter: GroupMemberFilter.All,
-                    offset: 0,
-                    count: 999,
-                });
+                const { data } = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetGroupMemberList,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.groupID,
+                        filter: GroupMemberFilter.All,
+                        offset: 0,
+                        count: 999
+                    }
+                );
                 this.groupMemberList = [...data];
             } catch (err) {
                 console.log(err);
                 this.$toast(checkLoginError(err));
             }
         },
-        touchstart () {
+        touchstart() {
             uni.hideKeyboard();
-        },
-    },
+        }
+    }
 };
 </script>
 

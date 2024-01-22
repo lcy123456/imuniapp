@@ -1,28 +1,17 @@
 <template>
     <view class="set_info_container">
-        <CustomNavBar
-            title="注册"
-        />
+        <CustomNavBar title="注册" />
         <view class="flex mb-5 align-center mt-100">
-            <text class="mr-10 fz-50 ff-bold">
-                欢迎使用
-            </text>
+            <text class="mr-10 fz-50 ff-bold"> 欢迎使用 </text>
             <u--image
                 src="/static/images/logo_name_blue.png"
                 width="217rpx"
                 height="32rpx"
             />
         </view>
-        <view class="text-grey">
-            请完善个人信息
-        </view>
-        <view
-            class="avatar_container"
-        >
-            <view
-                class="avatar_container_wrap" 
-                @click="chooseAvatar"
-            >
+        <view class="text-grey"> 请完善个人信息 </view>
+        <view class="avatar_container">
+            <view class="avatar_container_wrap" @click="chooseAvatar">
                 <my-avatar
                     v-show="userInfo.faceURL"
                     size="180rpx"
@@ -35,14 +24,9 @@
                     color="#999"
                 />
             </view>
-            <view class="upload_desc">
-                点击选择头像
-            </view>
+            <view class="upload_desc"> 点击选择头像 </view>
         </view>
-        <u-form
-            ref="loginForm"
-            :model="userInfo"
-        >
+        <u-form ref="loginForm" :model="userInfo">
             <u-form-item prop="nickname">
                 <u-input
                     v-model="userInfo.nickname"
@@ -80,9 +64,9 @@ import { IMLogin } from '@/util/imCommon';
 export default {
     components: {
         CustomNavBar,
-        MyAvatar,
+        MyAvatar
     },
-    data () {
+    data() {
         return {
             loading: false,
             codeValue: '',
@@ -91,43 +75,42 @@ export default {
                 phoneNumber: '',
                 areaCode: '',
                 nickname: '',
-                faceURL: '',
-            },
+                faceURL: ''
+            }
         };
     },
     computed: {
         ...mapGetters(['storeClientID']),
-        isVerifyOk () {
-            return this.userInfo.faceURL && this.userInfo.nickname;
+        isVerifyOk() {
+            // return this.userInfo.faceURL && this.userInfo.nickname;
+            return this.userInfo.nickname;
         }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { userInfo, passWord, codeValue } = options;
         this.userInfo = {
             ...this.userInfo,
-            ...JSON.parse(userInfo),
+            ...JSON.parse(userInfo)
         };
         this.passWord = passWord;
         this.codeValue = codeValue;
     },
-    onBackPress () {
+    onBackPress() {
         return true;
     },
     methods: {
-        chooseAvatar () {
+        chooseAvatar() {
             uni.navigateTo({
-                url: '/pages/login/chooseDefaultAvatar/index',
+                url: '/pages/login/chooseDefaultAvatar/index'
             });
         },
-        getDefaultAvatar (value) {
-            console.log(value);
+        getDefaultAvatar(value) {
             this.userInfo.faceURL = value;
         },
-        async doNext () {
+        async doNext() {
             try {
                 this.loading = true;
                 let passWord = md5(this.passWord);
-                console.log('md5(passWord)md5(passWord)----', passWord);
                 const options = {
                     phoneNumber: this.userInfo.phoneNumber,
                     areaCode: `+${this.userInfo.areaCode}`,
@@ -138,7 +121,7 @@ export default {
                     user: {
                         ...this.userInfo,
                         areaCode: `+${this.userInfo.areaCode}`,
-                        password: passWord,
+                        password: passWord
                     },
                     cid: this.storeClientID
                 };
@@ -153,16 +136,15 @@ export default {
                 this.loading = false;
             } catch (err) {
                 this.loading = false;
-                console.log(err);
                 uni.$u.toast(checkLoginError(err));
                 // uni.$u.toast('注册失败')
             }
         },
-        saveLoginInfo () {
+        saveLoginInfo() {
             uni.setStorageSync('lastPhoneNumber', this.userInfo.phoneNumber);
             uni.setStorageSync('lastAreaCode', this.userInfo.areaCode);
-        },
-    },
+        }
+    }
 };
 </script>
 <style lang="scss" scoped>

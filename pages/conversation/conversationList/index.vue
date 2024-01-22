@@ -1,14 +1,8 @@
 <template>
     <Page>
-        <view
-            class="conversation_container"
-            @click="closeAllSwipe"
-        >
+        <view class="conversation_container" @click="closeAllSwipe">
             <chat-header ref="chatHeaderRef" />
-            <view
-                class="px-20 pt-10 pb-20 bg-grey"
-                @click="handleToSearch"
-            >
+            <view class="px-20 pt-10 pb-20 bg-grey" @click="handleToSearch">
                 <uni-search-bar
                     v-model="keyword"
                     bg-color="#fff"
@@ -17,6 +11,7 @@
                     readonly
                 />
             </view>
+            <PcLoginTip v-if="platformID !== 0" :platform-i-d="platformID" />
             <!-- v-if="!storeIsSyncing" -->
             <!-- <z-paging
                 ref="paging"
@@ -26,7 +21,7 @@
                 :show-loading-more-no-more-view="false"
                 :refresher-enabled="!storeIsSyncing"
                 @query="queryList"
-            > -->
+> -->
             <scroll-view
                 class="scroll_view"
                 :scroll-with-animation="true"
@@ -36,22 +31,19 @@
             >
                 <!-- @refresherTouchmove="refresherTouchmove"
                 @refresherTouchend="refresherTouchend" -->
-                <u-swipe-action
-                    ref="swipeWrapperRef"
-                    class="swipe_wrapper"
-                >
+                <uni-swipe-action ref="swipeWrapperRef" class="swipe_wrapper">
                     <ConversationItem
-                        v-for="item in showConversationList"
-                        :key="`${(item.conversationID)}-ConversationItem`"
+                        v-for="(item, index) in showConversationList"
+                        :key="index"
                         :source="item"
-                        :is-disabled="isDisabledSwipe"
+                        :is-disabled="item.isArchvistItem"
                         @closeAllSwipe="closeAllSwipe"
                     />
-                </u-swipe-action>
+                </uni-swipe-action>
             </scroll-view>
             <!-- </z-paging> -->
 
-        <!-- <view
+            <!-- <view
             v-else
             class="loading_wrap"
         >
@@ -64,22 +56,56 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import ChatHeader from './components/ChatHeader.vue';
+import PcLoginTip from './components/PcLoginTip.vue';
 import ConversationItem from './components/ConversationItem.vue';
 import { prepareConversationState } from '@/util/imCommon';
-import { PageEvents } from "@/constant";
-import { videoGetToken, videoGetOfflineInfo, videoGetLivekitUrl } from '@/api/incoming';
+import { PageEvents } from '@/constant';
+import { videoGetToken, videoGetOfflineInfo } from '@/api/incoming';
+import { authGetPcLoginPlatform } from '@/api/login';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 
 export default {
     components: {
         ChatHeader,
         ConversationItem,
+        PcLoginTip
     },
-    data () {
+    data() {
         return {
+            key: '',
             keyword: '',
             refreshing: false,
-            isDisabledSwipe: false
+            platformID: 0,
+            isDisabledSwipe: false,
+            isArchvistItem: {
+                isArchvistItem: true,
+                unreadCount: 0,
+                groupAtType: 0,
+                isPrivateChat: false,
+                groupID: '',
+                isNotInGroup: false,
+                draftText: '',
+                userID: '',
+                latestMsgSendTime: 0,
+                maxSeq: 0,
+                showName: '归档信息',
+                conversationID: '',
+                conversationType: 0,
+                isPinned: false,
+                attachedInfo: JSON.stringify({
+                    archvist: 1
+                }),
+                ex: '',
+                hasReadSeq: 0,
+                updateUnreadCountTime: 0,
+                recvMsgOpt: 0,
+                draftTextTime: 0,
+                burnDuration: 0,
+                minSeq: 0,
+                faceURL: '/static/images/archive.png',
+                msgDestructTime: 0,
+                isMsgDestruct: false
+            }
         };
     },
     computed: {
@@ -90,11 +116,52 @@ export default {
             'storeUserID',
             'storeCurrentConversationID'
         ]),
-        showConversationList () {
-            return this.storeConversationList;
-        },
+        showConversationList() {
+            const isArchvistList = [];
+            let conversationList = [];
+            this.storeConversationList.forEach(item => {
+                try {
+                    const attachedInfo = JSON.parse(item.attachedInfo);
+                    if (attachedInfo.archvist === 1) {
+                        isArchvistList.push(item);
+                    }
+                } catch (err) {
+                    //
+                }
+            });
+            if (isArchvistList.length) {
+                const conversationIsArchvistIdList = isArchvistList.map(
+                    conversation => conversation.conversationID
+                );
+                conversationList = [
+                    {
+                        ...this.isArchvistItem,
+                        unreadCount: isArchvistList.filter(
+                            item => item.unreadCount
+                        ).length,
+                        latestMsg: JSON.stringify({
+                            contentType: 101,
+                            textElem: {
+                                content: isArchvistList
+                                    .map(item => item.showName)
+                                    .join(',')
+                            }
+                        })
+                    },
+                    ...this.storeConversationList.filter(
+                        item =>
+                            !conversationIsArchvistIdList.includes(
+                                item.conversationID
+                            )
+                    )
+                ];
+            }
+            return conversationList.length
+                ? conversationList
+                : this.storeConversationList;
+        }
     },
-    onReady () {
+    onReady() {
         this.$nextTick(() => plus.navigator.closeSplashscreen());
     },
     watch: {
@@ -104,32 +171,33 @@ export default {
         //     });
         // }
     },
-    onLoad () {
-        this.videoGetLivekitUrl();
+    onLoad() {
+        this.timer = setInterval(() => {
+            this.authGetPcLoginPlatform();
+        }, 3000);
         this.getCall();
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
-    onUnload () {
+    onUnload() {
+        clearInterval(this.timer);
         uni.$off(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
     methods: {
         ...mapActions('incomingCall', ['appearLoadingCall']),
-        async videoGetLivekitUrl () {
+        async authGetPcLoginPlatform() {
             try {
-                const { url } = await videoGetLivekitUrl();
-                console.log('urlurlurlurlurlurl', url);
-                this.$store.commit('incomingCall/SET_WSURL', url);
+                const { platformID } = await authGetPcLoginPlatform();
+                this.platformID = platformID;
             } catch (err) {
-                console.log('url---', err);
+                console.log(err);
             }
         },
-        async getCall () {
+        async getCall() {
             try {
                 const { sendID, room, type } = await videoGetOfflineInfo({
                     recvID: this.storeUserID
                 });
                 if (!room) {
-                    console.log('-------------------------没人请求通话');
                     return;
                 }
                 const newServerMsg = {
@@ -150,47 +218,46 @@ export default {
                     recvID: this.storeUserID,
                     conversationID: room
                 });
-                this.$store.commit('incomingCall/SET_INCOMING_CALL_TOKEN', token);
-                console.log(token);
+                this.$store.commit(
+                    'incomingCall/SET_INCOMING_CALL_TOKEN',
+                    token
+                );
                 this.appearLoadingCall(newServerMsg);
             } catch (err) {
                 console.log('-------11', err);
             }
         },
-        handleToSearch () {
+        handleToSearch() {
             uni.$u.route('/pages/common/searchRecord/index');
         },
-        refresherTouchmove () {
-            this.isDisabledSwipe = true;
-        },
-        refresherTouchend () {
-            setTimeout(() => {
-                this.isDisabledSwipe = false;
-            }, 500);
-        },
-        async queryList () {
+        async queryList() {
             await this.$store.dispatch(
                 'conversation/getConversationList',
                 false
             );
-            // console.log('xxx', data);
         },
-        closeAllSwipe () {
+        closeAllSwipe() {
+            this.key = +new Date();
             this.$refs.swipeWrapperRef.closeAll();
         },
-        handlePushConversation (conversationID) {
-            console.log(PageEvents.ClickPushMessage, conversationID);
-            const source = this.storeConversationList.find(v => v.conversationID === conversationID);
+        handlePushConversation(conversationID) {
+            const source = this.storeConversationList.find(
+                v => v.conversationID === conversationID
+            );
             if (!source) return;
             const pages = getCurrentPages();
             const currentPage = pages[pages.length - 1];
             const page = currentPage.route;
-            if (page === `pages/conversation/chating/index` && conversationID === this.storeCurrentConversationID) return;
+            if (
+                page === `pages/conversation/chating/index` &&
+                conversationID === this.storeCurrentConversationID
+            )
+                return;
             setTimeout(() => {
                 prepareConversationState(source);
             }, 300);
         }
-    },
+    }
 };
 </script>
 

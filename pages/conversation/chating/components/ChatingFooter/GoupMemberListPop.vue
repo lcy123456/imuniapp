@@ -1,10 +1,6 @@
 <!-- eslint-disable vue/attribute-hyphenation -->
 <template>
-    <u-popup
-        :show="show"
-        @close="close"
-        @open="open"
-    >
+    <u-popup :show="show" @close="close" @open="open">
         <view class="groupMemberList">
             <view class="flex justify-end my-30">
                 <view>
@@ -58,7 +54,6 @@
     </u-popup>
 </template>
 
-
 <script>
 import { mapGetters } from 'vuex';
 import { ContactChooseTypes } from '@/constant';
@@ -68,7 +63,7 @@ import IMSDK, {
     SessionType,
     GroupMemberFilter
 } from 'openim-uniapp-polyfill';
-import UserItem from "@/components/UserItem/index.vue";
+import UserItem from '@/components/UserItem/index.vue';
 import ChooseIndexList from '@/components/ChooseIndexList/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 
@@ -86,9 +81,9 @@ export default {
         show: {
             type: Boolean,
             default: false
-        },
+        }
     },
-    data () {
+    data() {
         return {
             SessionType: Object.freeze(SessionType),
             keyword: '',
@@ -112,26 +107,26 @@ export default {
             'storeUserID',
             'storeSelfInfo'
         ]),
-        showFriendList () {
+        showFriendList() {
             return formatChooseData(this.filterFriendList);
         },
-        filterFriendList () {
+        filterFriendList() {
             const newList = this.storeMemberList.filter(
-                (friend) =>
+                friend =>
                     (friend.nickname.includes(this.keyword) ||
-                    friend.remark.includes(this.keyword)) &&
+                        friend.remark.includes(this.keyword)) &&
                     friend.userID !== this.storeUserID
             );
             return newList;
         },
-        checkUserIDList () {
-            return this.checkFriendList.map((v) => v.userID);
+        checkUserIDList() {
+            return this.checkFriendList.map(v => v.userID);
         },
-        showCheckFriendList () {
+        showCheckFriendList() {
             return this.checkFriendList.slice(-6);
         }
     },
-    async created () {
+    async created() {
         const { groupID } = this.storeCurrentConversation;
         this.groupID = groupID;
         if (groupID) {
@@ -146,7 +141,9 @@ export default {
                 }
             );
             this.storeMemberList = data;
-            const info = this.storeMemberList.find(item => item.userID === this.storeSelfInfo.userID);
+            const info = this.storeMemberList.find(
+                item => item.userID === this.storeSelfInfo.userID
+            );
             this.userInfo = {
                 ...this.storeSelfInfo,
                 ...info
@@ -154,33 +151,34 @@ export default {
         }
     },
     methods: {
-        itemClick () {
+        itemClick() {
             this.$emit('confirm', [...this.filterFriendList], 'all');
         },
-        close () {
+        close() {
             this.$emit('change', false);
         },
-        open () {
+        open() {
             this.$emit('change', true);
         },
-        updateCheckedUser (val) {
-            const idx = this.checkFriendList.findIndex(v => v.userID === val.userID);
+        updateCheckedUser(val) {
+            const idx = this.checkFriendList.findIndex(
+                v => v.userID === val.userID
+            );
             if (idx > -1) {
                 this.checkFriendList.splice(idx, 1);
             } else {
                 this.checkFriendList.push(val);
             }
         },
-        confirm () {
+        confirm() {
             this.$emit('confirm', [...this.checkFriendList]);
             this.checkFriendList = [];
-        },
-    },
+        }
+    }
 };
 </script>
 
 <style lang="scss" scoped>
-
 .groupMemberList {
     height: 600px;
     background-color: $uni-bg-color-grey;
@@ -218,8 +216,7 @@ export default {
     .all {
         padding-left: 95rpx;
         background-color: $uni-bg-color !important;
-		border: none !important;
-	}
+        border: none !important;
+    }
 }
 </style>
-

@@ -1,7 +1,10 @@
 <template>
     <view
+        :key="updateKey"
         class="media_message_container"
-        :style="{height: imageHeight === 'auto' ? imageHeight : (imageHeight + 'px')}"
+        :style="{
+            height: imageHeight === 'auto' ? imageHeight : imageHeight + 'px'
+        }"
         @click="clickMediaItem"
     >
         <!-- <view :style="{height:wrapperHeight}" class="media_message_container"> -->
@@ -12,10 +15,14 @@
             mode="widthFix"
             :src="imgUrl"
             @load="onLoaded"
+            @error="onErrored"
             @click="clickMediaItem"
         >
             <template #loading>
                 <u-loading-icon color="red" />
+            </template>
+            <template #error>
+                <image class="err_img" src="/static/images/reload.svg" />
             </template>
         </u--image>
         <image
@@ -26,27 +33,19 @@
             alt=""
             srcset=""
         />
-        <text
-            v-if="isVideo"
-            class="video_duration"
-        >
+        <text v-if="isVideo" class="video_duration">
             {{ getDuration }}
         </text>
     </view>
 </template>
 
 <script>
-import {
-    secFormat
-} from "@/util/imCommon";
-import {
-    getPurePath
-} from "@/util/common";
-import IMSDK, { MessageType } from "openim-uniapp-polyfill";
-import { mapGetters } from "vuex";
+import { secFormat } from '@/util/imCommon';
+import { getPurePath, getPageRoute } from '@/util/common';
+import IMSDK, { MessageType } from 'openim-uniapp-polyfill';
+import { mapGetters } from 'vuex';
 export default {
-    name: "",
-    inject: ['getSearchRecord'],
+    name: '',
     props: {
         message: {
             type: Object,
@@ -61,9 +60,11 @@ export default {
             default: false
         }
     },
-    data () {
+    data() {
         return {
             imgList: [],
+            updateKey: '',
+            isError: true,
             imageWidth: '300px',
             imageHeight: 240,
             imgUrl: null,
@@ -72,20 +73,20 @@ export default {
     },
     computed: {
         ...mapGetters([
-            "storeConversationMediaList",
-            "storeCurrentConversation"
+            'storeConversationMediaList',
+            'storeCurrentConversation'
         ]),
-        isVideo () {
+        isVideo() {
             return this.message.contentType === MessageType.VideoMessage;
         },
-        getDuration () {
+        getDuration() {
             if (!this.isVideo) {
                 return 0;
             }
             return secFormat(this.message.videoElem.duration);
-        },
+        }
     },
-    created () {
+    created() {
         const { pictureElem, videoElem, localEx } = this.message;
         let filePath = pictureElem?.sourcePath;
         if (this.isVideo) {
@@ -106,61 +107,93 @@ export default {
         });
     },
     methods: {
-        async clickMediaItem () {
-            await this.getSearchRecord();
-            const i = this.storeConversationMediaList.findIndex(item => item.poster.includes(this.imgUrl));
+        async clickMediaItem() {
+            if (this.isError) {
+                this.updateKey = +new Date();
+                return;
+            }
+            const page = getPageRoute();
+            if ([`pages/conversation/chating/index`].includes(page)) {
+                await uni.$emit('getSearchRecordMedia');
+                setTimeout(() => {
+                    this.goPreviewMedia();
+                }, 200);
+                return;
+            }
+            this.goPreviewMedia();
+        },
+        goPreviewMedia() {
+            const i = this.storeConversationMediaList.findIndex(item =>
+                item.poster.includes(this.imgUrl)
+            );
             const index = i > -1 ? i : 0;
             uni.$u.route('/pages/common/previewMedia/index', {
-                list: encodeURIComponent(JSON.stringify(this.storeConversationMediaList)),
-                current: index,
+                list: encodeURIComponent(
+                    JSON.stringify(this.storeConversationMediaList)
+                ),
+                current: index
             });
         },
-        onLoaded () {
+        onLoaded() {
             const { conversationID } = this.storeCurrentConversation;
             const { clientMsgID } = this.message;
             this.imageHeight = 'auto';
-            if (!this.imgUrl.includes('https://') && !this.imgUrl.includes('http://')) return;
+            this.isError = false;
+            if (
+                !this.imgUrl.includes('https://') &&
+                !this.imgUrl.includes('http://')
+            )
+                return;
             if (this.isQuote) return;
             uni.downloadFile({
                 url: this.imgUrl,
-                success: (res) => {
+                success: res => {
                     if (res.statusCode === 200) {
-                        IMSDK.asyncApi(IMSDK.IMMethods.SetMessageLocalEx, IMSDK.uuid(), {
-                            conversationID,
-                            clientMsgID,
-                            localEx: getPurePath(res.tempFilePath)
-                        });
+                        IMSDK.asyncApi(
+                            IMSDK.IMMethods.SetMessageLocalEx,
+                            IMSDK.uuid(),
+                            {
+                                conversationID,
+                                clientMsgID,
+                                localEx: getPurePath(res.tempFilePath)
+                            }
+                        );
                     }
                 },
-                fail: () => {
-                    console.log('下载失败下载失败下载失败下载失败下载失败下载失败v');
-                }
+                fail: () => {}
             });
+        },
+        onErrored() {
+            console.log('c u哦。。。。。。错。。。');
+            this.isError = true;
         }
     }
 };
 </script>
-
 <style lang="scss" scoped>
-	.media_message_container {
-		position: relative;
-		overflow: hidden;
+.media_message_container {
+    position: relative;
+    overflow: hidden;
 
-		.play_icon {
-			width: 48px;
-			height: 48px;
-            max-width: 20%;
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-		}
+    .play_icon {
+        width: 48px;
+        height: 48px;
+        max-width: 20%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
 
-		.video_duration {
-			position: absolute;
-			bottom: 12rpx;
-			right: 24rpx;
-			color: #fff;
-		}
-	}
+    .video_duration {
+        position: absolute;
+        bottom: 12rpx;
+        right: 24rpx;
+        color: #fff;
+    }
+    .err_img {
+        width: 40rpx !important;
+        height: 40rpx !important;
+    }
+}
 </style>

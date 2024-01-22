@@ -1,9 +1,7 @@
 <template>
     <Page>
         <view class="merger_message_container">
-            <CustomNavBar
-                :title="mergeTitle.slice(0, -5)"
-            />
+            <CustomNavBar :title="mergeTitle.slice(0, -5)" />
             <view
                 v-for="v in multiMessage"
                 :key="v.clientMsgID"
@@ -30,7 +28,7 @@
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import MessageContentWrap from '@/pages/conversation/chating/components/MessageItem/MessageContentWrap.vue';
-
+import { MediaRenderTypes } from '@/constant';
 export default {
     components: {
         CustomNavBar,
@@ -38,32 +36,40 @@ export default {
         MessageContentWrap
     },
 
-    data () {
+    data() {
         return {
             message: {}
         };
     },
     computed: {
-        mergeElem () {
+        mergeElem() {
             return this.message.mergeElem || {};
         },
-        mergeTitle () {
+        mergeTitle() {
             return this.mergeElem.title || '';
         },
-        multiMessage () {
+        multiMessage() {
             return this.mergeElem.multiMessage || [];
+        },
+        showMediaRender() {
+            return MediaRenderTypes.includes(this.message.contentType);
         }
     },
 
-    onLoad (params) {
+    onLoad(params) {
         const { message } = params;
         this.message = JSON.parse(decodeURIComponent(message));
-        console.log(this.message);
+        this.getSearchRecordMedia();
     },
 
     methods: {
-        
-    },
+        getSearchRecordMedia() {
+            const imgList = this.multiMessage.filter(message =>
+                MediaRenderTypes.includes(message.contentType)
+            );
+            uni.$emit('getSearchRecordMedia', imgList);
+        }
+    }
 };
 </script>
 
@@ -89,9 +95,23 @@ export default {
                 }
             }
             /deep/.read-content {
-                bottom: 0!important;
+                bottom: 0 !important;
             }
         }
     }
+}
+
+/deep/ .voice_message_container {
+    margin: 10rpx;
+    .voice-box {
+        // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+        border: 1px solid #dedede57;
+    }
+}
+/deep/ .file_message_container {
+    // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+    border: 1px solid #dedede57;
+    margin: 10rpx;
+    width: calc(100% - 10rpx) !important;
 }
 </style>

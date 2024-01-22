@@ -15,17 +15,13 @@ export default {
     name: 'IncomingCall',
     components: {
         TopDialog,
-        SmallPopup,
+        SmallPopup
     },
-    data () {
-        return {
-        };
+    data() {
+        return {};
     },
-    methods: {
-    }
+    methods: {}
 };
 </script>
 
-
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

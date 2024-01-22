@@ -2,6 +2,7 @@
     <view
         id="chating_container"
         class="chating_container"
+        :style="{ height: height, transition: transition }"
         @touchstart="handleHideMenu"
     >
         <!-- <video id="screenshare-video" autoplay playsinline></video> -->
@@ -12,7 +13,7 @@
         <PinToTop
             ref="pin"
             :list="storePinList"
-            @setPositionMsgID="getPositionMsgID"
+            @setPositionMsgID="setPositionMsgID"
         />
         <JoinGroupCall />
         <chating-list
@@ -21,8 +22,10 @@
             :menu-outside-flag="menuOutsideFlag"
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
+            :client-msg-i-d="clientMsgID"
             @scroll="scroll"
-            @touchstart="chatListClick"
+            @touchstart="chatingTouchStart"
+            @touchend="chatingTouchEnd"
             @initSuccess="initSuccess"
             @menuRect="menuRect"
         />
@@ -31,30 +34,17 @@
             :is-multiple-msg="isMultipleMsg"
             :footer-outside-flag="footerOutsideFlag"
             :checked-msg-ids="checkedMsgIds"
-            @sendInit="getPositionMsgID('')"
+            @sendInit="setPositionMsgID('')"
         />
-        <view
-            v-show="storeIsShowSetEnd"
-            class="set-end"
-            @click="getPositionMsgID('')"
-        >
-            <view
-                v-if="conversationUnread"
-                class="unread"
-            >
-                {{ conversationUnread < 100 ? conversationUnread : '99' }}
-            </view>
-            <image
-                src="/static/images/set-end.png"
-            />
-        </view>
+        <SetEnd v-show="storeIsShowSetEnd" />
         <!-- <u-loading-page :loading="initLoading" /> -->
         <view style="height: 0">
             <transition name="fade">
                 <MessageMenu
-                    v-if="menuState.visible"
+                    v-show="menuState.visible"
                     :message="menuState.message"
                     :pater-rect="menuState.paterRect"
+                    :visible="menuState.visible"
                     @updatePin="updatePin"
                     @close="menuState.visible = false"
                 />
@@ -73,41 +63,44 @@
 import { mapActions, mapGetters } from 'vuex';
 import ChatingHeader from './components/ChatingHeader.vue';
 import ChatingFooter from './components/ChatingFooter/index.vue';
+import SetEnd from './components/SetEnd.vue';
 import ChatingList from './components/ChatingList.vue';
-import MessageMenu from './components/MessageMenu.vue';
+import MessageMenu from './components/MessageMenu';
 import { markConversationAsRead } from '@/util/imCommon';
-import { getEl } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
-import IMSDK, { IMMethods, MessageType } from 'openim-uniapp-polyfill';
+import IMSDK, {
+    IMMethods,
+    MessageType,
+    SessionType
+} from 'openim-uniapp-polyfill';
+import { collect } from '@/api/message';
 import PinToTop from './components/pinToTop.vue';
 import JoinGroupCall from './components/JoinGroupCall.vue';
-import { PageEvents } from "@/constant";
-import {
-    MediaRenderTypes,
-} from '@/constant';
+import { PageEvents } from '@/constant';
+import { MediaRenderTypes } from '@/constant';
 export default {
     components: {
         ChatingHeader,
         ChatingFooter,
         ChatingList,
         MessageMenu,
+        SetEnd,
         PinToTop,
         JoinGroupCall
     },
-    provide () {
-        return {
-            getSearchRecord: this.getSearchRecord
-        };
-    },
-    data () {
+    data() {
         return {
             test: false,
             isShowNotification: false,
+            height: uni.getSystemInfoSync().windowHeight + 'px',
             notificationText: '',
             notificationIcon: '',
             updateChatKey: '',
             updatePinKey: '',
+            transition: '',
+            clientMsgID: '',
             listHeight: 0,
+            isHide: false,
             footerOutsideFlag: 0,
             menuOutsideFlag: 0,
             initLoading: true,
@@ -115,6 +108,7 @@ export default {
             positionMsgID: '',
             isMultipleMsg: false,
             checkedMsgIds: [],
+            isShowkeyBoard: false,
             menuState: {
                 visible: false,
                 paterRect: {},
@@ -132,32 +126,42 @@ export default {
             'storeIsShowSetEnd',
             'storePinList',
             'storeHasMoreAfterMessage',
-            'conversationUnread'
+            'storeKeyBoardHeight',
+            'storeIsShowkeyBoard'
         ]),
-        checkedMsg () {
-            return this.storeHistoryMessageList.filter((v) =>
+        checkedMsg() {
+            return this.storeHistoryMessageList.filter(v =>
                 this.checkedMsgIds.includes(v.clientMsgID)
             );
         },
+        isWorkingGroup() {
+            return (
+                this.storeCurrentConversation.conversationType ===
+                SessionType.WorkingGroup
+            );
+        }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { back2Tab, clientMsgID } = options;
         this.back2Tab = !!JSON.parse(back2Tab);
-        this.positionMsgID = clientMsgID;
+        this.clientMsgID = clientMsgID;
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
         uni.$on('deleteMsg', this.handleMsgDel);
         uni.$on('reloadChatingList', this.reloadChatingList);
-        uni.$on('getPositionMsgID', this.getPositionMsgID);
+        uni.$on('setPositionMsgID', this.setPositionMsgID);
+        uni.$on('inputBlur', this.inputBlur);
+        uni.$on('inputFocus', this.inputFocus);
+        uni.$on('getSearchRecordMedia', this.getSearchRecordMedia);
+        uni.$on('handleFavorite', this.handleFavorite);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
-        this.getSearchRecord();
+        this.getSearchRecordMedia();
         this.getPinList();
     },
-    onUnload () {
-        console.log('unload');
+    onUnload() {
         markConversationAsRead(
             {
-                ...this.$store.getters.storeCurrentConversation,
+                ...this.$store.getters.storeCurrentConversation
             },
             true
         );
@@ -167,48 +171,86 @@ export default {
         uni.$off('forward_finish', this.hideMultipleMsg);
         uni.$off('deleteMsg', this.handleMsgDel);
         uni.$off('reloadChatingList', this.reloadChatingList);
-        uni.$off('getPositionMsgID', this.getPositionMsgID);
+        uni.$off('setPositionMsgID', this.setPositionMsgID);
+        uni.$off('inputBlur', this.inputBlur);
+        uni.$off('inputFocus', this.inputFocus);
+        uni.$off('getSearchRecordMedia', this.getSearchRecordMedia);
+        uni.$off('handleFavorite', this.handleFavorite);
         this.$store.commit('base/SET_PIN_LIST', []);
+    },
+    onHide() {
+        this.isHide = true;
+        this.isShowkeyBoard = this.storeIsShowkeyBoard;
+        if (this.storeIsShowkeyBoard) {
+            uni.$emit('inputFocus');
+        }
+    },
+    onShow() {
+        this.isHide = false;
+        if (this.isShowkeyBoard) {
+            uni.$emit('setInputFocus');
+        }
     },
     methods: {
         ...mapActions('message', ['resetMessageState']),
         ...mapActions('conversation', ['resetConversationState']),
         ...mapActions('base', ['pinList']),
-        async handleHideMenu () {
+        getCheckUsers(userList, type) {
+            if (type === 'initWebrtc') {
+                uni.$emit('createGroupRoom', userList, type);
+            }
+        },
+        inputBlur() {
+            if (this.isHide) return;
+            this.transition = 'all 0.2s';
+            this.height = '100%';
+        },
+        inputFocus() {
+            if (uni.$u.os() !== 'ios') return;
+            this.transition = 'all 0.239s';
+            this.height = this.storeKeyBoardHeight
+                ? uni.getSystemInfoSync().windowHeight -
+                  this.storeKeyBoardHeight +
+                  'px'
+                : '100%';
+        },
+        async handleHideMenu() {
             if (!this.storeIsShowSetEnd) {
                 this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
             }
-            // const res = await getEl.call(this, '.message_menu_container');
-            // if (res) {
-            //     this.menuState.visible = false;
-            // }
             this.menuState.visible = false;
         },
-        async getPinList () {
+        async getPinList() {
             let conversationID = this.storeCurrentConversation.conversationID;
             this.pinList(conversationID);
-            
         },
-        scroll () {
+        scroll() {
             this.handleHideMenu();
             // uni.hideKeyboard();
         },
-        getPositionMsgID (positionMsgID, seq) {
+        setPositionMsgID(positionMsgID, seq) {
             this.positionMsgID = positionMsgID;
             this.$refs.chatingListRef.setPositionMsgID(this.positionMsgID, seq);
-            if (!this.storeHasMoreAfterMessage && !this.positionMsgID && this.storeHistoryMessageList.length <= 120) {
+            if (
+                !this.storeHasMoreAfterMessage &&
+                !this.positionMsgID &&
+                this.storeHistoryMessageList.length <= 120
+            ) {
                 uni.$emit(PageEvents.ScrollToBottom);
             } else {
-                const index = this.storeHistoryMessageList.findIndex(item => item.clientMsgID === positionMsgID);
+                const index = this.storeHistoryMessageList.findIndex(
+                    item => item.clientMsgID === positionMsgID
+                );
                 if (this.positionMsgID && index > -1) {
-                    console.log('auchor-${positionMsgID}auchor-${positionMsgID}', `auchor-${positionMsgID}`);
-                    this.$refs.chatingListRef.scrollToAnchor(`auchor-${positionMsgID}`);
+                    this.$refs.chatingListRef.scrollToAnchor(
+                        `auchor-${positionMsgID}`
+                    );
                 } else {
                     this.reloadChatingList();
                 }
             }
         },
-        reloadChatingList () {
+        reloadChatingList() {
             const pages = getCurrentPages();
             const currentPage = pages[pages.length - 1];
             const page = currentPage.route;
@@ -216,70 +258,60 @@ export default {
                 this.$refs.chatingListRef.init();
             }
         },
-        updatePin (map) {
+        updatePin(map) {
             this.notificationText = map.text;
             this.notificationIcon = map.icon;
             this.isShowNotification = true;
             this.getPinList();
         },
-        async getSearchRecord () {
-            let conversationID = this.storeCurrentConversation.conversationID;
-            const params = {
-                conversationID: conversationID,
-                keywordList: [],
-                messageTypeList: MediaRenderTypes,
-                searchTimePosition: 0,
-                searchTimePeriod: 0,
-                pageIndex: 1,
-                count: 999,
-            };
-            const { data } = await IMSDK.asyncApi(
-                IMMethods.SearchLocalMessages,
-                IMSDK.uuid(),
-                params
-            );
-            let imgList = data.searchResultItems?.[0]?.messageList || [];
-            this.imgList = imgList.map((v) => {
-                const { contentType, pictureElem, videoElem } = v;
-                const isVideo = contentType === MessageType.VideoMessage;
-                let map = {
-                    url: pictureElem?.sourcePicture.url,
-                    poster: [pictureElem?.sourcePicture.url, pictureElem?.sourcePath, v.localEx],
-                    type: 'image',
+        async getSearchRecordMedia(list) {
+            let imgList = list;
+            if (!list) {
+                let conversationID =
+                    this.storeCurrentConversation.conversationID;
+                const params = {
+                    conversationID,
+                    keywordList: [],
+                    messageTypeList: MediaRenderTypes,
+                    searchTimePosition: 0,
+                    searchTimePeriod: 0,
+                    pageIndex: 1,
+                    count: 999
                 };
-                if (isVideo) {
-                    map = {
-                        url: videoElem.videoUrl,
-                        poster: [videoElem?.snapshotUrl, videoElem?.snapshotPath, v.localEx],
-                        type: 'video',
-                    };
-                }
-                return map;
-            });
-            this.imgList.reverse();
-            this.$store.commit('conversation/SET_CONVERSATION_MEDIA_LIST', this.imgList);
+                const { data } = await IMSDK.asyncApi(
+                    IMMethods.SearchLocalMessages,
+                    IMSDK.uuid(),
+                    params
+                );
+                imgList = data.searchResultItems?.[0]?.messageList || [];
+            }
+            uni.$emit('setMediaList', imgList, list ? '' : 'reverse');
         },
-        chatListClick () {
+        chatingTouchStart() {
             this.footerOutsideFlag += 1;
-            uni.hideKeyboard();
         },
-        getEl (el) {
-            return new Promise((resolve) => {
+        chatingTouchEnd() {
+            // uni.$emit("inputBlur");
+            // uni.hideKeyboard();
+        },
+        chatingTouchMove() {
+            // uni.hideKeyboard();
+        },
+        getEl(el) {
+            return new Promise(resolve => {
                 const query = uni.createSelectorQuery().in(this);
                 query
                     .select(el)
-                    .boundingClientRect((data) => {
+                    .boundingClientRect(data => {
                         resolve(data);
                     })
                     .exec();
             });
         },
-        initSuccess () {
-            // console.log('initSuccess');
+        initSuccess() {
             this.initLoading = false;
         },
-        menuRect (res) {
-            // console.log('menuRect', res);
+        menuRect(res) {
             this.menuState.paterRect = {
                 ...res,
                 message: undefined
@@ -288,52 +320,99 @@ export default {
             this.menuState.visible = true;
             // uni.hideKeyboard();
         },
-        async handleMultipleMessage ({ show, message, type = '' }) {
-            // console.log('开启多选', show, message);
-            this.chatListClick();
+        async handleMultipleMessage({ show, message, type = '' }) {
+            this.chatingTouchStart();
             this.isMultipleMsg = show;
             switch (type) {
-            case MessageMenuTypes.Init:
-                this.checkedMsgIds = [message.clientMsgID];
-                break;
-            case MessageMenuTypes.Checked:
-                const index = this.checkedMsgIds.indexOf(
-                    message.clientMsgID
-                );
-                if (index > -1) {
-                    this.checkedMsgIds.splice(index, 1);
-                } else {
-                    this.checkedMsgIds.push(message.clientMsgID);
-                }
-                break;
-            case MessageMenuTypes.DelAll:
-                if (this.checkedMsg.length === 0) return;
-                this.handleMsgDel(this.checkedMsg);
-                break;
-            case MessageMenuTypes.Del:
-                this.handleMsgDel([message]);
-                break;
-            case MessageMenuTypes.ForwardAll:
-                if (this.checkedMsg.length === 0) return;
-                const res = await IMSDK.asyncApi(
-                    IMMethods.CreateMergerMessage,
-                    IMSDK.uuid(),
-                    {
-                        messageList: this.checkedMsg,
-                        title: `${this.storeSelfInfo.nickname}与${this.storeCurrentConversation.showName}的聊天记录`,
-                        summaryList: [],
+                case MessageMenuTypes.Init:
+                    this.checkedMsgIds = [message.clientMsgID];
+                    break;
+                case MessageMenuTypes.Checked:
+                    const index = this.checkedMsgIds.indexOf(
+                        message.clientMsgID
+                    );
+                    if (index > -1) {
+                        this.checkedMsgIds.splice(index, 1);
+                    } else {
+                        this.checkedMsgIds.push(message.clientMsgID);
                     }
-                );
-                this.handleForward(res);
-                break;
+                    break;
+                case MessageMenuTypes.DelAll:
+                    if (this.checkedMsg.length === 0) return;
+                    if (this.isWorkingGroup) {
+                        let isAllMyMsg = true;
+                        this.checkedMsg.forEach(msg => {
+                            if (msg.sendID !== this.storeSelfInfo.userID) {
+                                isAllMyMsg = false;
+                            }
+                        });
+                        if (!isAllMyMsg) {
+                            uni.$u.toast('无法删除其他人的消息');
+                            break;
+                        }
+                    }
+                    this.handleMsgDel(this.checkedMsg);
+                    break;
+                case MessageMenuTypes.Del:
+                    this.handleMsgDel([message]);
+                    break;
+                case MessageMenuTypes.Favorite:
+                    this.handleMultipleFavorite();
+                    break;
+                case MessageMenuTypes.ForwardAll:
+                    if (this.checkedMsg.length === 0) return;
+                    const res = await IMSDK.asyncApi(
+                        IMMethods.CreateMergerMessage,
+                        IMSDK.uuid(),
+                        {
+                            messageList: this.checkedMsg,
+                            title:
+                                (this.isWorkingGroup
+                                    ? ''
+                                    : `${this.storeSelfInfo.nickname}与`) +
+                                `${this.storeCurrentConversation.showName}的聊天记录`,
+                            summaryList: []
+                        }
+                    );
+                    this.handleForward(res);
+                    break;
             }
         },
-        async handleMsgDel (msgArr) {
-            console.log('msgArrmsgArr', msgArr);
+        async handleFavorite(message) {
+            try {
+                await collect({
+                    content: JSON.stringify(message),
+                    senderNickname:
+                        message.contentType === MessageType.MergeMessage
+                            ? this.storeCurrentConversation.showName
+                            : message.senderNickname
+                });
+                uni.$u.toast('收藏成功');
+            } catch (err) {
+                console.log(err);
+                uni.$u.toast('收藏失败，请重试');
+            }
+        },
+        async handleMultipleFavorite() {
+            const message = await IMSDK.asyncApi(
+                IMMethods.CreateMergerMessage,
+                IMSDK.uuid(),
+                {
+                    messageList: this.checkedMsg,
+                    title:
+                        (this.isWorkingGroup
+                            ? ''
+                            : `${this.storeSelfInfo.nickname}与`) +
+                        `${this.storeCurrentConversation.showName}的聊天记录`,
+                    summaryList: []
+                }
+            );
+            this.handleFavorite(message);
+        },
+        async handleMsgDel(msgArr) {
             try {
                 // this.$loading('删除中');
                 for (let i = 0; i < msgArr.length; i++) {
-                    console.log(msgArr[i]);
                     const message = msgArr[i];
                     await IMSDK.asyncApi(
                         IMMethods.DeleteMessage,
@@ -341,7 +420,7 @@ export default {
                         {
                             conversationID:
                                 this.storeCurrentConversation.conversationID,
-                            clientMsgID: message.clientMsgID,
+                            clientMsgID: message.clientMsgID
                         }
                     );
                 }
@@ -351,28 +430,24 @@ export default {
                 // uni.$u.toast('删除失败');
             }
         },
-        async handleForward (msg) {
+        async handleForward(msg) {
             let temp = JSON.parse(JSON.stringify(msg));
             temp.mergeElem.multiMessage.forEach(v => {
                 if (v.contentType === MessageType.QuoteMessage) {
                     v.quoteElem.quoteMessage = undefined;
                 }
             });
-            console.log(temp);
             uni.$u.route('/pages/common/msgForward/index', {
-                message: encodeURIComponent(JSON.stringify(temp)),
+                message: encodeURIComponent(JSON.stringify(temp))
             });
         },
-        hideMultipleMsg () {
+        hideMultipleMsg() {
             this.isMultipleMsg = false;
         },
-        goPerson ({ id }) {
-            uni.$u.route(
-                `/pages/common/userCard/index?sourceID=${id}`
-            );
+        goPerson({ id }) {
+            uni.$u.route(`/pages/common/userCard/index?sourceID=${id}`);
         },
-        goLink ({ url }) {
-            console.log('url-----url', url);
+        goLink({ url }) {
             plus.runtime.openURL(url);
         }
     }
@@ -380,64 +455,40 @@ export default {
 </script>
 
 <script module="chatRender" lang="renderjs">
-	export default {
-		mounted () {
-            this.bindEvent();
-        },
-        methods: {
-            bindEvent () {
-                document.querySelector(`.chating_container`).addEventListener('click', (event) => {
-                    const target = event.target;
-                    if (target.getAttribute('data-url')) {
-                        this.$ownerInstance.callMethod('goLink', {
-                            url: target.getAttribute('data-url')
-                        });
-                    }
-                    if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
-                        this.$ownerInstance.callMethod('goPerson', {
-                            id: target.getAttribute('data-at')
-                        });
-                    }
-                });
-            }
+export default {
+    mounted () {
+        this.bindEvent();
+    },
+    methods: {
+        bindEvent () {
+            document.querySelector(`.chating_container`).addEventListener('click', (event) => {
+                const target = event.target;
+                if (target.getAttribute('data-url')) {
+                    this.$ownerInstance.callMethod('goLink', {
+                        url: target.getAttribute('data-url')
+                    });
+                }
+                if (target.getAttribute('data-at') && target.getAttribute('data-at') !== '999999999') {
+                    this.$ownerInstance.callMethod('goPerson', {
+                        id: target.getAttribute('data-at')
+                    });
+                }
+            });
         }
-	}
+    }
+}
 </script>
 <style lang="scss" scoped>
 .chating_container {
     @include colBox(false);
-    height: 100%;
     overflow: hidden;
     background: url('/static/images/chat-bg.png') no-repeat;
     background-size: cover;
+    transition: all 0.139s;
     #screenshare-video {
         width: 400px;
         height: 400px;
         border: 1px solid red;
-    }
-    .set-end {
-        position: fixed;
-        bottom: 130px;
-        right: 20px;
-        uni-image {
-            width: 100rpx;
-            height: 100rpx;
-        }
-        .unread {
-            width: 60rpx;
-            height: 60rpx;
-            line-height: 60rpx;
-            text-align: center;
-            background: rgba(0, 141, 255, 1);
-            color: #fff;
-            border-radius: 50%;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            top: -40rpx;
-            z-index: 9;
-            font-size: 12px;
-        }
     }
     .mutiple_action_container {
         display: flex;
@@ -456,7 +507,6 @@ export default {
             }
         }
     }
-    
 
     .fade-leave,
     .fade-enter-to {

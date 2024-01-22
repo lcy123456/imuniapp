@@ -2,11 +2,12 @@
     <u-avatar
         :src="getAvatarUrl"
         :text="getAvatarUrl ? undefined : avatarText"
-        bg-color="#5496EB"
         :default-url="getDdefaultUrl"
+        :font-size="fontSize"
         :shape="shape"
         :size="size"
         mode="aspectFill"
+        :style="{ background: bgColor }"
         @longpress="longpress"
         @click="click"
         @onError="errorHandle"
@@ -15,15 +16,23 @@
 
 <script>
 import defaultAvatars from '@/common/defaultAvatars.js';
-import defaultGroupIcon from 'static/images/contact_my_group.png';
-import defaultNotifyIcon from 'static/images/default_notify_icon.png';
+import defaultNotifyIcon from '@/static/images/default_notify_icon.png';
+import { getFirstCharacter, colors, adjustColor } from '@/util/common';
+const defaultGroupIcon = '/static/images/contact_my_group.svg';
 export default {
-    name: "MyAvatar",
+    name: 'MyAvatar',
     props: {
-        src: String,
+        src: {
+            type: String,
+            default: ''
+        },
         shape: {
             type: String,
             default: 'square'
+        },
+        fontSize: {
+            type: Number,
+            default: 14
         },
         size: {
             type: String,
@@ -37,15 +46,19 @@ export default {
             type: Boolean,
             default: false
         },
-        desc: String
+        desc: {
+            type: String,
+            default: ''
+        }
     },
-    data () {
+    data() {
         return {
-            avatarText: undefined
+            avatarText: undefined,
+            bgColor: ''
         };
     },
     computed: {
-        getAvatarUrl () {
+        getAvatarUrl() {
             if (this.isNotify) {
                 return defaultNotifyIcon;
             }
@@ -57,28 +70,32 @@ export default {
             }
             return '';
         },
-        getDdefaultUrl () {
+        getDdefaultUrl() {
             return this.isGroup ? defaultGroupIcon : undefined;
         }
     },
     watch: {
-        desc () {
+        desc() {
             this.errorHandle();
         }
     },
     methods: {
-        errorHandle () {
-            this.avatarText = this.desc ? this.desc.slice(this.desc.length > 1 ? -2 : -1) : '未知';
+        errorHandle() {
+            this.avatarText = this.desc
+                ? this.desc.slice(this.desc.length > 1 ? -2 : -1)
+                : '未知';
+            const hexColor = colors[getFirstCharacter(this.desc || '未知')];
+            const rgbaColor = adjustColor(hexColor, 30);
+            this.bgColor = `radial-gradient(${hexColor}, ${rgbaColor})`;
         },
-        click () {
+        click() {
             this.$emit('click');
         },
-        longpress () {
+        longpress() {
             this.$emit('longpress');
         }
-    },
+    }
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

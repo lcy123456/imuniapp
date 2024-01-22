@@ -1,8 +1,5 @@
 <template>
-    <view
-        v-if="text"
-        class="between-time-box"
-    >
+    <view v-if="text" class="between-time-box">
         <text>{{ text }}</text>
     </view>
 </template>
@@ -10,8 +7,7 @@
 <script>
 export default {
     name: 'BetweenTime',
-    components: {
-    },
+    components: {},
     props: {
         isReverse: {
             type: Boolean,
@@ -31,24 +27,28 @@ export default {
         }
     },
     computed: {
-        text () {
+        text() {
             return this.getMessageBetweenTime(this.msgBefore, this.msgAfter);
         }
     },
     methods: {
-        getMessageBetweenTime (msgBefore, msgAfter) {
+        getMessageBetweenTime(msgBefore, msgAfter) {
             if (this.type === 'first') {
-                return this.isReverse ? new Date(msgBefore.sendTime).Format('yyy/MM/dd') : new Date(msgAfter.sendTime).Format('yyy/MM/dd');
+                return this.isReverse
+                    ? new Date(msgBefore.sendTime).Format('yyyy/MM/dd')
+                    : new Date(msgAfter.sendTime).Format('yyyy/MM/dd');
             }
             if (!msgAfter || !msgBefore) return '';
-            let dayBefore = new Date(msgBefore.sendTime).Format('dd');
-            let dayAfter = new Date(msgAfter.sendTime).Format('dd');
+            let dayBefore = new Date(msgBefore.sendTime).Format('yyyy/MM/dd');
+            let dayAfter = new Date(msgAfter.sendTime).Format('yyyy/MM/dd');
             if (dayBefore !== dayAfter) {
-                return this.isReverse ? new Date(msgBefore.sendTime).Format('yyy/MM/dd') : new Date(msgAfter.sendTime).Format('yyy/MM/dd');
+                return this.isReverse
+                    ? new Date(msgBefore.sendTime).Format('yyyy/MM/dd')
+                    : new Date(msgAfter.sendTime).Format('yyyy/MM/dd');
             }
             return '';
         }
-    },
+    }
 };
 </script>
 
@@ -56,8 +56,8 @@ export default {
 .between-time-box {
     margin: 0 auto;
     padding: 10rpx 20rpx;
-    color: #3981F8;
-    background: #F4FBFF;
+    color: #3981f8;
+    background: #f4fbff;
     font-size: 26rpx;
     width: fit-content;
     border-radius: 23rpx;

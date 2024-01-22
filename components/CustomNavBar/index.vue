@@ -6,10 +6,7 @@
         left-icon=""
         :bg-color="isBgColor2 ? bgColor2 : bgColor"
     >
-        <template
-            v-if="showLeft"
-            slot="left"
-        >
+        <template v-if="showLeft" slot="left">
             <slot name="left">
                 <view class="u-nav-slot">
                     <img
@@ -20,7 +17,7 @@
                         alt=""
                         srcset=""
                         @click="leftClick"
-                    >
+                    />
                 </view>
             </slot>
         </template>
@@ -31,11 +28,7 @@
 
         <template slot="right">
             <slot name="more">
-                <view
-                    v-if="more"
-                    class="u-nav-slot"
-                    @click="rightClick"
-                >
+                <view v-if="more" class="u-nav-slot" @click="rightClick">
                     <u-icon
                         class="more_dot"
                         name="more-dot-fill"
@@ -50,10 +43,8 @@
 
 <script>
 export default {
-    name: "",
-    components: {
-
-    },
+    name: '',
+    components: {},
     props: {
         title: {
             type: String,
@@ -84,19 +75,17 @@ export default {
             default: '#eff1f4'
         }
     },
-    data () {
-        return {
-
-        };
+    data() {
+        return {};
     },
     methods: {
-        leftClick () {
+        leftClick() {
             if (this.route) {
                 uni.navigateBack();
             }
             this.$emit('leftClick');
         },
-        rightClick () {
+        rightClick() {
             this.$emit('rightClick');
         }
     }
@@ -104,29 +93,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.custom_nav_bar {
-		/deep/ .u-navbar__content__left {
-			padding: 0;
-		}
+.custom_nav_bar {
+    /deep/ .u-navbar__content__left {
+        padding: 0;
+    }
 
-        /deep/ .u-navbar__content, 
-        /deep/.u-navbar__content__title {
-            font-size: 36rpx;
-            font-family: MiSans-Medium;
-        }
+    /deep/ .u-navbar__content,
+    /deep/.u-navbar__content__title {
+        font-size: 36rpx;
+        font-family: MiSans-Medium;
+    }
 
-		/deep/ .u-navbar__content__right {
-			padding: 0;
-		}
+    /deep/ .u-navbar__content__right {
+        padding: 0;
+    }
 
-		.back_icon {
-			padding: 24rpx;
-			margin-left: 20rpx;
-		}
+    .back_icon {
+        padding: 24rpx;
+        margin-left: 20rpx;
+    }
 
-		.more_dot {
-			padding: 24rpx;
-			margin-right: 30rpx;
-		}
-	}
+    .more_dot {
+        padding: 24rpx;
+        margin-right: 30rpx;
+    }
+}
 </style>

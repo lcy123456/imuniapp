@@ -2,14 +2,8 @@
     <view class="register_container">
         <CustomNavBar :title="isRegister ? '注册' : '忘记密码'" />
         <view class="box-logo">
-            <image
-                class="logo w-130 h-120"
-                src="/static/images/logo@2x.png"
-            />
-            <image
-                class="w-249 h-37"
-                src="/static/images/logo_name.png"
-            />
+            <image class="logo w-130 h-120" src="/static/images/logo.png" />
+            <image class="w-249 h-37" src="/static/images/logo_name.png" />
         </view>
         <u-form
             ref="registerForm"
@@ -18,12 +12,9 @@
             :rules="rules"
         >
             <u-form-item prop="phoneNumber">
-                <view
-                    class="phoneNumber_areacode"
-                    @click="showPicker"
-                >
+                <view class="phoneNumber_areacode" @click="showPicker">
                     <u--image
-                        src="/static/images/logo@2x.png"
+                        src="/static/images/logo.png"
                         width="58rpx"
                         height="58rpx"
                         shape="circle"
@@ -32,10 +23,7 @@
                     <text class="areacode_content">
                         +{{ userInfo.areaCode }}
                     </text>
-                    <u-icon
-                        class="arrow_down"
-                        name="arrow-down"
-                    />
+                    <u-icon class="arrow_down" name="arrow-down" />
                 </view>
                 <u-input
                     v-model="userInfo.phoneNumber"
@@ -45,10 +33,7 @@
                     clearable
                 />
             </u-form-item>
-            <u-form-item
-                v-if="isRegister"
-                prop="invitationCode"
-            >
+            <u-form-item v-if="isRegister" prop="invitationCode">
                 <u-input
                     v-model="userInfo.invitationCode"
                     class="login-input"
@@ -71,10 +56,7 @@
                 {{ isRegister ? '下一步' : '获取验证码' }}
             </u-button>
         </view>
-        <view
-            v-if="isRegister"
-            class="agreement"
-        >
+        <view v-if="isRegister" class="agreement">
             <u-checkbox-group v-model="checked">
                 <u-checkbox
                     icon-size="12"
@@ -84,18 +66,11 @@
                     :name="true"
                 />
             </u-checkbox-group>
-            <text class="detail">
-                服务协议
-            </text>
+            <text class="detail"> 服务协议 </text>
             <text>与</text>
-            <text class="detail">
-                隐私政策
-            </text>
+            <text class="detail"> 隐私政策 </text>
         </view>
-        <AreaPicker
-            ref="AreaPicker"
-            @chooseArea="chooseArea"
-        />
+        <AreaPicker ref="AreaPicker" @chooseArea="chooseArea" />
     </view>
 </template>
 
@@ -109,16 +84,16 @@ import { checkLoginError } from '@/util/common';
 export default {
     components: {
         CustomNavBar,
-        AreaPicker,
+        AreaPicker
     },
-    data () {
+    data() {
         return {
             usedFor: 0,
             userInfo: {
                 phoneNumber: '',
                 email: '',
                 areaCode: '86',
-                invitationCode: null,
+                invitationCode: null
             },
             checked: [true],
             rules: {
@@ -127,30 +102,33 @@ export default {
                         type: 'string',
                         required: true,
                         message: '请输入手机号码',
-                        trigger: ['blur', 'change'],
-                    },
-                ],
+                        trigger: ['blur', 'change']
+                    }
+                ]
             },
             loading: false
         };
     },
     computed: {
-        needInvitationCodeRegister () {
+        needInvitationCodeRegister() {
             return this.$store.getters.storeAppConfig
                 .needInvitationCodeRegister;
         },
-        isRegister () {
+        isRegister() {
             return SmsUserFor.Register === this.usedFor;
         },
-        canLogin () {
-            return (this.isRegister ? this.checked[0] : true) && this.userInfo.phoneNumber;
-        },
+        canLogin() {
+            return (
+                (this.isRegister ? this.checked[0] : true) &&
+                this.userInfo.phoneNumber
+            );
+        }
     },
-    onLoad (options) {
+    onLoad(options) {
         this.usedFor = Number(options.usedFor);
     },
     methods: {
-        checkInvitationCodeState () {
+        checkInvitationCodeState() {
             if (this.needInvitationCodeRegister) {
                 this.rules.push({
                     invitationCode: [
@@ -158,19 +136,19 @@ export default {
                             type: 'string',
                             required: true,
                             message: '请输入邀请码',
-                            trigger: ['blur', 'change'],
-                        },
-                    ],
+                            trigger: ['blur', 'change']
+                        }
+                    ]
                 });
             }
         },
-        sendSms () {
+        sendSms() {
             this.$refs.registerForm.validate().then(async () => {
                 const options = {
                     phoneNumber: this.userInfo.phoneNumber,
                     areaCode: `+${this.userInfo.areaCode}`,
                     usedFor: this.usedFor,
-                    invitationCode: this.userInfo.invitationCode,
+                    invitationCode: this.userInfo.invitationCode
                 };
                 try {
                     this.loading = true;
@@ -191,16 +169,16 @@ export default {
                 this.loading = false;
             });
         },
-        back () {
+        back() {
             uni.$u.route('/pages/login/index');
         },
-        showPicker () {
+        showPicker() {
             this.$refs.AreaPicker.init();
         },
-        chooseArea (areaCode) {
+        chooseArea(areaCode) {
             this.userInfo.areaCode = areaCode;
-        },
-    },
+        }
+    }
 };
 </script>
 <style lang="scss" scoped>

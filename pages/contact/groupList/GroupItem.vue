@@ -1,13 +1,6 @@
 <template>
-    <view
-        class="group_item"
-        @click="toGroupCard"
-    >
-        <my-avatar
-            :src="groupInfo.faceURL"
-            :is-group="true"
-            size="42"
-        />
+    <view class="group_item" @click="toGroupCard">
+        <my-avatar :src="groupInfo.faceURL" :is-group="true" size="42" />
         <view class="group_info">
             <text class="group_name">
                 {{ groupInfo.groupName }}
@@ -20,22 +13,20 @@
 </template>
 
 <script>
-import MyAvatar from "@/components/MyAvatar/index.vue";
+import MyAvatar from '@/components/MyAvatar/index.vue';
 export default {
-    name: "",
+    name: '',
     components: {
         MyAvatar
     },
     props: {
         groupInfo: Object
     },
-    data () {
-        return {
-
-        };
+    data() {
+        return {};
     },
     methods: {
-        toGroupCard () {
+        toGroupCard() {
             uni.navigateTo({
                 url: `/pages/common/groupCard/index?sourceID=${this.groupInfo.groupID}`
             });
@@ -45,23 +36,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.group_item {
-		@include vCenterBox();
-		padding: 24rpx 44rpx;
+.group_item {
+    @include vCenterBox();
+    padding: 24rpx 44rpx;
 
-		.group_info {
-			margin-left: 24rpx;
+    .group_info {
+        margin-left: 24rpx;
 
-			.group_name {
-				@include nomalEllipsis();
-                max-width: 400rpx;
-			}
+        .group_name {
+            @include nomalEllipsis();
+            max-width: 400rpx;
+        }
 
-			.group_details {
-				font-size: 28rpx;
-				color: #999;
-				margin-top: 8rpx;
-			}
-		}
-	}
+        .group_details {
+            font-size: 28rpx;
+            color: #999;
+            margin-top: 8rpx;
+        }
+    }
+}
 </style>

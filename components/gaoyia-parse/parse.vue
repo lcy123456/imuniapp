@@ -15,11 +15,7 @@
         :class="className"
         :style="'user-select:' + userSelect"
     >
-        <block
-            v-for="(node, index) of nodes"
-            v-if="!loading"
-            :key="index"
-        >
+        <block v-for="(node, index) of nodes" v-if="!loading" :key="index">
             <wxParseTemplate :node="node" />
         </block>
     </div>
@@ -29,14 +25,13 @@
 import HtmlToJson from './libs/html2json';
 import wxParseTemplate from './components/wxParseTemplate0';
 
-	
 export default {
     name: 'WxParse',
     components: {
         wxParseTemplate
     },
     // 父组件中提供
-    provide () {
+    provide() {
         return {
             parseWidth: this.wxParseWidth,
             parseSelect: this.userSelect
@@ -63,7 +58,7 @@ export default {
                     // 		},
                     // 		fail: function (res) {
                     // 			console.log(res.errMsg);
-                    // 		}    
+                    // 		}
                     // 	}
                     // }
                 };
@@ -87,7 +82,7 @@ export default {
         },
         startHandler: {
             type: Function,
-            default () {
+            default() {
                 return node => {
                     node.attr.class = null;
                     node.attr.style = null;
@@ -104,7 +99,7 @@ export default {
         },
         imageProp: {
             type: Object,
-            default () {
+            default() {
                 return {
                     mode: 'aspectFit',
                     padding: 0,
@@ -114,7 +109,7 @@ export default {
             }
         }
     },
-    data () {
+    data() {
         return {
             nodes: {},
             imageUrls: [],
@@ -125,24 +120,24 @@ export default {
     },
     computed: {},
     watch: {
-        content () {
+        content() {
             this.setHtml();
         }
         // content: {
         // 	handler: function(newVal, oldVal) {
         // 		if (newVal !== oldVal) {
-        // 			
+        //
         // 		}
         // 	},
         // 	deep: true
         // }
     },
-    mounted () {
+    mounted() {
         this.setHtml();
     },
     methods: {
-        setHtml () {
-            this.getWidth().then((data) => {
+        setHtml() {
+            this.getWidth().then(data => {
                 this.wxParseWidth.value = data;
             });
             let {
@@ -163,29 +158,30 @@ export default {
 
             this.imageUrls = results.imageUrls;
             // this.nodes = results.nodes;
-				
-				
+
             this.nodes = [];
-            results.nodes.forEach((item) => {
+            results.nodes.forEach(item => {
                 setTimeout(() => {
                     this.nodes.push(item);
                 }, 0);
             });
         },
-        getWidth () {
+        getWidth() {
             return new Promise((res, rej) => {
                 // #ifndef MP-ALIPAY || MP-BAIDU
                 uni.createSelectorQuery()
                     .in(this)
                     .select('.wxParse')
-                    .fields({
-                        size: true,
-                        scrollOffset: true
-                    },
-                    data => {
-                        res(data.width);
-                    }
-                    ).exec();
+                    .fields(
+                        {
+                            size: true,
+                            scrollOffset: true
+                        },
+                        data => {
+                            res(data.width);
+                        }
+                    )
+                    .exec();
                 // #endif
                 // #ifdef MP-BAIDU
                 const query = swan.createSelectorQuery();
@@ -200,19 +196,19 @@ export default {
                 // #ifdef MP-ALIPAY
                 my.createSelectorQuery()
                     .select('.wxParse')
-                    .boundingClientRect().exec((ret) => {
+                    .boundingClientRect()
+                    .exec(ret => {
                         res(ret[0].width);
                     });
                 // #endif
             });
         },
-        navigate (href, $event, attr) {
+        navigate(href, $event, attr) {
             console.log(href, attr);
             this.$emit('navigate', href, $event);
         },
-        preview (src, $event) {
+        preview(src, $event) {
             // if (!this.imageUrls.length || typeof this.imgOptions === 'boolean') {
-
             // } else {
             // 	uni.previewImage({
             // 		current: src,
@@ -224,10 +220,8 @@ export default {
             // }
             // this.$emit('preview', src, $event);
         },
-        removeImageUrl (src) {
-            const {
-                imageUrls
-            } = this;
+        removeImageUrl(src) {
+            const { imageUrls } = this;
             imageUrls.splice(imageUrls.indexOf(src), 1);
         }
     }

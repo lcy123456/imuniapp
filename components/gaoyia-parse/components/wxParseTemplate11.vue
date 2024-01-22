@@ -15,19 +15,16 @@
                 :style="'user-select:' + parseSelect"
             />
         </button>
-		
+
         <!--a类型-->
         <view
             v-else-if="node.tag == 'a'"
             :class="node.classStr"
             :data-href="node.attr.href"
             :style="node.styleStr"
-            @click="wxParseATap(node.attr,$event)"
+            @click="wxParseATap(node.attr, $event)"
         >
-            <block
-                v-for="(node, index) of node.nodes"
-                :key="index"
-            >
+            <block v-for="(node, index) of node.nodes" :key="index">
                 <rich-text
                     :nodes="node"
                     :class="node.classStr"
@@ -35,17 +32,14 @@
                 />
             </block>
         </view>
-		
+
         <!--li类型-->
         <view
             v-else-if="node.tag == 'li'"
             :class="node.classStr"
             :style="node.styleStr"
         >
-            <block
-                v-for="(node, index) of node.nodes"
-                :key="index"
-            >
+            <block v-for="(node, index) of node.nodes" :key="index">
                 <rich-text
                     :nodes="node"
                     :class="node.classStr"
@@ -53,7 +47,7 @@
                 />
             </block>
         </view>
-		
+
         <!--table类型-->
         <wx-parse-table
             v-else-if="node.tag == 'table'"
@@ -64,42 +58,24 @@
 
         <!--br类型-->
         <!-- #ifndef H5 -->
-        <text v-else-if="node.tag == 'br'">
-            \n
-        </text>
+        <text v-else-if="node.tag == 'br'"> \n </text>
         <!-- #endif -->
         <!-- #ifdef H5 -->
-        <br v-else-if="node.tag == 'br'">
+        <br v-else-if="node.tag == 'br'" />
         <!-- #endif -->
-		
+
         <!--video类型-->
-        <wx-parse-video
-            v-else-if="node.tag == 'video'"
-            :node="node"
-        />
-	
+        <wx-parse-video v-else-if="node.tag == 'video'" :node="node" />
+
         <!--audio类型-->
-        <wx-parse-audio
-            v-else-if="node.tag == 'audio'"
-            :node="node"
-        />
-	
+        <wx-parse-audio v-else-if="node.tag == 'audio'" :node="node" />
+
         <!--img类型-->
-        <wx-parse-img
-            v-else-if="node.tag == 'img'"
-            :node="node"
-        />
-	
+        <wx-parse-img v-else-if="node.tag == 'img'" :node="node" />
+
         <!--其他标签-->
-        <view
-            v-else
-            :class="node.classStr"
-            :style="node.styleStr"
-        >
-            <block
-                v-for="(node, index) of node.nodes"
-                :key="index"
-            >
+        <view v-else :class="node.classStr" :style="node.styleStr">
+            <block v-for="(node, index) of node.nodes" :key="index">
                 <rich-text
                     :nodes="node"
                     :class="node.classStr"
@@ -108,9 +84,9 @@
             </block>
         </view>
     </block>
-	
+
     <!--判断是否是文本节点-->
-    <block v-else-if="node.node == 'text' ">
+    <block v-else-if="node.node == 'text'">
         {{ node.text }}
     </block>
 </template>
@@ -120,7 +96,7 @@ import wxParseImg from './wxParseImg';
 import wxParseVideo from './wxParseVideo';
 import wxParseAudio from './wxParseAudio';
 import wxParseTable from './wxParseTable';
-	
+
 export default {
     name: 'WxParseTemplate11',
     components: {
@@ -130,13 +106,11 @@ export default {
         wxParseTable
     },
     props: {
-        node: {},
+        node: {}
     },
     methods: {
-        wxParseATap (attr, e) {
-            const {
-                href
-            } = e.currentTarget.dataset;
+        wxParseATap(attr, e) {
+            const { href } = e.currentTarget.dataset;
             if (!href) return;
             let parent = this.$parent;
             while (!parent.preview || typeof parent.preview !== 'function') {

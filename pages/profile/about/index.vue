@@ -2,17 +2,11 @@
     <Page>
         <view class="page_container">
             <custom-nav-bar title="关于我们" />
-            <view class="box-logo mt-80 mb-20">
-                <image
-                    class="logo w-130 h-120"
-                    src="/static/images/logo@2x.png"
-                />
-                <image
-                    class="w-249 h-37"
-                    src="/static/images/logo_name.png"
-                />
+            <view class="mb-20 box-logo mt-80">
+                <image class="logo w-130 h-120" src="/static/images/logo.png" />
+                <image class="w-249 h-37" src="/static/images/logo_name.png" />
             </view>
-            <view class="text-grey text-center">
+            <view class="text-center text-grey">
                 {{ appVersion }}
             </view>
         </view>
@@ -26,21 +20,20 @@ export default {
     components: {
         CustomNavBar
     },
-    data () {
+    data() {
         return {
             appVersion: ''
         };
     },
-    onLoad () {
+    onLoad() {
         this.getAppVersion();
     },
     methods: {
-        getAppVersion () {
+        getAppVersion() {
             this.appVersion = plus.runtime.version;
-        },
+        }
     }
 };
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

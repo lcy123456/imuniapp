@@ -1,13 +1,7 @@
 <template>
     <Page>
-        <view
-            class="group_settings_container"
-            @click="closeAll"
-        >
-            <CustomNavBar
-                title=""
-                is-bg-color2
-            />
+        <view class="group_settings_container" @click="closeAll">
+            <CustomNavBar title="" is-bg-color2 />
             <view class="base_info">
                 <MyAvatar
                     :src="currentGroup.faceURL"
@@ -15,7 +9,7 @@
                     size="190rpx"
                     @click="updateAvatar"
                 />
-                <view class="flex mt-30 flex-center">
+                <view class="flex mt-30 flex-center align-center">
                     <text class="nickname">
                         {{ currentGroup.groupName }}
                     </text>
@@ -49,19 +43,19 @@
                         class="h-10 my-20 w-42"
                         src="/static/images/common_more_active.png"
                     />
-                    <text class="fz-26">
-                        更多
-                    </text>
+                    <text class="fz-26"> 更多 </text>
                     <more-feat
                         ref="moreFeat"
-                        :options="[{
-                            icon: '/static/images/group_out.png',
-                            text: isOwner ? '解散群聊' : '退出群聊',
-                            style: {
-                                color: '#EC4B37'
-                            },
-                            id: 1
-                        }]"
+                        :options="[
+                            {
+                                icon: '/static/images/group_out.png',
+                                text: isOwner ? '解散群聊' : '退出群聊',
+                                style: {
+                                    color: '#EC4B37'
+                                },
+                                id: 1
+                            }
+                        ]"
                         :source-i-d="currentGroup.groupID"
                         :session-type="3"
                         @callBack="callBack"
@@ -70,17 +64,12 @@
             </view>
             <view class="member_row_box">
                 <view class="member_title">
-                    <view
-                        class="member_desc"
-                        @click="inviteMember"
-                    >
+                    <view class="member_desc" @click="inviteMember">
                         <image
-                            src="/static/images/contact_add_search_user.png"
+                            src="/static/images/contact_add_search_user.svg"
                             class="w-44 h-44"
                         />
-                        <text class="ml-20 primary">
-                            邀请新成员
-                        </text>
+                        <text class="ml-20 primary"> 邀请新成员 </text>
                     </view>
                     <text class="text-grey">
                         {{ `${currentGroup.memberCount}位成员` }}
@@ -94,7 +83,7 @@
                     @change="handleMemberChange"
                 />
             </view>
-        <!-- <view class="mt-30">
+            <!-- <view class="mt-30">
             <u-button
                 type="error"
                 plain
@@ -118,7 +107,11 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import IMSDK, { GroupMemberRole, GroupMemberFilter, IMMethods } from 'openim-uniapp-polyfill';
+import IMSDK, {
+    GroupMemberRole,
+    GroupMemberFilter,
+    IMMethods
+} from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import GroupMemberSwipe from './components/GroupMemberSwipe.vue';
@@ -131,7 +124,7 @@ import { CustomMarkType, RecordFormMap, ContactChooseTypes } from '@/constant';
 
 const ConfirmTypes = {
     Dismiss: 'Dismiss',
-    Quit: 'Quit',
+    Quit: 'Quit'
 };
 
 export default {
@@ -143,7 +136,7 @@ export default {
         MoreFeat
     },
     props: {},
-    data () {
+    data() {
         return {
             groupMemberList: [],
             confirmType: null,
@@ -154,9 +147,9 @@ export default {
         ...mapGetters({
             conversation: 'storeCurrentConversation',
             memberInGroup: 'storeCurrentMemberInGroup',
-            currentGroup: 'storeCurrentGroup',
+            currentGroup: 'storeCurrentGroup'
         }),
-        getConfirmContent () {
+        getConfirmContent() {
             if (this.confirmType === ConfirmTypes.Quit) {
                 return '确定要退出当前群聊吗？';
             }
@@ -165,29 +158,31 @@ export default {
             }
             return '';
         },
-        isOwner () {
+        isOwner() {
             return this.memberInGroup.roleLevel === GroupMemberRole.Owner;
         },
-        isAdmin () {
+        isAdmin() {
             return this.memberInGroup.roleLevel === GroupMemberRole.Admin;
-        },
+        }
     },
-    mounted () {
+    mounted() {
         this.getGroupMemberList();
     },
     methods: {
         ...mapActions('conversation', ['getCurrentGroup']),
-        closeAll () {
+        closeAll() {
             this.$refs.moreFeat.setMoreIndex(0);
         },
-        async updateAvatar () {
-            const permissions = await this.$store.dispatch('base/hasCameraPermissions');
+        async updateAvatar() {
+            const permissions = await this.$store.dispatch(
+                'base/hasCameraPermissions'
+            );
             if (!permissions) return;
             const paths = await chooseImage();
             const url = await uploadFile(paths[0]);
-            this.updateGroupInfo({ faceURL: url, });
+            this.updateGroupInfo({ faceURL: url });
         },
-        async updateGroupInfo (data) {
+        async updateGroupInfo(data) {
             try {
                 await IMSDK.asyncApi(IMMethods.SetGroupInfo, IMSDK.uuid(), {
                     groupID: this.currentGroup.groupID,
@@ -200,64 +195,71 @@ export default {
                 this.$toast(checkLoginError(err));
             }
         },
-        callBack (item) {
+        callBack(item) {
             if (item.id === 1) {
                 this.confirmType = this.isOwner ? 'Dismiss' : 'Quit';
                 this.confirm();
             }
         },
-        showMore () {
-            console.log(this.$refs.moreFeat);
+        showMore() {
             let moreIndex = this.$refs.moreFeat.moreIndex === 1 ? 0 : 1;
             this.$refs.moreFeat.setMoreIndex(moreIndex);
         },
-        editGroupName () {
+        editGroupName() {
             uni.$u.route('/pages/common/markOrIDPage/index', {
                 type: CustomMarkType.GroupName,
                 sourceInfo: JSON.stringify(this.currentGroup)
             });
         },
-        copyGroupID () {
+        copyGroupID() {
             uni.setClipboardData({
                 data: this.currentGroup.groupID,
                 success: () => {
                     uni.$u.toast('复制成功');
-                },
+                }
             });
         },
-        async handleRecord () {
+        async handleRecord() {
             uni.$u.route('/pages/common/searchRecord/recordDetail/index', {
-                conversation: encodeURIComponent(JSON.stringify(this.conversation)),
+                conversation: encodeURIComponent(
+                    JSON.stringify(this.conversation)
+                ),
                 from: RecordFormMap.Group,
                 groupID: this.currentGroup.groupID
             });
         },
-        getGroupMemberList () {
+        getGroupMemberList() {
             IMSDK.asyncApi(IMSDK.IMMethods.GetGroupMemberList, IMSDK.uuid(), {
                 groupID: this.currentGroup.groupID,
                 filter: GroupMemberFilter.All,
                 offset: 0,
-                count: 999,
-            }).then(({ data }) => {
-                this.groupMemberList = [...data];
-            }).catch((err) => {
-                console.log(err);
-                this.$toast(checkLoginError(err));
-            });
+                count: 999
+            })
+                .then(({ data }) => {
+                    this.groupMemberList = [...data];
+                })
+                .catch(err => {
+                    console.log(err);
+                    this.$toast(checkLoginError(err));
+                });
         },
-        inviteMember () {
+        inviteMember() {
             uni.$u.route('/pages/common/contactChoose/index', {
                 type: ContactChooseTypes.Invite,
                 groupID: this.currentGroup.groupID
             });
         },
-        async getCheckUsers (data) {
+        async getCheckUsers(data) {
             try {
-                await IMSDK.asyncApi(IMSDK.IMMethods.InviteUserToGroup, IMSDK.uuid(), {
-                    groupID: this.currentGroup.groupID,
-                    reason: '',
-                    userIDList: data.map((user) => user.userID),
-                });
+                await IMSDK.asyncApi(
+                    IMSDK.IMMethods.InviteUserToGroup,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.currentGroup.groupID,
+                        reason: '',
+                        userIDList: data.map(user => user.userID)
+                    }
+                );
                 this.$toast('操作成功');
                 this.getGroupMemberList();
                 this.getCurrentGroup(this.currentGroup.groupID);
@@ -265,11 +267,11 @@ export default {
                 this.$toast(checkLoginError(err));
             }
         },
-        handleMemberChange () {
+        handleMemberChange() {
             this.getGroupMemberList();
             this.getCurrentGroup(this.currentGroup.groupID);
         },
-        confirm () {
+        confirm() {
             let funcName = '';
             let sourceID = this.currentGroup.groupID;
             this.sourceID = sourceID;
@@ -291,7 +293,7 @@ export default {
                         setTimeout(
                             () =>
                                 uni.switchTab({
-                                    url: '/pages/conversation/conversationList/index',
+                                    url: '/pages/conversation/conversationList/index'
                                 }),
                             250
                         );
@@ -299,8 +301,8 @@ export default {
                 })
                 .catch(() => uni.$u.toast('操作失败'))
                 .finally(() => (this.confirmType = null));
-        },
-    },
+        }
+    }
 };
 </script>
 
@@ -329,9 +331,10 @@ export default {
 
         .nickname {
             display: block;
-            @include nomalEllipsis();
+            // @include nomalEllipsis();
             max-width: 400rpx;
             font-size: 50rpx;
+            word-wrap: break-word;
         }
 
         .id_row {
@@ -341,7 +344,6 @@ export default {
         }
     }
 
-    
     .member_row_box {
         @include colBox(false);
         background-color: $uni-bg-color;

@@ -1,9 +1,12 @@
 <template>
     <view
-        :class="['ul flex align-center bg-grey', type === 'square' ? 'line_tab' : 'btn_tab']"
+        :class="[
+            'ul flex align-center bg-grey',
+            type === 'square' ? 'line_tab' : 'btn_tab'
+        ]"
         :style="{
-            height: height + 'rpx', 
-            'borderRadius': Math.ceil(height / 2) + 'rpx'
+            height: height + 'rpx',
+            borderRadius: Math.ceil(height / 2) + 'rpx'
         }"
     >
         <view
@@ -11,7 +14,7 @@
             :key="i"
             :class="['item', active === v.value && 'active']"
             :style="{
-                'borderRadius': Math.ceil(height / 2) + 'rpx',
+                borderRadius: Math.ceil(height / 2) + 'rpx'
             }"
             @click="change(v)"
         >
@@ -31,7 +34,7 @@ export default {
         },
         list: {
             type: Array,
-            default: () => ([])
+            default: () => []
         },
         height: {
             type: Number,
@@ -40,26 +43,26 @@ export default {
         type: {
             type: String,
             default: ''
-        },
+        }
     },
 
-    data () {
+    data() {
         return {
             active: ''
         };
     },
 
-    mounted () {
+    mounted() {
         this.active = this.value || this.list[0].value;
     },
 
     methods: {
-        change (v) {
+        change(v) {
             this.$emit('change', v);
             this.$emit('input', v.value);
             this.active = v.value;
         }
-    },
+    }
 };
 </script>
 

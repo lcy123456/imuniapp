@@ -1,12 +1,12 @@
 <template>
-    <view
-        class="user_item"
-        @click="clickItem"
-    >
+    <view class="user_item" @click="clickItem">
         <view
             v-if="checkVisible"
             class="check_wrap"
-            :class="{'check_wrap_active':checked,'check_wrap_disabled':disabled}"
+            :class="{
+                check_wrap_active: checked,
+                check_wrap_disabled: disabled
+            }"
         >
             <u-icon
                 v-show="checked"
@@ -23,20 +23,26 @@
             size="78rpx"
         />
         <view class="user_item_details">
-            <text :class="['user_name', (lightSelf && storeCurrentUserID === item.userID) && 'self_name']">
-                {{ item.remark||item.nickname||item.groupName|| item.showName }}
+            <text
+                :class="[
+                    'user_name',
+                    lightSelf &&
+                        storeCurrentUserID === item.userID &&
+                        'self_name'
+                ]"
+            >
+                {{
+                    item.remark ||
+                    item.nickname ||
+                    item.groupName ||
+                    item.showName
+                }}
             </text>
             <view>
-                <text
-                    v-if="item.roleLevel === 100"
-                    class="user_role"
-                >
+                <text v-if="item.roleLevel === 100" class="user_role">
                     群主
                 </text>
-                <text
-                    v-else-if="item.roleLevel === 60"
-                    class="user_role"
-                >
+                <text v-else-if="item.roleLevel === 60" class="user_role">
                     管理员
                 </text>
             </view>
@@ -52,7 +58,7 @@ import MyAvatar from '@/components/MyAvatar/index.vue';
 import { SessionType } from 'openim-uniapp-polyfill';
 
 export default {
-    name: "UserItem",
+    name: 'UserItem',
     components: {
         MyAvatar
     },
@@ -78,21 +84,22 @@ export default {
             default: false
         }
     },
-    data () {
-        return {
-				
-        };
+    data() {
+        return {};
     },
     computed: {
         ...mapGetters(['storeCurrentUserID']),
-        isGroupConversation () {
+        isGroupConversation() {
             return this.item.conversationType === SessionType.WorkingGroup;
         }
     },
     methods: {
-        clickItem () {
+        clickItem() {
             if (!this.disabled) {
-                this.$emit(this.checkVisible ? 'updateCheck' : 'itemClick', this.item);
+                this.$emit(
+                    this.checkVisible ? 'updateCheck' : 'itemClick',
+                    this.item
+                );
             }
         }
     }
@@ -100,55 +107,54 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	.user_item {
-        height: 108rpx;
-		padding: 0 20rpx;
-		@include vCenterBox();
+.user_item {
+    height: 108rpx;
+    padding: 0 20rpx;
+    @include vCenterBox();
 
-		.check_wrap {
-            flex: 0 0 46rpx;
-            height: 46rpx;
-			border: 2px solid #979797;
-			border-radius: 50%;
-            margin-right: 30rpx;
-			@include centerBox();
+    .check_wrap {
+        flex: 0 0 46rpx;
+        height: 46rpx;
+        border: 2px solid #979797;
+        border-radius: 50%;
+        margin-right: 30rpx;
+        @include centerBox();
 
-			&_active {
-				background-color: #1D6BED;
-				border: none;
-			}
-
-			&_disabled {
-				background-color: #c8c9cc;
-			}
-		}
-
-        .u-avatar {
-            border-radius: 30rpx;
-            overflow: hidden;
+        &_active {
+            background-color: #1d6bed;
+            border: none;
         }
 
-		&_details {
-			width: 100%;
-            height: 100%;
-			margin-left: 20rpx;
-            border-bottom: 2rpx solid $uni-color-thinGrey;
-			@include btwBox();
+        &_disabled {
+            background-color: #c8c9cc;
+        }
+    }
 
-			.user_name {
-				@include nomalEllipsis();
-				max-width: 60%;
-				color: $uni-text-color;
-                &.self_name {
-                    color: $uni-color-primary;
-                }
-			}
+    .u-avatar {
+        border-radius: 30rpx;
+        overflow: hidden;
+    }
 
-			.user_role {
-				font-size: 28rpx;
-				color: $uni-text-color-grey;
-			}
-		}
+    &_details {
+        width: 100%;
+        height: 100%;
+        margin-left: 20rpx;
+        border-bottom: 2rpx solid $uni-color-thinGrey;
+        @include btwBox();
 
-	}
+        .user_name {
+            @include nomalEllipsis();
+            max-width: 60%;
+            color: $uni-text-color;
+            &.self_name {
+                color: $uni-color-primary;
+            }
+        }
+
+        .user_role {
+            font-size: 28rpx;
+            color: $uni-text-color-grey;
+        }
+    }
+}
 </style>

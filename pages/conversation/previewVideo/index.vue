@@ -1,24 +1,10 @@
 <template>
     <view class="preview_video_container">
         <view class="status-bar-height" />
-        <video
-            autoplay
-            class="video_player"
-            :src="previewVideoUrl"
-        />
+        <video autoplay class="video_player" :src="previewVideoUrl" />
         <view class="play_action_bar">
-            <u-icon
-                size="24"
-                color="#fff"
-                name="close-circle"
-                @click="back"
-            />
-            <u-icon
-                size="24"
-                color="#fff"
-                name="download"
-                @click="download"
-            />
+            <u-icon size="24" color="#fff" name="close-circle" @click="back" />
+            <u-icon size="24" color="#fff" name="download" @click="download" />
         </view>
     </view>
 </template>
@@ -27,27 +13,26 @@
 export default {
     name: '',
     components: {},
-    data () {
+    data() {
         return {
             downloading: false,
-            previewVideoUrl: '',
+            previewVideoUrl: ''
         };
     },
-    onLoad (options) {
+    onLoad(options) {
         this.previewVideoUrl = options.previewVideoUrl;
-        console.log(this.previewVideoUrl);
     },
     methods: {
-        back () {
+        back() {
             uni.navigateBack();
         },
-        download () {
+        download() {
             if (this.downloading) return;
             this.showToast('下载中', 'loading');
             this.downloading = true;
             uni.downloadFile({
                 url: this.previewVideoUrl,
-                success: (res) => {
+                success: res => {
                     if (res.statusCode === 200) {
                         uni.saveVideoToPhotosAlbum({
                             filePath: res.tempFilePath,
@@ -59,7 +44,7 @@ export default {
                             },
                             fail: () => {
                                 this.showToast('保存失败', 'error');
-                            },
+                            }
                         });
                     } else {
                         this.showToast('下载失败', 'error');
@@ -67,19 +52,19 @@ export default {
                 },
                 fail: () => {
                     this.showToast('下载失败', 'error');
-                },
+                }
             });
         },
-        showToast (message, icon) {
+        showToast(message, icon) {
             uni.hideToast();
 
             uni.showToast({
                 title: message,
                 duration: 1500,
-                icon,
+                icon
             });
-        },
-    },
+        }
+    }
 };
 </script>
 

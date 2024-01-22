@@ -20,10 +20,10 @@ export default {
     props: {
         node: {
             type: Object,
-            default () {
+            default() {
                 return {};
-            },
-        },
-    },
+            }
+        }
+    }
 };
 </script>

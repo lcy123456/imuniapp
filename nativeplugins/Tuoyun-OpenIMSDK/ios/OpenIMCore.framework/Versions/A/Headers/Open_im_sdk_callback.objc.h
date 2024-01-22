@@ -55,6 +55,7 @@
 - (void)onRecvMessageExtensionsAdded:(NSString* _Nullable)msgID reactionExtensionList:(NSString* _Nullable)reactionExtensionList;
 - (void)onRecvMessageExtensionsChanged:(NSString* _Nullable)msgID reactionExtensionList:(NSString* _Nullable)reactionExtensionList;
 - (void)onRecvMessageExtensionsDeleted:(NSString* _Nullable)msgID reactionExtensionKeyList:(NSString* _Nullable)reactionExtensionKeyList;
+- (void)onRecvMessageModified:(NSString* _Nullable)message;
 - (void)onRecvNewMessage:(NSString* _Nullable)message;
 - (void)onRecvOfflineNewMessage:(NSString* _Nullable)message;
 @end
@@ -75,6 +76,9 @@
 @protocol Open_im_sdk_callbackOnConversationListener <NSObject>
 - (void)onConversationChanged:(NSString* _Nullable)conversationList;
 - (void)onNewConversation:(NSString* _Nullable)conversationList;
+/**
+ * OnSyncServerProgress(progress int)
+ */
 - (void)onSyncServerFailed;
 - (void)onSyncServerFinish;
 - (void)onSyncServerStart;
@@ -133,10 +137,25 @@
 @end
 
 @protocol Open_im_sdk_callbackOnListenerForService <NSObject>
+/**
+ * 好友申请被同意
+ */
 - (void)onFriendApplicationAccepted:(NSString* _Nullable)groupApplication;
+/**
+ * 有人申请添加你为好友
+ */
 - (void)onFriendApplicationAdded:(NSString* _Nullable)friendApplication;
+/**
+ * 进群申请被同意
+ */
 - (void)onGroupApplicationAccepted:(NSString* _Nullable)groupApplication;
+/**
+ * 有人申请进群
+ */
 - (void)onGroupApplicationAdded:(NSString* _Nullable)groupApplication;
+/**
+ * 收到新消息
+ */
 - (void)onRecvNewMessage:(NSString* _Nullable)message;
 @end
 
@@ -159,7 +178,7 @@
 
 @protocol Open_im_sdk_callbackOnUserListener <NSObject>
 - (void)onSelfInfoUpdated:(NSString* _Nullable)userInfo;
-- (void)onUserStatusChanged:(NSString* _Nullable)statusMap;
+- (void)onUserStatusChanged:(NSString* _Nullable)userOnlineStatus;
 @end
 
 @protocol Open_im_sdk_callbackSendMsgCallBack <NSObject>
@@ -232,6 +251,7 @@ FOUNDATION_EXPORT id<Open_im_sdk_callbackOnFriendshipListenerSdk> _Nullable Open
 - (void)onRecvMessageExtensionsAdded:(NSString* _Nullable)msgID reactionExtensionList:(NSString* _Nullable)reactionExtensionList;
 - (void)onRecvMessageExtensionsChanged:(NSString* _Nullable)msgID reactionExtensionList:(NSString* _Nullable)reactionExtensionList;
 - (void)onRecvMessageExtensionsDeleted:(NSString* _Nullable)msgID reactionExtensionKeyList:(NSString* _Nullable)reactionExtensionKeyList;
+- (void)onRecvMessageModified:(NSString* _Nullable)message;
 - (void)onRecvNewMessage:(NSString* _Nullable)message;
 - (void)onRecvOfflineNewMessage:(NSString* _Nullable)message;
 @end
@@ -398,7 +418,7 @@ FOUNDATION_EXPORT id<Open_im_sdk_callbackOnFriendshipListenerSdk> _Nullable Open
 
 - (nonnull instancetype)initWithRef:(_Nonnull id)ref;
 - (void)onSelfInfoUpdated:(NSString* _Nullable)userInfo;
-- (void)onUserStatusChanged:(NSString* _Nullable)statusMap;
+- (void)onUserStatusChanged:(NSString* _Nullable)userOnlineStatus;
 @end
 
 @interface Open_im_sdk_callbackSendMsgCallBack : NSObject <goSeqRefInterface, Open_im_sdk_callbackSendMsgCallBack> {

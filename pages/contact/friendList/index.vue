@@ -1,10 +1,7 @@
 <template>
     <Page>
         <view class="friend_list_container">
-            <CustomNavBar
-                title="我的好友"
-                is-bg-color2
-            />
+            <CustomNavBar title="我的好友" is-bg-color2 />
             <view class="px-20 pb-20 pt-10">
                 <u-search
                     v-model="keyword"
@@ -24,10 +21,7 @@
                 :item-arr="getIndexData.dataList"
                 @itemClick="userClick"
             />
-            <u-empty
-                v-else
-                mode="list"
-            />
+            <u-empty v-else mode="list" />
         </view>
     </Page>
 </template>
@@ -40,33 +34,32 @@ import ChooseIndexList from '@/components/ChooseIndexList/index.vue';
 export default {
     components: {
         CustomNavBar,
-        ChooseIndexList,
+        ChooseIndexList
     },
-    data () {
+    data() {
         return {
-            keyword: '',
+            keyword: ''
         };
     },
     computed: {
         ...mapGetters(['storeFriendList']),
-        getIndexData () {
+        getIndexData() {
             const newList = this.storeFriendList.filter(
-                (friend) =>
+                friend =>
                     friend.nickname.includes(this.keyword) ||
                     friend.remark.includes(this.keyword)
             );
             return formatChooseData(newList);
-        },
-    },
-    mounted () {
-    },
-    methods: {
-        userClick (friend) {
-            uni.navigateTo({
-                url: `/pages/common/userCard/index?sourceID=${friend.userID}`,
-            });
         }
     },
+    mounted() {},
+    methods: {
+        userClick(friend) {
+            uni.navigateTo({
+                url: `/pages/common/userCard/index?sourceID=${friend.userID}`
+            });
+        }
+    }
 };
 </script>
 

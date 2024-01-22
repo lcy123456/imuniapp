@@ -2,8 +2,8 @@
     "name" : "MuskIM",
     "appid" : "__UNI__E9FEB0B",
     "description" : "",
-    "versionName" : "2.2.0",
-    "versionCode" : 220,
+    "versionName" : "3.0.1",
+    "versionCode" : 301,
     "transformPx" : false,
     "app-plus" : {
         "bounce" : "none",

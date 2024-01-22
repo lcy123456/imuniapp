@@ -1,15 +1,10 @@
 <template>
-    <u-alert
-        :type="type"
-        :description="description"
-        :show-icon="showIcon"
-    />
+    <u-alert :type="type" :description="description" :show-icon="showIcon" />
     <!-- :description="$t(description)" -->
 </template>
 
 <script>
 export default {
-
     props: {
         // 要校验的值
         value: {
@@ -33,13 +28,13 @@ export default {
     },
 
     computed: {
-        type () {
+        type() {
             if (this.value) {
                 return this.verifyRes ? 'success' : 'error';
             } else {
                 return 'info';
             }
-        },
+        }
     }
 };
 </script>

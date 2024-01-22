@@ -1,8 +1,5 @@
 <template>
-    <u-swipe-action
-        ref="swipeActionRef"
-        class="member_list"
-    >
+    <u-swipe-action ref="swipeActionRef" class="member_list">
         <u-swipe-action-item
             v-for="v in list"
             :key="v.userID"
@@ -10,11 +7,7 @@
             :disabled="getDisabled(v)"
             @click="swipeClick($event, v)"
         >
-            <UserItem
-                :item="v"
-                light-self
-                @itemClick="userClick"
-            />
+            <UserItem :item="v" light-self @itemClick="userClick" />
         </u-swipe-action-item>
         <view>
             <u-modal
@@ -39,27 +32,27 @@ import { checkLoginError } from '@/util/common';
 export default {
     name: '',
     components: {
-        UserItem,
+        UserItem
     },
     props: {
         list: {
             type: Array,
-            default: () => [],
+            default: () => []
         },
         groupID: {
             type: String,
-            default: '',
+            default: ''
         },
         isOwner: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isAdmin: {
             type: Boolean,
-            default: false,
+            default: false
         }
     },
-    data () {
+    data() {
         return {
             kickModal: {
                 content: '',
@@ -70,12 +63,12 @@ export default {
     },
     computed: {
         ...mapGetters(['storeCurrentUserID']),
-        isNormal () {
+        isNormal() {
             return !this.isOwner && !this.isAdmin;
-        },
+        }
     },
     methods: {
-        getDisabled (v) {
+        getDisabled(v) {
             if (v.roleLevel === GroupMemberRole.Owner) {
                 return true;
             } else if (GroupMemberRole.Admin === v.roleLevel && this.isAdmin) {
@@ -85,20 +78,20 @@ export default {
             }
             return false;
         },
-        getSwipOptions (v) {
+        getSwipOptions(v) {
             const swipeOptions = [
                 {
                     text: '设置管理员',
                     style: {
-                        backgroundColor: '#37abec',
-                    },
+                        backgroundColor: '#37abec'
+                    }
                 },
                 {
                     text: '删除',
                     style: {
-                        backgroundColor: '#ec4b37',
-                    },
-                },
+                        backgroundColor: '#ec4b37'
+                    }
+                }
             ];
             if (this.isOwner) {
                 swipeOptions[0].text = `${
@@ -109,41 +102,42 @@ export default {
             }
             return swipeOptions;
         },
-        swipeClick ({ index }, v) {
+        swipeClick({ index }, v) {
             this.curMember = v;
             let temp = index;
             if (!this.isOwner) temp += 1;
             switch (temp) {
-            case 0:
-                this.handleAdmin();
-                break;
-            case 1:
-                this.kickModal.show = true;
-                break;
+                case 0:
+                    this.handleAdmin();
+                    break;
+                case 1:
+                    this.kickModal.show = true;
+                    break;
             }
-            
+
             this.$refs.swipeActionRef.closeAll();
         },
-        userClick (member) {
-            console.log('membermembermembermember', member);
+        userClick(member) {
             const sourceInfo = {
                 nickname: member.nickname,
                 faceURL: member.faceURL
             };
-            let url = `/pages/common/userCard/index?sourceInfo=${JSON.stringify(sourceInfo)}`;
+            let url = `/pages/common/userCard/index?sourceInfo=${JSON.stringify(
+                sourceInfo
+            )}`;
             if (this.storeCurrentUserID === member.userID) {
                 url = '/pages/profile/selfInfo/index';
             }
             uni.$u.route(url, {
-                sourceID: member.userID,
+                sourceID: member.userID
             });
         },
-        async kickConfirm () {
+        async kickConfirm() {
             try {
                 await IMSDK.asyncApi(IMMethods.KickGroupMember, IMSDK.uuid(), {
                     groupID: this.groupID,
-                    reason: "",
-                    userIDList: [this.curMember.userID],
+                    reason: '',
+                    userIDList: [this.curMember.userID]
                 });
                 this.$toast('操作成功');
                 this.$emit('change');
@@ -152,21 +146,28 @@ export default {
             }
             this.kickModal.show = false;
         },
-        async handleAdmin () {
+        async handleAdmin() {
             const v = this.curMember;
             try {
-                await IMSDK.asyncApi(IMMethods.SetGroupMemberRoleLevel, IMSDK.uuid(), {
-                    groupID: this.groupID,
-                    userID: v.userID,
-                    roleLevel: GroupMemberRole.Admin === v.roleLevel ? GroupMemberRole.Nomal : GroupMemberRole.Admin
-                });
+                await IMSDK.asyncApi(
+                    IMMethods.SetGroupMemberRoleLevel,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.groupID,
+                        userID: v.userID,
+                        roleLevel:
+                            GroupMemberRole.Admin === v.roleLevel
+                                ? GroupMemberRole.Nomal
+                                : GroupMemberRole.Admin
+                    }
+                );
                 this.$toast('操作成功');
                 this.$emit('change');
             } catch (err) {
                 this.$toast(checkLoginError(err));
             }
-        },
-    },
+        }
+    }
 };
 </script>
 

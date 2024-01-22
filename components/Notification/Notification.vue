@@ -1,16 +1,12 @@
 <template>
     <view :class="['notification-box', value ? 'show' : 'hide']">
-        <image
-            v-if="icon"
-            :src="icon"
-        />
+        <image v-if="icon" :src="icon" />
         <text>{{ text }}</text>
     </view>
 </template>
 
 <script>
 export default {
-
     model: {
         prop: 'value',
         event: 'change'
@@ -27,10 +23,10 @@ export default {
         value: {
             type: Boolean,
             default: false
-        },
+        }
     },
     watch: {
-        value () {
+        value() {
             if (this.value) {
                 clearTimeout(this.timer);
                 this.timer = setTimeout(() => {
@@ -40,7 +36,7 @@ export default {
         }
     },
     methods: {
-        hide () {
+        hide() {
             this.$emit('change', false);
         }
     }
@@ -67,10 +63,10 @@ export default {
         height: 38rpx;
     }
     &.show {
-        bottom: 200rpx!important;
+        bottom: 200rpx !important;
     }
     &.hide {
-        bottom: -200rpx!important;
+        bottom: -200rpx !important;
     }
 }
 </style>

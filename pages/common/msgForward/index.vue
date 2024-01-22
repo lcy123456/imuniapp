@@ -1,15 +1,9 @@
 <template>
     <Page>
         <view class="forward_container">
-            <CustomNavBar
-                title="转发"
-                is-bg-color2
-            >
+            <CustomNavBar title="转发" is-bg-color2>
                 <template slot="more">
-                    <text
-                        class="mr-32 primary fz-32"
-                        @click="chooseContact"
-                    >
+                    <text class="mr-32 primary fz-32" @click="chooseContact">
                         选择联系人
                     </text>
                 </template>
@@ -29,18 +23,20 @@
             />
             <view class="px-32 conversation_box bg-color">
                 <view
-                    v-for="item in showConversationList" 
+                    v-for="item in showConversationList"
                     :key="item.conversationID"
                     class="flex li h-108 align-center"
                     @click="chooseConversation(item)"
                 >
                     <MyAvatar
-                        :is-group="item.conversationType === SessionType.WorkingGroup"
+                        :is-group="
+                            item.conversationType === SessionType.WorkingGroup
+                        "
                         :src="item.faceURL"
                         :desc="item.showName"
                         size="78rpx"
                     />
-                    <view class="flex-grow ml-20 name_box ">
+                    <view class="flex-grow ml-20 name_box">
                         {{ item.showName }}
                     </view>
                 </view>
@@ -54,14 +50,15 @@
                     @cancel="showModal = false"
                 >
                     <view class="flex-grow over-hide">
-                        <view class="mb-20 ff-bold fz-36">
-                            发送给:
-                        </view>
+                        <view class="mb-20 ff-bold fz-36"> 发送给: </view>
                         <view class="flex align-center">
                             <MyAvatar
                                 v-for="item in sendObjectArr"
                                 :key="item.userID"
-                                :is-group="item.conversationType === SessionType.WorkingGroup"
+                                :is-group="
+                                    item.conversationType ===
+                                    SessionType.WorkingGroup
+                                "
                                 :src="item.faceURL"
                                 :desc="item.showName"
                                 size="78rpx"
@@ -74,14 +71,18 @@
                                 {{ sendObjectArr[0].showName }}
                             </view>
                         </view>
-                        <view :class="['flex mt-10', (isTextRender && isMergeRender) ? '' : 'justify-center']">
+                        <view
+                            :class="[
+                                'flex mt-10',
+                                isTextRender && isMergeRender
+                                    ? ''
+                                    : 'justify-center'
+                            ]"
+                        >
                             <view v-if="isMergeRender">
                                 [合并消息]{{ message.mergeElem.title }}
                             </view>
-                            <MessageContentWrap
-                                v-else
-                                :message="message"
-                            />
+                            <MessageContentWrap v-else :message="message" />
                         </view>
                     </view>
                 </u-modal>
@@ -99,20 +100,19 @@ import { mapGetters, mapActions } from 'vuex';
 import IMSDK, {
     IMMethods,
     SessionType,
-    MessageStatus,
+    MessageStatus
 } from 'openim-uniapp-polyfill';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyTabs from '@/components/MyTabs/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import MessageContentWrap from '../../conversation/chating/components/MessageItem/MessageContentWrap.vue';
 import { offlinePushInfo } from '@/util/imCommon';
-import { 
-    ContactChooseTypes, 
-    UpdateMessageTypes, 
+import {
+    ContactChooseTypes,
+    UpdateMessageTypes,
     TextRenderTypes,
     MergeRenderTypes
 } from '@/constant';
-
 
 export default {
     components: {
@@ -122,14 +122,12 @@ export default {
         MessageContentWrap
     },
 
-    data () {
+    data() {
         return {
             SessionType: Object.freeze(SessionType),
             isShowNotification: false,
             keyword: '',
-            tabList: [
-                { label: '全部对话', value: 0 },
-            ],
+            tabList: [{ label: '全部对话', value: 0 }],
             showModal: false,
             message: {},
             sendObjectArr: [],
@@ -137,24 +135,28 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeConversationList', 'storeCurrentConversation', 'storeHasMoreAfterMessage']),
-        showConversationList () {
+        ...mapGetters([
+            'storeConversationList',
+            'storeCurrentConversation',
+            'storeHasMoreAfterMessage'
+        ]),
+        showConversationList() {
             return this.storeConversationList.filter(v => {
                 return v.showName.includes(this.keyword);
             });
         },
-        isTextRender () {
+        isTextRender() {
             return TextRenderTypes.includes(this.message.contentType);
         },
-        isMergeRender () {
+        isMergeRender() {
             return MergeRenderTypes.includes(this.message.contentType);
-        },
+        }
     },
-    onLoad (params) {
+    onLoad(params) {
         const { message } = params;
         this.message = JSON.parse(decodeURIComponent(message));
     },
-    onShow () {
+    onShow() {
         if (this.isGetCheckUsers) {
             this.showModal = true;
             this.isGetCheckUsers = false;
@@ -162,42 +164,47 @@ export default {
     },
     methods: {
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
-        chooseConversation (item) {
+        chooseConversation(item) {
             // 单选
             this.sendObjectArr = [item];
             this.showModal = true;
         },
-        async handleConfirm () {
+        async handleConfirm() {
             for (let i = 0; i < this.sendObjectArr.length; i++) {
                 const sendObject = this.sendObjectArr[i];
-                const isCurConversation = this.storeCurrentConversation.userID === sendObject.userID;
+                const isCurConversation =
+                    this.storeCurrentConversation.userID === sendObject.userID;
                 try {
                     this.$loading('转发中');
                     const message = this.message;
-                    
+
                     if (isCurConversation) {
                         if (this.storeHasMoreAfterMessage) {
                             console.log('发送信息。。。。需要重新new');
                             let pages = getCurrentPages();
                             let prevPage = pages[pages.length - 2];
-                            await prevPage.$vm.getPositionMsgID('');
+                            await prevPage.$vm.setPositionMsgID('');
                         }
                         this.pushNewMessage(message);
                     }
-                    const res = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                        recvID: sendObject.userID,
-                        groupID: sendObject.groupID,
-                        message,
-                        offlinePushInfo,
-                    });
+                    const res = await IMSDK.asyncApi(
+                        IMMethods.SendMessage,
+                        IMSDK.uuid(),
+                        {
+                            recvID: sendObject.userID,
+                            groupID: sendObject.groupID,
+                            message,
+                            offlinePushInfo
+                        }
+                    );
                     this.$toast('转发成功');
                     if (isCurConversation) {
                         this.updateOneMessage({
                             message: res.data,
-                            isSuccess: true,
+                            isSuccess: true
                         });
                     }
-                } catch ({data, errCode}) {
+                } catch ({ data, errCode }) {
                     console.log('发送失败', data, errCode);
                     if (isCurConversation) {
                         if (errCode === 1302) {
@@ -210,13 +217,13 @@ export default {
                             keyWords: [
                                 {
                                     key: 'status',
-                                    value: MessageStatus.Failed,
+                                    value: MessageStatus.Failed
                                 },
                                 {
                                     key: 'errCode',
-                                    value: errCode,
-                                },
-                            ],
+                                    value: errCode
+                                }
+                            ]
                         });
                     }
                     this.$toast('转发失败');
@@ -228,13 +235,13 @@ export default {
                 uni.navigateBack();
             }, 1000);
         },
-        chooseContact () {
+        chooseContact() {
             uni.$u.route('/pages/common/contactChoose/index', {
                 type: ContactChooseTypes.Forward
             });
         },
-        getCheckUsers (val) {
-            this.sendObjectArr = val.map((v) => {
+        getCheckUsers(val) {
+            this.sendObjectArr = val.map(v => {
                 return {
                     ...v,
                     groupID: '',
@@ -243,7 +250,7 @@ export default {
             });
             this.isGetCheckUsers = true;
         }
-    },
+    }
 };
 </script>
 

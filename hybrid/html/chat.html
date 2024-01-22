@@ -1,1150 +1,1185 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
-    <meta charset="utf-8">
-    <title></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <script type="text/javascript" src="lib/uni-webview-js@0.0.1.js"></script>
-    <script src="lib/vue@2.js"></script>
-    <script src="lib/livekit-client.umd.min.js"></script>
-    <!-- <script src="lib/dayjs/dayjs.min.js"></script>
-    <script src="lib/dayjs/duration.js"></script>
-    <script>dayjs.extend(window.dayjs_plugin_duration)</script> -->
-    <!-- <script src="./chat.js"></script> -->
-    <script>
-        Date.prototype.Format = function (fmt) {
-            let o = {
-                'M+': this.getMonth() + 1,
-                'd+': this.getDate(),
-                'h+': this.getHours(),
-                'm+': this.getMinutes(),
-                's+': this.getSeconds(),
-                'q+': Math.floor((this.getMonth() + 3) / 3),
-                'S': this.getMilliseconds()
+    <head>
+        <meta charset="utf-8" />
+        <title></title>
+        <link rel="stylesheet" href="./css/index.css" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        />
+        <script
+            type="text/javascript"
+            src="lib/uni-webview-js@0.0.1.js"
+        ></script>
+        <script src="lib/vue@2.js"></script>
+        <script src="lib/livekit-client.umd.min.js"></script>
+        <script>
+            Date.prototype.Format = function (fmt) {
+                let o = {
+                    'M+': this.getMonth() + 1,
+                    'd+': this.getDate(),
+                    'h+': this.getHours(),
+                    'm+': this.getMinutes(),
+                    's+': this.getSeconds(),
+                    'q+': Math.floor((this.getMonth() + 3) / 3),
+                    S: this.getMilliseconds()
+                };
+                if (/(y+)/.test(fmt)) {
+                    fmt = fmt.replace(RegExp.$1, this.getFullYear() + '');
+                }
+                for (let k in o) {
+                    if (new RegExp('(' + k + ')').test(fmt))
+                        fmt = fmt.replace(
+                            RegExp.$1,
+                            RegExp.$1.length === 1
+                                ? o[k]
+                                : ('00' + o[k]).substr(('' + o[k]).length)
+                        );
+                }
+                return fmt;
             };
-            if (/(y+)/.test(fmt)) {
-                fmt = fmt.replace(RegExp.$1, (this.getFullYear() + ''));
-            }
-            for (let k in o) {
-                if (new RegExp('(' + k + ')').test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)));
-            }
-            return fmt;
-        };
-    </script>
-</head>
+        </script>
+    </head>
 
-<style type="text/css">
-    * {
-        padding: 0;
-        margin: 0;
-    }
-
-    body,
-    html {
-        overflow: hidden;
-        width: 100%;
-        height: 100%;
-    }
-    /* 隐藏播放按钮 */
-    video::-webkit-media-controls {
-        display: none !important;
-    }
-    
-    /* 隐藏暂停按钮 */
-    video::-webkit-media-controls-enclosure {
-        overflow: hidden !important;
-    }
-
-    .chat-single-css .my .avatar-box {
-        /* 隐藏动态添加的头像，page_main_back背景与avatar_panel头像会展示 */
-        display: none;
-    }
-
-    .chat-group-css {
-        padding: 0 20px;
-        box-sizing: border-box;
-        width: 100%;
-        min-height: 250px;
-        max-height: 360px;
-        overflow: auto;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
-        position: fixed;
-        z-index: 3;
-        top: 12vh;
-    }
-
-    .chat-group-css .video-box {
-        width: calc(50% - 10px)!important;
-        height: 170px!important;
-        margin: 5px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .chat-group-css .microphone_muted_icon {
-        width: 27px;
-        height: 27px;
-        position: absolute;
-        bottom: 8px;
-        left: 8px;
-        z-index: 999;
-    }
-    .chat-group-css .incoming_call_speaking_icon {
-        width: 27px;
-        height: 27px;
-        position: absolute;
-        bottom: 8px;
-        left: 8px;
-        z-index: 999;
-    }
-    .chat-group-css .incoming_call_name_text {
-        position: absolute;
-        top: 8px;
-        left: 0;
-        right: 0;
-        margin: 0 auto;
-        z-index: 999;
-        font-size: 14px;
-        color: #FFFFFF;
-        text-align: center;
-    }
-
-    .avatar-box {
-        position: relative;
-        width: 100%!important;
-        height: 100%!important;
-        background-color: #5496EB;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #FFFFFF;
-        font-size: 24px;
-    }
-
-    .avatar-img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        border-radius: 10px;
-        background-color: #000000;
-    }
-
-    .video-box .video, .video-box .audio {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover;
-        border-radius: 10px;
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
-    .video-box .video {
-        z-index: 99;
-    }
-
-    .video-box.my .video-box {
-        position: fixed;
-        z-index: 3;
-    }
-
-    .video-box.other .video-box {
-        position: fixed;
-        z-index: 4!important;
-    }
-
-    .video-box.other .video-box {
-        position: fixed;
-        top: 70px !important;
-        right: 20px !important;
-        width: 30% !important;
-        height: 25% !important;
-        overflow: hidden;
-        z-index: 2;
-    }
-
-
-    #back {
-        z-index: 999999;
-    }
-
-    .opacity_0 {
-        opacity: 0;
-    }
-    .opacity_1 {
-        opacity: 1;
-    }
-
-    .text-inverse {
-        color: #FFFFFF;
-    }
-
-    .fz-14 {
-        font-size: 14px;
-    }
-
-    .fz-16 {
-        font-size: 16px;
-    }
-
-    .mt-10 {
-        margin-top: 10px;
-    }
-
-
-    .incoming_call_main {
-        width: 100%;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .page_main_back {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 2;
-    }
-
-    .incoming_call_main .header_panel {
-        position: relative;
-        margin-top: 8vh;
-        height: 22px;
-        line-height: 22px;
-        text-align: center;
-        z-index: 3;
-    }
-
-    .incoming_call_main .right_icon {
-        position: absolute;
-        top: 0;
-        left: 43px;
-        width: 22px;
-        height: 22px;
-    }
-
-    .avatar_panel {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        margin-top: 12vh;
-        position: relative;
-        z-index: 2;
-    }
-
-    .avatar {
-        background-color: #5496EB;
-        border-radius: 10px;
-        width: 70px;
-        height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #FFFFFF;
-        font-size: 18px;
-    }
-
-    .nick_name {
-        font-size: 21px;
-        color: #FFFFFF;
-        text-align: center;
-        margin-top: 7px;
-        padding: 0 24px;
-    }
-
-    .tips_text {
-        font-size: 18px;
-        color: #FFFFFF;
-        height: 24px;
-        line-height: 24px;
-        text-align: center;
-        position: fixed;
-        bottom: 40vh;
-        left: 0;
-        right: 0;
-        margin: 0 auto;
-        z-index: 5;
-    }
-
-    .btn_nav {
-        position: fixed;
-        width: 86%;
-        bottom: 10vh;
-        left: 0;
-        right: 0;
-        margin: 0 auto;
-        z-index: 3;
-    }
-
-    .handle_panel {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .handle_cell {
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-    }
-
-    .handle_icon {
-        width: 70px;
-        height: 70px;
-    }
-
-    .answer_panel {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 33px;
-    }
-
-    .answer_panel button {
-        border-radius: 100%;
-        width: 70px;
-        height: 70px;
-        border: none;
-    }
-
-    .answer_panel .overturn_small {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 7%;
-        width: 30px;
-        height: 23px;
-        margin: auto 0;
-    }
-
-    .flex-center {
-        justify-content: center !important;
-    }
-
-    .call_icon {
-        width: 30px;
-        height: 30px;
-    }
-
-    .danger_btn {
-        background-color: #F45955;
-    }
-
-    .danger_btn .call_icon {
-        transform: rotate(135deg);
-        margin-top: 5px;
-    }
-
-    .success_btn {
-        background-color: #58BE6B;
-    }
-</style>
-
-<body>
-    <div id="app">
-
-        <div class="chat-single-css">
-            <div id="other-box" class="video-box other" @click="changeBox('other')"></div>
-            <div id="my-box" class="video-box my" @click="changeBox('my')"></div>
-
-            <!-- 单聊>语音通话：“我”的dom结构 -->
-            <!--<div class="video-box other" @click="changeBox('my')">
-                <div id="myVideo" class="video-box">
-                    <div id="myVideo-avatars"  class="avatar-box">
-                        <img class="avatar-img" src="defaultAvatars/ic_avatar_01.png" />
-                        用户昵称
-                    </div>
-                    <audo id="myVideo-audio" class="audio"></audo>
-                </div>
-            </div>-->
-        </div>
-        <div id="chat-group-css" class="chat-group-css">
-        </div>
-
-        <div class="incoming_call_main">
-            <img id="pageMainBack" class="page_main_back" src="images/incoming_call_main_back.png" />
-            <div class="header_panel">
-                <img id="back" @click="back" class="right_icon" src="images/incoming_call_main_reduce.png" />
-                <span class="fz-16 text-inverse" v-if="isCallIng">{{ timeText }}</span>
-            </div>
-            <div v-if="!isGroup && !shouldMyMaster" class="avatar_panel">
-                <img class="avatar" :src="callUserInfo.newFaceURL" v-if="callUserInfo.faceURL" />
-                <div class="avatar" v-else>{{ callUserInfo.newNickname }}</div>
-                <p class="nick_name">{{ callUserInfo.newNickname }}</p>
-            </div>
-            <div v-else-if="!isGroup && shouldMyMaster" class="avatar_panel">
-                <img class="avatar" :src="selfUserInfo.newFaceURL" v-if="selfUserInfo.faceURL" />
-                <div class="avatar" v-else>{{ selfUserInfo.newNickname }}</div>
-                <p class="nick_name">{{ selfUserInfo.newNickname }}</p>
-            </div>
-            <div v-if="!isGroup && !isCallIng" class="tips_text">等待对方接受邀请</div>
-            <div class="btn_nav">
-                <div class="handle_panel">
-                    <div class="handle_cell" @click="toggleAudio">
-                        <img class="handle_icon" :src="micImage" />
-                        <p class="mt-10 fz-14 text-inverse">{{ micText }}</p>
-                    </div>
-                    <!-- <div class="handle_cell">
-                            <img class="handle_icon" :src="speakImage" />
-                            <p class="mt-10 fz-14 text-inverse">{{ speakText }}</p>
-                        </div> -->
-                    <div class="handle_cell" @click="toggleVideo">
-                        <img class="handle_icon" :src="camImage" />
-                        <p class="mt-10 fz-14 text-inverse">{{ camText }}</p>
+    <body>
+        <div id="app" @click="clearALL">
+            <div v-if="isShowToast" class="toast">{{ toastMessage }}</div>
+            <div class="chat-single-css">
+                <div
+                    v-show="otherSource"
+                    id="other-box"
+                    :class="['video-box', isShowMy ? 'other' : 'my']"
+                    @click="changeBox"
+                >
+                    <div
+                        class="avatar-box"
+                        :style="{background: otherSource && otherSource.bgColor}"
+                    >
+                        <img
+                            v-if="otherSource && otherSource.faceURL"
+                            class="avatar-img"
+                            :src="faceURLHandle(otherSource && otherSource.faceURL)"
+                        />
+                        {{ otherSource && nicknameHandle(otherSource.nickname)
+                        }}
                     </div>
                 </div>
-                <div :class="['answer_panel', !isAnswer || isCallIng ? 'flex-center' : '']">
-                    <button class="danger_btn" @click="goOut({type: 'hangUp'})">
-                        <img src="images/incoming_call_icon.png" class="call_icon" />
-                    </button>
-                    <!--<button v-if="isAnswer && isCallLoading" class="success_btn">
+                <div
+                    v-show="mySource"
+                    id="my-box"
+                    :class="['video-box', isShowMy ? 'my' : 'other']"
+                    @click="changeBox"
+                >
+                    <div
+                        class="avatar-box"
+                        v-show="isCallIng"
+                        :style="{background:mySource && mySource.bgColor}"
+                    >
+                        <img
+                            v-if="mySource && mySource.faceURL"
+                            class="avatar-img"
+                            :src="faceURLHandle(mySource && mySource.faceURL)"
+                        />
+                        {{ mySource && nicknameHandle(mySource.nickname) }}
+                    </div>
+                </div>
+            </div>
+            <div class="incoming_call_main">
+                <!-- <img
+                    id="pageMainBack"
+                    class="page_main_back"
+                    src="images/incoming_call_main_back.png"
+                /> -->
+                <div class="header_panel">
+                    <img
+                        id="back"
+                        @click="back"
+                        class="right_icon"
+                        src="images/incoming_call_main_reduce.png"
+                    />
+                    <span class="fz-16 text-inverse" v-if="isCallIng"
+                        >{{ timeText }}</span
+                    >
+                </div>
+                <div v-show="isGroup" class="chat-group">
+                    <div id="chat-group-css" class="chat-group-css">
+                        <div
+                            v-for="item of userList"
+                            v-show="!item.hideVideo && (!isBigItemUserID || isBigItemUserID === item.userID)"
+                            :key="item.userID"
+                            :id="`${item.userID}-box`"
+                            :class="['video-box', item.isShowBig ? 'row' : '']"
+                            @click="showBig(item)"
+                        >
+                            <div id="myVideo-avatar" class="avatar-box">
+                                <img
+                                    v-if="item.faceURL"
+                                    class="avatar-img"
+                                    :src="faceURLHandle(item.faceURL)"
+                                />
+                                {{ nicknameHandle(item.nickname) }}
+                            </div>
+                            <img
+                                v-show="item.show_microphone_muted_icon"
+                                src="images/incoming_call_microphone_muted.png"
+                                :class="['microphone_muted_icon']"
+                                :id="`${item.userID}-microphone-muted-icon`"
+                            />
+                            <img
+                                v-show="item.show_incoming_call_speaking_icon"
+                                src="images/incoming_call_speaking.png"
+                                :class="['incoming_call_speaking_icon']"
+                                :id="`${item.userID}-incoming-call-speaking-icon`"
+                            />
+                            <span class="incoming_call_name_text"
+                                >{{ item.nickname }}</span
+                            >
+                        </div>
+                        <div
+                            v-if="isBigItemUserID"
+                            id="chat-group-bottom-list"
+                            class="chat-group-bottom-list"
+                        >
+                            <div
+                                v-for="item of userList"
+                                v-show="!item.isShowBig"
+                                :key="item.userID"
+                                :id="`${item.userID}-box`"
+                                class="box"
+                                @click="showBig(item)"
+                            >
+                                <div
+                                    class="avatar-box"
+                                    :style="{background: item.bgColor}"
+                                >
+                                    <img
+                                        v-if="item.faceURL"
+                                        class="avatar-img"
+                                        :src="faceURLHandle(item.faceURL)"
+                                    />
+                                    {{ nicknameHandle(item.nickname) }}
+                                </div>
+                                <div class="bottom">
+                                    <img
+                                        v-show="item.show_microphone_muted_icon"
+                                        src="images/incoming_call_microphone_muted.png"
+                                        :class="['microphone_muted_icon']"
+                                        :id="`${item.userID}-microphone-muted-icon`"
+                                    />
+                                    <img
+                                        v-show="item.show_incoming_call_speaking_icon"
+                                        src="images/incoming_call_speaking.png"
+                                        :class="['incoming_call_speaking_icon']"
+                                        :id="`${item.userID}-incoming-call-speaking-icon`"
+                                    />
+                                    <span>{{ item.nickname || '未知' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        v-if="!isBigItemUserID"
+                        id="chat-group-list"
+                        class="chat-group-list"
+                    >
+                        <div
+                            v-for="item of userList"
+                            v-show="item.hideVideo"
+                            :key="item.userID"
+                            :id="`${item.userID}-box`"
+                            class="video-box"
+                            @click.stop="item.isShowKick = !item.isShowKick"
+                        >
+                            <div
+                                class="avatar-box"
+                                :style="{background: item.bgColor}"
+                            >
+                                <img
+                                    v-if="item.faceURL"
+                                    class="avatar-img"
+                                    :src="faceURLHandle(item.faceURL)"
+                                />
+                                {{ nicknameHandle(item.nickname) }}
+                            </div>
+                            <img
+                                v-show="item.show_microphone_muted_icon"
+                                src="images/incoming_call_microphone_muted.png"
+                                :class="['microphone_muted_icon']"
+                                :id="`${item.userID}-microphone-muted-icon`"
+                            />
+                            <img
+                                v-show="item.show_incoming_call_speaking_icon"
+                                src="images/incoming_call_speaking.png"
+                                :class="['incoming_call_speaking_icon']"
+                                :id="`${item.userID}-incoming-call-speaking-icon`"
+                            />
+                            <span class="incoming_call_name_text"
+                                >{{ item.nickname }}</span
+                            >
+                            <ul v-show="getIsOutStatus(item)" class="feat-box">
+                                <li
+                                    v-show="item.isShowKick"
+                                    class="kick"
+                                    data-type="kick"
+                                    @click="kick(item.userID)"
+                                >
+                                    <span data-type="kick">踢出</span>
+                                    <img
+                                        data-type="kick"
+                                        src="images/incoming_call_move_out.png"
+                                    />
+                                </li>
+                            </ul>
+                        </div>
+                        <div
+                            v-if="isShowInivte"
+                            class="video-box invite"
+                            @click="goInvite"
+                        >
+                            <img src="images/invite.png" alt="" />
+                            <span>邀请其他成员</span>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    v-if="!isGroup && !shouldMyMaster && !isCallIng"
+                    class="avatar_panel"
+                >
+                    <img
+                        v-if="callUserInfo.faceURL"
+                        class="avatar"
+                        :src="faceURLHandle(callUserInfo.faceURL)"
+                    />
+                    <div
+                        v-else
+                        class="avatar"
+                        :style="{background: callUserInfo.bgColor}"
+                        >{{ callUserInfo.nickname }}</div
+                    >
+                    <p class="nick_name">{{ callUserInfo.nickname }}</p>`
+                </div>
+                <div v-if="!isGroup && !isCallIng" class="tips_text"
+                    >等待对方接受邀请</div
+                >
+                <div class="btn_nav">
+                    <div class="handle_panel">
+                        <div class="handle_cell" @click="toggleAudio">
+                            <img class="handle_icon" :src="micImage" />
+                            <p class="mt-10 fz-14 text-inverse"
+                                >{{ micText }}</p
+                            >
+                        </div>
+                        <div class="handle_cell" @click="toggleVideo">
+                            <img class="handle_icon" :src="camImage" />
+                            <p class="mt-10 fz-14 text-inverse"
+                                >{{ camText }}</p
+                            >
+                        </div>
+                    </div>
+                    <div
+                        :class="['answer_panel', !isAnswer || isCallIng ? 'flex-center' : '']"
+                    >
+                        <button
+                            class="danger_btn"
+                            @click="goOut({type: 'hangUp'})"
+                        >
+                            <img
+                                src="images/incoming_call_icon.png"
+                                class="call_icon"
+                            />
+                        </button>
+                        <!--<button v-if="isAnswer && isCallLoading" class="success_btn">
                         <img src="images/incoming_call_icon.png" class="call_icon" />
                     </button>-->
-                    <img class="overturn_small" src="images/incoming_call_handle_overturn_2.png" v-if="isCallIng"
-                        @click="toggleVideoInput" />
+                        <img
+                            class="overturn_small"
+                            src="images/incoming_call_handle_overturn_2.png"
+                            v-if="isCallIng"
+                            @click="toggleVideoInput"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script type="text/javascript">
-        const {
-            RemoteTrack,
-            Room,
-            RoomEvent,
-            ParticipantEvent,
-        } = window.LivekitClient;
-        const defaultBaseMap = {
-            message: {
-                sessionType: 1,
-                type: ''
-            }
-        };
-        const app = new Vue({
-            el: '#app',
-            data: {
-                wsURL: '',
-                isGoout: false,
-                type: '',
-                token: '',
-                device: '',
-                timeText: '00:00',
-                callTime: '',
-                trackList: [],
-                isDomIn: false,
-                isCallLoading: false, // 双方等待接通电话
-                isCallIng: false, // 正在通话中
-                isAnswer: false, // true拨打电话 false接听电话
-                callUserInfo: {
-                    faceURL: '',
-                    nickname: '未知',
-                    newFaceURL: '',
-                    newNickname: '未知',
-                },
-                selfUserInfo: {
-                    faceURL: '',
-                    nickname: '未知',
-                    newFaceURL: '',
-                    newNickname: '未知',
-                },
-                baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
-                room: null,
-                shouldMyMaster: false, // true我应该在主屏幕  false我应该在右上角
-                micImage: 'images/incoming_call_handle_mic_2.png',
-                micText: '麦克风已关',
-                camImage: 'images/incoming_call_handle_cam_2.png',
-                camText: '摄像头已关',
-                speakImage: 'images/incoming_call_handle_speak_2.png',
-                speakText: '扬声器已关'
-            },
-            computed: {
-                // 群聊
-                isGroup() {
-                    return this.baseMap.message.sessionType === 3;
+        <script type="text/javascript">
+            const { RemoteTrack, Room, RoomEvent, ParticipantEvent } =
+                window.LivekitClient;
+            const defaultBaseMap = {
+                message: {
+                    sessionType: 1,
+                    type: ''
                 }
-            },
-            methods: {
-                faceURLHandle(faceURL) {
-                    const hasHttpURL = RegExp('http').test(faceURL);
-                    return hasHttpURL ? faceURL : `defaultAvatars/${faceURL}.png`;
+            };
+            const app = new Vue({
+                el: '#app',
+                data: {
+                    userList: [],
+                    isShowMy: true,
+                    isShowToast: false,
+                    toastMessage: '',
+                    wsURL: '',
+                    isGoout: false,
+                    userID: '',
+                    type: '',
+                    token: '',
+                    device: '',
+                    timeText: '00:00',
+                    callTime: '',
+                    trackList: [],
+                    isDomIn: false,
+                    isCallLoading: false, // 双方等待接通电话
+                    isCallIng: false, // 正在通话中
+                    isAnswer: false, // true拨打电话 false接听电话
+                    callUserInfo: {
+                        faceURL: '',
+                        nickname: '未知',
+                        newFaceURL: '',
+                        newNickname: '未知'
+                    },
+                    selfUserInfo: {
+                        faceURL: '',
+                        nickname: '未知',
+                        newFaceURL: '',
+                        newNickname: '未知'
+                    },
+                    cloneGroup: '',
+                    baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
+                    room: null,
+                    shouldMyMaster: false, // true我应该在主屏幕  false我应该在右上角
+                    micImage: 'images/incoming_call_handle_mic_2.png',
+                    micText: '麦克风已关',
+                    camImage: 'images/incoming_call_handle_cam_2.png',
+                    camText: '摄像头已关',
+                    speakImage: 'images/incoming_call_handle_speak_2.png',
+                    speakText: '扬声器已关'
                 },
-                nicknameHandle (nickname) {
-                    return nickname ? nickname.slice(nickname.length > 1 ? -2 : -1) : '未知';
-                },
-                checkDom () {
-                    if (this.isGroup) {
-                        const dom = this.getDom('chat-group-css');
-                        console.log(dom, '==');
-                        this.isDomIn = !!dom.children[0];
-                    } else {
-                        const otherDom = this.getDom('other-box');
-                        const myDom = this.getDom('my-box');
-                        this.isDomIn = !!(otherDom.children[0] || myDom.children[0]);
-                    }
-                },
-                init (data) {
-                    this.baseMap = data || JSON.parse(JSON.stringify(defaultBaseMap));
-                    if (data) {
-                        const {
-                            isCallLoading,
-                            isCallIng,
-                            isAnswer,
-                            callUserInfo,
-                            selfUserInfo,
-                            message,
-                            token,
-                            url
-                        } = data;
-                        this.isCallLoading = isCallLoading;
-                        this.isCallIng = isCallIng;
-                        this.isAnswer = isAnswer;
-                        this.callUserInfo = callUserInfo || {};
-                        this.selfUserInfo = selfUserInfo || {};
-                        this.token = token;
-                        this.wsURL = url;
-
-                        this.callUserInfo.newFaceURL = this.faceURLHandle(callUserInfo.faceURL);
-                        this.callUserInfo.newNickname = this.nicknameHandle(callUserInfo.nickname);
-                        this.selfUserInfo.newFaceURL = this.faceURLHandle(selfUserInfo.faceURL);
-                        this.selfUserInfo.newNickname = this.nicknameHandle(selfUserInfo.nickname);
-
-                        if(this.isCallIng || this.isGroup) {
-                            this.timerFn();
-                        }
-                    }
-                    // this.isGoout = false;
-                    this.disconnect();
-                    this.openRoom();
-                },
-                getLocationKeyValue(key) {
-                    const reg = new RegExp(`${key}=([^&]*)`);
-                    const href = location.href;
-                    return href.match(reg) && href.match(reg)[1] ? href.match(reg)[1] : '';
-                },
-                getDom(id) {
-                    return document.getElementById(id);
-                },
-                setDomAttr(map) {
-                    // const { width = `300px`, height = `300px`, id, dom } = map;
-                    const { width = `100%`, height = `${document.documentElement.clientHeight}px`, id, dom } = map;
-                    if (!dom) return;
-                    dom.id = id;
-                    dom.className = map.className;
-                    dom.style && (dom.style.width = width);
-                    dom.style && (dom.style.height = height);
-                },
-                async toggleAudio(status) {
-                    if (!this.room || !this.room.localParticipant) return;
-                    const enabled = this.room.localParticipant.isMicrophoneEnabled;
-                    // await this.room.localParticipant.setMicrophoneEnabled(false);
-                    await this.room.localParticipant.setMicrophoneEnabled(typeof status === 'boolean' ? status : !enabled);
-                    this.setInitAudioImg();
-                },
-                setInitAudioImg() {
-                    if (!this.room || !this.room.localParticipant) return;
-                    const isEnabled = this.room.localParticipant.isMicrophoneEnabled;
-                    this.micImage = isEnabled ? 'images/incoming_call_handle_mic_1.png' : 'images/incoming_call_handle_mic_2.png';
-                    this.micText = isEnabled ? '麦克风已开' : '麦克风已关';
-                },
-
-                async toggleVideo() {
-                    if (!this.room || !this.room.localParticipant) return;
-                    const enabled = this.room.localParticipant.isCameraEnabled;
-                    const phoneEnabled = this.room.localParticipant.isMicrophoneEnabled;
-                    await this.room.localParticipant.setCameraEnabled(!enabled);
-                    setTimeout(() => {
-                        this.toggleAudio(phoneEnabled);
-                    }, 500);
-                    this.setInitVideoImg();
-                    let myDom = null;
-                    if (this.isGroup) {
-                        myDom = this.getDom('chat-group-css');
-                    } else {
-                        myDom = this.getDom('my-box');
-                    }
-
-                    const myVideoDom = this.getDom('myVideo-video');
-                    if(myVideoDom) {
-                        if(enabled) {
-                            // 关闭摄像头
-                            myVideoDom.classList.add('opacity_0')
-                            myVideoDom.classList.remove('opacity_1')
-                        } else {
-                            // 开启摄像头
-                            myVideoDom.classList.add('opacity_1')
-                            myVideoDom.classList.remove('opacity_0')
-                        }
-                    }
-
-                    !enabled && this.addSelf({ parentDom: myDom, type: '' });
-                },
-                setInitVideoImg() {
-                    if (!this.room) return;
-                    const isEnabled = this.room.localParticipant.isCameraEnabled;
-                    this.camImage = isEnabled ? 'images/incoming_call_handle_cam_1.png' : 'images/incoming_call_handle_cam_2.png';
-                    this.camText = isEnabled ? '摄像头已开' : '摄像头已关';
-                },
-
-                async toggleVideoInput() {
-                    const devices = await Room.getLocalDevices('videoinput');
-                    if (this.device === '') {
-                        this.device = devices[1] || devices[0];
-                    } else {
-                        const otherDevices = devices.filter(item => item.deviceId !== this.device.deviceId);
-                        this.device = otherDevices[0] || this.device;
-                    }
-                    this.device && await this.room.switchActiveDevice('videoinput', this.device.deviceId);
-                },
-                async openRoom() {
-                    const wsURL = this.wsURL || `ws://192.168.2.20:7880`;
-                    // const wsURL = this.wsURL || `ws://192.168.2.20:7880`;
-                    const token = this.token || localStorage.getItem('token') || `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAzNzY2ODAsImlzcyI6IkFQSVZWQ3BETGtaTHZSViIsIm5iZiI6MTY5Nzc4NDY4MCwic3ViIjoicGFydGljaXBhbnRJZGVudGl0eTMiLCJ2aWRlbyI6eyJyb29tIjoiTVVTSyIsInJvb21Kb2luIjp0cnVlfX0.Ca0sYNhNTdOHkwNk1mJeDQq9XWhjC0ska1j-rX1y9QA`;
-                    console.log('tokentokentoken', token);
-                    this.room = new Room();
-                    this.trackList = [];
-                    try {
-                        await this.room.connect(wsURL, token);
-                        console.log('connected to room----', this.room.name);
-                        if (!this.isCallIng) {
-                            uni.postMessage({
-                                data: {
-                                    type: 'success'
-                                }
-                            });
-                        }
-                        // await p.enableCameraAndMicrophone();
-                        let myDom = null;
-                        let otherDom = null;
-                        if (this.isGroup) {
-                            myDom = this.getDom('chat-group-css');
-                            otherDom = this.getDom('chat-group-css');
-                        } else {
-                            myDom = this.getDom('my-box');
-                            otherDom = this.getDom('other-box');
-                        }
-                        this.activeSpeakersChanged()
-                        this.remoteCameraChanged();
-                        this.removeMember({ parentDom: otherDom });
-                        this.addInitMember({ parentDom: otherDom });
-                        this.addJoinMember({ parentDom: otherDom });
-                        this.addSelf({ parentDom: myDom, type: 'init' });
-                        // this.room.on(RoomEvent.Disconnected, this.goOut);
-                    } catch (err) {
-                        // alert('fail -----connected to room----' + err);
-                        if (!this.isHangUp) {
-                            this.goOut({type: 'fail'});
-                        }
-                    }
-                },
-
-                // 活跃发言者
-                activeSpeakersChanged() {
-                    if(!this.room) return;
-
-                    this.room.on(RoomEvent.ActiveSpeakersChanged, (participantArr) => {
-                        // 只能监测到远程参与者，本地不会被监测
-                        participantArr.forEach(participant=> {
-                            participant.on(ParticipantEvent.IsSpeakingChanged, (isSpeaking) => {
-                                const {identity} = participant
-                                const speakingIcon = this.getDom(`${identity}-incoming-call-speaking-icon`)
-                                if(speakingIcon) {
-                                    if(isSpeaking) {
-                                        // 本地 | 远程参与者，正在发言
-                                        speakingIcon.classList.add('opacity_1')
-                                        speakingIcon.classList.remove('opacity_0')
-                                    } else {
-                                        // 没有人发言
-                                        speakingIcon.classList.add('opacity_0')
-                                        speakingIcon.classList.remove('opacity_1')
-                                    }
-                                }
-                            })
-                        })
-
-                    })
-                },
-
-                // 远程参与者开启、关闭摄像头
-                remoteCameraChanged() {
-                    // 轨道静音，远程参与者麦克风关闭、摄像头关闭：TrackMuted
-                    // 轨道取消静音，远程参与者麦克风开启、摄像头开启：TrackUnmuted
-                    if(!this.room) return;
-
-                    this.room.on(RoomEvent.TrackMuted, (trackPublication, participant) => {
-                            const userID = participant.identity
-                            // kind = video | audio
-                            const kind = trackPublication.track.kind
-                            const isVideo = kind === 'video'
-                            const isAudio = kind === 'audio'
-                            // true开启 false关闭
-                            const {isCameraEnabled, isMicrophoneEnabled} = participant
-
-                            const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
-                            if(elementTrack && isVideo && !isCameraEnabled) {
-                                // 远程参与者，摄像头开启
-                                elementTrack.classList.add('opacity_0')
-                                elementTrack.classList.remove('opacity_1')
-                            }
-
-                            if(this.isGroup && isAudio && !isMicrophoneEnabled) {
-                                const trackMutedIcon = this.getDom(`${userID}-microphone-muted-icon`)
-                                const myTrackMutedIcon = this.getDom(`my-microphone-muted-icon`)
-                                if(trackMutedIcon) {
-                                    // 远程参与者，麦克风关闭
-                                    trackMutedIcon.classList.add('opacity_1')
-                                    trackMutedIcon.classList.remove('opacity_0')
-                                } else if(myTrackMutedIcon) {
-                                    // 本地，麦克风关闭
-                                    myTrackMutedIcon.classList.add('opacity_1')
-                                    myTrackMutedIcon.classList.remove('opacity_0')
-                                }
-                            }
-                    });
-
-                    this.room.on(RoomEvent.TrackUnmuted, (trackPublication, participant) => {
-                        const userID = participant.identity
-                        // kind = video | audio
-                        const kind = trackPublication.track.kind
-                        const isVideo = kind === 'video'
-                        const isAudio = kind === 'audio'
-                        // true开启 false关闭
-                        // 摄像头开启时RoomEvent.TrackUnmuted会执行两次，isMicrophoneEnabled会变成true，原因不明
-                        const {isCameraEnabled, isMicrophoneEnabled} = participant
-
-                        const elementTrack = this.getDom(`${userID}-${kind}-element-track`)
-                        const myVideoTrack = this.getDom('myVideo-video');
-                        if(elementTrack && isVideo && isCameraEnabled) {
-                            // 远程参与者，摄像头开启
-                            elementTrack.classList.add('opacity_1')
-                            elementTrack.classList.remove('opacity_0')
-                        } else if(myVideoTrack && isVideo && isCameraEnabled) {
-                            // 本地，摄像头开启
-                            myVideoTrack.classList.add('opacity_1')
-                            myVideoTrack.classList.remove('opacity_0')
-                            this.setInitAudioImg()
-                        }
-
-                        if(isAudio && isMicrophoneEnabled && this.isGroup) {
-                            const trackMutedIcon = this.getDom(`${userID}-microphone-muted-icon`)
-                            const myTrackMutedIcon = this.getDom(`my-microphone-muted-icon`)
-                            if(trackMutedIcon) {
-                                // 远程参与者，麦克风开启
-                                trackMutedIcon.classList.add('opacity_0')
-                                trackMutedIcon.classList.remove('opacity_1')
-                            } else if(myTrackMutedIcon) {
-                                // 本地，麦克风开启
-                                myTrackMutedIcon.classList.add('opacity_0')
-                                myTrackMutedIcon.classList.remove('opacity_1')
-                            }
-                        }
-                    });
-                },
-
-                // 断线删除成员
-                async removeMember({ parentDom }) {
-                    this.room && this.room.on(RoomEvent.ParticipantDisconnected, (participant) => {
-                        if (!this.room) return;
-                        this.removeElment({
-                            participant,
-                            parentDom
-                        });
-                    });
-                },
-                // 加入新进成员
-                async addJoinMember({ parentDom }) {
-                    this.room && this.room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-                        if (!this.room) return;
-                        this.addElement({
-                            parentDom,
-                            track,
-                            participant,
-                            publication
-                        });
-                    });
-                },
-                // 初始化已在成员
-                async addInitMember({ parentDom }) {
-                    if (!this.room || !this.room.participants) return;
-                    this.room.participants.forEach(participant => {
-                        participant.tracks && participant.tracks.forEach(track => {
-                            this.addElement({
-                                participant,
-                                publication: track,
-                                track: track.track,
-                                parentDom
-                            });
-                        });
-                    });
-                },
-                // 添加自己
-                async addSelf({ parentDom, type }) {
-                    const myVideoDom = this.getDom('myVideo-video');
-                    const myAudioDom = this.getDom('myVideo-audio');
-                    const myAvatarDom = this.getDom(`myVideo-avatar`);
-                    if (myVideoDom && myAudioDom) return;
-                    const p = this.room.localParticipant;
-                    try {
-                        await p.setCameraEnabled(type && this.baseMap.message ? (this.baseMap.message.type === 'video') : true);
-                        await p.setMicrophoneEnabled(true);
-                        // 需要启用，媒体流才会有数据
-                        // await p.setCameraEnabled(true);
-                        // await p.setMicrophoneEnabled(true);
-
-                        [RemoteTrack.Source.Camera, RemoteTrack.Source.Microphone].forEach(source => {
-                            // if (source === RemoteTrack.Source.Microphone) return;
-                            const track = p.getTrack(source);
-                            const myVideoTrack = source === RemoteTrack.Source.Microphone ? {} : (track && (track.track.attach()));
-
-                            if (myVideoTrack) {
-                                const dom = this.getDom(`myVideo`);
-                                const div = dom || document.createElement('div');
-                                this.setDomAttr({
-                                    dom: div,
-                                    id: 'myVideo',
-                                    className: 'video-box'
-                                });
-                                this.setDomAttr({
-                                    dom: myVideoTrack,
-                                    id: source === 'camera' ? 'myVideo-video' : 'myVideo-audio',
-                                    className: source === 'camera' ? 'video' : 'audio'
-                                });
-                                if (!myAvatarDom) {
-                                    // 添加自己头像dom节点
-                                    let avatarDom = document.createElement('div');
-                                    if(this.selfUserInfo.faceURL) {
-                                        avatarDom.innerHTML = `<img class="avatar-img" src="${this.selfUserInfo.newFaceURL}" />`
-                                    } else {
-                                        avatarDom.innerHTML = this.selfUserInfo.newNickname
-                                    }
-                                    this.setDomAttr({
-                                        dom: avatarDom,
-                                        id: `myVideo-avatar`,
-                                        className: `avatar-box`
-                                    });
-                                    div.appendChild(avatarDom);
-                                }
-
-                                if(this.isGroup) {
-                                    // 添加麦克风静音图标
-                                    const microphoneMutedIcon = document.createElement('img');
-                                    microphoneMutedIcon.src = 'images/incoming_call_microphone_muted.png'
-                                    microphoneMutedIcon.className = 'microphone_muted_icon opacity_0'
-                                    microphoneMutedIcon.id = `my-microphone-muted-icon`
-                                    div.appendChild(microphoneMutedIcon);
-
-                                    // 添加活跃发言图标
-                                    const speakingIcon = document.createElement('img');
-                                    speakingIcon.src = 'images/incoming_call_speaking.png'
-                                    speakingIcon.className = 'incoming_call_speaking_icon opacity_0'
-                                    speakingIcon.id = `${this.selfUserInfo.userID}-incoming-call-speaking-icon`
-                                    div.appendChild(speakingIcon);
-
-                                    // 名称
-                                    const nameText = document.createElement('span');
-                                    nameText.className = 'incoming_call_name_text'
-                                    nameText.innerHTML = this.selfUserInfo.newNickname
-                                    div.appendChild(nameText);
-                                }
-
-                                if (!this.getDom(`myVideo-${source === 'camera' ? 'video' : 'audio'}`)) {
-                                    if (source !== RemoteTrack.Source.Microphone) {
-                                        div.appendChild(myVideoTrack);
-                                    }
-                                }
-                                !dom && parentDom.appendChild(div);
+                computed: {
+                    // 群聊
+                    isGroup() {
+                        return this.baseMap.message.sessionType === 3;
+                    },
+                    groupID() {
+                        return this.baseMap.message.groupID;
+                    },
+                    isShowInivte() {
+                        return (
+                            this.groupID &&
+                            [100, 60].includes(this.selfUserInfo.roleLevel)
+                        );
+                    },
+                    mySource() {
+                        if (this.groupID) return null;
+                        return this.userList.find(
+                            user => user.userID === this.selfUserInfo.userID
+                        );
+                    },
+                    otherSource() {
+                        if (this.groupID) return null;
+                        return this.userList.find(
+                            user => user.userID !== this.selfUserInfo.userID
+                        );
+                    },
+                    isBigItemUserID() {
+                        let userID = null;
+                        this.userList.forEach(user => {
+                            if (user.isShowBig) {
+                                userID = user.userID;
                             }
                         });
-                    } catch (err) {
-                        console.log('video，麦克风拒绝');
+                        return userID;
                     }
-                    this.checkDom();
-
-                    if(type) {
+                },
+                methods: {
+                    clearALL() {
+                        const userList = [...this.userList];
+                        userList.forEach(item => {
+                            item.isShowKick = false;
+                        });
+                        this.userList = userList;
+                    },
+                    toast(message) {
+                        this.isShowToast = true;
+                        this.toastMessage = message;
                         setTimeout(() => {
-                            this.setInitVideoImg();
-                            this.setInitAudioImg();
-                        }, 0);
-                    }
-                },
-                addElement({ parentDom, track, participant, publication = {} }) {
-                    const joinUserID = participant.identity
-                    const { identity } = participant;
-                    const elementTrack = track.attach();
-                    const type = `${identity}-box`;
-
-                    if(joinUserID) {
-                        // 告诉APP双方接通电话
-                        // 如果是群聊，让APP根据joinUserID去获取加入者的头像、名称
+                            this.isShowToast = false;
+                        }, 2000);
+                    },
+                    showBig(item) {
+                        const userList = [...this.userList];
+                        userList.forEach(v => {
+                            if (v.userID === item.userID) {
+                                v.isShowBig = !v.isShowBig;
+                            } else {
+                                v.isShowBig = false;
+                            }
+                        });
+                        this.userList = userList;
+                    },
+                    getIsOutStatus(item) {
+                        const { roleLevel, userID } = item;
+                        const { roleLevel: selfRoleLevel } = this.selfUserInfo;
+                        if (userID === this.userID) return false;
+                        if ([100, 60].includes(selfRoleLevel)) {
+                            if (selfRoleLevel === 100) return true;
+                            if ([100, 60].includes(roleLevel)) return false;
+                            return true;
+                        }
+                        return false;
+                    },
+                    setUserList({ keyValueList, userID }) {
+                        const userList = [...this.userList];
+                        const map = userList.find(
+                            user => user.userID === userID
+                        );
+                        keyValueList.forEach(m => {
+                            map[m.key] = m.value;
+                        });
+                        this.userList = userList;
+                    },
+                    getVideoBoxWidth() {
+                        const chatGroupDom = this.getDom('chat-group-css');
+                        const list = chatGroupDom.children;
+                        const l = [];
+                        for (let i = 0; i < list.length; i++) {
+                            if (!/hide-video/.test(list[i].className)) {
+                                l.push(list[i]);
+                            }
+                        }
+                        l.forEach((item, index) => {
+                            item.classList.remove('row');
+                            if (l.length === 1) {
+                                item.classList.add('row');
+                                return;
+                            }
+                            if (index % 2 === 0 && index === l.length - 1) {
+                                item.classList.add('row');
+                            }
+                        });
+                    },
+                    kick(userID) {
                         uni.postMessage({
                             data: {
-                                joinUserID: this.isGroup ? joinUserID : '',
-                                isSuccess: true
+                                type: 'kick',
+                                groupID: this.groupID,
+                                userIDs: [userID]
                             }
                         });
-                        this.isCallLoading = false;
-                        this.isCallIng = true;
-                        this.timerFn();
-                        // if (!this.isGroup && !this.trackList.includes(type)) {
-                        //     this.timerFn();
-                        // }
-                    }
-
-                    // if (this.trackList.includes(type)) {
-                    //     const dom = this.getDom(type);
-                    //     parentDom.removeChild(dom);
-                    // }
-                    const dom = this.getDom(`${identity}-box`);
-                    const avatar = this.getDom(`${identity}-avatar`);
-                    const div = dom || document.createElement('div');
-                    this.setDomAttr({
-                        dom: div,
-                        id: `${identity}-box`,
-                        className: `video-box`
-                    });
-                    this.setDomAttr({
-                        dom: elementTrack,
-                        id: `${identity}-${track.kind}-element-track`,
-                        className: `${track.kind}`
-                    });
-                    if (!avatar) {
-                        // 添加远程参与者头像dom节点
-                        let avatarDom = document.createElement('div');
-                        if(this.callUserInfo.faceURL) {
-                            avatarDom.innerHTML = `<img class="avatar-img" src="${this.callUserInfo.newFaceURL}" />`
+                    },
+                    faceURLHandle(faceURL) {
+                        const hasHttpURL = RegExp('http').test(faceURL);
+                        return hasHttpURL
+                            ? faceURL
+                            : `defaultAvatars/${faceURL}.png`;
+                    },
+                    nicknameHandle(nickname) {
+                        return nickname
+                            ? nickname.slice(nickname.length > 1 ? -2 : -1)
+                            : '未知';
+                    },
+                    checkDom() {
+                        if (this.isGroup) {
+                            const dom = this.getDom('chat-group-css');
+                            // this.isDomIn = !!dom.children[0];
                         } else {
-                            avatarDom.innerHTML = this.callUserInfo.newNickname
+                            const otherDom = this.getDom('other-box');
+                            const myDom = this.getDom('my-box');
+                            // this.isDomIn = !!(
+                            //     otherDom.children[0] || myDom.children[0]
+                            // );
                         }
-                        this.setDomAttr({
-                            dom: avatarDom,
-                            id: `${identity}-avatar`,
-                            className: `avatar-box isAloneChangeAvatar` // isAloneChangeAvatar单聊，切换主副屏幕使用
+                    },
+                    init(data) {
+                        this.baseMap =
+                            data || JSON.parse(JSON.stringify(defaultBaseMap));
+                        if (data) {
+                            const {
+                                isCallLoading,
+                                isCallIng,
+                                isAnswer,
+                                callUserInfo,
+                                selfUserInfo,
+                                message,
+                                token,
+                                url,
+                                userID
+                            } = data;
+                            this.isCallLoading = isCallLoading;
+                            this.isCallIng = isCallIng;
+                            this.isAnswer = isAnswer;
+                            this.callUserInfo = callUserInfo || {};
+                            this.selfUserInfo = selfUserInfo || {};
+                            this.token = token;
+                            this.wsURL = url;
+                            this.userID = userID;
+
+                            if (this.isCallIng || this.isGroup) {
+                                this.timerFn();
+                            }
+                        }
+                        this.disconnect();
+                        this.openRoom();
+                    },
+                    getDom(id) {
+                        return document.getElementById(id);
+                    },
+                    setDomAttr(map) {
+                        const {
+                            width = `100%`,
+                            height = `${document.documentElement.clientHeight}px`,
+                            id,
+                            dom
+                        } = map;
+                        if (!dom) return;
+                        dom.id = id;
+                        dom.className = map.className;
+                        dom.style && (dom.style.width = width);
+                        dom.style && (dom.style.height = height);
+                        for (let k in map) {
+                            if (k.includes('data-')) {
+                                dom.setAttribute(k, map[k]);
+                            }
+                        }
+                    },
+                    async toggleAudio(status) {
+                        if (!this.room || !this.room.localParticipant) return;
+                        const enabled =
+                            this.room.localParticipant.isMicrophoneEnabled;
+                        await this.room.localParticipant.setMicrophoneEnabled(
+                            typeof status === 'boolean' ? status : !enabled
+                        );
+                        this.setInitAudioImg();
+                    },
+                    setInitAudioImg() {
+                        if (!this.room || !this.room.localParticipant) return;
+                        const isEnabled =
+                            this.room.localParticipant.isMicrophoneEnabled;
+                        this.micImage = isEnabled
+                            ? 'images/incoming_call_handle_mic_1.png'
+                            : 'images/incoming_call_handle_mic_2.png';
+                        this.micText = isEnabled ? '麦克风已开' : '麦克风已关';
+                    },
+
+                    async toggleVideo() {
+                        if (!this.room || !this.room.localParticipant) return;
+                        const enabled =
+                            this.room.localParticipant.isCameraEnabled;
+                        const phoneEnabled =
+                            this.room.localParticipant.isMicrophoneEnabled;
+                        await this.room.localParticipant.setCameraEnabled(
+                            !enabled
+                        );
+                        setTimeout(() => {
+                            this.toggleAudio(phoneEnabled);
+                        }, 500);
+                        this.setInitVideoImg();
+                        let myDom = null;
+                        if (this.isGroup) {
+                            myDom = this.getDom('chat-group-css');
+                        } else {
+                            myDom = this.getDom('my-box');
+                        }
+                        !enabled &&
+                            this.addSelf({ parentDom: myDom, type: '' });
+                    },
+                    setInitVideoImg() {
+                        if (!this.room) return;
+                        const isEnabled =
+                            this.room.localParticipant.isCameraEnabled;
+                        this.camImage = isEnabled
+                            ? 'images/incoming_call_handle_cam_1.png'
+                            : 'images/incoming_call_handle_cam_2.png';
+                        this.camText = isEnabled ? '摄像头已开' : '摄像头已关';
+                    },
+
+                    async toggleVideoInput() {
+                        const devices =
+                            await Room.getLocalDevices('videoinput');
+                        if (this.device === '') {
+                            this.device = devices[1] || devices[0];
+                        } else {
+                            const otherDevices = devices.filter(
+                                item => item.deviceId !== this.device.deviceId
+                            );
+                            this.device = otherDevices[0] || this.device;
+                        }
+                        this.device &&
+                            (await this.room.switchActiveDevice(
+                                'videoinput',
+                                this.device.deviceId
+                            ));
+                    },
+                    async openRoom() {
+                        const wsURL = this.wsURL;
+                        const token =
+                            this.token || localStorage.getItem('token') || ``;
+                        this.room = new Room();
+                        this.trackList = [];
+                        try {
+                            await this.room.connect(wsURL, token);
+                            if (!this.isCallIng) {
+                                uni.postMessage({
+                                    data: {
+                                        type: 'success'
+                                    }
+                                });
+                            }
+                            // await p.enableCameraAndMicrophone();
+                            let myDom = this.getDom(
+                                this.isGroup ? 'chat-group-css' : 'my-box'
+                            );
+                            let otherDom = this.getDom(
+                                this.isGroup ? 'chat-group-css' : 'other-box'
+                            );
+                            this.activeSpeakersChanged();
+                            this.remoteCameraChanged();
+                            this.removeMember({ parentDom: otherDom });
+                            this.addInitMember({ parentDom: otherDom });
+                            this.addJoinMember({ parentDom: otherDom });
+                            this.addSelf({ parentDom: myDom, type: 'init' });
+                            // this.room.on(RoomEvent.Disconnected, this.goOut);
+                        } catch (err) {
+                            // console.log('fail -----connected to room----' + err);
+                            if (!this.isHangUp) {
+                                this.goOut({ type: 'fail' });
+                            }
+                        }
+                    },
+
+                    // 活跃发言者
+                    activeSpeakersChanged() {
+                        if (!this.room) return;
+
+                        this.room.on(
+                            RoomEvent.ActiveSpeakersChanged,
+                            participantArr => {
+                                // 只能监测到远程参与者，本地不会被监测
+                                participantArr.forEach(participant => {
+                                    participant.on(
+                                        ParticipantEvent.IsSpeakingChanged,
+                                        isSpeaking => {
+                                            const { identity: userID } =
+                                                participant;
+                                            const speakingIcon = this.getDom(
+                                                `${userID}-incoming-call-speaking-icon`
+                                            );
+                                            speakingIcon &&
+                                                this.setUserList({
+                                                    userID,
+                                                    keyValueList: [
+                                                        {
+                                                            key: 'show_incoming_call_speaking_icon',
+                                                            value: !!isSpeaking
+                                                        }
+                                                    ]
+                                                });
+                                        }
+                                    );
+                                });
+                            }
+                        );
+                    },
+                    trackChangeMuted(trackPublication, participant, type) {
+                        const isTrackMuted = type === 'isTrackMuted';
+                        const userID = participant.identity;
+                        // kind = video | audio
+                        const kind = trackPublication.track.kind;
+                        const isVideo = kind === 'video';
+                        const isAudio = kind === 'audio';
+                        // true开启 false关闭
+                        const { isCameraEnabled, isMicrophoneEnabled } =
+                            participant;
+
+                        const elementTrack = this.getDom(
+                            `${userID}-${kind}-element-track`
+                        );
+                        const elementBox = this.getDom(`${userID}-box`);
+                        console.log(
+                            'trackPublication, participant, type---',
+                            trackPublication,
+                            participant,
+                            type
+                        );
+                        console.log(
+                            '---elementBox',
+                            isCameraEnabled,
+                            isMicrophoneEnabled
+                        );
+                        // 远程参与者，摄像头开启
+                        if (elementTrack && isVideo) {
+                            this.setUserList({
+                                userID,
+                                keyValueList: [
+                                    {
+                                        key: 'hideVideo',
+                                        value: !isCameraEnabled
+                                    }
+                                ]
+                            });
+                            elementTrack.classList[
+                                !isCameraEnabled ? 'add' : 'remove'
+                            ]('opacity_0');
+                        }
+                        this.setInitAudioImg();
+
+                        const trackMutedIcon = this.getDom(
+                            `${userID}-microphone-muted-icon`
+                        );
+                        trackMutedIcon &&
+                            isAudio &&
+                            this.setUserList({
+                                userID,
+                                keyValueList: [
+                                    {
+                                        key: 'show_microphone_muted_icon',
+                                        value: !isMicrophoneEnabled
+                                    }
+                                ]
+                            });
+                    },
+
+                    // 远程参与者开启、关闭摄像头
+                    remoteCameraChanged() {
+                        // 轨道静音，远程参与者麦克风关闭、摄像头关闭：TrackMuted
+                        // 轨道取消静音，远程参与者麦克风开启、摄像头开启：TrackUnmuted
+                        if (!this.room) return;
+
+                        this.room.on(
+                            RoomEvent.TrackMuted,
+                            (trackPublication, participant) => {
+                                this.trackChangeMuted(
+                                    trackPublication,
+                                    participant,
+                                    'TrackMuted'
+                                );
+                            }
+                        );
+
+                        this.room.on(
+                            RoomEvent.TrackUnmuted,
+                            (trackPublication, participant) => {
+                                this.trackChangeMuted(
+                                    trackPublication,
+                                    participant,
+                                    'TrackUnmuted'
+                                );
+                            }
+                        );
+                    },
+
+                    // 断线删除成员
+                    async removeMember({ parentDom }) {
+                        this.room &&
+                            this.room.on(
+                                RoomEvent.ParticipantDisconnected,
+                                participant => {
+                                    if (!this.room) return;
+                                    this.removeElment({
+                                        participant,
+                                        parentDom
+                                    });
+                                }
+                            );
+                    },
+                    // 加入新进成员
+                    async addJoinMember({ parentDom }) {
+                        this.room &&
+                            this.room.on(
+                                RoomEvent.TrackSubscribed,
+                                (track, publication, participant) => {
+                                    if (!this.room) return;
+                                    this.addElement({
+                                        parentDom,
+                                        track,
+                                        participant,
+                                        publication
+                                    });
+                                }
+                            );
+                    },
+                    // 初始化已在成员
+                    async addInitMember({ parentDom }) {
+                        if (!this.room || !this.room.participants) return;
+                        this.room.participants.forEach(participant => {
+                            participant.tracks &&
+                                participant.tracks.forEach(track => {
+                                    this.addElement({
+                                        participant,
+                                        publication: track,
+                                        track: track.track,
+                                        parentDom
+                                    });
+                                });
                         });
-                        div.appendChild(avatarDom);
-                    }
+                    },
+                    // 添加自己
+                    async addSelf({ parentDom, type }) {
+                        const myVideoDom = this.getDom(
+                            `${this.userID}-video-element-track`
+                        );
+                        const myAudioDom = this.getDom(
+                            `${this.userID}-audio-element-track`
+                        );
+                        const myAvatarDom = this.getDom(`myVideo-avatar`);
+                        if (myVideoDom) return;
+                        // if (myVideoDom && myAudioDom) return;
+                        const p = this.room.localParticipant;
+                        try {
+                            await p.setCameraEnabled(
+                                type && this.baseMap.message
+                                    ? this.baseMap.message.type === 'video'
+                                    : true
+                            );
+                            await p.setMicrophoneEnabled(true);
+                            // 需要启用，媒体流才会有数据
+                            // await p.setCameraEnabled(true);
+                            // await p.setMicrophoneEnabled(true);
 
-                    if(this.isGroup) {
-                        // 添加麦克风静音图标
-                        const microphoneMutedIcon = document.createElement('img');
-                        microphoneMutedIcon.src = 'images/incoming_call_microphone_muted.png'
-                        microphoneMutedIcon.className = 'microphone_muted_icon opacity_0'
-                        microphoneMutedIcon.id = `${identity}-microphone-muted-icon`
-                        div.appendChild(microphoneMutedIcon);
+                            [
+                                RemoteTrack.Source.Camera,
+                                RemoteTrack.Source.Microphone
+                            ].forEach(source => {
+                                // if (source === RemoteTrack.Source.Microphone) return;
+                                const track = p.getTrack(source);
+                                const myVideoTrack =
+                                    source === RemoteTrack.Source.Microphone
+                                        ? {}
+                                        : track && track.track.attach();
 
-                        // 添加活跃发言图标
-                        const speakingIcon = document.createElement('img');
-                        speakingIcon.src = 'images/incoming_call_speaking.png'
-                        speakingIcon.className = 'incoming_call_speaking_icon opacity_0'
-                        speakingIcon.id = `${identity}-incoming-call-speaking-icon`
-                        div.appendChild(speakingIcon);
-                    }
+                                if (myVideoTrack) {
+                                    const userList = [...this.userList];
+                                    let map = userList.find(
+                                        user => user.userID === this.userID
+                                    );
+                                    if (!map) {
+                                        map = {
+                                            userID: this.userID,
+                                            faceURL: this.selfUserInfo.faceURL,
+                                            bgColor: this.selfUserInfo.bgColor,
+                                            show_microphone_muted_icon: false,
+                                            show_incoming_call_speaking_icon: false,
+                                            nickname:
+                                                this.selfUserInfo.nickname,
+                                            hideVideo: true,
+                                            isShowKick: false,
+                                            roleLevel:
+                                                this.selfUserInfo.roleLevel,
+                                            isShowBig: false
+                                        };
+                                        userList.push(map);
+                                    }
+                                    this.userList = userList;
+                                    this.$nextTick(() => {
+                                        const dom = this.isGroup
+                                            ? this.getDom(`${this.userID}-box`)
+                                            : this.getDom(`my-box`);
+                                        if (
+                                            dom &&
+                                            source !==
+                                                RemoteTrack.Source.Microphone
+                                        ) {
+                                            this.setDomAttr({
+                                                dom: myVideoTrack,
+                                                id:
+                                                    source === 'camera'
+                                                        ? `${this.userID}-video-element-track`
+                                                        : `${this.userID}-audio-element-track`,
+                                                className:
+                                                    source === 'camera'
+                                                        ? 'video'
+                                                        : 'audio'
+                                            });
+                                            dom.appendChild(myVideoTrack);
+                                            map.hideVideo = false;
+                                            this.userList = userList;
+                                        }
+                                    });
+                                }
+                            });
+                        } catch (err) {
+                            console.log('video，麦克风拒绝');
+                        }
+                        // this.checkDom();
 
-                    div.appendChild(elementTrack);
-                    !dom && parentDom.appendChild(div);
-                    this.trackList.push(type);
-                    this.checkDom();
-
-
-                    if(!this.isGroup && joinUserID) {
-                        // 双方接通电话，自己显示右上角
-                        this.changeBox('other')
-                    }
-                },
-                // 设置加入群聊的用户头像、名称
-                setGroupJoinUserInfo (map){
-                    const { faceURL, nickname, userID } = map;
-                    const boxDom = this.getDom(`${userID}-box`)
-                    const joinUserAvatarDom = this.getDom(`${userID}-avatar`)
-                    if (faceURL) {
-                        const _faceURL = this.faceURLHandle(faceURL)
-                        joinUserAvatarDom.innerHTML = `<img class="avatar-img" src="${_faceURL}" />`
-                    } else {
-                        const _nickname = this.nicknameHandle(nickname)
-                        joinUserAvatarDom.innerHTML = _nickname
-                    }
-                    // 名称
-                    const nameText = document.createElement('span');
-                    nameText.className = 'incoming_call_name_text'
-                    nameText.innerHTML = this.nicknameHandle(nickname)
-                    boxDom.appendChild(nameText);
-                },
-                changeBox(type) {
-                    const otherDom = this.getDom('other-box');
-                    const myBoxDom = this.getDom('my-box');
-
-                    if (type === 'other' && otherDom.className === `video-box other`) {
-                        // 我在右上角
-                        otherDom.className = `video-box my`;
-                        myBoxDom.className = `video-box other`;
-                        this.shouldMyMaster = false
-
-                        // 展示我的头像
-                        const imgAvatarArr = document.getElementsByClassName('isAloneChangeAvatar')
-                        if(imgAvatarArr.length > 0){
-                            if(this.selfUserInfo.faceURL) {
-                                imgAvatarArr[0].innerHTML = `<img class="avatar-img" src="${this.selfUserInfo.newFaceURL}" />`
-                            } else {
-                                imgAvatarArr[0].innerHTML = this.selfUserInfo.newNickname
+                        if (type) {
+                            setTimeout(() => {
+                                this.setInitVideoImg();
+                                this.setInitAudioImg();
+                            }, 0);
+                        }
+                    },
+                    addElement({
+                        parentDom,
+                        track,
+                        participant,
+                        publication = {}
+                    }) {
+                        // const joinUserID = participant.identity;
+                        const {
+                            identity: userID,
+                            isCameraEnabled,
+                            isMicrophoneEnabled
+                        } = participant;
+                        const elementTrack = track.attach();
+                        const type = `${userID}-box`;
+                        this.isCallIng = true;
+                        this.isCallLoading = false;
+                        this.timerFn();
+                        const userList = [...this.userList];
+                        let map = userList.find(user => user.userID === userID);
+                        if (!map) {
+                            map = {
+                                userID: userID,
+                                hideVideo: true,
+                                show_microphone_muted_icon:
+                                    !isMicrophoneEnabled,
+                                show_incoming_call_speaking_icon: false,
+                                faceURL: this.isGroup
+                                    ? ''
+                                    : this.callUserInfo.faceURL,
+                                bgColor: this.isGroup
+                                    ? ''
+                                    : this.callUserInfo.bgColor,
+                                nickname: this.isGroup
+                                    ? ''
+                                    : this.callUserInfo.nickname,
+                                roleLevel: this.callUserInfo.roleLevel,
+                                isShowKick: false,
+                                isShowBig: false
+                            };
+                            userList.push(map);
+                        }
+                        this.userList = userList;
+                        this.$nextTick(() => {
+                            // const dom = this.getDom(`${userID}-box`);
+                            const dom = this.isGroup
+                                ? this.getDom(`${userID}-box`)
+                                : this.getDom(`other-box`);
+                            if (dom) {
+                                this.setDomAttr({
+                                    dom: elementTrack,
+                                    id:
+                                        track.kind === 'video'
+                                            ? `${userID}-video-element-track`
+                                            : `${userID}-audio-element-track`,
+                                    className:
+                                        track.kind === 'video'
+                                            ? 'video'
+                                            : 'audio'
+                                });
+                                dom.appendChild(elementTrack);
+                                if (this.isGroup) {
+                                    map.hideVideo = !isCameraEnabled;
+                                    this.userList = userList;
+                                    uni.postMessage({
+                                        data: {
+                                            joinUserID: this.isGroup
+                                                ? userID
+                                                : '',
+                                            isSuccess: true
+                                        }
+                                    });
+                                }
                             }
+                        });
+                        if (!this.isGroup && userID) {
+                            // 双方接通电话，自己显示右上角
+                            this.changeBox(false);
+                            uni.postMessage({
+                                data: {
+                                    isSuccess: true
+                                }
+                            });
                         }
-                    }
-                    if (type === 'my' && otherDom.className === `video-box my`) {
-                        // 我在主屏幕
-                        otherDom.className = `video-box other`;
-                        myBoxDom.className = `video-box my`;
-                        this.shouldMyMaster = true
-
-                        // 展示远程参与者的头像
-                        const imgAvatarArr =  document.getElementsByClassName('isAloneChangeAvatar')
-                        if(imgAvatarArr.length > 0){
-                            if(this.callUserInfo.faceURL) {
-                                imgAvatarArr[0].innerHTML = `<img class="avatar-img" src="${this.callUserInfo.newFaceURL}" />`
-                            } else {
-                                imgAvatarArr[0].innerHTML = this.callUserInfo.newNickname
+                    },
+                    // 设置加入群聊的用户头像、名称
+                    setGroupJoinUserInfo(map) {
+                        const {
+                            faceURL,
+                            nickname,
+                            userID,
+                            bgColor,
+                            roleLevel
+                        } = map;
+                        const userList = [...this.userList];
+                        let index = userList.findIndex(
+                            user => user.userID === userID
+                        );
+                        if (map) {
+                            userList[index] = {
+                                ...userList[index],
+                                ...map
+                            };
+                        }
+                        this.userList = userList;
+                    },
+                    changeBox(type) {
+                        this.isShowMy =
+                            typeof type === 'boolean' ? type : !this.isShowMy;
+                    },
+                    removeElment({ parentDom, participant }) {
+                        const { identity: userID } = participant;
+                        // const dom = this.getDom(`${identity}-box`);
+                        // parentDom.removeChild(dom);
+                        // this.getVideoBoxWidth();
+                        const userList = [...this.userList];
+                        const index = userList.findIndex(
+                            user => user.userID === userID
+                        );
+                        userList.splice(index, 1);
+                        this.userList = userList;
+                        // this.checkDom();
+                    },
+                    back() {
+                        uni.postMessage({
+                            data: {
+                                isSmall: true
                             }
+                        });
+                        uni.navigateBack();
+                    },
+                    disconnect() {
+                        const otherDom = this.getDom('other-box');
+                        const myBoxDom = this.getDom('my-box');
+                        const groupDom = this.getDom('chat-group-css');
+                        this.userList = [];
+                        this.myVideo = null;
+                        this.trackList = [];
+                        this.room &&
+                            this.room.localParticipant.setCameraEnabled(false);
+                        this.room &&
+                            this.room.localParticipant.setMicrophoneEnabled(
+                                false
+                            );
+                        this.room && this.room.disconnect();
+                    },
+                    goInvite() {
+                        uni.postMessage({
+                            data: {
+                                type: 'invite',
+                                groupID: this.groupID,
+                                disabledUserIDList: this.getDisabledUserIDList()
+                            }
+                        });
+                    },
+                    getDisabledUserIDList() {
+                        const chatGroupDom = this.getDom('chat-group-css');
+                        const children = chatGroupDom.children;
+                        const l = [];
+                        for (let i = 0; i < children.length; i++) {
+                            l.push(children[i].id.split('-')[0]);
                         }
-                    }
-                },
-                removeElment({ parentDom, participant }) {
-                    const { identity } = participant;
-                    const dom = this.getDom(`${identity}-box`);
-                    parentDom.removeChild(dom);
-                    this.checkDom();
-                },
-                back() {
-                    uni.postMessage({
-                        data: {
-                            isSmall: true
-                        }
-                    });
-                    uni.navigateBack();
-                },
-                disconnect() {
-                    const otherDom = this.getDom('other-box');
-                    const myBoxDom = this.getDom('my-box');
-                    const groupDom = this.getDom('chat-group-css');
-                    otherDom && (otherDom.innerHTML = '');
-                    myBoxDom && (myBoxDom.innerHTML = '');
-                    groupDom && (groupDom.innerHTML = '');
-                    this.myVideo = null;
-                    this.trackList = [];
-                    this.room && this.room.localParticipant.setCameraEnabled(false);
-                    this.room && this.room.localParticipant.setMicrophoneEnabled(false);
-                    this.room && this.room.disconnect();
-                },
-                goOut (m) {
-                    const map = m || {};
-                    this.disconnect();
-                    this.isHangUp = map.type === 'hangUp';
-                    uni.postMessage({
-                        data: {
-                            isDanger: m.type === 'fail' ? 'fail' : 'done',
-                            customStatus: map && map.customStatus,
-                            goOut: true
-                        }
-                    });
+                        return l;
+                    },
+                    goOut(m) {
+                        const map = m || {};
+                        this.disconnect();
+                        this.isHangUp = m.type === 'hangUp';
+                        uni.postMessage({
+                            data: {
+                                isDanger: m.type === 'fail' ? 'fail' : 'done',
+                                customStatus: m.customStatus,
+                                goOut: true
+                            }
+                        });
 
-                    this.resetData()
-                },
-                // 计时器
-                initTimer(func, delay) {
-                    const interFunc = () => {
-                        if (this.timer && !this.isCallIng) {
-                            this.timer = null;
-                            clearTimeout(this.timer);
-                            console.log('&&&&&&清空通话中计时器&&&&&&');
-                            return;
+                        this.resetData();
+                    },
+                    // 计时器
+                    initTimer(func, delay) {
+                        const interFunc = () => {
+                            if (this.timer && !this.isCallIng) {
+                                this.timer = null;
+                                clearTimeout(this.timer);
+                                return;
+                            }
+                            func.call(null);
+                            this.timer = setTimeout(interFunc, delay); // 递归调用
+                        };
+                        interFunc();
+                    },
+                    // 执行计时器
+                    timerFn() {
+                        clearTimeout(this.timer);
+                        let timeStart = +new Date();
+                        const oneHour = 1000 * 60 * 60;
+                        const t = +new Date(
+                            new Date().Format('yyyy/MM/dd') + ' 00:00:00'
+                        );
+                        this.initTimer(() => {
+                            const secondsDiff = +new Date();
+                            const format =
+                                secondsDiff - timeStart >= oneHour
+                                    ? 'hh:mm:ss'
+                                    : 'mm:ss';
+                            this.timeText = new Date(
+                                t + (secondsDiff - timeStart)
+                            ).Format(format);
+                            uni.postMessage({
+                                data: {
+                                    type: 'setTime',
+                                    timeText: this.timeText
+                                }
+                            });
+                        }, 1000);
+                    },
+                    resetData() {
+                        const defaultData = {
+                            type: '',
+                            token: '',
+                            device: '',
+                            timeText: '00:00',
+                            callTime: '',
+                            trackList: [],
+                            isShowMy: true,
+                            isDomIn: false,
+                            isCallLoading: false, // 双方等待接通电话
+                            isCallIng: false, // 正在通话中
+                            isAnswer: false, // true拨打电话 false接听电话
+                            callUserInfo: {
+                                faceURL: '',
+                                nickname: '未知',
+                                newFaceURL: '',
+                                newNickname: '未知'
+                            },
+                            selfUserInfo: {
+                                faceURL: '',
+                                nickname: '未知',
+                                newFaceURL: '',
+                                newNickname: '未知'
+                            },
+                            baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
+                            room: null,
+                            shouldMyMaster: false // true我应该在主屏幕  false我应该在右上角
+                        };
+                        for (let key in defaultData) {
+                            this[key] = defaultData[key];
                         }
-                        func.call(null);
-                        this.timer = setTimeout(interFunc, delay); // 递归调用
-                    };
-                    interFunc();
-                },
-                // 执行计时器
-                timerFn () {
-                    clearTimeout(this.timer);
-                    let timeStart = +new Date();
-                    const oneHour = 1000 * 60 * 60;
-                    const t = +new Date(new Date().Format('yyyy/MM/dd') +  ' 00:00:00');
-                    this.initTimer(() => {
-                        const secondsDiff = +new Date();
-                        const format = secondsDiff - timeStart >= oneHour ? 'HH:mm:ss' : 'mm:ss';
-                        this.timeText = new Date(t + (secondsDiff - timeStart)).Format(format);
                         uni.postMessage({
                             data: {
                                 type: 'setTime',
-                                timeText : this.timeText
+                                timeText: '00:00'
                             }
-                        })
-                    }, 1000);
-                },
-                resetData() {
-                    this.changeBox('my')
-                    const defaultData = {
-                        type: '',
-                        token: '',
-                        device: '',
-                        timeText: '00:00',
-                        callTime: '',
-                        trackList: [],
-                        isDomIn: false,
-                        isCallLoading: false, // 双方等待接通电话
-                        isCallIng: false, // 正在通话中
-                        isAnswer: false, // true拨打电话 false接听电话
-                        callUserInfo: {
-                            faceURL: '',
-                            nickname: '未知',
-                            newFaceURL: '',
-                            newNickname: '未知',
-                        },
-                        selfUserInfo: {
-                            faceURL: '',
-                            nickname: '未知',
-                            newFaceURL: '',
-                            newNickname: '未知',
-                        },
-                        baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
-                        room: null,
-                        shouldMyMaster: false, // true我应该在主屏幕  false我应该在右上角
+                        });
                     }
-                    for (let key in defaultData){
-                        this[key] = defaultData[key]
-                    }
-                    uni.postMessage({
-                        data: {
-                            type: 'setTime',
-                            timeText : '00:00'
-                        }
-                    })
-                },
-            },
-        })
-        function uniEvent(res) {
-            app && app.init(res);
-        }
-        function uniGroupUserJoinEvent(res) {
-            const { isGroupUserJoin, faceURL, nickname, userID } = res;
-            if(isGroupUserJoin) {
-                app && app.setGroupJoinUserInfo({faceURL, nickname, userID})
+                }
+            });
+            function uniEvent(res) {
+                app && app.init(res);
             }
-        }
-        function disconnectRoom (res) {
-            app && app.goOut(res);
-        }
-    </script>
-</body>
-
+            function uniGroupUserJoinEvent(res) {
+                const { isGroupUserJoin } = res;
+                if (isGroupUserJoin) {
+                    app && app.setGroupJoinUserInfo(res);
+                }
+            }
+            function disconnectRoom(res) {
+                app && app.goOut(res);
+            }
+            function toast({ message }) {
+                app && app.toast(message);
+            }
+        </script>
+    </body>
 </html>

@@ -1,13 +1,7 @@
 <template>
-    <u-overlay
-        :show="true"
-        opacity="1"
-    >
+    <u-overlay :show="true" opacity="1">
         <view class="preview_video_container">
-            <video
-                class="video_player"
-                :src="previewVideoUrl"
-            />
+            <video class="video_player" :src="previewVideoUrl" />
             <view class="play_action_bar">
                 <u-icon
                     size="24"
@@ -29,27 +23,27 @@
 
 <script>
 export default {
-    name: "",
+    name: '',
     components: {},
     props: {
         previewVideoUrl: String
     },
-    data () {
+    data() {
         return {
             downloading: false
         };
     },
     methods: {
-        closeModal () {
+        closeModal() {
             this.$emit('closeModal');
         },
-        download () {
+        download() {
             if (this.downloading) return;
             this.showToast('下载中', true);
             this.downloading = true;
             uni.downloadFile({
                 url: this.previewVideoUrl,
-                success: (res) => {
+                success: res => {
                     if (res.statusCode === 200) {
                         uni.saveVideoToPhotosAlbum({
                             filePath: res.tempFilePath,
@@ -57,19 +51,19 @@ export default {
                                 this.showToast('下载成功,已保存到相册');
                             },
                             fail: () => {
-                                this.showToast("保存失败");
+                                this.showToast('保存失败');
                             }
                         });
                     } else {
-                        this.showToast("下载失败");
+                        this.showToast('下载失败');
                     }
                 },
                 fail: () => {
-                    this.showToast("下载失败");
+                    this.showToast('下载失败');
                 }
             });
         },
-        showToast (message, isLoading = false) {
+        showToast(message, isLoading = false) {
             if (this.$refs.uToast.isShow) {
                 this.$refs.uToast.hide();
             }
@@ -87,20 +81,20 @@ export default {
 </script>
 
 <style lang="scss">
-	.preview_video_container {
-		height: 100%;
+.preview_video_container {
+    height: 100%;
 
-		.video_player {
-			height: 50%;
-			width: 100%;
-			margin-top: 50%;
-		}
+    .video_player {
+        height: 50%;
+        width: 100%;
+        margin-top: 50%;
+    }
 
-		.play_action_bar {
-			padding: 0 48rpx;
-			margin-top: 24rpx;
-			display: flex;
-			justify-content: space-between;
-		}
-	}
+    .play_action_bar {
+        padding: 0 48rpx;
+        margin-top: 24rpx;
+        display: flex;
+        justify-content: space-between;
+    }
+}
 </style>

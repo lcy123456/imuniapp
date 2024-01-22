@@ -25,6 +25,9 @@ export const MessageMenuTypes = {
     PinCancel: 'pinCancel',
     Checked: 'checked',
     Edit: 'edit',
+    ReadCount: 'readCount',
+    Favorite: 'favorite',
+    Save: 'save'
 };
 
 export const ContactMenuTypes = {
@@ -51,13 +54,13 @@ export const ContactChooseTypes = {
 
 export const UpdateMessageTypes = {
     Overall: 'Overall',
-    KeyWords: 'KeyWords',
+    KeyWords: 'KeyWords'
 };
 
 export const SmsUserFor = {
     Register: 1,
     Reset: 2,
-    Login: 3,
+    Login: 3
 };
 
 export const CommonIsAllow = {
@@ -79,21 +82,21 @@ export const CustomMarkType = {
     SelfNickname: 'selfNickname',
     Remark: 'remark',
     GroupName: 'groupName',
-    AccountCancel: 'accountCancel',
+    AccountCancel: 'accountCancel'
 };
 
 export const ImageType = ['jpg', 'jpeg', 'png', 'gif'];
 export const VideoType = ['mp4', 'avi', 'ogg', 'fiv'];
 
 export const RecordFormMap = {
-    All: 'All',             // 全局查询
-    Contact: 'Contact',     // 好友查询
-    Group: 'Group',         // 群查询
+    All: 'All', // 全局查询
+    Contact: 'Contact', // 好友查询
+    Group: 'Group' // 群查询
 };
 
 export const RecordTypeMap = {
-    Contact: 'Contact',     // 联系人
-    Group: 'Group',         // 群组
-    Record: 'Record',       // 聊天记录
-    Message: 'Message'      // 记录消息
+    Contact: 'Contact', // 联系人
+    Group: 'Group', // 群组
+    Record: 'Record', // 聊天记录
+    Message: 'Message' // 记录消息
 };

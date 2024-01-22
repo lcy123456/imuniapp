@@ -1,26 +1,54 @@
 // https://api.giphy.com/v1/gifs/search?api_key=3eFQvabDx69SMoOemSPiYfh9FY0nzO9x&q=keyword&offset=0&limit=100
 import store from '@/store';
 // 在线状态
-export const getGifsSearch = (params) => {
+export const getGifsSearch = params => {
     return uni.$u?.http.get(
-        'v1/gifs/search',
+        `${store.getters.storeThirdData?.gif?.url}/v1/gifs/search`,
         {
             custom: {
-                isGiphy: true,
+                isGiphy: true
             },
             data: {
-                api_key: "3eFQvabDx69SMoOemSPiYfh9FY0nzO9x",
+                api_key: store.getters.storeThirdData?.gif?.apiKey,
                 ...params
-            },
+            }
         }
     );
 };
 // 创建房间
-export const bindCid = (params) => uni.$u?.http.post('/account/bind_cid', JSON.stringify({
-    ...params,
-}), {
-    header: {
-        token: store.getters.storeBusinessToken,
-    }
-});
-    
+export const bindCid = params =>
+    uni.$u?.http.post(
+        '/account/bind_cid',
+        JSON.stringify({
+            ...params
+        }),
+        {
+            header: {
+                token: store.getters.storeBusinessToken
+            }
+        }
+    );
+
+// 获取 Url
+export const thirdConfig = params =>
+    uni.$u?.http.get('/third/config', {
+        data: {
+            ...params
+        },
+        custom: {
+            isIMApi: true
+        },
+        header: {
+            token: store.getters.storeBusinessToken
+        }
+    });
+// 获取 版本更新
+export const appVersion = params =>
+    uni.$u?.http.post('/client_config/app_version', {
+        data: {
+            ...params
+        },
+        header: {
+            token: store.getters.storeBusinessToken
+        }
+    });

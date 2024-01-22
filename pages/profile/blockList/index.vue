@@ -3,15 +3,8 @@
         <view class="page_container">
             <CustomNavBar title="通讯录黑名单" />
 
-            <u-list
-                v-if="blockList.length>0"
-                class="block_list"
-                height="1"
-            >
-                <u-list-item
-                    v-for="item in blockList"
-                    :key="item.userID"
-                >
+            <u-list v-if="blockList.length > 0" class="block_list" height="1">
+                <u-list-item v-for="item in blockList" :key="item.userID">
                     <UserItem :item="item">
                         <view
                             slot="action"
@@ -24,10 +17,7 @@
                 </u-list-item>
             </u-list>
 
-            <u-empty
-                v-else
-                mode="list"
-            />
+            <u-empty v-else mode="list" />
 
             <u-modal
                 width="500rpx"
@@ -53,61 +43,65 @@ export default {
         MyAvatar,
         UserItem
     },
-    data () {
+    data() {
         return {
             showComfirm: false,
-            selectedUser: {},
+            selectedUser: {}
         };
     },
     computed: {
-        blockList () {
+        blockList() {
             return this.$store.getters.storeBlackList;
         }
     },
     methods: {
-        tryRemove (item) {
+        tryRemove(item) {
             this.selectedUser = {
                 ...item
             };
             this.showComfirm = true;
         },
-        confirm () {
-            IMSDK.asyncApi(IMSDK.IMMethods.RemoveBlack, IMSDK.uuid(), this.selectedUser.userID)
-                .then(() => uni.$u.toast('移除成功')).catch(() => uni.$u.toast('移除失败')).finally(() => this
-                    .showComfirm = false);
+        confirm() {
+            IMSDK.asyncApi(
+                IMSDK.IMMethods.RemoveBlack,
+                IMSDK.uuid(),
+                this.selectedUser.userID
+            )
+                .then(() => uni.$u.toast('移除成功'))
+                .catch(() => uni.$u.toast('移除失败'))
+                .finally(() => (this.showComfirm = false));
         },
-        closeModal () {
+        closeModal() {
             this.showComfirm = false;
-        },
-    },
-
+        }
+    }
 };
 </script>
 
 <style lang="scss" scoped>
-	.page_container {
-		@include colBox(false);
-		height: 100vh;
-		background-color: $uni-bg-color-grey;
+.page_container {
+    @include colBox(false);
+    height: 100vh;
+    background-color: $uni-bg-color-grey;
 
-		.block_list {
-			flex: 1;
-			margin-top: 24rpx;
+    .block_list {
+        flex: 1;
+        margin-top: 24rpx;
 
-			.user_item {
-				background-color: #fff;
-			}
+        .user_item {
+            background-color: #fff;
+        }
 
-			.user_action {
-				position: absolute;
-				right: 44rpx;
-				font-size: 28rpx;
-				color: $uni-color-primary;
-			}
-		}
-		
-		.u-empty {
-			margin-top: 25vh !important;
-		}
-	}
+        .user_action {
+            position: absolute;
+            right: 44rpx;
+            font-size: 28rpx;
+            color: $uni-color-primary;
+        }
+    }
+
+    .u-empty {
+        margin-top: 25vh !important;
+    }
+}
 </style>

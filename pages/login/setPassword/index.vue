@@ -4,10 +4,7 @@
         <view class="fz-50 ff-bold mt-100 mb-175">
             请设置{{ isRegister ? '信息与密码' : '新登录密码' }}
         </view>
-        <u-form
-            ref="loginForm"
-            :model="formData"
-        >
+        <u-form ref="loginForm" :model="formData">
             <u-form-item prop="password">
                 <u-input
                     v-model="formData.password"
@@ -82,59 +79,59 @@ export default {
         CustomNavBar,
         Alert
     },
-    data () {
+    data() {
         return {
             codeValue: '',
             userInfo: {
                 phoneNumber: '',
-                areaCode: '',
+                areaCode: ''
             },
             usedFor: 0,
             formData: {
                 password: '',
-                confirmPassword: '',
+                confirmPassword: ''
             },
             passwordEying: false,
-            comfirmEying: false,
+            comfirmEying: false
         };
     },
     computed: {
-        isRegister () {
+        isRegister() {
             return SmsUserFor.Register === this.usedFor;
         },
-        isLen () {
+        isLen() {
             const len = this.formData.password.length;
             return len >= 6 && len <= 24;
         },
-        isNumAndLetter () {
+        isNumAndLetter() {
             return regMap.numberLetter.test(this.formData.password);
         },
-        isEqual () {
+        isEqual() {
             return this.formData.password === this.formData.confirmPassword;
         },
-        isVerifyOk () {
+        isVerifyOk() {
             return this.isLen && this.isNumAndLetter && this.isEqual;
         }
     },
-    onLoad (options) {
+    onLoad(options) {
         const { userInfo, codeValue, usedFor } = options;
         this.userInfo = JSON.parse(userInfo);
         this.codeValue = codeValue;
         this.usedFor = Number(usedFor);
     },
     methods: {
-        doNext () {
+        doNext() {
             if (this.isRegister) {
                 uni.$u.route('/pages/login/setSelfInfo/index', {
                     userInfo: JSON.stringify(this.userInfo),
                     codeValue: this.codeValue,
-                    passWord: this.formData.password,
+                    passWord: this.formData.password
                 });
             } else {
                 this.resetPassword();
             }
         },
-        async resetPassword () {
+        async resetPassword() {
             const { phoneNumber, areaCode } = this.userInfo;
             try {
                 await businessReset({
@@ -154,10 +151,10 @@ export default {
                 uni.$u.toast(checkLoginError(err));
             }
         },
-        updateEye (key) {
+        updateEye(key) {
             this[key] = !this[key];
-        },
-    },
+        }
+    }
 };
 </script>
 <style lang="scss" scoped>
