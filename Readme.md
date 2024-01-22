@@ -57,3 +57,7 @@ yarn
     ![image-20221209185717429](./doc/run.png)
 
     ![image-20221209185815575](./doc/run2.png)
+
+## 安卓apk和谷歌abb打包注意事项：
+
+    由于普通apk和谷歌abb的下载地址差异，打包时候需要修改 util/fCheckVersion.js中 appVersion 方法下的platform（abb为2，apk为3）
