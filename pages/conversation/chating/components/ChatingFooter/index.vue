@@ -505,7 +505,6 @@ export default {
                     extension: '',
                     description: ''
                 });
-                console.log('sendCustomMessage----sendCustomMessage', message);
                 return this.sendAudioVideoMessage(message, type);
             } catch (err) {
                 uni.$u.toast('网络异常，请稍后重试');
@@ -542,7 +541,6 @@ export default {
                             : AudioVideoType.Audio
                 });
                 if (token) {
-                    console.log('token-----token', token);
                     this.$store.commit(
                         'incomingCall/SET_INCOMING_CALL_TOKEN',
                         token
@@ -727,16 +725,16 @@ export default {
             this.showActionSheet = true;
         },
         async prepareFileMessage() {
-            const { fileType, filePath, fileName } = await chooseFile();
-            if (ImageType.includes(fileType)) {
+            const { fileExtension, filePath, fileName } = await chooseFile();
+            if (ImageType.includes(fileExtension)) {
                 this.batchCreateImageMesage([filePath]);
-            } else if (VideoType.includes(fileType)) {
+            } else if (VideoType.includes(fileExtension)) {
                 uni.getVideoInfo({
                     src: filePath,
                     success: res => {
                         this.snapFlag = {
                             path: filePath,
-                            videoType: fileType,
+                            videoType: fileExtension,
                             duration: res.duration
                         };
                     },
@@ -828,6 +826,7 @@ export default {
                     fileName: name
                 }
             );
+            if (!message) return uni.$u.toast('不支持文件格式');
             this.sendMessage(message);
         },
         async batchCreateSoundMesage({ path, duration }) {
@@ -1231,8 +1230,6 @@ export default {
             selection.addRange(range);
         },
         moveCursorToIndex () {
-            console.log(this.anchorNode);
-            console.log('this.selection-------', this.baseOffset);
             if (!this.$el || !this.$el.querySelector) return;
             const element = this.$el.querySelector('.ql-editor');
             const selection = window.getSelection();

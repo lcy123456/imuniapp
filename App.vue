@@ -52,6 +52,7 @@ export default {
     },
     async onShow() {
         this.num++;
+        this.isHide = false;
         uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
         try {
             // plus.runtime.setBadgeNumber(0);
@@ -79,7 +80,7 @@ export default {
             num: 0,
             time: 0,
             isInitSDK: false,
-            isHide: false,
+            isHide: true,
             payload: false,
             innerAudioContext: null
         };
@@ -769,56 +770,28 @@ export default {
         isNewMessage(newServerMsg) {
             return !isEdit(newServerMsg) && !isLike(newServerMsg);
         },
+        androidPushMsg(newServerMsg) {
+            if (uni.$u.os() !== 'ios' && this.isHide) {
+                plus.push.createMessage(
+                    '你有一条新消息',
+                    JSON.stringify({
+                        payload: {
+                            conversationID: idsGetConversationID(newServerMsg)
+                        }
+                    }),
+                    { title: newServerMsg.senderNickname }
+                );
+            }
+        },
         async handleNewMessage(newServerMsg) {
             console.log('newServerMsg--newServerMsg', newServerMsg.clientMsgID);
-            if (this.inCurrentConversation(newServerMsg)) {
-                if (
-                    ![
-                        MessageType.TypingMessage,
-                        MessageType.RevokeMessage
-                    ].includes(newServerMsg.contentType)
-                ) {
-                    if (this.storeHasMoreAfterMessage) {
-                        // 当前数据不在底端，不做数据推送
-                        let conversationUnread = this.conversationUnread + 1;
-                        this.$store.commit(
-                            'conversation/SET_CONVERSATION_UNREAD',
-                            conversationUnread
-                        );
-                    } else {
-                        if (
-                            this.storeIsShowSetEnd &&
-                            this.isNewMessage(newServerMsg)
-                        ) {
-                            // 置底图标显示不滚动到底
-                            let conversationUnread =
-                                this.conversationUnread + 1;
-                            this.$store.commit(
-                                'conversation/SET_CONVERSATION_UNREAD',
-                                conversationUnread
-                            );
-                        }
-                        this.pushNewMessage(newServerMsg);
-                        uni.$u.debounce(this.markConversationAsRead, 2000);
-                        if (
-                            !this.storeIsShowSetEnd &&
-                            this.isNewMessage(newServerMsg)
-                        ) {
-                            setTimeout(() =>
-                                uni.$emit(PageEvents.ScrollToBottom, {
-                                    isRecv: true
-                                })
-                            );
-                        }
-                    }
-                } else if (
-                    [MessageType.TypingMessage].includes(
-                        newServerMsg.contentType
-                    )
-                ) {
-                    // 正在输入..
-                    uni.$emit('setStatus', newServerMsg.typingElem?.msgTips);
-                }
+            if (
+                ![
+                    MessageType.TypingMessage,
+                    MessageType.RevokeMessage
+                ].includes(newServerMsg.contentType)
+            ) {
+                this.androidPushMsg(newServerMsg);
             }
             const customStatus = this.isAudioVideoSend(newServerMsg);
             if (newServerMsg.contentType === AudioVideoStatus.groupDone) {
@@ -855,6 +828,51 @@ export default {
                 ) {
                     this.callOut(newServerMsg);
                 }
+            }
+            if (!this.inCurrentConversation(newServerMsg)) return;
+            if (
+                ![
+                    MessageType.TypingMessage,
+                    MessageType.RevokeMessage
+                ].includes(newServerMsg.contentType)
+            ) {
+                if (this.storeHasMoreAfterMessage) {
+                    // 当前数据不在底端，不做数据推送
+                    let conversationUnread = this.conversationUnread + 1;
+                    this.$store.commit(
+                        'conversation/SET_CONVERSATION_UNREAD',
+                        conversationUnread
+                    );
+                } else {
+                    if (
+                        this.storeIsShowSetEnd &&
+                        this.isNewMessage(newServerMsg)
+                    ) {
+                        // 置底图标显示不滚动到底
+                        let conversationUnread = this.conversationUnread + 1;
+                        this.$store.commit(
+                            'conversation/SET_CONVERSATION_UNREAD',
+                            conversationUnread
+                        );
+                    }
+                    this.pushNewMessage(newServerMsg);
+                    uni.$u.debounce(this.markConversationAsRead, 2000);
+                    if (
+                        !this.storeIsShowSetEnd &&
+                        this.isNewMessage(newServerMsg)
+                    ) {
+                        setTimeout(() =>
+                            uni.$emit(PageEvents.ScrollToBottom, {
+                                isRecv: true
+                            })
+                        );
+                    }
+                }
+            } else if (
+                [MessageType.TypingMessage].includes(newServerMsg.contentType)
+            ) {
+                // 正在输入..
+                uni.$emit('setStatus', newServerMsg.typingElem?.msgTips);
             }
         },
         callOut(newServerMsg, status) {

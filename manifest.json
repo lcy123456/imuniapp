@@ -154,6 +154,27 @@
                     "pid" : "6577",
                     "parameters" : {}
                 }
+            },
+            "lemonjk-FileSelect" : {
+                "appid_android" : "",
+                "__plugin_info__" : {
+                    "name" : "APP文件选择(支持安卓和ios)",
+                    "description" : "支持双端的APP文件选取插件",
+                    "platforms" : "Android,iOS",
+                    "url" : "https://ext.dcloud.net.cn/plugin?id=14059",
+                    "android_package_name" : "online.tbas.muskim02",
+                    "ios_bundle_id" : "online.tbas.muskim02",
+                    "isCloud" : true,
+                    "bought" : 1,
+                    "pid" : "14059",
+                    "parameters" : {
+                        "appid_android" : {
+                            "des" : "请填写你当前应用的包名，必需填写，否则可能无法使用。（在菜单中->发行->原生App-云打包中可以查看包名信息）",
+                            "key" : "",
+                            "value" : ""
+                        }
+                    }
+                }
             }
         },
         "uniStatistics" : {
