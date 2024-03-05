@@ -51,18 +51,25 @@ export default {
         },
         giveLikeMap() {
             const map = {};
-            this.giveLike.forEach(item => {
-                if (!map[item.key]) {
-                    map[item.key] = {
-                        num: 0,
-                        uidList: [],
-                        timeList: []
-                    };
-                }
-                map[item.key].num++;
-                map[item.key].uidList = [...map[item.key].uidList, item.uid];
-                map[item.key].timeList = [...map[item.key].timeList, item.time];
-            });
+            this.giveLike &&
+                this.giveLike.forEach(item => {
+                    if (!map[item.key]) {
+                        map[item.key] = {
+                            num: 0,
+                            uidList: [],
+                            timeList: []
+                        };
+                    }
+                    map[item.key].num++;
+                    map[item.key].uidList = [
+                        ...map[item.key].uidList,
+                        item.uid
+                    ];
+                    map[item.key].timeList = [
+                        ...map[item.key].timeList,
+                        item.time
+                    ];
+                });
             return map;
         }
     },
@@ -73,10 +80,6 @@ export default {
             );
         },
         async like(emoji) {
-            if (isPin(this.message)) {
-                uni.$u.toast('置顶消息暂不支持点赞');
-                return;
-            }
             try {
                 const { clientMsgID, serverMsgID, sendID, recvID, groupID } =
                     this.message;

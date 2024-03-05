@@ -71,7 +71,8 @@ import { mapGetters } from 'vuex';
 import {
     parseMessageByType,
     formatConversionTime,
-    prepareConversationState
+    prepareConversationState,
+    getName
 } from '@/util/imCommon';
 import { setConversations } from '@/api/conversation';
 
@@ -136,7 +137,7 @@ export default {
             if (!parsedMessage) return '';
             return (
                 (conversationType === 3 && parsedMessage.senderNickname
-                    ? `${parsedMessage.senderNickname}: `
+                    ? `${getName(parsedMessage)}: `
                     : '') + parseMessageByType(parsedMessage)
             );
         },

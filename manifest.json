@@ -2,8 +2,8 @@
     "name" : "MuskIM",
     "appid" : "__UNI__E9FEB0B",
     "description" : "",
-    "versionName" : "3.0.1",
-    "versionCode" : 301,
+    "versionName" : "3.0.15",
+    "versionCode" : 3015,
     "transformPx" : false,
     "app-plus" : {
         "bounce" : "none",
@@ -95,7 +95,17 @@
                 "statics" : {},
                 "speech" : {},
                 "push" : {
-                    "unipush" : {}
+                    "unipush" : {
+                        "icons" : {
+                            "small" : {
+                                "ldpi" : "/Users/newpc/Downloads/png_icon/18.png",
+                                "mdpi" : "/Users/newpc/Downloads/png_icon/24.png",
+                                "hdpi" : "/Users/newpc/Downloads/png_icon/36.png",
+                                "xhdpi" : "/Users/newpc/Downloads/png_icon/48.png",
+                                "xxhdpi" : "/Users/newpc/Downloads/png_icon/72.png"
+                            }
+                        }
+                    }
                 }
             },
             "splashscreen" : {
@@ -141,20 +151,6 @@
             }
         },
         "nativePlugins" : {
-            "Tuoyun-OpenIMSDK" : {
-                "__plugin_info__" : {
-                    "name" : "OpenIM SDK",
-                    "description" : "OpenIM：由IM技术专家打造的基于 Go 实现的即时通讯（IM）项目，从服务端到客户端SDK开源即时通讯（IM）整体解决方案，可以轻松替代第三方IM云服务，打造具备聊天、社交功能的app。",
-                    "platforms" : "Android,iOS",
-                    "url" : "https://ext.dcloud.net.cn/plugin?id=6577",
-                    "android_package_name" : "",
-                    "ios_bundle_id" : "",
-                    "isCloud" : true,
-                    "bought" : 1,
-                    "pid" : "6577",
-                    "parameters" : {}
-                }
-            },
             "lemonjk-FileSelect" : {
                 "appid_android" : "",
                 "__plugin_info__" : {
@@ -174,6 +170,20 @@
                             "value" : ""
                         }
                     }
+                }
+            },
+            "Tuoyun-OpenIMSDK" : {
+                "__plugin_info__" : {
+                    "name" : "OpenIMSDK",
+                    "description" : "IM",
+                    "platforms" : "Android,iOS",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {}
                 }
             }
         },

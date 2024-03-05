@@ -594,6 +594,10 @@ export default {
             }
             try {
                 let data = {};
+                console.log(
+                    'isEdit(message)----isEdit(message)',
+                    isEdit(message)
+                );
                 if (isEdit(message)) {
                     const m = await updateMsg({
                         ...message

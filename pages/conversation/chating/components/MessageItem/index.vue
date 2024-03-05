@@ -32,7 +32,7 @@
                         :key="`auchor${source.clientMsgID}-MyAvatar`"
                         size="80rpx"
                         :font-size="14"
-                        :desc="source.senderNickname"
+                        :desc="getName(source)"
                         :src="source.senderFaceUrl"
                         shape="circle"
                         class="my_avatar"
@@ -40,7 +40,7 @@
                 </EventDom>
                 <view class="message_container">
                     <view v-if="!(isSingle || isSender)" class="message_sender">
-                        <text>{{ source.senderNickname }}</text>
+                        <text>{{ getName(source) }}</text>
                     </view>
                     <MessageContentWrap
                         :message="source"
@@ -81,6 +81,7 @@ import IMSDK, {
 } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import ChatingList from '../ChatingList.vue';
+import { mapGetters } from 'vuex';
 import MessageContentWrap from './MessageContentWrap.vue';
 // import MessageReadState from './MessageReadState.vue';
 import {
@@ -88,7 +89,7 @@ import {
     UpdateMessageTypes,
     MessageMenuTypes
 } from '@/constant';
-import { tipMessaggeFormat, offlinePushInfo } from '@/util/imCommon';
+import { tipMessaggeFormat, offlinePushInfo, getName } from '@/util/imCommon';
 
 export default {
     components: {
@@ -129,6 +130,7 @@ export default {
         };
     },
     computed: {
+        ...mapGetters(['storeFriendList']),
         isSingle() {
             return this.source.sessionType === SessionType.Single;
         },
@@ -155,13 +157,13 @@ export default {
         }
     },
     mounted() {
-        // this.$emit('messageItemRender', this.source.clientMsgID);
         this.isReadObserver();
         this.setSendingDelay();
         this.conversationID =
             this.$store.getters.storeCurrentConversation.conversationID;
     },
     methods: {
+        getName,
         avatarLongpress() {
             const atUsersInfo = {
                 atUserID: this.source.sendID,

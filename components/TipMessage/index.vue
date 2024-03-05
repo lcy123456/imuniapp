@@ -9,12 +9,12 @@
                 :is-group="isGroup"
                 :is-notify="isNotify"
                 :src="source.faceURL"
-                :desc="source.showName"
+                :desc="getName()"
                 size="44"
             />
             <view class="details">
                 <text class="conversation_name">
-                    {{ source.showName }}
+                    {{ getName() }}
                 </text>
                 <view class="lastest_msg_wrap">
                     <text
@@ -47,7 +47,8 @@ import { html2Text } from '@/util/common';
 import {
     parseMessageByType,
     formatConversionTime,
-    prepareConversationState
+    prepareConversationState,
+    getName
 } from '@/util/imCommon';
 import { TextRenderTypes, MediaRenderTypes, FileRenderTypes } from '@/constant';
 import { mapGetters } from 'vuex';
@@ -142,6 +143,17 @@ export default {
     },
     methods: {
         html2Text,
+        getName() {
+            const { latestMsg } = this.source;
+            let parsedMessage;
+            try {
+                parsedMessage = JSON.parse(latestMsg);
+            } catch (e) {
+                console.log(e);
+            }
+            if (!parsedMessage) return '';
+            return getName(parsedMessage);
+        },
         hide() {
             this.$store.commit('base/SET_TIP_STATUS', false);
         },

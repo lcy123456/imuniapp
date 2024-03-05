@@ -195,7 +195,7 @@ export default {
                 conversationID: this.conversationID,
                 userID: '',
                 groupID: '',
-                count: count,
+                count,
                 isSyncing
             };
             try {

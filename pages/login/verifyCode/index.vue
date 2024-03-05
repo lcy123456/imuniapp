@@ -71,7 +71,9 @@ export default {
             const options = {
                 phoneNumber: this.userInfo.phoneNumber,
                 areaCode: `+${this.userInfo.areaCode}`,
-                usedFor: SmsUserFor.Register,
+                usedFor: this.isRegister
+                    ? SmsUserFor.Register
+                    : SmsUserFor.Reset,
                 verifyCode: value
             };
             try {
@@ -86,7 +88,7 @@ export default {
             }
         },
         startCount() {
-            timer = setInterval(() => {
+            let timer = setInterval(() => {
                 if (this.count > 0) {
                     this.count--;
                 } else {

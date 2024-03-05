@@ -383,10 +383,6 @@ export default {
                     await uni.$emit('deleteMsg', [this.message]);
                     break;
                 case MessageMenuTypes.Edit:
-                    if (isPin(this.message)) {
-                        uni.$u.toast('置顶消息暂不支持编辑');
-                        break;
-                    }
                     uni.$emit('active_message', {
                         message: this.message,
                         type: 'edit_message'
@@ -625,10 +621,6 @@ export default {
             return DecryptoAES(textElem.content);
         },
         async like(emoji) {
-            if (isPin(this.message)) {
-                uni.$u.toast('置顶消息暂不支持点赞');
-                return;
-            }
             try {
                 const { clientMsgID, serverMsgID, sendID, recvID, groupID } =
                     this.message;

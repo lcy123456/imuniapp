@@ -53,6 +53,9 @@ export default {
     async onShow() {
         this.num++;
         this.isHide = false;
+        // if (this.num !== 1 && uni.$u.os() === 'ios') {
+        //     this.tryLogin(1);
+        // }
         uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
         try {
             // plus.runtime.setBadgeNumber(0);
@@ -65,9 +68,11 @@ export default {
             //
         }
     },
-    onHide() {
+    async onHide() {
         this.isHide = true;
         this.time = 0;
+        // uni.$u.os() === 'ios' &&
+        //     IMSDK.asyncApi(IMMethods.NetworkStatusChanged, IMSDK.uuid());
         IMSDK.asyncApi(
             IMSDK.IMMethods.SetAppBackgroundStatus,
             IMSDK.uuid(),
@@ -431,6 +436,21 @@ export default {
                             uni.$u.toast('你被移除群聊');
                         }, 1000);
                         break;
+                    case 'modify':
+                        try {
+                            const message = JSON.parse(data.data);
+                            this.updateOneMessage({
+                                message: {
+                                    ...message
+                                }
+                            });
+                        } catch (err) {
+                            console.log(err);
+                        }
+                        break;
+                    case 'reload':
+                        plus.runtime.restart();
+                        break;
                 }
             };
             const recvMessageModifiedandler = ({ data }) => {
@@ -706,9 +726,10 @@ export default {
             }
         },
 
-        async tryLogin() {
+        async tryLogin(isReload) {
             try {
                 const path = await getDbDir();
+                console.log('path---path', path);
                 const flag = await IMSDK.asyncApi(
                     IMMethods.InitSDK,
                     IMSDK.uuid(),
@@ -727,9 +748,7 @@ export default {
                     return new Error('初始化IMSDK失败！');
                 }
                 this.isInitSDK = true;
-                setTimeout(async () => {
-                    await IMLogin();
-                }, 1000);
+                await IMLogin(isReload);
             } catch (err) {
                 console.log(err);
                 plus.navigator.closeSplashscreen();

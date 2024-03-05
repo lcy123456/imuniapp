@@ -1,6 +1,10 @@
 <template>
     <Page>
-        <view class="conversation_container" @click="closeAllSwipe">
+        <view
+            id="conversation_container"
+            class="conversation_container"
+            @click="closeAllSwipe"
+        >
             <chat-header ref="chatHeaderRef" />
             <view class="px-20 pt-10 pb-20 bg-grey" @click="handleToSearch">
                 <uni-search-bar
@@ -56,6 +60,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import ChatHeader from './components/ChatHeader.vue';
+import { isNeedRestart } from '@/util/common';
 import PcLoginTip from './components/PcLoginTip.vue';
 import ConversationItem from './components/ConversationItem.vue';
 import { prepareConversationState } from '@/util/imCommon';
@@ -177,6 +182,11 @@ export default {
         }, 3000);
         this.getCall();
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
+    },
+    onShow() {
+        this.$nextTick(() => {
+            isNeedRestart.call(this, '#conversation_container');
+        });
     },
     onUnload() {
         clearInterval(this.timer);

@@ -41,6 +41,8 @@
 @class Open_im_sdk_callbackSendMsgCallBack;
 @protocol Open_im_sdk_callbackUploadFileCallback;
 @class Open_im_sdk_callbackUploadFileCallback;
+@protocol Open_im_sdk_callbackUploadLogProgress;
+@class Open_im_sdk_callbackUploadLogProgress;
 
 @protocol Open_im_sdk_callbackBase <NSObject>
 - (void)onError:(int32_t)errCode errMsg:(NSString* _Nullable)errMsg;
@@ -55,9 +57,9 @@
 - (void)onRecvMessageExtensionsAdded:(NSString* _Nullable)msgID reactionExtensionList:(NSString* _Nullable)reactionExtensionList;
 - (void)onRecvMessageExtensionsChanged:(NSString* _Nullable)msgID reactionExtensionList:(NSString* _Nullable)reactionExtensionList;
 - (void)onRecvMessageExtensionsDeleted:(NSString* _Nullable)msgID reactionExtensionKeyList:(NSString* _Nullable)reactionExtensionKeyList;
-- (void)onRecvMessageModified:(NSString* _Nullable)message;
 - (void)onRecvNewMessage:(NSString* _Nullable)message;
 - (void)onRecvOfflineNewMessage:(NSString* _Nullable)message;
+- (void)onRecvOnlineOnlyMessage:(NSString* _Nullable)message;
 @end
 
 @protocol Open_im_sdk_callbackOnBatchMsgListener <NSObject>
@@ -75,6 +77,7 @@
 
 @protocol Open_im_sdk_callbackOnConversationListener <NSObject>
 - (void)onConversationChanged:(NSString* _Nullable)conversationList;
+- (void)onConversationUserInputStatusChanged:(NSString* _Nullable)change;
 - (void)onNewConversation:(NSString* _Nullable)conversationList;
 /**
  * OnSyncServerProgress(progress int)
@@ -198,7 +201,12 @@
 - (void)uploadPartComplete:(long)index partSize:(int64_t)partSize partHash:(NSString* _Nullable)partHash;
 @end
 
-FOUNDATION_EXPORT id<Open_im_sdk_callbackOnFriendshipListenerSdk> _Nullable Open_im_sdk_callbackNewOnFriendshipListenerSdk(id<Open_im_sdk_callbackOnFriendshipListener> _Nullable listener);
+@protocol Open_im_sdk_callbackUploadLogProgress <NSObject>
+- (void)onProgress:(int64_t)current size:(int64_t)size;
+@end
+
+// skipped function NewOnFriendshipListenerSdk with unsupported parameter or return types
+
 
 @class Open_im_sdk_callbackBase;
 
@@ -230,6 +238,8 @@ FOUNDATION_EXPORT id<Open_im_sdk_callbackOnFriendshipListenerSdk> _Nullable Open
 
 @class Open_im_sdk_callbackUploadFileCallback;
 
+@class Open_im_sdk_callbackUploadLogProgress;
+
 @interface Open_im_sdk_callbackBase : NSObject <goSeqRefInterface, Open_im_sdk_callbackBase> {
 }
 @property(strong, readonly) _Nonnull id _ref;
@@ -251,9 +261,9 @@ FOUNDATION_EXPORT id<Open_im_sdk_callbackOnFriendshipListenerSdk> _Nullable Open
 - (void)onRecvMessageExtensionsAdded:(NSString* _Nullable)msgID reactionExtensionList:(NSString* _Nullable)reactionExtensionList;
 - (void)onRecvMessageExtensionsChanged:(NSString* _Nullable)msgID reactionExtensionList:(NSString* _Nullable)reactionExtensionList;
 - (void)onRecvMessageExtensionsDeleted:(NSString* _Nullable)msgID reactionExtensionKeyList:(NSString* _Nullable)reactionExtensionKeyList;
-- (void)onRecvMessageModified:(NSString* _Nullable)message;
 - (void)onRecvNewMessage:(NSString* _Nullable)message;
 - (void)onRecvOfflineNewMessage:(NSString* _Nullable)message;
+- (void)onRecvOnlineOnlyMessage:(NSString* _Nullable)message;
 @end
 
 @interface Open_im_sdk_callbackOnBatchMsgListener : NSObject <goSeqRefInterface, Open_im_sdk_callbackOnBatchMsgListener> {
@@ -283,6 +293,7 @@ FOUNDATION_EXPORT id<Open_im_sdk_callbackOnFriendshipListenerSdk> _Nullable Open
 
 - (nonnull instancetype)initWithRef:(_Nonnull id)ref;
 - (void)onConversationChanged:(NSString* _Nullable)conversationList;
+- (void)onConversationUserInputStatusChanged:(NSString* _Nullable)change;
 - (void)onNewConversation:(NSString* _Nullable)conversationList;
 /**
  * OnSyncServerProgress(progress int)
@@ -444,6 +455,14 @@ FOUNDATION_EXPORT id<Open_im_sdk_callbackOnFriendshipListenerSdk> _Nullable Open
 - (void)uploadComplete:(int64_t)fileSize streamSize:(int64_t)streamSize storageSize:(int64_t)storageSize;
 - (void)uploadID:(NSString* _Nullable)uploadID;
 - (void)uploadPartComplete:(long)index partSize:(int64_t)partSize partHash:(NSString* _Nullable)partHash;
+@end
+
+@interface Open_im_sdk_callbackUploadLogProgress : NSObject <goSeqRefInterface, Open_im_sdk_callbackUploadLogProgress> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+- (void)onProgress:(int64_t)current size:(int64_t)size;
 @end
 
 #endif

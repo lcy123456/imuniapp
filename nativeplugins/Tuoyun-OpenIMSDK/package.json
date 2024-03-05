@@ -1,7 +1,7 @@
 {
     "name": "OpenIMSDK",
     "id": "Tuoyun-OpenIMSDK",
-    "version": "3.4.0.1",
+    "version": "3.4.3",
     "description": "IM",
     "_dp_type": "nativeplugin",
     "_dp_nativeplugin": {

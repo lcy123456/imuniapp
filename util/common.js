@@ -102,6 +102,27 @@ export const getDbDir = () => {
     });
 };
 
+export function isNeedRestart(el) {
+    return new Promise(() => {
+        const query = uni.createSelectorQuery().in(this);
+        let isRecovery = true;
+        query
+            .select(el)
+            .boundingClientRect(() => {
+                isRecovery = false;
+            })
+            .exec();
+
+        setTimeout(() => {
+            console.log('isRecovery----isRecovery', isRecovery);
+            if (isRecovery) {
+                uni.$u.toast('被清除资源了，需要重启。。。。。。。。');
+                plus.runtime.restart();
+            }
+        }, 500);
+    });
+}
+
 export const formatChooseData = (data, key = 'nickname') => {
     const ucfirst = l1 => {
         if (l1.length > 0) {

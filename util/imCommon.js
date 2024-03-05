@@ -205,6 +205,14 @@ export const sec2Time = seconds => {
     return result;
 };
 
+export function getName(map) {
+    const friendList = store.getters.storeFriendList;
+    const item = friendList.find(
+        friend => friend.userID === (map.sendID || map.userID)
+    );
+    return item ? item.remark || item.nickname : map.senderNickname;
+}
+
 export const parseMessageByType = (pmsg, isNotify = false) => {
     try {
         const isSelf = id => id === store.getters.storeCurrentUserID;
@@ -642,7 +650,7 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
     }
 };
 
-export const IMLogin = async () => {
+export const IMLogin = async isReload => {
     console.log('-----', store.state.user.authData);
     const { storeUserID, storeIMToken } = store.getters;
     if (!storeUserID || !storeIMToken) {
@@ -655,13 +663,16 @@ export const IMLogin = async () => {
             IMSDK.IMMethods.GetLoginStatus,
             IMSDK.uuid()
         );
+        console.log('status----status', status);
         if ([2, 3].includes(status)) {
             await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
         }
+        console.log('33333-------222');
         await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
             userID: storeUserID,
             token: storeIMToken
         });
+        console.log('status----status----3333----333');
         store.commit('user/SET_LOGIN_STATUS', true);
         store.dispatch('user/getSelfInfo');
         store.dispatch('conversation/getConversationList');
@@ -673,11 +684,12 @@ export const IMLogin = async () => {
         store.dispatch('contact/getSentFriendApplications');
         store.dispatch('contact/getRecvGroupApplications');
         store.dispatch('contact/getSentGroupApplications');
-        uni.switchTab({
-            url: '/pages/conversation/conversationList/index'
-        });
+        !isReload &&
+            uni.switchTab({
+                url: '/pages/conversation/conversationList/index'
+            });
     } catch (err) {
-        console.log(err);
+        console.log('IMLogin----IMLogin', err);
         IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
         uni.$u.toast('openim登录异常，请重启');
         throw new Error('openim登录异常');
