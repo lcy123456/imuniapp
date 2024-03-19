@@ -22,13 +22,6 @@ import { videoGetToken } from '@/api/incoming';
 import { thirdConfig } from '@/api/';
 import { bindCid } from '@/api/index';
 
-// const customStatusTextMap = {
-//     [AudioVideoStatus.Done]: '通话结束',
-//     [AudioVideoStatus.Cancel]: '对方已取消',
-//     [AudioVideoStatus.Reject]: '对方已拒绝',
-//     [AudioVideoStatus.NotAnswered]: '对方未应答',
-//     [AudioVideoStatus.Busy]: '对方忙线中'
-// };
 export default {
     onLaunch() {
         this.$store.dispatch('user/getAppConfig');
@@ -49,41 +42,50 @@ export default {
         this.thirdConfig();
         this.setQuit();
         fCheckVersion();
+        uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
+        // plus.contacts.getAddressBook(
+        //     plus.contacts.ADDRESSBOOK_PHONE,
+        //     function (addressbook) {
+        //         // 可通过addressbook进行通讯录操作
+        //         console.log('Get address book success!', addressbook);
+        //         addressbook.find(
+        //             ['displayName', 'phoneNumbers'],
+        //             function (contacts) {
+        //                 console.log('contacts----contacts', contacts);
+        //             },
+        //             function () {
+        //                 console.log('error');
+        //             },
+        //             { multiple: true }
+        //         );
+        //     },
+        //     function (e) {
+        //         console.log('Get address book failed: ' + e.message);
+        //     }
+        // );
     },
     async onShow() {
         this.num++;
         this.isHide = false;
-        // if (this.num !== 1 && uni.$u.os() === 'ios') {
-        //     this.tryLogin(1);
-        // }
-        uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
-        try {
-            // plus.runtime.setBadgeNumber(0);
-            IMSDK.asyncApi(
-                IMSDK.IMMethods.SetAppBackgroundStatus,
-                IMSDK.uuid(),
-                false
-            );
-        } catch (err) {
-            //
-        }
+        IMSDK.asyncApi(
+            IMSDK.IMMethods.SetAppBackgroundStatus,
+            IMSDK.uuid(),
+            false
+        );
     },
     async onHide() {
         this.isHide = true;
-        this.time = 0;
-        // uni.$u.os() === 'ios' &&
-        //     IMSDK.asyncApi(IMMethods.NetworkStatusChanged, IMSDK.uuid());
+        clearTimeout(this.timer2);
         IMSDK.asyncApi(
             IMSDK.IMMethods.SetAppBackgroundStatus,
             IMSDK.uuid(),
             true
         );
-        // uni.unPreloadPage({url: "/pages/conversation/webrtc/index"});
+        // IMSDK.asyncApi(IMSDK.IMMethods.NetworkStatusChanged, '1');
     },
     data() {
         return {
             num: 0,
-            time: 0,
             isInitSDK: false,
             isHide: true,
             payload: false,
@@ -726,7 +728,7 @@ export default {
             }
         },
 
-        async tryLogin(isReload) {
+        async tryLogin() {
             try {
                 const path = await getDbDir();
                 console.log('path---path', path);
@@ -748,7 +750,30 @@ export default {
                     return new Error('初始化IMSDK失败！');
                 }
                 this.isInitSDK = true;
-                await IMLogin(isReload);
+                await IMLogin();
+
+                setTimeout(async () => {
+                    console.log('createAdvancedTextMessage---11111');
+                    try {
+                        const data = await IMSDK.asyncApi(
+                            IMMethods.CreateAdvancedTextMessage,
+                            IMSDK.uuid(),
+                            {
+                                text: '23423',
+                                messageEntityList: [
+                                    {
+                                        type: '111',
+                                        offset: 111,
+                                        length: 111
+                                    }
+                                ]
+                            }
+                        );
+                        console.log('createAdvancedTextMessage---data', data);
+                    } catch (err) {
+                        console.log('createAdvancedTextMessage---', err);
+                    }
+                }, 5000);
             } catch (err) {
                 console.log(err);
                 plus.navigator.closeSplashscreen();

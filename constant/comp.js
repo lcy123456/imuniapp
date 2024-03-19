@@ -7,7 +7,8 @@ export const ChatingFooterActionTypes = {
     Call: 'Call',
     File: 'File',
     Card: 'Card',
-    Location: 'Location'
+    Location: 'Location',
+    teshu: 'teshu'
 };
 
 export const MessageMenuTypes = {
@@ -82,7 +83,8 @@ export const CustomMarkType = {
     SelfNickname: 'selfNickname',
     Remark: 'remark',
     GroupName: 'groupName',
-    AccountCancel: 'accountCancel'
+    AccountCancel: 'accountCancel',
+    Email: 'email'
 };
 
 export const ImageType = ['jpg', 'jpeg', 'png', 'gif'];

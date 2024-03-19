@@ -113,6 +113,7 @@
             v-show="actionBarVisible"
             @prepareMediaMessage="prepareMediaMessage"
             @prepareFileMessage="prepareFileMessage"
+            @prepareNoEditMessage="prepareNoEditMessage"
         />
         <ChatingEmojiBar
             v-show="emojiBarVisible"
@@ -182,7 +183,7 @@ import ChatQuote from '@/components/ChatQuote';
 import { EncryptoAES } from '@/util/crypto';
 import { chooseFile, recordVoiceManager } from '@/util/unisdk';
 import { videoCreateRoomAndGetToken } from '@/api/incoming';
-import { updateMsg } from '@/api/message';
+import { updateMsg, sendAdvmsg } from '@/api/message';
 import { AllType } from '@/enum';
 
 const albumChoose = [
@@ -258,6 +259,7 @@ export default {
             cursorToEnd: '',
             testtime: '',
             inputfocustime: '',
+            isNoEditMsg: false,
             actionBarVisible: false,
             emojiBarVisible: false,
             recordVisible: false,
@@ -281,7 +283,8 @@ export default {
             'storeIsIncomingCallLoading',
             'storeIsIncomingCallIng',
             'storeIncomingIsGroupChat',
-            'storeUserID'
+            'storeUserID',
+            'storeSelfInfo'
         ]),
         hasContent() {
             return html2Text(this.inputHtml, 1) !== '';
@@ -565,6 +568,21 @@ export default {
             // return this.sendMessage(message);
         },
         async sendTextMessage() {
+            if (this.isNoEditMsg) {
+                try {
+                    const { userID, groupID } = this.storeCurrentConversation;
+                    const { text } = formatInputHtml(this.inputHtml, 1);
+                    await sendAdvmsg({
+                        recvID: userID,
+                        groupID,
+                        content: text
+                    });
+                    this.customEditorCtx.clear();
+                } catch (err) {
+                    uni.$u.toast('发送失败，请重试');
+                }
+                return;
+            }
             const message = await this.createTextMessage();
             uni.$emit('active_message', {
                 message: null,
@@ -594,10 +612,6 @@ export default {
             }
             try {
                 let data = {};
-                console.log(
-                    'isEdit(message)----isEdit(message)',
-                    isEdit(message)
-                );
                 if (isEdit(message)) {
                     const m = await updateMsg({
                         ...message
@@ -727,6 +741,12 @@ export default {
                 this.actionSheetMenu = [...callChoose];
             }
             this.showActionSheet = true;
+        },
+        async prepareNoEditMessage() {
+            this.isNoEditMsg = !this.isNoEditMsg;
+            uni.$u.toast(
+                `${this.isNoEditMsg ? '开启' : '关闭'}发送不可编辑新消息`
+            );
         },
         async prepareFileMessage() {
             const { fileExtension, filePath, fileName } = await chooseFile();

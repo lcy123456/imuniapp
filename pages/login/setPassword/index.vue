@@ -132,11 +132,12 @@ export default {
             }
         },
         async resetPassword() {
-            const { phoneNumber, areaCode } = this.userInfo;
+            const { email } = this.userInfo;
             try {
                 await businessReset({
-                    areaCode: `+${areaCode}`,
-                    phoneNumber,
+                    email,
+                    deviceID: '',
+                    platform: uni.$u.os() === 'ios' ? 1 : 2,
                     verifyCode: this.codeValue,
                     password: md5(this.formData.password)
                 });

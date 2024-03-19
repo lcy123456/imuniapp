@@ -5,43 +5,30 @@ import store from '@/store';
 // const apiUrl = 'https://web.rentsoft.cn/api'
 // const wsUrl = 'wss://web.rentsoft.cn/msg_gateway'
 function getUrl() {
-    let registerUrl = 'http://192.168.2.244:10008';
-    let configUrl = 'http://192.168.2.244:10009';
-    let apiUrl = 'http://192.168.2.244:10002';
-    let wsUrl = 'ws://192.168.2.244:10001';
-    let liveWsUrl = 'ws://192.168.2.20:7880';
+    let registerUrl = 'https://test-old-web.musk-im.life/chat';
+    let apiUrl = 'https://test-old-web.musk-im.life/api';
+    let wsUrl = 'wss://test-old-web.musk-im.life/msg_gateway';
 
     if (store.getters.storeIsProd) {
-        registerUrl = 'https://imlogic.muskim.com';
-        configUrl = 'https://imcms.muskim.com';
-        apiUrl = 'https://imapi.muskim.com';
-        wsUrl = 'wss://imws.muskim.com';
-        liveWsUrl = 'wss://cms.muskim.com';
-
+        registerUrl = 'http://imlogic.muskim.com';
+        apiUrl = 'http://imapi.muskim.com';
+        wsUrl = 'ws://imws.muskim.com';
         // registerUrl = 'https://imlogic.qncjkeusoge.cfd';
-        // configUrl = 'https://imcms.qncjkeusoge.cfd';
         // apiUrl = 'https://imapi.qncjkeusoge.cfd';
         // wsUrl = 'wss://imws.qncjkeusoge.cfd';
-        // liveWsUrl = 'wss://cms.qncjkeusoge.cfd';
     }
     return {
         registerUrl,
-        configUrl,
         apiUrl,
-        wsUrl,
-        liveWsUrl
+        wsUrl
     };
 }
 const getRegisterUrl = () => getUrl().registerUrl;
-const getConfigUrl = () => getUrl().configUrl;
 const getApiUrl = () => getUrl().apiUrl;
 const getWsUrl = () => getUrl().wsUrl;
-const getLiveWsUrl = () => getUrl().liveWsUrl;
 
 module.exports = {
     getRegisterUrl,
-    getConfigUrl,
     getApiUrl,
-    getWsUrl,
-    getLiveWsUrl
+    getWsUrl
 };

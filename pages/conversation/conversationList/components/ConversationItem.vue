@@ -132,7 +132,7 @@ export default {
             try {
                 parsedMessage = JSON.parse(latestMsg);
             } catch (e) {
-                console.log(e);
+                // console.log(e);
             }
             if (!parsedMessage) return '';
             return (

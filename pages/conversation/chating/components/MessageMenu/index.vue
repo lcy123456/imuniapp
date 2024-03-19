@@ -241,7 +241,8 @@ export default {
                     icon: '/static/images/chating_message_edit.svg',
                     visible:
                         TextRenderTypes.includes(this.message.contentType) &&
-                        this.isMyMsg
+                        this.isMyMsg &&
+                        this.message.contentType !== 117
                 },
                 {
                     type: MessageMenuTypes.Copy,

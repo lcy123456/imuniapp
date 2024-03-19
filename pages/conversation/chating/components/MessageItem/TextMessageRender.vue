@@ -3,7 +3,8 @@
         :class="[
             'text_message_container',
             'bg_container',
-            'text_message_container_' + message.clientMsgID
+            'text_message_container_' + message.clientMsgID,
+            message.contentType === 117 ? 'isNoEditMsg' : ''
         ]"
         :message="message"
         :change:message="getMessage"
@@ -118,14 +119,23 @@ export default {
             }
         },
         text() {
-            const { contentType, quoteElem, atTextElem, textElem } =
-                this.message;
+            const {
+                contentType,
+                quoteElem,
+                atTextElem,
+                textElem,
+                advancedTextElem
+            } = this.message;
             let text = '';
             // TODO：解密文本
             if (contentType === MessageType.QuoteMessage) {
                 text = parseLink(parseEmoji(DecryptoAES(quoteElem?.text)));
             } else if (contentType === MessageType.AtTextMessage) {
                 text = parseLink(parseEmoji(parseAt(atTextElem)));
+            } else if (contentType === 117) {
+                text = parseLink(
+                    parseEmoji(DecryptoAES(advancedTextElem?.text))
+                );
             } else {
                 text = parseLink(parseEmoji(DecryptoAES(textElem?.content)));
             }
@@ -186,6 +196,9 @@ export default {
     user-select: none;
     -webkit-user-select: none;
     position: relative;
+    &.isNoEditMsg {
+        background: #ffeb95 !important;
+    }
 }
 .give-like-box {
     display: flex;

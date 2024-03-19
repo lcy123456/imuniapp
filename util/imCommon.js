@@ -255,6 +255,8 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                 }
             case MessageType.TextMessage:
                 return DecryptoAES(pmsg.textElem.content);
+            case 117:
+                return DecryptoAES(pmsg.advancedTextElem.text);
             case MessageType.AtTextMessage:
                 return parseAt(pmsg.atTextElem);
             case MessageType.PictureMessage:
@@ -650,7 +652,7 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
     }
 };
 
-export const IMLogin = async isReload => {
+export const IMLogin = async isLogin => {
     console.log('-----', store.state.user.authData);
     const { storeUserID, storeIMToken } = store.getters;
     if (!storeUserID || !storeIMToken) {
@@ -664,15 +666,22 @@ export const IMLogin = async isReload => {
             IMSDK.uuid()
         );
         console.log('status----status', status);
-        if ([2, 3].includes(status)) {
-            await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+        if (isLogin) {
+            if ([2, 3].includes(status)) {
+                await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+            }
+            await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
+                userID: storeUserID,
+                token: storeIMToken
+            });
+        } else {
+            if (![2, 3].includes(status)) {
+                await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
+                    userID: storeUserID,
+                    token: storeIMToken
+                });
+            }
         }
-        console.log('33333-------222');
-        await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
-            userID: storeUserID,
-            token: storeIMToken
-        });
-        console.log('status----status----3333----333');
         store.commit('user/SET_LOGIN_STATUS', true);
         store.dispatch('user/getSelfInfo');
         store.dispatch('conversation/getConversationList');
@@ -684,10 +693,9 @@ export const IMLogin = async isReload => {
         store.dispatch('contact/getSentFriendApplications');
         store.dispatch('contact/getRecvGroupApplications');
         store.dispatch('contact/getSentGroupApplications');
-        !isReload &&
-            uni.switchTab({
-                url: '/pages/conversation/conversationList/index'
-            });
+        uni.switchTab({
+            url: '/pages/conversation/conversationList/index'
+        });
     } catch (err) {
         console.log('IMLogin----IMLogin', err);
         IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
@@ -697,7 +705,6 @@ export const IMLogin = async isReload => {
 };
 
 export const login = async requestMap => {
-    console.log(requestMap, 'requestMaprequestMap');
     try {
         const data = await businessLogin(requestMap);
         console.log('login------', data);
@@ -706,7 +713,7 @@ export const login = async requestMap => {
             ...data,
             ...requestMap
         });
-        return await IMLogin();
+        return await IMLogin('login');
     } catch (err) {
         console.log(err, err.errMsg);
         uni.$u.toast(checkLoginError(err));

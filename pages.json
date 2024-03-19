@@ -88,6 +88,9 @@
             "path": "pages/common/createGroup/index"
         },
         {
+            "path": "pages/common/emailBind/index"
+        },
+        {
             "path": "pages/contact/contactAdd/index"
         },
         {

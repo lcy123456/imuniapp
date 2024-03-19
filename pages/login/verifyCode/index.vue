@@ -4,8 +4,11 @@
         <view class="fz-50 mt-100 ff-bold"> 请输入您的验证码 </view>
         <view class="mb-128">
             <text class="text-grey"> 验证码已发送至 </text>
-            <text class="primary">
+            <text v-if="isRegister" class="primary">
                 {{ `+${userInfo.areaCode} ${userInfo.phoneNumber}` }}
+            </text>
+            <text v-else class="primary">
+                {{ userInfo.email }}
             </text>
         </view>
         <u-code-input
@@ -34,10 +37,13 @@
 <script>
 import CustomNavBar from '@/components/CustomNavBar';
 import CodeNot from '@/components/CodeNot';
-import { businessSendSms, businessVerifyCode } from '@/api/login';
+import {
+    businessSendSms,
+    businessVerifyCode,
+    emailVerifyCode
+} from '@/api/login';
 import { SmsUserFor } from '@/constant';
 import { checkLoginError } from '@/util/common';
-let timer;
 export default {
     components: {
         CustomNavBar,
@@ -77,7 +83,16 @@ export default {
                 verifyCode: value
             };
             try {
-                await businessVerifyCode(options);
+                if (this.isRegister) {
+                    await businessVerifyCode(options);
+                } else {
+                    await emailVerifyCode({
+                        email: this.userInfo.email,
+                        usedFor: SmsUserFor.Reset,
+                        deviceID: '',
+                        verifyCode: value
+                    });
+                }
                 uni.$u.route('/pages/login/setPassword/index', {
                     userInfo: JSON.stringify(this.userInfo),
                     codeValue: this.codeValue,

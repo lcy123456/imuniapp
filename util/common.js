@@ -116,10 +116,10 @@ export function isNeedRestart(el) {
         setTimeout(() => {
             console.log('isRecovery----isRecovery', isRecovery);
             if (isRecovery) {
-                uni.$u.toast('被清除资源了，需要重启。。。。。。。。');
+                // uni.$u.toast('被清除资源了，需要重启。。。。。。。。');
                 plus.runtime.restart();
             }
-        }, 500);
+        }, 800);
     });
 }
 
@@ -253,6 +253,8 @@ export const checkLoginError = error => {
     switch (error.errCode) {
         case 1001:
             return '输入信息有误';
+        case 1004:
+            return '邮箱不存在';
         case 10001:
             return '密码错误';
         case 10002:

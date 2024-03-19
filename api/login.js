@@ -15,7 +15,25 @@ export const businessModify = params =>
     uni.$u?.http.post('/account/password/change', JSON.stringify(params));
 export const businessCancellation = params =>
     uni.$u?.http.post('/account/cancellation', JSON.stringify(params));
+export const emailSendCode = params =>
+    uni.$u?.http.post('/account/email/send_code', JSON.stringify(params), {
+        header: {
+            token: store.getters.storeBusinessToken
+        }
+    });
+export const emailVerifyCode = params =>
+    uni.$u?.http.post('/account/email/verify_code', JSON.stringify(params));
+export const emailBind = params =>
+    uni.$u?.http.post(
+        '/account/email/bind',
+        JSON.stringify(params),
 
+        {
+            header: {
+                token: store.getters.storeBusinessToken
+            }
+        }
+    );
 // 用户信息
 export const businessInfoUpdate = params =>
     uni.$u?.http.post(
