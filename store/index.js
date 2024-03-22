@@ -16,11 +16,12 @@ const vuexPersisted = createPersistedState({
         removeItem: key => uni.removeStorageSync(key)
     },
     reducer(state) {
-        const { user, conversation, contact, base } = state;
+        const { user, conversation, contact, base, message } = state;
         const { keyBoardHeight } = base;
         const { authData, isProd, selfInfo, userList } = user;
         const { conversationList } = conversation;
         const { friendList, blackList, groupList } = contact;
+        const { historyMessageMap } = message;
         return {
             user: {
                 authData,
@@ -38,6 +39,9 @@ const vuexPersisted = createPersistedState({
             },
             base: {
                 keyBoardHeight
+            },
+            message: {
+                historyMessageMap
             }
         };
     }

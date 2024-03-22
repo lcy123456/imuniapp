@@ -43,30 +43,13 @@ export default {
         this.setQuit();
         fCheckVersion();
         uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
-        // plus.contacts.getAddressBook(
-        //     plus.contacts.ADDRESSBOOK_PHONE,
-        //     function (addressbook) {
-        //         // 可通过addressbook进行通讯录操作
-        //         console.log('Get address book success!', addressbook);
-        //         addressbook.find(
-        //             ['displayName', 'phoneNumbers'],
-        //             function (contacts) {
-        //                 console.log('contacts----contacts', contacts);
-        //             },
-        //             function () {
-        //                 console.log('error');
-        //             },
-        //             { multiple: true }
-        //         );
-        //     },
-        //     function (e) {
-        //         console.log('Get address book failed: ' + e.message);
-        //     }
-        // );
     },
     async onShow() {
+        console.log('onShow---onShow');
         this.num++;
         this.isHide = false;
+        this.isOnLaunch = false;
+        clearInterval(this.timer3);
         IMSDK.asyncApi(
             IMSDK.IMMethods.SetAppBackgroundStatus,
             IMSDK.uuid(),
@@ -75,12 +58,29 @@ export default {
     },
     async onHide() {
         this.isHide = true;
-        clearTimeout(this.timer2);
+        this.reloadTime = 0;
         IMSDK.asyncApi(
             IMSDK.IMMethods.SetAppBackgroundStatus,
             IMSDK.uuid(),
             true
         );
+        this.restartTime = 0;
+        const model = uni.getStorageSync('model');
+        if (model === '2' && uni.$u.os() === 'ios') {
+            this.timer3 = setInterval(() => {
+                this.restartTime++;
+                console.log(
+                    'this.restartTime---this.restartTime',
+                    this.restartTime
+                );
+                if (this.restartTime >= 29 && !this.storeIsIncomingCallIng) {
+                    this.bgKeepAlive = uni.requireNativePlugin(
+                        'DCTestUniPlugin-backgroundTaskModule'
+                    );
+                    this.bgKeepAlive.exitApp();
+                }
+            }, 1000);
+        }
         // IMSDK.asyncApi(IMSDK.IMMethods.NetworkStatusChanged, '1');
     },
     data() {
@@ -89,7 +89,8 @@ export default {
             isInitSDK: false,
             isHide: true,
             payload: false,
-            innerAudioContext: null
+            innerAudioContext: null,
+            isOnLaunch: false
         };
     },
     computed: {
@@ -187,7 +188,6 @@ export default {
             'updateSentGroupApplition'
         ]),
         ...mapActions('incomingCall', ['appearLoadingCall']),
-
         setQuit() {
             if (uni.$u.os() !== 'ios') {
                 const main = plus?.android?.runtimeMainActivity();
@@ -751,29 +751,6 @@ export default {
                 }
                 this.isInitSDK = true;
                 await IMLogin();
-
-                setTimeout(async () => {
-                    console.log('createAdvancedTextMessage---11111');
-                    try {
-                        const data = await IMSDK.asyncApi(
-                            IMMethods.CreateAdvancedTextMessage,
-                            IMSDK.uuid(),
-                            {
-                                text: '23423',
-                                messageEntityList: [
-                                    {
-                                        type: '111',
-                                        offset: 111,
-                                        length: 111
-                                    }
-                                ]
-                            }
-                        );
-                        console.log('createAdvancedTextMessage---data', data);
-                    } catch (err) {
-                        console.log('createAdvancedTextMessage---', err);
-                    }
-                }, 5000);
             } catch (err) {
                 console.log(err);
                 plus.navigator.closeSplashscreen();

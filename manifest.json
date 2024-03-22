@@ -2,8 +2,8 @@
     "name" : "MuskIM",
     "appid" : "__UNI__E9FEB0B",
     "description" : "",
-    "versionName" : "3.0.3",
-    "versionCode" : 303,
+    "versionName" : "3.0.1",
+    "versionCode" : 301,
     "transformPx" : false,
     "app-plus" : {
         "bounce" : "none",
@@ -177,6 +177,20 @@
                     "name" : "OpenIMSDK",
                     "description" : "IM",
                     "platforms" : "Android,iOS",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {}
+                }
+            },
+            "DCTestUniPlugin" : {
+                "__plugin_info__" : {
+                    "name" : "backgroundTaskUniPlugin",
+                    "description" : "uni开启后台任务",
+                    "platforms" : "iOS",
                     "url" : "",
                     "android_package_name" : "",
                     "ios_bundle_id" : "",

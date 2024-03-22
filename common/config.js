@@ -5,14 +5,14 @@ import store from '@/store';
 // const apiUrl = 'https://web.rentsoft.cn/api'
 // const wsUrl = 'wss://web.rentsoft.cn/msg_gateway'
 function getUrl() {
-    let registerUrl = 'https://test-old-web.musk-im.life/chat';
-    let apiUrl = 'https://test-old-web.musk-im.life/api';
-    let wsUrl = 'wss://test-old-web.musk-im.life/msg_gateway';
+    let registerUrl = 'http://test-old-web.musk-im.life/chat';
+    let apiUrl = 'http://test-old-web.musk-im.life/api';
+    let wsUrl = 'ws://test-old-web.musk-im.life/msg_gateway';
 
     if (store.getters.storeIsProd) {
-        registerUrl = 'http://imlogic.muskim.com';
-        apiUrl = 'http://imapi.muskim.com';
-        wsUrl = 'ws://imws.muskim.com';
+        registerUrl = 'https://imlogic.muskim.com';
+        apiUrl = 'https://imapi.muskim.com';
+        wsUrl = 'wss://imws.muskim.com';
         // registerUrl = 'https://imlogic.qncjkeusoge.cfd';
         // apiUrl = 'https://imapi.qncjkeusoge.cfd';
         // wsUrl = 'wss://imws.qncjkeusoge.cfd';

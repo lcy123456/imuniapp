@@ -322,7 +322,7 @@ export const colors = {
     Z: '#9b59b6' // 紫色
 };
 export const adjustColor = (hex, adjustment, alpha = 1) => {
-    hex = hex.replace(/^#/, '');
+    hex = hex?.replace(/^#/, '');
 
     const bigint = parseInt(hex, 16);
     let r = (bigint >> 16) & 255;
