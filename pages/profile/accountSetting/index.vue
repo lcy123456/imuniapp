@@ -119,12 +119,12 @@ export default {
                 [
                     {
                         id: 1,
-                        label: '关闭',
+                        label: '开启',
                         value: '1'
                     },
                     {
                         id: 2,
-                        label: '开启',
+                        label: '关闭',
                         value: '2'
                     }
                 ]

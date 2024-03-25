@@ -65,14 +65,14 @@ export default {
         );
         this.restartTime = 0;
         const model = uni.getStorageSync('model');
-        if (model === '2' && uni.$u.os() === 'ios') {
+        if ((!model || model === '1') && uni.$u.os() === 'ios') {
             this.timer3 = setInterval(() => {
                 this.restartTime++;
                 console.log(
                     'this.restartTime---this.restartTime',
                     this.restartTime
                 );
-                if (this.restartTime >= 29 && !this.storeIsIncomingCallIng) {
+                if (this.restartTime >= 28 && !this.storeIsIncomingCallIng) {
                     const bgKeepAlive = uni.requireNativePlugin(
                         'DCTestUniPlugin-backgroundTaskModule'
                     );

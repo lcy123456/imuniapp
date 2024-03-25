@@ -34,9 +34,12 @@ export default {
             if (this.touchE - this.touchT < 350 && !this.isTouchmove) {
                 this.$emit('click');
             }
+            this.isTouchmove = false;
         },
         longpress() {
-            this.$emit('longpress');
+            if (!this.isTouchmove) {
+                this.$emit('longpress');
+            }
         }
     }
 };
