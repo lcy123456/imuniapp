@@ -45,7 +45,6 @@ export default {
         uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
     },
     async onShow() {
-        console.log('onShow---onShow');
         this.num++;
         this.isHide = false;
         this.isOnLaunch = false;
@@ -74,14 +73,13 @@ export default {
                     this.restartTime
                 );
                 if (this.restartTime >= 29 && !this.storeIsIncomingCallIng) {
-                    this.bgKeepAlive = uni.requireNativePlugin(
+                    const bgKeepAlive = uni.requireNativePlugin(
                         'DCTestUniPlugin-backgroundTaskModule'
                     );
-                    this.bgKeepAlive.exitApp();
+                    bgKeepAlive.exitApp();
                 }
             }, 1000);
         }
-        // IMSDK.asyncApi(IMSDK.IMMethods.NetworkStatusChanged, '1');
     },
     data() {
         return {

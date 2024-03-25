@@ -185,6 +185,11 @@ export default {
                     this.loading = true;
                     if (this.isRegister) {
                         await businessSendSms(options);
+                        uni.$u.route('/pages/login/setPassword/index', {
+                            userInfo: JSON.stringify(this.userInfo),
+                            usedFor: this.usedFor
+                        });
+                        return;
                     } else {
                         const data = await emailSendCode({
                             email: this.userInfo.email,
