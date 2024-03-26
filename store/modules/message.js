@@ -9,7 +9,6 @@ const state = {
 
 const mutations = {
     SET_HISTORY_MESSAGE_MAP(state, obj) {
-        console.log('obj-------obj', JSON.parse(JSON.stringify(obj)));
         state.historyMessageMap = obj;
     }
 };

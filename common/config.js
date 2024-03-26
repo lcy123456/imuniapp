@@ -5,9 +5,9 @@ import store from '@/store';
 // const apiUrl = 'https://web.rentsoft.cn/api'
 // const wsUrl = 'wss://web.rentsoft.cn/msg_gateway'
 function getUrl() {
-    let registerUrl = 'http://test-old-web.musk-im.life/chat';
-    let apiUrl = 'http://test-old-web.musk-im.life/api';
-    let wsUrl = 'ws://test-old-web.musk-im.life/msg_gateway';
+    let registerUrl = 'https://test-old-web.musk-im.com/chat';
+    let apiUrl = 'https://test-old-web.musk-im.com/api';
+    let wsUrl = 'wss://test-old-web.musk-im.com/msg_gateway';
 
     if (store.getters.storeIsProd) {
         registerUrl = 'https://imlogic.muskim.com';
