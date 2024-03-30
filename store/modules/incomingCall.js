@@ -22,7 +22,7 @@ const state = {
     incomingCallMessage: {},
     incomingCallUserInfo: {
         faceURL: '',
-        nickname: '菠萝吹雪'
+        nickname: ''
     },
     incomingCallSmallStyle: {
         moveX: 7,
