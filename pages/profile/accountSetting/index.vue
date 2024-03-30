@@ -22,7 +22,7 @@
                     show-arrow
                     @click="checkoutVoice"
                 />
-                <SettingItem
+                <!-- <SettingItem
                     v-if="isIos"
                     title="兼容模式"
                     show-arrow
@@ -36,7 +36,7 @@
                             @click.native.stop="showTip"
                         ></u-icon>
                     </view>
-                </SettingItem>
+                </SettingItem> -->
             </view>
             <add-user />
         </view>

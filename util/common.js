@@ -114,9 +114,7 @@ export function isNeedRestart(el) {
             .exec();
 
         setTimeout(() => {
-            console.log('isRecovery----isRecovery', isRecovery);
             if (isRecovery) {
-                // uni.$u.toast('被清除资源了，需要重启。。。。。。。。');
                 plus.runtime.restart();
             }
         }, 800);

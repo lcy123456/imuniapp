@@ -43,43 +43,28 @@ export default {
         this.setQuit();
         fCheckVersion();
         uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
+        this.initBackgroundTaskModule();
     },
     async onShow() {
         this.num++;
         this.isHide = false;
         this.isOnLaunch = false;
-        clearInterval(this.timer3);
+        this.stopPlayAudio();
         IMSDK.asyncApi(
             IMSDK.IMMethods.SetAppBackgroundStatus,
             IMSDK.uuid(),
             false
         );
     },
-    async onHide() {
+    onHide() {
         this.isHide = true;
         this.reloadTime = 0;
+        this.startPlayAudioWithFile();
         IMSDK.asyncApi(
             IMSDK.IMMethods.SetAppBackgroundStatus,
             IMSDK.uuid(),
             true
         );
-        this.restartTime = 0;
-        const model = uni.getStorageSync('model');
-        if ((!model || model === '1') && uni.$u.os() === 'ios') {
-            this.timer3 = setInterval(() => {
-                this.restartTime++;
-                console.log(
-                    'this.restartTime---this.restartTime',
-                    this.restartTime
-                );
-                if (this.restartTime >= 28 && !this.storeIsIncomingCallIng) {
-                    const bgKeepAlive = uni.requireNativePlugin(
-                        'DCTestUniPlugin-backgroundTaskModule'
-                    );
-                    bgKeepAlive.exitApp();
-                }
-            }, 1000);
-        }
     },
     data() {
         return {
@@ -186,6 +171,34 @@ export default {
             'updateSentGroupApplition'
         ]),
         ...mapActions('incomingCall', ['appearLoadingCall']),
+        initBackgroundTaskModule() {
+            if (uni.$u.os() !== 'ios') return;
+            this.bgKeepAlive = uni.requireNativePlugin(
+                'DCTestUniPlugin-backgroundTaskModule'
+            );
+            this.bgKeepAlive.playStopBack(() => {
+                this.bgKeepAlive.exitApp();
+            });
+        },
+        startPlayAudioWithFile() {
+            if (uni.$u.os() !== 'ios') return;
+            this.bgKeepAlive.startPlayAudioWithFile(
+                plus.io.convertLocalFileSystemURL('/static/audio/nono.m4a')
+            );
+            this.restartTime = 0;
+            this.timer3 = setInterval(() => {
+                this.restartTime++;
+                console.log(
+                    'this.restartTime---this.restartTime',
+                    this.restartTime
+                );
+            }, 1000);
+        },
+        stopPlayAudio() {
+            if (uni.$u.os() !== 'ios') return;
+            clearInterval(this.timer3);
+            this.bgKeepAlive.stopPlayAudio();
+        },
         setQuit() {
             if (uni.$u.os() !== 'ios') {
                 const main = plus?.android?.runtimeMainActivity();
@@ -1033,6 +1046,7 @@ export default {
             setTimeout(() => {
                 plus.push.getClientInfoAsync(async info => {
                     const cid = info['clientid'];
+                    console.log('cid-----cid', cid);
                     if (!cid) {
                         this.handleUniPush();
                         return;

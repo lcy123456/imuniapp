@@ -104,7 +104,7 @@ export default {
             return len >= 6 && len <= 24;
         },
         isNumAndLetter() {
-            return regMap.numberLetter.test(this.formData.password);
+            return regMap.pwd.test(this.formData.password);
         },
         isEqual() {
             return this.formData.password === this.formData.confirmPassword;

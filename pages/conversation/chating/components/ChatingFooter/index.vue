@@ -348,6 +348,7 @@ export default {
             let message = '';
             const { text } = formatInputHtml(this.inputHtml, 1);
             const isAtMsg = this.$refs.customEditor?.getAt()?.length;
+            if (!text) return;
             if (this.activeMessageShow) {
                 if (this.activeMessageType === 'quote_message') {
                     message = await IMSDK.asyncApi(
@@ -825,6 +826,7 @@ export default {
             });
         },
         async receiveSnapBase64({ base64, path, duration, videoType }) {
+            console.log('base64---base64', base64);
             const snapRelativePath = await base64ToPath(base64);
             const absolutePath =
                 plus.io.convertLocalFileSystemURL(snapRelativePath);
@@ -1211,7 +1213,7 @@ export default {
 		},
 		getVideoSnshot(item) {
 			return new Promise((reslove, reject) => {
-				var video = document.createElement("VIDEO");
+				var video = document.createElement("video");
 				video.style.display = 'none';
 				video.setAttribute('crossOrigin', 'anonymous');
 				video.setAttribute("autoplay", "autoplay");
