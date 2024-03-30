@@ -37,7 +37,7 @@ export const chooseImage = (params = {}) => {
 
 export const chooseFile = () => {
     return new Promise((resolve, reject) => {
-        lemonjkFileSelect.showPicker(
+        lemonjkFileSelect.showNativePicker(
             {
                 pathScope: '/Download',
                 mimeType: '*/*',
