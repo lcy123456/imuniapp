@@ -1218,6 +1218,10 @@ export default {
 				video.setAttribute('crossOrigin', 'anonymous');
 				video.setAttribute("autoplay", "autoplay");
 				video.setAttribute("muted", "muted");
+				video.setAttribute("x5-playsinline", true);
+				video.setAttribute("webkit-playsinline", true);
+				video.setAttribute("x-webkit-airplay", true);
+				video.setAttribute("playsinline", true); // ios播放自动全屏问题
 				video.innerHTML = "<source src=" + item + ' type="audio/mp4">';
 				var canvas = document.createElement("canvas");
 				var ctx = canvas.getContext("2d");
