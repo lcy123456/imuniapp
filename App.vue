@@ -192,6 +192,9 @@ export default {
                     'this.restartTime---this.restartTime',
                     this.restartTime
                 );
+                if (this.restartTime >= 60 * 9) {
+                    this.bgKeepAlive.exitApp();
+                }
             }, 1000);
         },
         stopPlayAudio() {
