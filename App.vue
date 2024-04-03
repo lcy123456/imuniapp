@@ -464,6 +464,14 @@ export default {
                             console.log(err);
                         }
                         break;
+                    case 'hasReadMSG':
+                        try {
+                            const receiptList = JSON.parse(data.data);
+                            groupReadReceiptHandler({ data: receiptList });
+                        } catch (err) {
+                            console.log(err);
+                        }
+                        break;
                     case 'reload':
                         plus.runtime.restart();
                         break;
@@ -489,10 +497,10 @@ export default {
                 IMSDK.IMEvents.OnRecvC2CReadReceipt,
                 c2cReadReceiptHandler
             );
-            IMSDK.subscribe(
-                IMSDK.IMEvents.OnRecvGroupReadReceipt,
-                groupReadReceiptHandler
-            );
+            // IMSDK.subscribe(
+            //     IMSDK.IMEvents.OnRecvGroupReadReceipt,
+            //     groupReadReceiptHandler
+            // );
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnNewRecvMessageRevoked,
                 newRecvMessageRevokedHandler
