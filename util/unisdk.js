@@ -44,7 +44,7 @@ export const chooseFile = () => {
                 utisType: 'public.data'
             },
             result => {
-                if (result.code === '0') {
+                if (['0', 0].includes(result.code)) {
                     result.files.forEach(item => {
                         resolve({
                             ...item
