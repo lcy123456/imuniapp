@@ -40,7 +40,8 @@ export const noticeMessageTypes = [
 export const TextRenderTypes = [
     MessageType.TextMessage,
     MessageType.AtTextMessage,
-    MessageType.QuoteMessage
+    MessageType.QuoteMessage,
+    117
 ];
 
 export const MediaRenderTypes = [

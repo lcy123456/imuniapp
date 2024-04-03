@@ -10,7 +10,7 @@ export const businessAllowType = {
 
 const defaultConfig = {
     allowSendMsgNotFriend: businessAllowType.Allow,
-    needInvitationCodeRegister: false
+    needInvitationCodeRegister: true
 };
 
 const state = {
@@ -18,7 +18,7 @@ const state = {
     clientID: '',
     authData: {},
     selfInfo: {},
-    appConfig: {},
+    appConfig: defaultConfig,
     userList: [],
     isSyncing: false,
     isProd: process.env.NODE_ENV === 'production'
@@ -43,6 +43,7 @@ const mutations = {
     },
     SET_APP_CONFIG(state, config) {
         state.appConfig = {
+            ...defaultConfig,
             ...config
         };
     },
@@ -81,8 +82,8 @@ const actions = {
             );
             const { users } = await businessGetUserInfo(data.userID);
             const businessData = users[0] ?? {};
+            console.log('businessData------businessData', businessData);
             filterEmptyValue(businessData);
-            console.log('datadat-------adata', users);
             commit('SET_SELF_INFO', {
                 ...data,
                 ...businessData
@@ -114,7 +115,7 @@ const actions = {
             const data = await getAppConfigFromSvr();
             commit('SET_APP_CONFIG', data.config ?? defaultConfig);
         } catch (e) {
-            console.error(e);
+            console.error('dddd', e);
         }
     }
 };

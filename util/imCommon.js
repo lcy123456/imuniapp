@@ -205,6 +205,14 @@ export const sec2Time = seconds => {
     return result;
 };
 
+export function getName(map) {
+    const friendList = store.getters.storeFriendList;
+    const item = friendList.find(
+        friend => friend.userID === (map.sendID || map.userID)
+    );
+    return item ? item.remark || item.nickname : map.senderNickname;
+}
+
 export const parseMessageByType = (pmsg, isNotify = false) => {
     try {
         const isSelf = id => id === store.getters.storeCurrentUserID;
@@ -247,6 +255,8 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                 }
             case MessageType.TextMessage:
                 return DecryptoAES(pmsg.textElem.content);
+            case 117:
+                return DecryptoAES(pmsg.advancedTextElem.text);
             case MessageType.AtTextMessage:
                 return parseAt(pmsg.atTextElem);
             case MessageType.PictureMessage:
@@ -642,7 +652,7 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
     }
 };
 
-export const IMLogin = async () => {
+export const IMLogin = async isLogin => {
     console.log('-----', store.state.user.authData);
     const { storeUserID, storeIMToken } = store.getters;
     if (!storeUserID || !storeIMToken) {
@@ -655,13 +665,23 @@ export const IMLogin = async () => {
             IMSDK.IMMethods.GetLoginStatus,
             IMSDK.uuid()
         );
-        if ([2, 3].includes(status)) {
-            await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+        console.log('status----status', status);
+        if (isLogin) {
+            if ([2, 3].includes(status)) {
+                await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
+            }
+            await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
+                userID: storeUserID,
+                token: storeIMToken
+            });
+        } else {
+            if (![2, 3].includes(status)) {
+                await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
+                    userID: storeUserID,
+                    token: storeIMToken
+                });
+            }
         }
-        await IMSDK.asyncApi(IMMethods.Login, IMSDK.uuid(), {
-            userID: storeUserID,
-            token: storeIMToken
-        });
         store.commit('user/SET_LOGIN_STATUS', true);
         store.dispatch('user/getSelfInfo');
         store.dispatch('conversation/getConversationList');
@@ -677,7 +697,7 @@ export const IMLogin = async () => {
             url: '/pages/conversation/conversationList/index'
         });
     } catch (err) {
-        console.log(err);
+        console.log('IMLogin----IMLogin', err);
         IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
         uni.$u.toast('openim登录异常，请重启');
         throw new Error('openim登录异常');
@@ -685,7 +705,6 @@ export const IMLogin = async () => {
 };
 
 export const login = async requestMap => {
-    console.log(requestMap, 'requestMaprequestMap');
     try {
         const data = await businessLogin(requestMap);
         console.log('login------', data);
@@ -694,7 +713,7 @@ export const login = async requestMap => {
             ...data,
             ...requestMap
         });
-        return await IMLogin();
+        return await IMLogin('login');
     } catch (err) {
         console.log(err, err.errMsg);
         uni.$u.toast(checkLoginError(err));

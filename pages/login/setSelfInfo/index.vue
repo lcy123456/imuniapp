@@ -118,6 +118,7 @@ export default {
                     verifyCode: this.codeValue,
                     platform: uni.$u.os() === 'ios' ? 1 : 2,
                     autoLogin: true,
+                    invitationCode: this.userInfo.invitationCode,
                     user: {
                         ...this.userInfo,
                         areaCode: `+${this.userInfo.areaCode}`,
@@ -132,7 +133,7 @@ export default {
                     ...data,
                     ...options
                 });
-                await IMLogin();
+                await IMLogin('login');
                 this.loading = false;
             } catch (err) {
                 this.loading = false;

@@ -49,7 +49,7 @@
 
 <script>
 import defaultAvatars from '@/common/defaultAvatars.js';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import { login } from '@/util/imCommon';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 
@@ -75,6 +75,7 @@ export default {
         ...mapGetters(['storeUserList', 'storeUserID', 'storeUnreadMap'])
     },
     methods: {
+        ...mapActions('incomingCall', ['onDangerCall']),
         getUnreadCount(userID) {
             const map = this.storeUnreadMap[userID];
             if (map && map.count) {
@@ -89,6 +90,7 @@ export default {
             this.$store.commit('user/SET_DEL_USER_LIST', item);
         },
         async goLogin(type) {
+            this.onDangerCall();
             try {
                 !type && uni.$u.route('/pages/login/index');
             } catch (err) {

@@ -67,7 +67,7 @@ const actions = {
             });
             commit('SET_UNREAD_MAP', data || {});
         } catch (e) {
-            console.log(e, '获取未读数据失败');
+            // console.log(e, '获取未读数据失败');
         }
     },
     async pinList({ commit }, conversationID) {

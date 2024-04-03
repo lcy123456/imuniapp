@@ -102,6 +102,25 @@ export const getDbDir = () => {
     });
 };
 
+export function isNeedRestart(el) {
+    return new Promise(() => {
+        const query = uni.createSelectorQuery().in(this);
+        let isRecovery = true;
+        query
+            .select(el)
+            .boundingClientRect(() => {
+                isRecovery = false;
+            })
+            .exec();
+
+        setTimeout(() => {
+            if (isRecovery) {
+                plus.runtime.restart();
+            }
+        }, 800);
+    });
+}
+
 export const formatChooseData = (data, key = 'nickname') => {
     const ucfirst = l1 => {
         if (l1.length > 0) {
@@ -232,6 +251,8 @@ export const checkLoginError = error => {
     switch (error.errCode) {
         case 1001:
             return '输入信息有误';
+        case 1004:
+            return '邮箱不存在';
         case 10001:
             return '密码错误';
         case 10002:
@@ -299,7 +320,7 @@ export const colors = {
     Z: '#9b59b6' // 紫色
 };
 export const adjustColor = (hex, adjustment, alpha = 1) => {
-    hex = hex.replace(/^#/, '');
+    hex = hex?.replace(/^#/, '');
 
     const bigint = parseInt(hex, 16);
     let r = (bigint >> 16) & 255;

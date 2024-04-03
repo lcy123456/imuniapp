@@ -113,6 +113,7 @@
             v-show="actionBarVisible"
             @prepareMediaMessage="prepareMediaMessage"
             @prepareFileMessage="prepareFileMessage"
+            @prepareNoEditMessage="prepareNoEditMessage"
         />
         <ChatingEmojiBar
             v-show="emojiBarVisible"
@@ -182,7 +183,7 @@ import ChatQuote from '@/components/ChatQuote';
 import { EncryptoAES } from '@/util/crypto';
 import { chooseFile, recordVoiceManager } from '@/util/unisdk';
 import { videoCreateRoomAndGetToken } from '@/api/incoming';
-import { updateMsg } from '@/api/message';
+import { updateMsg, sendAdvmsg } from '@/api/message';
 import { AllType } from '@/enum';
 
 const albumChoose = [
@@ -258,6 +259,7 @@ export default {
             cursorToEnd: '',
             testtime: '',
             inputfocustime: '',
+            isNoEditMsg: false,
             actionBarVisible: false,
             emojiBarVisible: false,
             recordVisible: false,
@@ -281,7 +283,8 @@ export default {
             'storeIsIncomingCallLoading',
             'storeIsIncomingCallIng',
             'storeIncomingIsGroupChat',
-            'storeUserID'
+            'storeUserID',
+            'storeSelfInfo'
         ]),
         hasContent() {
             return html2Text(this.inputHtml, 1) !== '';
@@ -345,6 +348,7 @@ export default {
             let message = '';
             const { text } = formatInputHtml(this.inputHtml, 1);
             const isAtMsg = this.$refs.customEditor?.getAt()?.length;
+            if (!text) return;
             if (this.activeMessageShow) {
                 if (this.activeMessageType === 'quote_message') {
                     message = await IMSDK.asyncApi(
@@ -505,7 +509,6 @@ export default {
                     extension: '',
                     description: ''
                 });
-                console.log('sendCustomMessage----sendCustomMessage', message);
                 return this.sendAudioVideoMessage(message, type);
             } catch (err) {
                 uni.$u.toast('网络异常，请稍后重试');
@@ -542,7 +545,6 @@ export default {
                             : AudioVideoType.Audio
                 });
                 if (token) {
-                    console.log('token-----token', token);
                     this.$store.commit(
                         'incomingCall/SET_INCOMING_CALL_TOKEN',
                         token
@@ -567,6 +569,21 @@ export default {
             // return this.sendMessage(message);
         },
         async sendTextMessage() {
+            if (this.isNoEditMsg) {
+                try {
+                    const { userID, groupID } = this.storeCurrentConversation;
+                    const { text } = formatInputHtml(this.inputHtml, 1);
+                    await sendAdvmsg({
+                        recvID: userID,
+                        groupID,
+                        content: text
+                    });
+                    this.customEditorCtx.clear();
+                } catch (err) {
+                    uni.$u.toast('发送失败，请重试');
+                }
+                return;
+            }
             const message = await this.createTextMessage();
             uni.$emit('active_message', {
                 message: null,
@@ -726,17 +743,23 @@ export default {
             }
             this.showActionSheet = true;
         },
+        async prepareNoEditMessage() {
+            this.isNoEditMsg = !this.isNoEditMsg;
+            uni.$u.toast(
+                `${this.isNoEditMsg ? '开启' : '关闭'}发送不可编辑新消息`
+            );
+        },
         async prepareFileMessage() {
-            const { fileType, filePath, fileName } = await chooseFile();
-            if (ImageType.includes(fileType)) {
+            const { fileExtension, filePath, fileName } = await chooseFile();
+            if (ImageType.includes(fileExtension)) {
                 this.batchCreateImageMesage([filePath]);
-            } else if (VideoType.includes(fileType)) {
+            } else if (VideoType.includes(fileExtension)) {
                 uni.getVideoInfo({
                     src: filePath,
                     success: res => {
                         this.snapFlag = {
                             path: filePath,
-                            videoType: fileType,
+                            videoType: fileExtension,
                             duration: res.duration
                         };
                     },
@@ -803,6 +826,7 @@ export default {
             });
         },
         async receiveSnapBase64({ base64, path, duration, videoType }) {
+            console.log('base64---base64', base64);
             const snapRelativePath = await base64ToPath(base64);
             const absolutePath =
                 plus.io.convertLocalFileSystemURL(snapRelativePath);
@@ -828,6 +852,7 @@ export default {
                     fileName: name
                 }
             );
+            if (!message) return uni.$u.toast('不支持文件格式');
             this.sendMessage(message);
         },
         async batchCreateSoundMesage({ path, duration }) {
@@ -1188,11 +1213,15 @@ export default {
 		},
 		getVideoSnshot(item) {
 			return new Promise((reslove, reject) => {
-				var video = document.createElement("VIDEO");
+				var video = document.createElement("video");
 				video.style.display = 'none';
 				video.setAttribute('crossOrigin', 'anonymous');
 				video.setAttribute("autoplay", "autoplay");
 				video.setAttribute("muted", "muted");
+				video.setAttribute("x5-playsinline", true);
+				video.setAttribute("webkit-playsinline", true);
+				video.setAttribute("x-webkit-airplay", true);
+				video.setAttribute("playsinline", true); // ios播放自动全屏问题
 				video.innerHTML = "<source src=" + item + ' type="audio/mp4">';
 				var canvas = document.createElement("canvas");
 				var ctx = canvas.getContext("2d");
@@ -1231,8 +1260,6 @@ export default {
             selection.addRange(range);
         },
         moveCursorToIndex () {
-            console.log(this.anchorNode);
-            console.log('this.selection-------', this.baseOffset);
             if (!this.$el || !this.$el.querySelector) return;
             const element = this.$el.querySelector('.ql-editor');
             const selection = window.getSelection();

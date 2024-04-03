@@ -241,7 +241,8 @@ export default {
                     icon: '/static/images/chating_message_edit.svg',
                     visible:
                         TextRenderTypes.includes(this.message.contentType) &&
-                        this.isMyMsg
+                        this.isMyMsg &&
+                        this.message.contentType !== 117
                 },
                 {
                     type: MessageMenuTypes.Copy,
@@ -383,10 +384,6 @@ export default {
                     await uni.$emit('deleteMsg', [this.message]);
                     break;
                 case MessageMenuTypes.Edit:
-                    if (isPin(this.message)) {
-                        uni.$u.toast('置顶消息暂不支持编辑');
-                        break;
-                    }
                     uni.$emit('active_message', {
                         message: this.message,
                         type: 'edit_message'
@@ -625,10 +622,6 @@ export default {
             return DecryptoAES(textElem.content);
         },
         async like(emoji) {
-            if (isPin(this.message)) {
-                uni.$u.toast('置顶消息暂不支持点赞');
-                return;
-            }
             try {
                 const { clientMsgID, serverMsgID, sendID, recvID, groupID } =
                     this.message;

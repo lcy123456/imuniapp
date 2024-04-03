@@ -71,6 +71,9 @@ function judgeIosPermissionRecord() {
     // 从未申请过
     if (permissionStatus == 1970168948) {
         result = -1;
+        avaudio.requestRecordPermission(() => {
+            console.log('申请麦克风权限');
+        });
     }
     // 申请后被关闭
     if (permissionStatus == 1684369017) {

@@ -22,6 +22,21 @@
                     show-arrow
                     @click="checkoutVoice"
                 />
+                <!-- <SettingItem
+                    v-if="isIos"
+                    title="兼容模式"
+                    show-arrow
+                    @click="checkoutModel"
+                >
+                    <view slot="icon">
+                        <u-icon
+                            name="info-circle"
+                            color="#ccc"
+                            size="22"
+                            @click.native.stop="showTip"
+                        ></u-icon>
+                    </view>
+                </SettingItem> -->
             </view>
             <add-user />
         </view>
@@ -34,6 +49,21 @@
             @change="changeHandler"
             @cancel="show = false"
         />
+        <u-picker
+            :show="showModel"
+            :key-name="'label'"
+            :columns="columnsModel"
+            :default-index="defaultIndexModel"
+            @confirm="confirmModel"
+            @cancel="showModel = false"
+        />
+        <u-modal
+            :show="showModal"
+            :title="title"
+            :content="content"
+            :close-on-click-overlay="true"
+            @confirm="showModal = false"
+        ></u-modal>
     </Page>
 </template>
 
@@ -54,7 +84,13 @@ export default {
         return {
             loading: false,
             show: false,
+            showModal: false,
+            showModel: false,
             defaultIndex: [],
+            defaultIndexModel: [],
+            title: '兼容模式',
+            content:
+                'IOS系统下少数手机会在程序后台运行时出现卡死、闪退等问题，可尝试打开此模式，使程序在一定时间内自动关闭后台程序。',
             columns: [
                 [
                     {
@@ -79,6 +115,20 @@ export default {
                     }
                 ]
             ],
+            columnsModel: [
+                [
+                    {
+                        id: 1,
+                        label: '开启',
+                        value: '1'
+                    },
+                    {
+                        id: 2,
+                        label: '关闭',
+                        value: '2'
+                    }
+                ]
+            ],
             options: [
                 {
                     icon: '/static/images/chating_message_del.png',
@@ -96,10 +146,16 @@ export default {
                 this.storeSelfInfo.globalRecvMsgOpt !==
                 MessageReceiveOptType.Nomal
             );
+        },
+        isIos() {
+            return uni.$u.os() === 'ios';
         }
     },
     created() {},
     methods: {
+        showTip() {
+            this.showModal = true;
+        },
         setDefaultIndex() {
             const index = this.columns[0].findIndex(
                 item => item.value === uni.getStorageSync('voice')
@@ -117,6 +173,20 @@ export default {
             uni.setStorageSync('voice', item.value);
             this.show = false;
             uni.$u.toast('设置成功');
+        },
+        confirmModel(e) {
+            const { value } = e;
+            const item = value[0];
+            uni.setStorageSync('model', item.value);
+            this.showModel = false;
+            uni.$u.toast('设置成功');
+        },
+        checkoutModel() {
+            const index = this.columnsModel[0].findIndex(
+                item => item.value === uni.getStorageSync('model')
+            );
+            this.defaultIndexModel = index === -1 ? [0] : [index];
+            this.showModel = true;
         },
         checkoutVoice() {
             this.setDefaultIndex();

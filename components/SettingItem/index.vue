@@ -5,7 +5,10 @@
         @click="onClick"
     >
         <slot name="content">
-            <text>{{ title }}</text>
+            <view class="setting_left">
+                <text class="text">{{ title }}</text>
+                <slot name="icon" />
+            </view>
             <view class="setting_right">
                 <slot name="right" />
                 <text v-if="content" class="fz-28 text-grey">
@@ -95,8 +98,14 @@ export default {
     background-color: $uni-bg-color;
     border-radius: 30rpx;
 
+    .setting_left,
     .setting_right {
         @include vCenterBox();
+    }
+    .setting_left {
+        .text {
+            margin-right: 10rpx;
+        }
     }
 
     &_border {

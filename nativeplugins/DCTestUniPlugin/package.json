@@ -1,0 +1,19 @@
+{
+    "name": "backgroundTaskUniPlugin",
+    "id": "DCTestUniPlugin",
+    "version": "1.0.0",
+    "description": "uni开启后台任务",
+    "_dp_type": "nativeplugin",
+    "_dp_nativeplugin": {
+        "ios": {
+            "plugins": [{
+                "type": "module",
+                "name": "DCTestUniPlugin-backgroundTaskModule",
+                "class": "backgroundTaskModule"
+            }],
+            "frameworks": ["MapKit.framework"],
+            "integrateType": "framework",
+            "deploymentTarget": "9.0"
+        }
+    }
+}

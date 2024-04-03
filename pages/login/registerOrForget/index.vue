@@ -6,6 +6,7 @@
             <image class="w-249 h-37" src="/static/images/logo_name.png" />
         </view>
         <u-form
+            v-if="isRegister"
             ref="registerForm"
             label-position="top"
             :model="userInfo"
@@ -33,13 +34,31 @@
                     clearable
                 />
             </u-form-item>
-            <u-form-item v-if="isRegister" prop="invitationCode">
+            <u-form-item prop="invitationCode">
                 <u-input
                     v-model="userInfo.invitationCode"
                     class="login-input"
                     :placeholder="`请输入您的邀请码${
                         needInvitationCodeRegister ? '(必填)' : '(选填)'
                     }`"
+                    clearable
+                />
+            </u-form-item>
+        </u-form>
+
+        <u-form
+            v-else
+            ref="registerForm"
+            label-position="top"
+            :model="userInfo"
+            :rules="rules"
+        >
+            <u-form-item prop="email">
+                <u-input
+                    v-model="userInfo.email"
+                    type="text"
+                    class="login-input"
+                    placeholder="请输入您的邮箱"
                     clearable
                 />
             </u-form-item>
@@ -77,7 +96,7 @@
 <script>
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import AreaPicker from '@/components/AreaPicker';
-import { businessSendSms } from '@/api/login';
+import { businessSendSms, emailSendCode } from '@/api/login';
 import { SmsUserFor } from '@/constant';
 import { checkLoginError } from '@/util/common';
 
@@ -104,6 +123,14 @@ export default {
                         message: '请输入手机号码',
                         trigger: ['blur', 'change']
                     }
+                ],
+                email: [
+                    {
+                        type: 'string',
+                        required: true,
+                        message: '请输入邮箱',
+                        trigger: ['blur', 'change']
+                    }
                 ]
             },
             loading: false
@@ -120,17 +147,21 @@ export default {
         canLogin() {
             return (
                 (this.isRegister ? this.checked[0] : true) &&
-                this.userInfo.phoneNumber
+                (this.isRegister
+                    ? this.userInfo.phoneNumber
+                    : this.userInfo.email)
             );
         }
     },
     onLoad(options) {
         this.usedFor = Number(options.usedFor);
+        this.checkInvitationCodeState();
     },
     methods: {
         checkInvitationCodeState() {
             if (this.needInvitationCodeRegister) {
-                this.rules.push({
+                this.rules = {
+                    ...this.rules,
                     invitationCode: [
                         {
                             type: 'string',
@@ -139,7 +170,7 @@ export default {
                             trigger: ['blur', 'change']
                         }
                     ]
-                });
+                };
             }
         },
         sendSms() {
@@ -152,7 +183,22 @@ export default {
                 };
                 try {
                     this.loading = true;
-                    await businessSendSms(options);
+                    if (this.isRegister) {
+                        await businessSendSms(options);
+                        uni.$u.route('/pages/login/setPassword/index', {
+                            userInfo: JSON.stringify(this.userInfo),
+                            usedFor: this.usedFor
+                        });
+                        return;
+                    } else {
+                        const data = await emailSendCode({
+                            email: this.userInfo.email,
+                            usedFor: SmsUserFor.Reset,
+                            deviceID: '',
+                            platform: uni.$u.os() === 'ios' ? 1 : 2
+                        });
+                        console.log('emailSendCode--emailSendCode', data);
+                    }
                     uni.$u.toast('验证码已发送！');
                     setTimeout(
                         () =>

@@ -79,3 +79,19 @@ export const giveLikeEmoji = params =>
             }
         }
     );
+// 发送不可编辑消息
+export const sendAdvmsg = params =>
+    uni.$u?.http.post(
+        '/msg/send_advmsg',
+        JSON.stringify({
+            ...params
+        }),
+        {
+            custom: {
+                isIMApi: true
+            },
+            header: {
+                token: store.getters.storeIMToken
+            }
+        }
+    );

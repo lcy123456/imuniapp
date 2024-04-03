@@ -898,7 +898,7 @@
                                 }
                             });
                         } catch (err) {
-                            console.log('video，麦克风拒绝');
+                            console.log('video，麦克风拒绝', err);
                         }
                         // this.checkDom();
 
@@ -916,6 +916,7 @@
                         publication = {}
                     }) {
                         // const joinUserID = participant.identity;
+                        if (!track) return;
                         const {
                             identity: userID,
                             isCameraEnabled,
@@ -1125,43 +1126,13 @@
                         }, 1000);
                     },
                     resetData() {
-                        const defaultData = {
-                            type: '',
-                            token: '',
-                            device: '',
-                            timeText: '00:00',
-                            callTime: '',
-                            trackList: [],
-                            isShowMy: true,
-                            isDomIn: false,
-                            isCallLoading: false, // 双方等待接通电话
-                            isCallIng: false, // 正在通话中
-                            isAnswer: false, // true拨打电话 false接听电话
-                            callUserInfo: {
-                                faceURL: '',
-                                nickname: '未知',
-                                newFaceURL: '',
-                                newNickname: '未知'
-                            },
-                            selfUserInfo: {
-                                faceURL: '',
-                                nickname: '未知',
-                                newFaceURL: '',
-                                newNickname: '未知'
-                            },
-                            baseMap: JSON.parse(JSON.stringify(defaultBaseMap)),
-                            room: null,
-                            shouldMyMaster: false // true我应该在主屏幕  false我应该在右上角
-                        };
-                        for (let key in defaultData) {
-                            this[key] = defaultData[key];
-                        }
                         uni.postMessage({
                             data: {
                                 type: 'setTime',
                                 timeText: '00:00'
                             }
                         });
+                        window.location.reload();
                     }
                 }
             });

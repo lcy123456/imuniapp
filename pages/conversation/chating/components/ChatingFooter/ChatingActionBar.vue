@@ -4,10 +4,13 @@
             v-for="item in actionList"
             :key="item.idx"
             class="action_item"
-            :style="`width: ${width};height:${height}`"
             @click="actionClick(item)"
         >
-            <view class="action_item_sub">
+            <view
+                v-if="!item.hide"
+                :style="`width: ${width};height:${height}`"
+                class="action_item_sub"
+            >
                 <view class="icon_nav">
                     <image :src="item.icon" />
                 </view>
@@ -25,6 +28,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { ChatingFooterActionTypes } from '@/constant';
 
 export default {
@@ -32,7 +36,15 @@ export default {
     data() {
         return {
             ChatingFooterActionTypes: Object.freeze(ChatingFooterActionTypes),
-            actionList: [
+            width: '140rpx',
+            height: '140rpx',
+            isSpecial: false
+        };
+    },
+    computed: {
+        ...mapGetters(['storeSelfInfo']),
+        actionList() {
+            return [
                 {
                     idx: 0,
                     type: ChatingFooterActionTypes.Album,
@@ -56,11 +68,20 @@ export default {
                     type: ChatingFooterActionTypes.File,
                     title: '文件',
                     icon: require('static/images/chating_action_file.png')
+                },
+                {
+                    idx: 4,
+                    type: ChatingFooterActionTypes.special,
+                    title: '不可编辑消息',
+                    icon: require(
+                        `static/images/${
+                            this.isSpecial ? 'special_checked' : 'special'
+                        }.png`
+                    ),
+                    hide: this.storeSelfInfo?.managerLevel !== 8
                 }
-            ],
-            width: '140rpx',
-            height: '140rpx'
-        };
+            ];
+        }
     },
     methods: {
         async actionClick(action) {
@@ -72,6 +93,10 @@ export default {
                     break;
                 case ChatingFooterActionTypes.File:
                     this.$emit('prepareFileMessage', action.type);
+                    break;
+                case ChatingFooterActionTypes.special:
+                    this.isSpecial = !this.isSpecial;
+                    this.$emit('prepareNoEditMessage', action.type);
                     break;
                 default:
             }

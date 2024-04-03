@@ -1,4 +1,5 @@
 export const areaCode = [
+    { label: '美国', value: '1' },
     { label: '中国', value: '86' },
     { label: '马来西亚', value: '60' },
     { label: '印度尼西亚', value: '62' },

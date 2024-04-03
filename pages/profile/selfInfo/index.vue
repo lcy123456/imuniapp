@@ -52,9 +52,10 @@
                     @click="updateIsHiddenPhone"
                 />
                 <SettingItem
-                    :show-arrow="false"
                     title="邮箱"
                     :content="selfInfo.email || '-'"
+                    show-arrow
+                    @click="updateEmail"
                 />
                 <!-- <SettingItem
                 title="二维码名片"
@@ -144,6 +145,16 @@ export default {
             uni.navigateTo({
                 url: `/pages/common/markOrIDPage/index?type=${
                     CustomMarkType.SelfNickname
+                }&sourceInfo=${JSON.stringify(this.selfInfo)}`
+            });
+        },
+        updateEmail() {
+            if (this.selfInfo.email) {
+                return uni.$u.toast('暂不支持修改邮箱');
+            }
+            uni.navigateTo({
+                url: `/pages/common/emailBind/index?type=${
+                    CustomMarkType.Email
                 }&sourceInfo=${JSON.stringify(this.selfInfo)}`
             });
         },

@@ -58,6 +58,7 @@
 import { mapGetters } from 'vuex';
 import { ContactChooseTypes } from '@/constant';
 import { formatChooseData } from '@/util/common';
+import { getName } from '@/util/imCommon';
 import IMSDK, {
     IMMethods,
     SessionType,
@@ -92,7 +93,7 @@ export default {
             groupID: '',
             checkFriendList: [],
             disabledUserIDList: [],
-            storeMemberList: [],
+            memberList: [],
             userInfo: {},
             allCell: {
                 faceURL: '',
@@ -111,7 +112,7 @@ export default {
             return formatChooseData(this.filterFriendList);
         },
         filterFriendList() {
-            const newList = this.storeMemberList.filter(
+            const newList = this.memberList.filter(
                 friend =>
                     (friend.nickname.includes(this.keyword) ||
                         friend.remark.includes(this.keyword)) &&
@@ -140,14 +141,22 @@ export default {
                     count: 100
                 }
             );
-            this.storeMemberList = data;
-            const info = this.storeMemberList.find(
-                item => item.userID === this.storeSelfInfo.userID
-            );
+            let info = {};
+            this.memberList = data;
+            this.memberList.forEach(item => {
+                item.remark = getName(item);
+                if (item.userID === this.storeSelfInfo.userID) {
+                    info = item;
+                }
+            });
             this.userInfo = {
                 ...this.storeSelfInfo,
                 ...info
             };
+            console.log(
+                'this.memberList------this.memberList',
+                this.memberList
+            );
         }
     },
     methods: {

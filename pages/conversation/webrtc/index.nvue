@@ -59,7 +59,6 @@ export default {
     onLoad () {
     },
     onReady () {
-        // uni.preloadPage({url: "/pages/conversation/webrtc/index"});
         uni.$on('incoming_message_callback', this.incomingMessageCallback);
     },
     onShow () {
@@ -98,8 +97,7 @@ export default {
                     url: this.storeThirdData?.livekit?.url,
                     userID: this.storeUserID
                 }
-                console.log('-----------------mapmapmapmapmap', map);
-                console.log('-----------------storeSelfInfo', this.storeSelfInfo);
+                console.log('---------map-------', map);
                 this.postMessage(`uniEvent(${JSON.stringify(map)})`);
             }
             this.time = this.storeIncomingCallCallTime;
@@ -134,7 +132,6 @@ export default {
             return `radial-gradient(${hexColor}, ${rgbaColor})`;
         },
         async getCheckUsers(list) {
-            console.log('---getCheckUsers------getCheckUsers-', list);
             try {
                 await this.inviteOrKick({
                     type: 'invite',
@@ -257,7 +254,6 @@ export default {
                     bgColor: this.getBgColor(usersInfo.nickname),
                     isGroupUserJoin: true
                 }
-                console.log('uData.map------uData.map', map);
                 this.postMessage(`uniGroupUserJoinEvent(${JSON.stringify(map)})`);
             }
         },

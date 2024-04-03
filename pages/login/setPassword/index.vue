@@ -104,7 +104,7 @@ export default {
             return len >= 6 && len <= 24;
         },
         isNumAndLetter() {
-            return regMap.numberLetter.test(this.formData.password);
+            return regMap.pwd.test(this.formData.password);
         },
         isEqual() {
             return this.formData.password === this.formData.confirmPassword;
@@ -132,11 +132,12 @@ export default {
             }
         },
         async resetPassword() {
-            const { phoneNumber, areaCode } = this.userInfo;
+            const { email } = this.userInfo;
             try {
                 await businessReset({
-                    areaCode: `+${areaCode}`,
-                    phoneNumber,
+                    email,
+                    deviceID: '',
+                    platform: uni.$u.os() === 'ios' ? 1 : 2,
                     verifyCode: this.codeValue,
                     password: md5(this.formData.password)
                 });

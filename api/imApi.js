@@ -139,3 +139,36 @@ export const massList = (pageNumber, showNumber = 20) =>
             }
         }
     );
+
+export const addBlack = ({ ownerUserID, blackUserID }) =>
+    uni.$u?.http.post(
+        '/friend/add_black',
+        JSON.stringify({
+            ownerUserID,
+            blackUserID
+        }),
+        {
+            custom: {
+                isIMApi: true
+            },
+            header: {
+                token: store.getters.storeIMToken
+            }
+        }
+    );
+export const removeBlack = ({ ownerUserID, blackUserID }) =>
+    uni.$u?.http.post(
+        '/friend/remove_black',
+        JSON.stringify({
+            ownerUserID,
+            blackUserID
+        }),
+        {
+            custom: {
+                isIMApi: true
+            },
+            header: {
+                token: store.getters.storeIMToken
+            }
+        }
+    );

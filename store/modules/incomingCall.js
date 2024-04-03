@@ -22,7 +22,7 @@ const state = {
     incomingCallMessage: {},
     incomingCallUserInfo: {
         faceURL: '',
-        nickname: '菠萝吹雪'
+        nickname: ''
     },
     incomingCallSmallStyle: {
         moveX: 7,
@@ -124,10 +124,11 @@ const actions = {
                 );
                 if (usersInfo?.data) {
                     const [uData] = usersInfo.data;
-                    const { faceURL, nickname } = uData.publicInfo;
+                    const { faceURL, nickname, remark } = uData.friendInfo;
+                    console.log('uData----uData', uData);
                     commit('SET_INCOMING_CALL_USER_INFO', {
                         faceURL,
-                        nickname
+                        nickname: remark || nickname
                     });
                     console.log('拨打电话，对方用户信息', {
                         faceURL,
@@ -179,10 +180,10 @@ const actions = {
                 );
                 if (usersInfo?.data) {
                     const [uData] = usersInfo.data;
-                    const { faceURL, nickname } = uData.publicInfo;
+                    const { faceURL, nickname, remark } = uData.friendInfo;
                     commit('SET_INCOMING_CALL_USER_INFO', {
                         faceURL,
-                        nickname
+                        nickname: remark || nickname
                     });
                     console.log('等待接听电话，对方用户信息', {
                         faceURL,

@@ -115,18 +115,19 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { CommonIsAllow, CustomMarkType, RecordFormMap } from '@/constant';
+import { CustomMarkType, RecordFormMap } from '@/constant';
 import {
     getSourceUserInfo,
     getDesignatedUserOnlineState,
     navigateToDesignatedConversation
 } from '@/util/imCommon';
-import IMSDK, { SessionType, IMMethods } from 'openim-uniapp-polyfill';
+import IMSDK, { SessionType } from 'openim-uniapp-polyfill';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import SettingItem from '@/components/SettingItem/index.vue';
 import MoreFeat from '@/pages/common/moreFeat/index.vue';
 import { checkLoginError } from '@/util/common';
+import { addBlack, removeBlack } from '@/api/imApi';
 
 export default {
     components: {
@@ -192,7 +193,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeFriendList', 'storeBlackList', 'storeAppConfig']),
+        ...mapGetters([
+            'storeFriendList',
+            'storeBlackList',
+            'storeAppConfig',
+            'storeUserID'
+        ]),
         isFriend() {
             return (
                 this.storeFriendList.findIndex(
@@ -344,10 +350,11 @@ export default {
         async blackChange(isBlack) {
             this.blackLoading = true;
             try {
-                const funcName = isBlack
-                    ? IMSDK.IMMethods.AddBlack
-                    : IMSDK.IMMethods.RemoveBlack;
-                await IMSDK.asyncApi(funcName, IMSDK.uuid(), this.sourceID);
+                const funcName = isBlack ? addBlack : removeBlack;
+                await funcName({
+                    blackUserID: this.sourceID,
+                    ownerUserID: this.storeUserID
+                });
                 this.$toast('操作成功');
                 this.$store.dispatch('contact/getBlacklist');
             } catch (err) {

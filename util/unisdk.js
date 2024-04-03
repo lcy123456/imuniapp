@@ -1,4 +1,5 @@
-import fileSelect from '@/uni_modules/lemon-filePicker';
+// import fileSelect from '@/uni_modules/lemon-filePicker';
+const lemonjkFileSelect = uni.requireNativePlugin('lemonjk-FileSelect');
 
 // 提示框
 export const showToast = ({
@@ -36,47 +37,42 @@ export const chooseImage = (params = {}) => {
 
 export const chooseFile = () => {
     return new Promise((resolve, reject) => {
-        fileSelect({
-            permission: false,
-            success(res) {
-                console.log(res);
-                uni.getSystemInfo({
-                    success(info) {
-                        if (info.osName == 'ios') {
-                            uni.downloadFile({
-                                url: res.filePath,
-                                success(e) {
-                                    console.log(e);
-                                    // ios请使用该路径（e.tempFilePath）
-                                    resolve({
-                                        ...res,
-                                        filePath: e.tempFilePath
-                                    });
-                                }
-                            });
-                        } else {
-                            resolve({ ...res });
-                        }
-                    }
-                });
+        lemonjkFileSelect[
+            uni.$u.os() === 'ios' ? 'showPicker' : 'showNativePicker'
+        ](
+            {
+                pathScope: '/Download',
+                mimeType: '*/*',
+                utisType: 'public.data'
             },
-            fail(err) {
-                console.log(err);
-                uni.showModal({
-                    title: '需要文件访问权限',
-                    content:
-                        '您还未授权本应用读取文件。为保证您可以正常上传文件，请在权限设置页面打开文件访问权限（不同手机厂商表述可能略有差异）请根据自己手机品牌设置',
-                    confirmText: '去授权',
-                    cancelText: '算了',
-                    success(e) {
-                        if (e.confirm) {
-                            fileSelect({ permission: true });
+            result => {
+                console.log('result----result', result);
+                if (['0', 0].includes(result.code)) {
+                    result.files.forEach(item => {
+                        resolve({
+                            ...item
+                        });
+                    });
+                } else if (result.code === '1001') {
+                    uni.showModal({
+                        title: '需要文件访问权限',
+                        content:
+                            '您还未授权本应用读取文件。为保证您可以正常上传文件，请在权限设置页面打开文件访问权限（不同手机厂商表述可能略有差异）请根据自己手机品牌设置',
+                        confirmText: '去授权',
+                        cancelText: '算了',
+                        success(e) {
+                            if (e.confirm) {
+                                // 跳转到应用设置页
+                                lemonjkFileSelect.gotoSetting();
+                            }
                         }
-                    }
-                });
-                reject(err);
+                    });
+                } else {
+                    // uni.$emit('toast', '访问错误');
+                    reject(result.errMsg);
+                }
             }
-        });
+        );
     });
 };
 
