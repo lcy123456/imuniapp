@@ -37,13 +37,16 @@ export const chooseImage = (params = {}) => {
 
 export const chooseFile = () => {
     return new Promise((resolve, reject) => {
-        lemonjkFileSelect.showNativePicker(
+        lemonjkFileSelect[
+            uni.$u.os() === 'ios' ? 'showPicker' : 'showNativePicker'
+        ](
             {
                 pathScope: '/Download',
                 mimeType: '*/*',
                 utisType: 'public.data'
             },
             result => {
+                console.log('result----result', result);
                 if (['0', 0].includes(result.code)) {
                     result.files.forEach(item => {
                         resolve({
@@ -65,7 +68,7 @@ export const chooseFile = () => {
                         }
                     });
                 } else {
-                    uni.$emit('toast', '访问错误');
+                    // uni.$emit('toast', '访问错误');
                     reject(result.errMsg);
                 }
             }

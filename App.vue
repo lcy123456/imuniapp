@@ -190,9 +190,10 @@ export default {
                 this.restartTime++;
                 console.log(
                     'this.restartTime---this.restartTime',
-                    this.restartTime
+                    this.restartTime,
+                    this.bgKeepAlive.getBackgroundTime()
                 );
-                if (this.restartTime >= 60 * 9) {
+                if (this.bgKeepAlive.getBackgroundTime() <= 20) {
                     this.bgKeepAlive.exitApp();
                 }
             }, 1000);

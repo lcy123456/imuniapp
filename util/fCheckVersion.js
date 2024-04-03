@@ -130,7 +130,7 @@ const fCheckVersion = cb => {
                 tipUpdate,
                 platform
             } = await appVersion({
-                platform: 1
+                platform: uni.$u.os() === 'ios' ? 1 : 2
             });
             const localForceUpdate = uni.getStorageSync('noForceUpdate');
             const result = compareVersion(version, versionLocal);

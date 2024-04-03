@@ -60,7 +60,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import ChatHeader from './components/ChatHeader.vue';
-// import { isNeedRestart } from '@/util/common';
+import { isNeedRestart } from '@/util/common';
 import PcLoginTip from './components/PcLoginTip.vue';
 import ConversationItem from './components/ConversationItem.vue';
 import { prepareConversationState } from '@/util/imCommon';
@@ -184,9 +184,9 @@ export default {
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
     onShow() {
-        // this.$nextTick(() => {
-        //     isNeedRestart.call(this, '#conversation_container');
-        // });
+        this.$nextTick(() => {
+            isNeedRestart.call(this, '#conversation_container');
+        });
     },
     onUnload() {
         clearInterval(this.timer);
