@@ -158,7 +158,7 @@
         },
         "nativePlugins" : {
             "lemonjk-FileSelect" : {
-                "appid_android" : "",
+                "appid_android" : "online.tbas.muskim02",
                 "__plugin_info__" : {
                     "name" : "APP文件选择(支持安卓和ios)",
                     "description" : "支持双端的APP文件选取插件",
