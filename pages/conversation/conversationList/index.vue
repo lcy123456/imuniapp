@@ -195,6 +195,7 @@ export default {
     methods: {
         ...mapActions('incomingCall', ['appearLoadingCall']),
         async authGetPcLoginPlatform() {
+            if (!this.storeUserID) return;
             try {
                 const { platformID } = await authGetPcLoginPlatform();
                 this.platformID = platformID;
