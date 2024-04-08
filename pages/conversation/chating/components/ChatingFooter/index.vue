@@ -273,7 +273,8 @@ export default {
             activeMessage: null,
             isRecordStart: false,
             isRecordCancel: false,
-            recordCancelBtnInfo: {}
+            recordCancelBtnInfo: {},
+            callType: ''
         };
     },
     computed: {
@@ -921,6 +922,7 @@ export default {
                 const friendList = showFriendList.filter(
                     user => user.userID !== this.storeUserID
                 );
+                this.callType = type;
                 uni.navigateTo({
                     url: `/pages/common/contactChoose/index?type=initWebrtc&showFriendList=${JSON.stringify(
                         friendList
@@ -931,7 +933,7 @@ export default {
         createGroupRoom(userList, type) {
             if (type === 'initWebrtc') {
                 const userIDs = userList.map(user => user.userID);
-                this.createRoom(type, userIDs);
+                this.createRoom(this.callType, userIDs);
             }
         },
         async createRoom(type, userIDs) {
