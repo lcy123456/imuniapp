@@ -176,7 +176,9 @@ export default {
                 });
                 this.$toast('注销成功');
                 uni.clearStorage();
-                uni.$u.route('/pages/login/index');
+                uni.reLaunch({
+                    url: '/pages/login/index'
+                });
             } catch (err) {
                 console.log(err);
                 uni.$u.toast(checkLoginError(err));

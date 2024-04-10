@@ -657,7 +657,9 @@ export const IMLogin = async isLogin => {
     const { storeUserID, storeIMToken } = store.getters;
     if (!storeUserID || !storeIMToken) {
         store.commit('user/SET_AUTH_DATA', {});
-        uni.$u.route('/pages/login/index');
+        uni.reLaunch({
+            url: '/pages/login/index'
+        });
         throw new Error('token不存在');
     }
     try {

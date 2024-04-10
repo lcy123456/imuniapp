@@ -92,7 +92,10 @@ export default {
         async goLogin(type) {
             this.onDangerCall();
             try {
-                !type && uni.$u.route('/pages/login/index');
+                !type &&
+                    uni.reLaunch({
+                        url: '/pages/login/index'
+                    });
             } catch (err) {
                 console.log(err);
                 uni.$u.toast('网络异常，请重试');

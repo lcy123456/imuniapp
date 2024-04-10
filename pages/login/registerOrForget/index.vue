@@ -216,7 +216,9 @@ export default {
             });
         },
         back() {
-            uni.$u.route('/pages/login/index');
+            uni.reLaunch({
+                url: '/pages/login/index'
+            });
         },
         showPicker() {
             this.$refs.AreaPicker.init();
