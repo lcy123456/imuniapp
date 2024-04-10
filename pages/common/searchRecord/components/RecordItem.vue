@@ -115,6 +115,7 @@ export default {
                 quoteElem,
                 atTextElem,
                 textElem,
+                advancedTextElem,
                 senderNickname
             } = source;
             // TODO：解密文本
@@ -122,6 +123,8 @@ export default {
                 text = parseEmoji(DecryptoAES(quoteElem?.text));
             } else if (contentType === MessageType.AtTextMessage) {
                 text = parseEmoji(parseAt(atTextElem));
+            } else if (contentType === 117) {
+                text = parseEmoji(DecryptoAES(advancedTextElem?.text));
             } else {
                 text = parseEmoji(DecryptoAES(textElem?.content));
             }

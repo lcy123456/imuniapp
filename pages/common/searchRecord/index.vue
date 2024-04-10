@@ -53,7 +53,7 @@ import { mapGetters } from 'vuex';
 import IMSDK, { IMMethods, SessionType } from 'openim-uniapp-polyfill';
 import RecordItem from './components/RecordItem.vue';
 import { navigateToDesignatedConversation } from '@/util/imCommon';
-import { RecordFormMap, RecordTypeMap } from '@/constant';
+import { RecordFormMap, RecordTypeMap, TextRenderTypes } from '@/constant';
 
 export default {
     components: {
@@ -142,7 +142,7 @@ export default {
                         ? item.conversationID
                         : this.conversationID,
                     keywordList: [this.keyword],
-                    messageTypeList: [],
+                    messageTypeList: TextRenderTypes,
                     searchTimePosition: 0,
                     searchTimePeriod: 0,
                     pageIndex: 1,
