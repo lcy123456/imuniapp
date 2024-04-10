@@ -8,7 +8,7 @@ export const regMap = {
     // 必须含有数字和字母，长度为6-20位
     pwd: /^(?=.*[0-9])(?=.*[a-zA-Z])(.){6,20}$/,
     // 必须含有数字和字母
-    numberLetter: /^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]){2,}$/,
+    numberLetter: /^(?=.*[0-9])(?=.*[a-zA-Z])(.){2,}$/,
     ...phoneReg
 };
 export const AudioVideoStatus = {
