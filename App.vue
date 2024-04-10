@@ -55,6 +55,7 @@ export default {
             IMSDK.uuid(),
             false
         );
+        uni.$emit('app_show');
     },
     onHide() {
         this.isHide = true;
