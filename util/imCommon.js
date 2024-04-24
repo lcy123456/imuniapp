@@ -653,7 +653,7 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
 };
 
 export const IMLogin = async isLogin => {
-    console.log('-----', store.state.user.authData);
+    // console.log('-----', store.state.user.authData);
     const { storeUserID, storeIMToken } = store.getters;
     if (!storeUserID || !storeIMToken) {
         store.commit('user/SET_AUTH_DATA', {});
@@ -709,7 +709,7 @@ export const IMLogin = async isLogin => {
 export const login = async requestMap => {
     try {
         const data = await businessLogin(requestMap);
-        console.log('login------', data);
+        // console.log('login------', data);
         store.commit('user/SET_AUTH_DATA', data);
         store.commit('user/SET_USER_LIST', {
             ...data,

@@ -189,11 +189,6 @@ export default {
             this.restartTime = 0;
             this.timer3 = setInterval(() => {
                 this.restartTime++;
-                console.log(
-                    'this.restartTime---this.restartTime',
-                    this.restartTime,
-                    this.bgKeepAlive.getBackgroundTime()
-                );
                 if (this.bgKeepAlive.getBackgroundTime() <= 20) {
                     this.bgKeepAlive.exitApp();
                 }
@@ -316,7 +311,7 @@ export default {
 
             // message
             const newMessagesHandler = ({ data }) => {
-                console.log('收到新的消息', data);
+                // console.log('收到新的消息', data);
                 if (this.storeIsSyncing) {
                     return;
                 }
@@ -379,7 +374,7 @@ export default {
                 });
             };
             const groupReadReceiptHandler = ({ data: receiptList }) => {
-                console.log('receiptList----receiptList收到群聊', receiptList);
+                // console.log('receiptList----receiptList收到群聊', receiptList);
                 receiptList.forEach(item => {
                     item.msgIDList &&
                         item.msgIDList.forEach(msgID => {
@@ -422,10 +417,10 @@ export default {
             };
 
             const customBusinessMessageHandler = ({ data }) => {
-                console.log(
-                    'customBusinessMessageHandler--customBusinessMessageHandler',
-                    data
-                );
+                // console.log(
+                //     'customBusinessMessageHandler--customBusinessMessageHandler',
+                //     data
+                // );
                 const { key } = data;
                 let inviteOrKickMap = {};
                 if (['video_invite', 'video_kick'].includes(key)) {
@@ -479,14 +474,6 @@ export default {
                         break;
                 }
             };
-            const recvMessageModifiedandler = ({ data }) => {
-                console.log(
-                    'recvMessageModifiedandler--------recvMessageModifiedandler------',
-                    data
-                );
-            };
-
-            IMSDK.subscribe('OnRecvMessageModified', recvMessageModifiedandler);
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnRecvCustomBusinessMessage,
                 customBusinessMessageHandler
@@ -510,7 +497,7 @@ export default {
 
             // friend
             const friendInfoChangeHandler = ({ data }) => {
-                console.log(data);
+                // console.log(data);
                 this.updateFriendInfo({
                     friendInfo: data
                 });
@@ -628,7 +615,7 @@ export default {
             };
 
             const msgDeletedHandller = ({ data }) => {
-                console.log('OnMsgDeleted------OnMsgDeleted', data);
+                // console.log('OnMsgDeleted------OnMsgDeleted', data);
                 this.deleteMessages([data]);
             };
 
@@ -666,10 +653,6 @@ export default {
                 this.$store.commit('conversation/SET_UNREAD_COUNT', data);
             };
             const newConversationHandler = ({ data }) => {
-                console.log(
-                    'newConversationHandlernewConversationHandler-newConversationHandler',
-                    data
-                );
                 if (this.storeIsSyncing) {
                     return;
                 }
@@ -680,10 +663,6 @@ export default {
                 );
             };
             const conversationChangedHandler = ({ data }) => {
-                console.log(
-                    'conversationChangedHandler-conversationChangedHandler-----',
-                    data
-                );
                 if (this.storeIsSyncing) {
                     return;
                 }
@@ -755,7 +734,6 @@ export default {
         async tryLogin() {
             try {
                 const path = await getDbDir();
-                console.log('path---path', path);
                 const flag = await IMSDK.asyncApi(
                     IMMethods.InitSDK,
                     IMSDK.uuid(),
@@ -829,7 +807,6 @@ export default {
             }
         },
         async handleNewMessage(newServerMsg) {
-            console.log('newServerMsg--newServerMsg', newServerMsg.clientMsgID);
             if (
                 ![
                     MessageType.TypingMessage,
@@ -1059,7 +1036,6 @@ export default {
             setTimeout(() => {
                 plus.push.getClientInfoAsync(async info => {
                     const cid = info['clientid'];
-                    console.log('cid-----cid', cid);
                     if (!cid) {
                         this.handleUniPush();
                         return;

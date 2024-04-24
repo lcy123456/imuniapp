@@ -23,17 +23,17 @@ module.exports = () => {
                 ...config.header,
                 operationID: uuidV4()
             };
-            if (
-                ![
-                    '/user/get_users_online_status',
-                    '/msg/get_unread_msg_count',
-                    '/third/config',
-                    '/auth/get_pc_login_platform',
-                    '/video/get_room_member'
-                ].includes(config.url)
-            ) {
-                console.log('http request：', config);
-            }
+            // if (
+            //     ![
+            //         '/user/get_users_online_status',
+            //         '/msg/get_unread_msg_count',
+            //         '/third/config',
+            //         '/auth/get_pc_login_platform',
+            //         '/video/get_room_member'
+            //     ].includes(config.url)
+            // ) {
+            //     console.log('http request：', config);
+            // }
             // 可以在此通过vm引用vuex中的变量，具体值在vm.$store.state中
             return config;
         },
