@@ -93,7 +93,9 @@ const actions = {
             commit('SET_CONVERSATION_LIST', []);
             return [];
         } finally {
-            isGetConversationListLoading = false;
+            setTimeout(() => {
+                isGetConversationListLoading = false;
+            }, 0);
         }
     },
     delConversationByCID({ state, commit }, conversationID) {
