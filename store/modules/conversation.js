@@ -69,9 +69,12 @@ const mutations = {
     }
 };
 
+let isGetConversationListLoading = false;
 const actions = {
     async getConversationList({ state, commit }, isFirstPage = true) {
         try {
+            if (isGetConversationListLoading) return;
+            isGetConversationListLoading = true;
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetConversationListSplit,
                 uuidv4(),
@@ -89,6 +92,8 @@ const actions = {
         } catch (e) {
             commit('SET_CONVERSATION_LIST', []);
             return [];
+        } finally {
+            isGetConversationListLoading = false;
         }
     },
     delConversationByCID({ state, commit }, conversationID) {
