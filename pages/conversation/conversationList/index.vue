@@ -184,6 +184,7 @@ export default {
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
     onShow() {
+        if (!this.storeUserID) return;
         this.$nextTick(() => {
             isNeedRestart.call(this, '#conversation_container');
         });
@@ -204,6 +205,7 @@ export default {
             }
         },
         async getCall() {
+            if (!this.storeUserID) return;
             try {
                 const { sendID, room, type } = await videoGetOfflineInfo({
                     recvID: this.storeUserID

@@ -1041,11 +1041,12 @@ export default {
                         return;
                     }
                     try {
-                        await bindCid({
-                            platform: uni.$u.os() === 'ios' ? 1 : 2,
-                            userID: this.storeUserID,
-                            cid
-                        });
+                        this.storeUserID &&
+                            (await bindCid({
+                                platform: uni.$u.os() === 'ios' ? 1 : 2,
+                                userID: this.storeUserID,
+                                cid
+                            }));
                     } catch (e) {
                         console.log(e);
                     }
