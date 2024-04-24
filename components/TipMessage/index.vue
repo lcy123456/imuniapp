@@ -103,7 +103,7 @@ export default {
             return prefix;
         },
         latestMessage() {
-            if (this.source.latestMsg === '') return '';
+            if (!this.source.latestMsg) return '';
             let parsedMessage;
             try {
                 parsedMessage = JSON.parse(this.source.latestMsg);
