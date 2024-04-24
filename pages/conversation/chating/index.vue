@@ -67,7 +67,7 @@ import SetEnd from './components/SetEnd.vue';
 import ChatingList from './components/ChatingList.vue';
 import MessageMenu from './components/MessageMenu';
 import { markConversationAsRead } from '@/util/imCommon';
-// import { isNeedRestart } from '@/util/common';
+import { isNeedRestart } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, {
     IMMethods,
