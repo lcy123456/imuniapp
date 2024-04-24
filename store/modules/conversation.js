@@ -77,9 +77,10 @@ const actions = {
                 uuidv4(),
                 {
                     offset: isFirstPage ? 0 : state.conversationList.length,
-                    count: 999
+                    count: 20
                 }
             );
+            // console.log('getConversationList', data);
             commit('SET_CONVERSATION_LIST', [
                 ...(isFirstPage ? [] : state.conversationList),
                 ...data
