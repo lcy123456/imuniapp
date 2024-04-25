@@ -7,7 +7,7 @@
             top: getTop + 'px'
         }"
     >
-        <Like :like-list="likeList" @like="like" />
+        <Like @like="like" />
         <view
             v-if="attachedInfo.groupHasReadInfo.hasReadCount"
             class="read-box"
@@ -122,29 +122,6 @@ export default {
                 hasReadUids: []
             },
             userList: [],
-            likeList: [
-                {
-                    key: 'support'
-                },
-                {
-                    key: 'love'
-                },
-                {
-                    key: 'face_1'
-                },
-                {
-                    key: 'face_2'
-                },
-                {
-                    key: 'face_3'
-                },
-                {
-                    key: 'face_4'
-                },
-                {
-                    key: 'face_5'
-                }
-            ],
             systemInfo: uni.getSystemInfoSync()
         };
     },

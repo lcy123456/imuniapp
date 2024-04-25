@@ -201,7 +201,7 @@ const actions = {
         { commit, state, rootState },
         { message, type = UpdateMessageTypes.Overall, keyWords = [] }
     ) {
-        console.log('updateOneMessage', message);
+        // console.log('updateOneMessage', message);
         let conversationID =
             rootState.conversation.currentConversation.conversationID;
         const obj = state.historyMessageMap[conversationID];

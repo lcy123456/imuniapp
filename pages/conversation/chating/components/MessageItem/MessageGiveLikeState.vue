@@ -7,7 +7,7 @@
                 :class="['like-box', isSelfLike(item) ? 'self' : '']"
                 @click="like(key)"
             >
-                <image class="pined" :src="`/static/like/${key}.png`" />
+                <image class="pined" :src="`/static/like/${key}.svg`" />
                 <text>{{ item.num }}</text>
             </view>
         </view>
