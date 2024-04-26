@@ -261,6 +261,7 @@ export default {
                 //     mask: true,
                 // });
                 // uni.$u.toast('同步');
+                console.log('同步开始');
                 this.$store.commit('user/SET_IS_SYNCING', true);
             };
             const done = () => {
@@ -280,6 +281,7 @@ export default {
                 this.payload = false;
             };
             const syncFinishHandler = () => {
+                console.log('同步完成');
                 done();
             };
             const syncFailedHandler = () => {

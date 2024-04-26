@@ -73,7 +73,7 @@ let isGetConversationListLoading = false;
 const actions = {
     async getConversationList({ state, commit }, isFirstPage = true) {
         try {
-            if (isGetConversationListLoading) return;
+            if (!isFirstPage && isGetConversationListLoading) return;
             isGetConversationListLoading = true;
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetConversationListSplit,
