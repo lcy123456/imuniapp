@@ -185,9 +185,7 @@ export default {
     },
     onShow() {
         if (!this.storeUserID) return;
-        this.$nextTick(() => {
-            isNeedRestart.call(this, '#conversation_container');
-        });
+        isNeedRestart.call(this, '#conversation_container');
     },
     onUnload() {
         clearInterval(this.timer);

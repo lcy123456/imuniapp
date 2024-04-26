@@ -204,9 +204,7 @@ export default {
             }
         },
         handleRestart() {
-            setTimeout(() => {
-                isNeedRestart.call(this, '#chating_container');
-            }, 300);
+            isNeedRestart.call(this, '#chating_container');
         },
         inputBlur() {
             if (this.isHide) return;

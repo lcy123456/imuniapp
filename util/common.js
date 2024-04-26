@@ -103,7 +103,7 @@ export const getDbDir = () => {
 };
 
 export function isNeedRestart(el) {
-    return new Promise(() => {
+    setTimeout(() => {
         const query = uni.createSelectorQuery().in(this);
         let isRecovery = true;
         query
@@ -118,7 +118,7 @@ export function isNeedRestart(el) {
                 plus.runtime.restart();
             }
         }, 800);
-    });
+    }, 2000);
 }
 
 export const formatChooseData = (data, key = 'nickname') => {
