@@ -100,14 +100,14 @@ export default {
                     if (!sendID) return;
                     if (sendID.includes(',')) {
                         // 所有人
-                        const sendIDList = sendID.split(',');
-                        const groupNicknameList = senderNickname.split(',');
-                        sendIDList.forEach((item, index) => {
-                            list.push({
-                                atUserID: item,
-                                groupNickname: groupNicknameList[index]
-                            });
-                        });
+                        // const sendIDList = sendID.split(',');
+                        // const groupNicknameList = senderNickname.split(',');
+                        // sendIDList.forEach((item, index) => {
+                        //     list.push({
+                        //         atUserID: item,
+                        //         groupNickname: groupNicknameList[index]
+                        //     });
+                        // });
                         list.push({
                             atUserID: AllType.Code,
                             groupNickname: AllType.Text
