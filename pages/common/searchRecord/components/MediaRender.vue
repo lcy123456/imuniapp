@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { secFormat } from '@/util/imCommon';
+import { secFormat, formatFileUrl } from '@/util/imCommon';
 import { MessageType } from 'openim-uniapp-polyfill';
 
 export default {
@@ -74,6 +74,7 @@ export default {
                 if (this.isVideo) {
                     this.imgUrl = videoElem?.snapshotUrl;
                 }
+                this.imgUrl = formatFileUrl(this.imgUrl);
             }
         });
     },

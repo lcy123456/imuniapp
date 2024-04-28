@@ -7,7 +7,12 @@ import IMSDK, {
     MessageReceiveOptType,
     GroupAtType
 } from 'openim-uniapp-polyfill';
-import { idsGetConversationID, isEdit, isLike } from '@/util/imCommon';
+import {
+    idsGetConversationID,
+    isEdit,
+    isLike,
+    formatFileUrl
+} from '@/util/imCommon';
 import fCheckVersion from '@/util/fCheckVersion';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import config from './common/config';
@@ -39,7 +44,6 @@ export default {
             if (!this.$store.getters.storeIMToken) return;
             this.getUnreadMsgCount();
         }, 2000);
-        this.thirdConfig();
         this.setQuit();
         fCheckVersion();
         uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
@@ -754,6 +758,7 @@ export default {
                     return new Error('初始化IMSDK失败！');
                 }
                 this.isInitSDK = true;
+                await this.thirdConfig();
                 await IMLogin();
             } catch (err) {
                 console.log(err);
@@ -1062,9 +1067,9 @@ export default {
                 const { contentType, pictureElem, videoElem } = message;
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
-                    url: pictureElem?.sourcePicture.url,
+                    url: formatFileUrl(pictureElem?.sourcePicture.url),
                     poster: [
-                        pictureElem?.sourcePicture.url,
+                        formatFileUrl(pictureElem?.sourcePicture.url),
                         pictureElem?.sourcePath,
                         message.localEx
                     ],
@@ -1072,9 +1077,9 @@ export default {
                 };
                 if (isVideo) {
                     map = {
-                        url: videoElem.videoUrl,
+                        url: formatFileUrl(videoElem.videoUrl),
                         poster: [
-                            videoElem?.snapshotUrl,
+                            formatFileUrl(videoElem?.snapshotUrl),
                             videoElem?.snapshotPath,
                             message.localEx
                         ],

@@ -110,7 +110,7 @@ import {
     MediaRenderTypes,
     FileRenderTypes
 } from '@/constant';
-import { recordToDesignatedConversation } from '@/util/imCommon';
+import { recordToDesignatedConversation, formatFileUrl } from '@/util/imCommon';
 import MyTabs from '@/components/MyTabs';
 import MediaRender from '../components/MediaRender.vue';
 import FileRender from '../components/FileRender.vue';
@@ -240,13 +240,13 @@ export default {
                 const { contentType, pictureElem, videoElem } = v;
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
-                    url: pictureElem?.sourcePicture.url,
+                    url: formatFileUrl(pictureElem?.sourcePicture.url),
                     type: 'image'
                 };
                 if (isVideo) {
                     map = {
-                        url: videoElem.videoUrl,
-                        poster: videoElem.snapshotUrl,
+                        url: formatFileUrl(videoElem.videoUrl),
+                        poster: formatFileUrl(videoElem.snapshotUrl),
                         type: 'video'
                     };
                 }

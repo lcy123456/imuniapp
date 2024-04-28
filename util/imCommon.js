@@ -1023,3 +1023,10 @@ export const parseAtInsertImg = atel => {
     });
     return mstr;
 };
+
+export const formatFileUrl = url => {
+    const { storeThirdData } = store.getters;
+    return /blob|http(s?)|base64|\/storage|\/var/.test(url)
+        ? url
+        : storeThirdData?.oss?.url + url;
+};

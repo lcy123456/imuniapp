@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { secFormat } from '@/util/imCommon';
+import { secFormat, formatFileUrl } from '@/util/imCommon';
 import { getPurePath, getPageRoute } from '@/util/common';
 import IMSDK, { MessageType } from 'openim-uniapp-polyfill';
 import { mapGetters } from 'vuex';
@@ -103,6 +103,7 @@ export default {
                 if (this.isVideo) {
                     this.imgUrl = videoElem?.snapshotUrl;
                 }
+                this.imgUrl = formatFileUrl(this.imgUrl);
             }
         });
     },

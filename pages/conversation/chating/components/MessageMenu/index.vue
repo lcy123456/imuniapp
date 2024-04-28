@@ -72,7 +72,12 @@ import ReadUserList from './ReadUserList.vue';
 import Like from './Like.vue';
 import { getMsgID, giveLikeEmoji } from '@/api/message';
 import { html2Text } from '@/util/common';
-import { parseAt, getUserListInfo, isPin } from '@/util/imCommon';
+import {
+    parseAt,
+    getUserListInfo,
+    isPin,
+    formatFileUrl
+} from '@/util/imCommon';
 import { mapGetters, mapActions } from 'vuex';
 import { pin, pinCancel } from '@/api/pinToTop';
 import { emojiCollect } from '@/api/emoji';
@@ -387,7 +392,7 @@ export default {
             }
             uni.showLoading();
             uni.downloadFile({
-                url: filePath,
+                url: formatFileUrl(filePath),
                 success: res => {
                     if (res.statusCode === 200) {
                         uni.saveImageToPhotosAlbum({
