@@ -160,7 +160,7 @@ export default {
         isArchvist() {
             try {
                 const attachedInfo = JSON.parse(this.source.attachedInfo);
-                return attachedInfo.archvist === 1;
+                return attachedInfo.archivist === 1;
             } catch (err) {
                 return false;
             }
@@ -255,9 +255,9 @@ export default {
         },
         async handleArchive() {
             try {
-                const archvist =
+                const archivist =
                     this.source.attachedInfo &&
-                    JSON.parse(this.source.attachedInfo).archvist === 1
+                    JSON.parse(this.source.attachedInfo).archivist === 1
                         ? 2
                         : 1;
                 await setConversations({
@@ -267,11 +267,11 @@ export default {
                         conversationType: this.source.conversationType,
                         groupID: this.source.groupID,
                         attachedInfo: JSON.stringify({
-                            archvist: archvist
+                            archivist: archivist
                         })
                     }
                 });
-                uni.$u.toast(archvist === 1 ? '设置归档成功' : '取消归档成功');
+                uni.$u.toast(archivist === 1 ? '设置归档成功' : '取消归档成功');
             } catch (err) {
                 console.log(err);
             }

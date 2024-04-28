@@ -80,7 +80,7 @@ export default {
             this.storeConversationList.forEach(item => {
                 try {
                     const attachedInfo = JSON.parse(item.attachedInfo);
-                    if (attachedInfo.archvist === 1) {
+                    if (attachedInfo.archivist === 1) {
                         isArchvistList.push(item);
                     }
                 } catch (err) {
@@ -90,7 +90,7 @@ export default {
             return isArchvistList;
         },
         isArchvist() {
-            return this.searchType === 'archvist';
+            return this.searchType === 'archivist';
         },
         showFriendList() {
             if (this.isArchvist) {

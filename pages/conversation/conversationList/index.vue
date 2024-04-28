@@ -98,7 +98,7 @@ export default {
                 conversationType: 0,
                 isPinned: false,
                 attachedInfo: JSON.stringify({
-                    archvist: 1
+                    archivist: 1
                 }),
                 ex: '',
                 hasReadSeq: 0,
@@ -127,7 +127,7 @@ export default {
             this.storeConversationList.forEach(item => {
                 try {
                     const attachedInfo = JSON.parse(item.attachedInfo);
-                    if (attachedInfo.archvist === 1) {
+                    if (attachedInfo.archivist === 1) {
                         isArchvistList.push(item);
                     }
                 } catch (err) {
