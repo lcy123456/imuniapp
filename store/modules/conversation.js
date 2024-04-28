@@ -70,10 +70,12 @@ const mutations = {
 };
 
 let isGetConversationListLoading = false;
+let conversationTimer;
 const actions = {
-    async getConversationList({ state, commit }, isFirstPage = true) {
+    async getConversationList({ state, commit, dispatch }, isFirstPage = true) {
         try {
             if (!isFirstPage && isGetConversationListLoading) return;
+            isFirstPage && clearTimeout(conversationTimer);
             isGetConversationListLoading = true;
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetConversationListSplit,
@@ -88,6 +90,11 @@ const actions = {
                 ...(isFirstPage ? [] : state.conversationList),
                 ...data
             ]);
+            if (data.length !== 0) {
+                conversationTimer = setTimeout(() => {
+                    dispatch('getConversationList', false);
+                }, 2000);
+            }
             return [...data];
         } catch (e) {
             commit('SET_CONVERSATION_LIST', []);

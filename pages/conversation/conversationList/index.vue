@@ -31,8 +31,8 @@
                 :scroll-with-animation="true"
                 scroll-y
                 :upper-threshold="0"
-                @scrolltolower="queryList"
             >
+                <!-- @scrolltolower="queryList" -->
                 <!-- @refresherTouchmove="refresherTouchmove"
                 @refresherTouchend="refresherTouchend" -->
                 <uni-swipe-action ref="swipeWrapperRef" class="swipe_wrapper">
@@ -241,12 +241,12 @@ export default {
         handleToSearch() {
             uni.$u.route('/pages/common/searchRecord/index');
         },
-        async queryList() {
-            await this.$store.dispatch(
-                'conversation/getConversationList',
-                false
-            );
-        },
+        // async queryList() {
+        //     await this.$store.dispatch(
+        //         'conversation/getConversationList',
+        //         false
+        //     );
+        // },
         closeAllSwipe() {
             this.key = +new Date();
             this.$refs.swipeWrapperRef.closeAll();
