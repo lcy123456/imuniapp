@@ -337,6 +337,8 @@ export default {
                     }
                 });
                 if (
+                    this.storeSelfInfo.globalRecvMsgOpt ===
+                        MessageReceiveOptType.Nomal &&
                     !this.storeIsIncomingCallLoading &&
                     !this.storeIsIncomingCallIng &&
                     !isMute &&
@@ -716,6 +718,8 @@ export default {
             const page = currentPage.route;
             let tipStatus = true;
             if (
+                this.storeSelfInfo.globalRecvMsgOpt !==
+                    MessageReceiveOptType.Nomal ||
                 page === `pages/conversation/conversationList/index` ||
                 (page === `pages/conversation/chating/index` &&
                     source.conversationID ===
