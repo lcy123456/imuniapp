@@ -30,6 +30,7 @@ import { bindCid } from '@/api/index';
 export default {
     onLaunch() {
         this.$store.dispatch('user/getAppConfig');
+        this.thirdConfig();
         this.setGlobalIMlistener();
         this.tryLogin();
         this.handleAudioManager();
@@ -762,7 +763,6 @@ export default {
                     return new Error('初始化IMSDK失败！');
                 }
                 this.isInitSDK = true;
-                await this.thirdConfig();
                 await IMLogin();
             } catch (err) {
                 console.log(err);
@@ -774,6 +774,7 @@ export default {
             try {
                 const data = await thirdConfig();
                 this.$store.commit('base/SET_THIRD_DATA', data);
+                return data;
             } catch (err) {
                 setTimeout(() => {
                     this.thirdConfig();
