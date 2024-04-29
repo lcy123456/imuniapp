@@ -377,6 +377,7 @@ export default {
                 align-items: flex-end;
 
                 /deep/ .message_content_wrap .message_content_container {
+                    width: inherit;
                     align-items: flex-end;
                     // .bg_container {
                     //     background-color: #c5e3ff !important;
