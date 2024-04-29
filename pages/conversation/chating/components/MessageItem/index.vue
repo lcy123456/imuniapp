@@ -183,7 +183,7 @@ export default {
                 ]
             });
             IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                recvID: this.source.recvID,
+                recvID: this.source.groupID ? '' : this.source.recvID,
                 groupID: this.source.groupID,
                 message: this.source,
                 offlinePushInfo
