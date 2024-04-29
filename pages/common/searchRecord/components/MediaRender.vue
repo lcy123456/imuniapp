@@ -59,11 +59,12 @@ export default {
         }
     },
     created() {
-        const { pictureElem, videoElem } = this.message;
+        const { pictureElem, videoElem, localEx } = this.message;
         let filePath = pictureElem?.sourcePath;
         if (this.isVideo) {
             filePath = videoElem?.snapshotPath;
         }
+        filePath = localEx || filePath;
         uni.getFileInfo({
             filePath,
             success: () => {
