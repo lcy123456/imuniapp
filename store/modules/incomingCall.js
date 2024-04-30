@@ -124,8 +124,9 @@ const actions = {
                 );
                 if (usersInfo?.data) {
                     const [uData] = usersInfo.data;
-                    const { faceURL, nickname, remark } = uData.friendInfo;
                     console.log('uData----uData', uData);
+                    const { faceURL, nickname, remark } =
+                        uData.friendInfo || uData.publicInfo;
                     commit('SET_INCOMING_CALL_USER_INFO', {
                         faceURL,
                         nickname: remark || nickname
@@ -180,7 +181,8 @@ const actions = {
                 );
                 if (usersInfo?.data) {
                     const [uData] = usersInfo.data;
-                    const { faceURL, nickname, remark } = uData.friendInfo;
+                    const { faceURL, nickname, remark } =
+                        uData.friendInfo || uData.publicInfo;
                     commit('SET_INCOMING_CALL_USER_INFO', {
                         faceURL,
                         nickname: remark || nickname
