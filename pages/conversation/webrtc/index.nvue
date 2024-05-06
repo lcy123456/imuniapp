@@ -1,22 +1,22 @@
 <template>
     <web-view
         ref="webviewRef"
-        @onPostMessage="handlePostMessage"
-        :style="{flex: 1}"
         :src="src"
-    />
+        :style="{flex: 1}"
+        @onPostMessage="handlePostMessage"
+    ></web-view>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { AudioVideoType, AudioVideoStatus } from '@/enum';
+import { AudioVideoStatus } from '@/enum';
 import { getFirstCharacter, colors, adjustColor } from '@/util/common';
 import {
     PageEvents
 } from '@/constant';
 import IMSDK, {
     IMMethods,
-    SessionType,
+    SessionType
 } from 'openim-uniapp-polyfill';
 
 export default {
@@ -24,8 +24,8 @@ export default {
         return {
             time: '',
             updateKey: '',
-            innerAudioContext: null,
-        }
+            innerAudioContext: null
+        };
     },
     computed: {
         ...mapGetters([
@@ -50,9 +50,9 @@ export default {
     },
     watch: {
 		storeIsIncomingCallTop: {
-			handler(val){
-				if(val) this.startMusic()
-				else this.stopMusic()
+			handler(val) {
+				if (val) this.startMusic();
+				else this.stopMusic();
 			}
 		}
     },
@@ -67,18 +67,18 @@ export default {
                 const { groupID } = this.storeIncomingCallMessage;
                 let selfUserInfo = {};
                 if (groupID) {
-                    const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,IMSDK.uuid(), {
+                    const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo, IMSDK.uuid(), {
                         groupID,
                         userIDList: [this.storeUserID]
                     });
                     const usersInfo = data[0];
                     selfUserInfo = {
                         ...usersInfo
-                    }
+                    };
                 } else {
                     selfUserInfo = {
                         ...this.storeSelfInfo
-                    }
+                    };
                 }
                 const map = {
                     message: this.storeIncomingCallMessage,
@@ -96,7 +96,7 @@ export default {
                     token: this.storeIncomingCallToken,
                     url: this.storeThirdData?.livekit?.url,
                     userID: this.storeUserID
-                }
+                };
                 console.log('---------map-------', map);
                 this.postMessage(`uniEvent(${JSON.stringify(map)})`);
             }
@@ -107,8 +107,8 @@ export default {
         uni.$off('incoming_message_callback', this.incomingMessageCallback);
     },
     onHide () {
-        if(this.storeIsIncomingCallLoading) {
-			this.onSmall()
+        if (this.storeIsIncomingCallLoading) {
+			this.onSmall();
 		}
     },
     methods: {
@@ -147,23 +147,27 @@ export default {
             }
         },
         async inviteOrKick ({ type, userIDs }) {
-            const { data } = await uni.$u?.http.post('/video/signal_invite_or_kick_msg', JSON.stringify({
-                userIDs: userIDs,
-                roomName: this.idsGetConversationID(this.storeIncomingCallMessage),
-                type: this.storeIncomingCallMessage.type === 'audio' ? 130 : 131,
-                opType: type === 'invite' ? 1654 : 1655
-            }), {
-                custom: {
-                    isIMApi: true,
-                },
-                header: {
-                    token: this.storeIMToken,
-                }
-            });
+            try {
+                await uni.$u?.http.post('/video/signal_invite_or_kick_msg', JSON.stringify({
+                    userIDs: userIDs,
+                    roomName: this.idsGetConversationID(this.storeIncomingCallMessage),
+                    type: this.storeIncomingCallMessage.type === 'audio' ? 130 : 131,
+                    opType: type === 'invite' ? 1654 : 1655
+                }), {
+                    custom: {
+                        isIMApi: true
+                    },
+                    header: {
+                        token: this.storeIMToken
+                    }
+                });
+            } catch (err) {
+                console.log(err);
+            }
         },
         async handlePostMessage (event) {
-            const [data] = event.detail.data
-            if(data.goOut) {
+            const [data] = event.detail.data;
+            if (data.goOut) {
                 if (data.isDanger === 'fail') {
                     setTimeout(() => {
                         uni.$emit('toast', '网络异常，请稍后重试');
@@ -209,34 +213,34 @@ export default {
                     this.postMessage(`toast(${JSON.stringify({
                         message: '移出成功'
                     })})`);
-                } catch(err) {
+                } catch (err) {
                     this.postMessage(`toast(${JSON.stringify({
                         message: '移出失败, 请重试'
                     })})`);
                 }
             }
-            if(data.isSmall) {
+            if (data.isSmall) {
                 // 缩小
-                this.onSmall()
+                this.onSmall();
             }
-            if(data.isDanger) {
+            if (data.isDanger) {
                 // 挂断
                 this.reject(data);
                 this.onDangerCall();
             }
-            if(data.isSuccess) {
+            if (data.isSuccess) {
                 // 接听
-				this.onSuccessCall()
-                await this.userJoinCalling(data.joinUserID)
+				this.onSuccessCall();
+                await this.userJoinCalling(data.joinUserID);
             }
         },
         // 群聊场景，用户刚加入群聊
         async userJoinCalling(joinUserID) {
-            if(!joinUserID) return;
+            if (!joinUserID) return;
             const { groupID } = this.storeIncomingCallMessage;
             let usersInfo = null;
             if (groupID) {
-                const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,IMSDK.uuid(), {
+                const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo, IMSDK.uuid(), {
                     groupID,
                     userIDList: [joinUserID]
                 });
@@ -253,7 +257,7 @@ export default {
                     ...usersInfo,
                     bgColor: this.getBgColor(usersInfo.nickname),
                     isGroupUserJoin: true
-                }
+                };
                 this.postMessage(`uniGroupUserJoinEvent(${JSON.stringify(map)})`);
             }
         },
@@ -288,28 +292,26 @@ export default {
             const map = {
                 isInWebrtc: this.getIsInWebrtc(),
                 customStatus
-            }
-            if ([AudioVideoStatus.Done].includes(customStatus)) {
-                console.log('聊天结束。。。');
-                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
-            } else if ([AudioVideoStatus.Cancel].includes(customStatus)) {
-                console.log('对方取消');
-                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
-            } else if ([AudioVideoStatus.Reject].includes(customStatus)) {
-                console.log('对方拒绝。。。');
-                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
-            } else if ([AudioVideoStatus.NotAnswered].includes(customStatus)) {
-                console.log('对方未应答。。。');
-                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
-            } else if ([AudioVideoStatus.Busy].includes(customStatus)) {
-                console.log('对方忙线中。。。');
-                this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
+            };
+            const textMap = {
+                [AudioVideoStatus.Done]: '聊天结束。。。',
+                [AudioVideoStatus.Cancel]: '对方取消。。。',
+                [AudioVideoStatus.Reject]: '对方拒绝。。。',
+                [AudioVideoStatus.NotAnswered]: '对方未应答。。。',
+                [AudioVideoStatus.Busy]: '对方忙线中。。。'
+            };
+            for (let k in textMap) {
+                if (Number(k) === Number(customStatus)) {
+                    console.log(textMap[k]);
+                    this.postMessage(`disconnectRoom(${JSON.stringify(map)})`);
+                    break;
+                }
             }
         },
         // 双方等待接听，拨打方挂断电话，状态已取消
         // 双方通话中，任意方挂断电话，状态已完成
         async reject (map) {
-            if(this.storeIsIncomingCallIng || map.customStatus || map.isDanger === 'fail') return;
+            if (this.storeIsIncomingCallIng || map.customStatus || map.isDanger === 'fail') return;
             const { recvID, sendID, groupID, sessionType, customElem } = this.storeIncomingCallMessage;
             if (sessionType === 3) return;
             if (this.storeIsAnswer) {
@@ -319,10 +321,10 @@ export default {
                     conversationID: this.idsGetConversationID(this.storeIncomingCallMessage)
                 }), {
                     custom: {
-                        isIMApi: true,
+                        isIMApi: true
                     },
                     header: {
-                        token: this.storeBusinessToken,
+                        token: this.storeBusinessToken
                     }
                 });
                 return;
@@ -363,14 +365,10 @@ export default {
             });
             this.updateOneMessage({
                 message: data,
-                isSuccess: true,
+                isSuccess: true
             });
             uni.$emit(PageEvents.ScrollToBottom);
         }
     }
-}
+};
 </script>
-
-<style>
-
-</style>
