@@ -21,7 +21,7 @@
                         <u--image
                             radius="4"
                             :show-loading="true"
-                            :src="getMediaSource"
+                            :src="formatFileUrl(getMediaSource)"
                             width="72"
                             height="72"
                             @click="preview"
@@ -35,6 +35,7 @@
 
 <script>
 import MyAvatar from '@/components/MyAvatar/index.vue';
+import { formatFileUrl } from '@/util/imCommon';
 
 const NotificationMixTypes = {
     Text: 0,
@@ -86,6 +87,7 @@ export default {
         }
     },
     methods: {
+        formatFileUrl,
         checkUrl() {
             if (this.notifyContent.url) {
                 uni.navigateTo({

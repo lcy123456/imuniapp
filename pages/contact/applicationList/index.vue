@@ -7,6 +7,7 @@
             />
             <view class="px-20 pb-20 pt-10">
                 <u-search
+                    v-model="keyword"
                     shape="square"
                     :placeholder="`搜索${isGroupApplication ? '群' : '朋友'}`"
                     :show-action="false"
@@ -125,14 +126,23 @@ export default {
                 ? this.storeRecvGroupApplications
                 : this.storeRecvFriendApplications;
             tmpList.sort(a => (a.handleResult === 0 ? -1 : 1));
-            return [...tmpList];
+            return tmpList.filter(
+                v =>
+                    v.fromNickname?.includes(this.keyword) ||
+                    v.nickname?.includes(this.keyword) ||
+                    v.groupName?.includes(this.keyword)
+            );
         },
         getSendRenderData() {
             const tmpList = this.isGroupApplication
                 ? this.storeSentGroupApplications
                 : this.storeSentFriendApplications;
             tmpList.sort(a => (a.handleResult === 0 ? -1 : 1));
-            return [...tmpList];
+            return tmpList.filter(
+                v =>
+                    v.toNickname?.includes(this.keyword) ||
+                    v.groupName?.includes(this.keyword)
+            );
         },
         tabList() {
             return [

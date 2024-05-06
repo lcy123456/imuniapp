@@ -67,7 +67,7 @@ import SetEnd from './components/SetEnd.vue';
 import ChatingList from './components/ChatingList.vue';
 import MessageMenu from './components/MessageMenu';
 import { markConversationAsRead } from '@/util/imCommon';
-// import { isNeedRestart } from '@/util/common';
+import { isNeedRestart } from '@/util/common';
 import { MessageMenuTypes } from '@/constant';
 import IMSDK, {
     IMMethods,
@@ -155,6 +155,7 @@ export default {
         uni.$on('inputFocus', this.inputFocus);
         uni.$on('getSearchRecordMedia', this.getSearchRecordMedia);
         uni.$on('handleFavorite', this.handleFavorite);
+        uni.$on('app_show', this.handleRestart);
         this.$store.commit('conversation/SET_CONVERSATION_UNREAD', 0);
         this.getSearchRecordMedia();
         this.getPinList();
@@ -177,6 +178,7 @@ export default {
         uni.$off('inputFocus', this.inputFocus);
         uni.$off('getSearchRecordMedia', this.getSearchRecordMedia);
         uni.$off('handleFavorite', this.handleFavorite);
+        uni.$off('app_show', this.handleRestart);
         this.$store.commit('base/SET_PIN_LIST', []);
     },
     onHide() {
@@ -191,9 +193,6 @@ export default {
         if (this.isShowkeyBoard) {
             uni.$emit('setInputFocus');
         }
-        // this.$nextTick(() => {
-        //     isNeedRestart.call(this, '#chating_container');
-        // });
     },
     methods: {
         ...mapActions('message', ['resetMessageState']),
@@ -203,6 +202,9 @@ export default {
             if (type === 'initWebrtc') {
                 uni.$emit('createGroupRoom', userList, type);
             }
+        },
+        handleRestart() {
+            isNeedRestart.call(this, '#chating_container');
         },
         inputBlur() {
             if (this.isHide) return;

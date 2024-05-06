@@ -7,7 +7,7 @@
                 :class="['like-box', isSelfLike(item) ? 'self' : '']"
                 @click="like(key)"
             >
-                <image class="pined" :src="`/static/like/${key}.png`" />
+                <image class="pined" :src="`/static/like/${key}.svg`" />
                 <text>{{ item.num }}</text>
             </view>
         </view>
@@ -101,10 +101,11 @@ export default {
 
 <style lang="scss" scoped>
 .give-like-css {
-    display: block;
+    max-width: 100%;
     margin-top: 10rpx;
+    flex: 1;
+    overflow: auto;
     .like-list {
-        width: max-content;
         display: flex;
         align-items: center;
     }

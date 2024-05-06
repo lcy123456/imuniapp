@@ -29,7 +29,7 @@
                         {{ html2Text(item.content) }}
                     </text>
                     <view v-if="showMediaRender(item)" class="img-box">
-                        <image :src="item.content" />
+                        <image :src="formatFileUrl(item.content)" />
                     </view>
                     <view v-if="showFileRender(item)" class="file-box">
                         <image
@@ -55,6 +55,8 @@
 <script>
 import { html2Text } from '@/util/common';
 import { TextRenderTypes, MediaRenderTypes, FileRenderTypes } from '@/constant';
+import { formatFileUrl } from '@/util/imCommon';
+
 export default {
     name: 'PinToTop',
     components: {},
@@ -92,6 +94,7 @@ export default {
     },
     methods: {
         html2Text,
+        formatFileUrl,
         close() {
             console.log(33443);
             this.isShow = false;

@@ -7,7 +7,12 @@ import IMSDK, {
     MessageReceiveOptType,
     GroupAtType
 } from 'openim-uniapp-polyfill';
-import { idsGetConversationID, isEdit, isLike } from '@/util/imCommon';
+import {
+    idsGetConversationID,
+    isEdit,
+    isLike,
+    formatFileUrl
+} from '@/util/imCommon';
 import fCheckVersion from '@/util/fCheckVersion';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import config from './common/config';
@@ -25,6 +30,7 @@ import { bindCid } from '@/api/index';
 export default {
     onLaunch() {
         this.$store.dispatch('user/getAppConfig');
+        this.thirdConfig();
         this.setGlobalIMlistener();
         this.tryLogin();
         this.handleAudioManager();
@@ -39,7 +45,6 @@ export default {
             if (!this.$store.getters.storeIMToken) return;
             this.getUnreadMsgCount();
         }, 2000);
-        this.thirdConfig();
         this.setQuit();
         fCheckVersion();
         uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
@@ -55,6 +60,7 @@ export default {
             IMSDK.uuid(),
             false
         );
+        uni.$emit('app_show');
     },
     onHide() {
         this.isHide = true;
@@ -188,11 +194,6 @@ export default {
             this.restartTime = 0;
             this.timer3 = setInterval(() => {
                 this.restartTime++;
-                console.log(
-                    'this.restartTime---this.restartTime',
-                    this.restartTime,
-                    this.bgKeepAlive.getBackgroundTime()
-                );
                 if (this.bgKeepAlive.getBackgroundTime() <= 20) {
                     this.bgKeepAlive.exitApp();
                 }
@@ -265,6 +266,7 @@ export default {
                 //     mask: true,
                 // });
                 // uni.$u.toast('同步');
+                console.log('同步开始');
                 this.$store.commit('user/SET_IS_SYNCING', true);
             };
             const done = () => {
@@ -284,6 +286,7 @@ export default {
                 this.payload = false;
             };
             const syncFinishHandler = () => {
+                console.log('同步完成');
                 done();
             };
             const syncFailedHandler = () => {
@@ -315,7 +318,7 @@ export default {
 
             // message
             const newMessagesHandler = ({ data }) => {
-                console.log('收到新的消息', data);
+                // console.log('收到新的消息', data);
                 if (this.storeIsSyncing) {
                     return;
                 }
@@ -335,6 +338,8 @@ export default {
                     }
                 });
                 if (
+                    this.storeSelfInfo.globalRecvMsgOpt ===
+                        MessageReceiveOptType.Nomal &&
                     !this.storeIsIncomingCallLoading &&
                     !this.storeIsIncomingCallIng &&
                     !isMute &&
@@ -378,7 +383,7 @@ export default {
                 });
             };
             const groupReadReceiptHandler = ({ data: receiptList }) => {
-                console.log('receiptList----receiptList收到群聊', receiptList);
+                // console.log('receiptList----receiptList收到群聊', receiptList);
                 receiptList.forEach(item => {
                     item.msgIDList &&
                         item.msgIDList.forEach(msgID => {
@@ -421,10 +426,10 @@ export default {
             };
 
             const customBusinessMessageHandler = ({ data }) => {
-                console.log(
-                    'customBusinessMessageHandler--customBusinessMessageHandler',
-                    data
-                );
+                // console.log(
+                //     'customBusinessMessageHandler--customBusinessMessageHandler',
+                //     data
+                // );
                 const { key } = data;
                 let inviteOrKickMap = {};
                 if (['video_invite', 'video_kick'].includes(key)) {
@@ -478,14 +483,6 @@ export default {
                         break;
                 }
             };
-            const recvMessageModifiedandler = ({ data }) => {
-                console.log(
-                    'recvMessageModifiedandler--------recvMessageModifiedandler------',
-                    data
-                );
-            };
-
-            IMSDK.subscribe('OnRecvMessageModified', recvMessageModifiedandler);
             IMSDK.subscribe(
                 IMSDK.IMEvents.OnRecvCustomBusinessMessage,
                 customBusinessMessageHandler
@@ -509,7 +506,7 @@ export default {
 
             // friend
             const friendInfoChangeHandler = ({ data }) => {
-                console.log(data);
+                // console.log(data);
                 this.updateFriendInfo({
                     friendInfo: data
                 });
@@ -627,7 +624,7 @@ export default {
             };
 
             const msgDeletedHandller = ({ data }) => {
-                console.log('OnMsgDeleted------OnMsgDeleted', data);
+                // console.log('OnMsgDeleted------OnMsgDeleted', data);
                 this.deleteMessages([data]);
             };
 
@@ -665,10 +662,6 @@ export default {
                 this.$store.commit('conversation/SET_UNREAD_COUNT', data);
             };
             const newConversationHandler = ({ data }) => {
-                console.log(
-                    'newConversationHandlernewConversationHandler-newConversationHandler',
-                    data
-                );
                 if (this.storeIsSyncing) {
                     return;
                 }
@@ -679,10 +672,6 @@ export default {
                 );
             };
             const conversationChangedHandler = ({ data }) => {
-                console.log(
-                    'conversationChangedHandler-conversationChangedHandler-----',
-                    data
-                );
                 if (this.storeIsSyncing) {
                     return;
                 }
@@ -730,6 +719,8 @@ export default {
             const page = currentPage.route;
             let tipStatus = true;
             if (
+                this.storeSelfInfo.globalRecvMsgOpt !==
+                    MessageReceiveOptType.Nomal ||
                 page === `pages/conversation/conversationList/index` ||
                 (page === `pages/conversation/chating/index` &&
                     source.conversationID ===
@@ -754,7 +745,6 @@ export default {
         async tryLogin() {
             try {
                 const path = await getDbDir();
-                console.log('path---path', path);
                 const flag = await IMSDK.asyncApi(
                     IMMethods.InitSDK,
                     IMSDK.uuid(),
@@ -784,6 +774,7 @@ export default {
             try {
                 const data = await thirdConfig();
                 this.$store.commit('base/SET_THIRD_DATA', data);
+                return data;
             } catch (err) {
                 setTimeout(() => {
                     this.thirdConfig();
@@ -828,7 +819,6 @@ export default {
             }
         },
         async handleNewMessage(newServerMsg) {
-            console.log('newServerMsg--newServerMsg', newServerMsg.clientMsgID);
             if (
                 ![
                     MessageType.TypingMessage,
@@ -1058,17 +1048,17 @@ export default {
             setTimeout(() => {
                 plus.push.getClientInfoAsync(async info => {
                     const cid = info['clientid'];
-                    console.log('cid-----cid', cid);
                     if (!cid) {
                         this.handleUniPush();
                         return;
                     }
                     try {
-                        await bindCid({
-                            platform: uni.$u.os() === 'ios' ? 1 : 2,
-                            userID: this.storeUserID,
-                            cid
-                        });
+                        this.storeUserID &&
+                            (await bindCid({
+                                platform: uni.$u.os() === 'ios' ? 1 : 2,
+                                userID: this.storeUserID,
+                                cid
+                            }));
                     } catch (e) {
                         console.log(e);
                     }
@@ -1082,9 +1072,9 @@ export default {
                 const { contentType, pictureElem, videoElem } = message;
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
-                    url: pictureElem?.sourcePicture.url,
+                    url: formatFileUrl(pictureElem?.sourcePicture.url),
                     poster: [
-                        pictureElem?.sourcePicture.url,
+                        formatFileUrl(pictureElem?.sourcePicture.url),
                         pictureElem?.sourcePath,
                         message.localEx
                     ],
@@ -1092,9 +1082,9 @@ export default {
                 };
                 if (isVideo) {
                     map = {
-                        url: videoElem.videoUrl,
+                        url: formatFileUrl(videoElem.videoUrl),
                         poster: [
-                            videoElem?.snapshotUrl,
+                            formatFileUrl(videoElem?.snapshotUrl),
                             videoElem?.snapshotPath,
                             message.localEx
                         ],

@@ -62,7 +62,7 @@ export default {
             this.storeConversationList.forEach(item => {
                 try {
                     const attachedInfo = JSON.parse(item.attachedInfo);
-                    if (attachedInfo.archvist === 1) {
+                    if (attachedInfo.archivist === 1) {
                         isArchvistList.push(item);
                     }
                 } catch (err) {
@@ -75,7 +75,7 @@ export default {
     methods: {
         handleToSearch() {
             uni.$u.route(
-                '/pages/common/searchRecord/index?searchType=archvist'
+                '/pages/common/searchRecord/index?searchType=archivist'
             );
         },
         closeAllSwipe() {

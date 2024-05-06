@@ -19,6 +19,9 @@ const state = {
         },
         livekit: {
             url: ''
+        },
+        oss: {
+            url: ''
         }
     }
 };

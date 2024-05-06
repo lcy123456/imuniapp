@@ -69,25 +69,40 @@ const mutations = {
     }
 };
 
+let isGetConversationListLoading = false;
+let conversationTimer;
 const actions = {
-    async getConversationList({ state, commit }, isFirstPage = true) {
+    async getConversationList({ state, commit, dispatch }, isFirstPage = true) {
         try {
+            if (!isFirstPage && isGetConversationListLoading) return;
+            isFirstPage && clearTimeout(conversationTimer);
+            isGetConversationListLoading = true;
             const { data } = await IMSDK.asyncApi(
                 IMSDK.IMMethods.GetConversationListSplit,
                 uuidv4(),
                 {
                     offset: isFirstPage ? 0 : state.conversationList.length,
-                    count: 999
+                    count: 20
                 }
             );
+            // console.log('getConversationList', data);
             commit('SET_CONVERSATION_LIST', [
                 ...(isFirstPage ? [] : state.conversationList),
                 ...data
             ]);
+            if (data.length !== 0) {
+                conversationTimer = setTimeout(() => {
+                    dispatch('getConversationList', false);
+                }, 2000);
+            }
             return [...data];
         } catch (e) {
             commit('SET_CONVERSATION_LIST', []);
             return [];
+        } finally {
+            setTimeout(() => {
+                isGetConversationListLoading = false;
+            }, 0);
         }
     },
     delConversationByCID({ state, commit }, conversationID) {

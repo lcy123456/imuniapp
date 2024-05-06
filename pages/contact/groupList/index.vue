@@ -92,7 +92,9 @@ export default {
         ...mapGetters(['storeGroupList', 'storeCurrentUserID']),
         getMyCreateGroupList() {
             return this.storeGroupList.filter(
-                group => group.ownerUserID === this.storeCurrentUserID
+                group =>
+                    group.ownerUserID === this.storeCurrentUserID &&
+                    group.groupName.includes(this.keyword)
             );
         },
         // getListHeight () {
@@ -105,7 +107,9 @@ export default {
         getMyJoinedGroupList() {
             // console.log(this.storeGroupList.filter(group => group.ownerUserID !== this.storeCurrentUserID));
             return this.storeGroupList.filter(
-                group => group.ownerUserID !== this.storeCurrentUserID
+                group =>
+                    group.ownerUserID !== this.storeCurrentUserID &&
+                    group.groupName.includes(this.keyword)
             );
         }
     },

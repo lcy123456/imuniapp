@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { secFormat } from '@/util/imCommon';
+import { secFormat, formatFileUrl } from '@/util/imCommon';
 import MessageReadState from './MessageReadState.vue';
 
 let timer = null;
@@ -82,6 +82,9 @@ export default {
         soundElem() {
             return this.message.soundElem || {};
         },
+        sourceUrl() {
+            return formatFileUrl(this.soundElem.sourceUrl);
+        },
         durationText() {
             const second = this.soundElem.duration || 0;
             if (second > 60) {
@@ -98,7 +101,7 @@ export default {
     beforeDestroy() {
         uni.$off('play_audio', this.handlePlaying);
         if (this.playing) {
-            uni.$emit('stop_audio', this.soundElem.sourceUrl);
+            uni.$emit('stop_audio', this.sourceUrl);
         }
     },
 
@@ -106,7 +109,7 @@ export default {
         secFormat,
         handlePlay() {
             clearTimeout(timer);
-            uni.$emit('play_audio', this.soundElem.sourceUrl);
+            uni.$emit('play_audio', this.sourceUrl);
         },
         handlePlaying(src) {
             if (!src) return;
@@ -116,7 +119,7 @@ export default {
                 return;
             }
             this.nextSrc = src;
-            if (src === this.soundElem.sourceUrl) {
+            if (src === this.sourceUrl) {
                 this.playing = !this.playing;
                 timer = setTimeout(
                     () => {

@@ -101,10 +101,10 @@ export default {
         },
         isLen() {
             const len = this.formData.password.length;
-            return len >= 6 && len <= 24;
+            return len >= 6 && len <= 20;
         },
         isNumAndLetter() {
-            return regMap.pwd.test(this.formData.password);
+            return regMap.numberLetter.test(this.formData.password);
         },
         isEqual() {
             return this.formData.password === this.formData.confirmPassword;

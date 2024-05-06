@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { bytesToSize } from '@/util/imCommon';
+import { bytesToSize, formatFileUrl } from '@/util/imCommon';
 
 export default {
     name: '',
@@ -41,7 +41,7 @@ export default {
                 this.openDoc(this.path);
             } else {
                 uni.downloadFile({
-                    url: this.fileElem.sourceUrl,
+                    url: formatFileUrl(this.fileElem.sourceUrl),
                     success: res => {
                         const path = (this.path = res.tempFilePath);
                         this.openDoc(path);

@@ -103,7 +103,7 @@ export const getDbDir = () => {
 };
 
 export function isNeedRestart(el) {
-    return new Promise(() => {
+    setTimeout(() => {
         const query = uni.createSelectorQuery().in(this);
         let isRecovery = true;
         query
@@ -118,7 +118,7 @@ export function isNeedRestart(el) {
                 plus.runtime.restart();
             }
         }, 800);
-    });
+    }, 2000);
 }
 
 export const formatChooseData = (data, key = 'nickname') => {
@@ -244,42 +244,29 @@ export const toastWithCallback = (message, callBack, duration = 1000) => {
     setTimeout(callBack, duration);
 };
 
+const errCodeMap = {
+    1001: '输入信息有误',
+    1004: '邮箱不存在',
+    10001: '密码错误',
+    10002: '用户不存在',
+    10003: '账号已注册',
+    10004: '账号已注册',
+    10005: '验证码的发送频率太快了！',
+    10006: '验证码错误',
+    10007: '验证码已过期',
+    10008: '验证码失败次数过多',
+    10009: '验证码已被使用',
+    10010: '邀请码已被使用',
+    10011: '邀请码不存在',
+    10013: '拒绝添加好友',
+    10016: '邮箱格式错误'
+};
 export const checkLoginError = error => {
-    if (!error?.errCode) {
-        return '网络异常，请稍后重试';
-    }
-    switch (error.errCode) {
-        case 1001:
-            return '输入信息有误';
-        case 1004:
-            return '邮箱不存在';
-        case 10001:
-            return '密码错误';
-        case 10002:
-            return '用户不存在';
-        case 10003:
-            return '账号已注册';
-        case 10004:
-            return '账号已注册';
-        case 10005:
-            return '验证码的发送频率太快了！';
-        case 10006:
-            return '验证码错误';
-        case 10007:
-            return '验证码已过期';
-        case 10008:
-            return '验证码失败次数过多';
-        case 10009:
-            return '验证码已被使用';
-        case 10010:
-            return '邀请码已被使用';
-        case 10011:
-            return '邀请码不存在';
-        case 10013:
-            return '拒绝添加好友';
-        default:
-            return '网络异常，请稍后重试';
-    }
+    return (
+        errCodeMap[error?.errCode] ||
+        error?.errMsg ||
+        '未知的接口错误，请联系管理员'
+    );
 };
 
 export const lightTextStr = (str, key) => {

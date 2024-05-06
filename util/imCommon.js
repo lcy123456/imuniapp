@@ -653,11 +653,13 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
 };
 
 export const IMLogin = async isLogin => {
-    console.log('-----', store.state.user.authData);
+    // console.log('-----', store.state.user.authData);
     const { storeUserID, storeIMToken } = store.getters;
     if (!storeUserID || !storeIMToken) {
         store.commit('user/SET_AUTH_DATA', {});
-        uni.$u.route('/pages/login/index');
+        uni.reLaunch({
+            url: '/pages/login/index'
+        });
         throw new Error('token不存在');
     }
     try {
@@ -707,7 +709,7 @@ export const IMLogin = async isLogin => {
 export const login = async requestMap => {
     try {
         const data = await businessLogin(requestMap);
-        console.log('login------', data);
+        // console.log('login------', data);
         store.commit('user/SET_AUTH_DATA', data);
         store.commit('user/SET_USER_LIST', {
             ...data,
@@ -1020,4 +1022,11 @@ export const parseAtInsertImg = atel => {
         }
     });
     return mstr;
+};
+
+export const formatFileUrl = url => {
+    const { storeThirdData } = store.getters;
+    return /blob|http(s?)|base64|\/storage|\/var/.test(url)
+        ? url
+        : storeThirdData?.oss?.url + url;
 };

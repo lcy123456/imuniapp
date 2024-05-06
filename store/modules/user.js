@@ -82,7 +82,7 @@ const actions = {
             );
             const { users } = await businessGetUserInfo(data.userID);
             const businessData = users[0] ?? {};
-            console.log('businessData------businessData', businessData);
+            // console.log('businessData------businessData', businessData);
             filterEmptyValue(businessData);
             commit('SET_SELF_INFO', {
                 ...data,

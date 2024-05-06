@@ -150,6 +150,7 @@ export default {
     created() {
         uni.$on('undateEmoticons', this.emojiCollectList);
         this.emojiCollectList('init');
+        this.handleGetGifs(true);
     },
     methods: {
         async selectClick({ type }) {
@@ -186,6 +187,7 @@ export default {
         },
         handleSearchCancle() {
             this.gifsData = [];
+            this.handleGetGifs(true);
         },
         loadMoreEmoticonsList() {
             if (this.emojisEnd) return;
@@ -219,7 +221,7 @@ export default {
             if (this.gifScrollEnd) return;
             this.gifLoading = true;
             const res = await getGifsSearch({
-                q: this.keyword,
+                q: this.keyword || '搞笑',
                 offset: isInit ? 0 : this.gifsData.length,
                 limit
             });

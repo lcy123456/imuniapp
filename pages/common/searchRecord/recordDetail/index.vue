@@ -52,18 +52,20 @@
                         @click.native="handleItemClick(v)"
                     />
                 </template>
-                <view
-                    v-else-if="tabActive.value === MediaRenderTypes"
-                    class="flex flex-wrap"
-                >
-                    <MediaRender
-                        v-for="(v, i) in messageList"
-                        :key="v.clientMsgID"
-                        :message="v"
-                        :size="boxWidth / 3"
-                        @click="handleMediaClick(i)"
-                    />
-                </view>
+                <template v-else-if="tabActive.value === MediaRenderTypes">
+                    <div v-for="(j, k) in mediaMessage" :key="k">
+                        <div class="time_label">{{ j.label }}</div>
+                        <div class="flex flex-wrap">
+                            <MediaRender
+                                v-for="v in j.value"
+                                :key="v.clientMsgID"
+                                :message="v"
+                                :size="boxWidth / 3"
+                                @click="handleMediaClick(v.clientMsgID)"
+                            />
+                        </div>
+                    </div>
+                </template>
                 <template v-else-if="tabActive.value === FileRenderTypes">
                     <FileRender
                         v-for="v in messageList"
@@ -110,12 +112,13 @@ import {
     MediaRenderTypes,
     FileRenderTypes
 } from '@/constant';
-import { recordToDesignatedConversation } from '@/util/imCommon';
+import { recordToDesignatedConversation, formatFileUrl } from '@/util/imCommon';
 import MyTabs from '@/components/MyTabs';
 import MediaRender from '../components/MediaRender.vue';
 import FileRender from '../components/FileRender.vue';
 import GroupMemberSwipe from '@/pages/conversation/groupSettings/components/GroupMemberSwipe.vue';
 import { checkLoginError } from '@/util/common';
+import dayjs from 'dayjs';
 
 const UserRenderTypes = [3];
 
@@ -165,6 +168,53 @@ export default {
                 return v.nickname.includes(this.keyword || '');
             });
             return res;
+        },
+        mediaMessage() {
+            const temp = {
+                week: {
+                    label: '本周',
+                    value: [],
+                    time: dayjs().startOf('week').valueOf()
+                },
+                month: {
+                    label: '本月',
+                    value: [],
+                    time: dayjs().startOf('month').valueOf()
+                },
+                year: {
+                    label: '本年',
+                    value: [],
+                    time: dayjs().startOf('year').valueOf()
+                }
+            };
+            const keys = Object.keys(temp);
+            this.messageList.forEach(v => {
+                const sendTime = v.sendTime;
+                let isOtherYear = true;
+                for (let j of keys) {
+                    if (sendTime > temp[j].time) {
+                        temp[j].value.push(v);
+                        isOtherYear = false;
+                        break;
+                    }
+                }
+                if (isOtherYear) {
+                    const year = dayjs(sendTime).format('YYYY');
+                    if (!temp[year]) {
+                        temp[year] = {
+                            label: year,
+                            value: []
+                        };
+                    }
+                    temp[year].value.push(v);
+                }
+            });
+            Object.keys(temp).forEach(key => {
+                if (temp[key].value.length === 0) {
+                    delete temp[key];
+                }
+            });
+            return temp;
         }
     },
     watch: {
@@ -235,18 +285,21 @@ export default {
                 );
             }
         },
-        handleMediaClick(index) {
+        handleMediaClick(clientMsgID) {
+            const index = this.messageList.findIndex(
+                v => v.clientMsgID === clientMsgID
+            );
             const list = this.messageList.map(v => {
                 const { contentType, pictureElem, videoElem } = v;
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
-                    url: pictureElem?.sourcePicture.url,
+                    url: formatFileUrl(pictureElem?.sourcePicture.url),
                     type: 'image'
                 };
                 if (isVideo) {
                     map = {
-                        url: videoElem.videoUrl,
-                        poster: videoElem.snapshotUrl,
+                        url: formatFileUrl(videoElem.videoUrl),
+                        poster: formatFileUrl(videoElem.snapshotUrl),
                         type: 'video'
                     };
                 }
@@ -324,6 +377,10 @@ export default {
         flex-shrink: 0;
         background-color: $uni-bg-color-hover;
         margin: 30rpx 20rpx;
+    }
+    .time_label {
+        color: $uni-text-color-grey;
+        font-size: 28rpx;
     }
 }
 </style>

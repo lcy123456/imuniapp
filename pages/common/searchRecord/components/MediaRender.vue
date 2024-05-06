@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { secFormat } from '@/util/imCommon';
+import { secFormat, formatFileUrl } from '@/util/imCommon';
 import { MessageType } from 'openim-uniapp-polyfill';
 
 export default {
@@ -59,11 +59,12 @@ export default {
         }
     },
     created() {
-        const { pictureElem, videoElem } = this.message;
+        const { pictureElem, videoElem, localEx } = this.message;
         let filePath = pictureElem?.sourcePath;
         if (this.isVideo) {
             filePath = videoElem?.snapshotPath;
         }
+        filePath = localEx || filePath;
         uni.getFileInfo({
             filePath,
             success: () => {
@@ -74,6 +75,7 @@ export default {
                 if (this.isVideo) {
                     this.imgUrl = videoElem?.snapshotUrl;
                 }
+                this.imgUrl = formatFileUrl(this.imgUrl);
             }
         });
     },

@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { bytesToSize } from '@/util/imCommon';
+import { bytesToSize, formatFileUrl } from '@/util/imCommon';
 import dayjs from 'dayjs';
 
 export default {
@@ -55,6 +55,9 @@ export default {
     computed: {
         fileElem() {
             return this.message.fileElem;
+        },
+        sourceUrl() {
+            return formatFileUrl(this.fileElem.sourceUrl);
         }
     },
 
@@ -74,7 +77,7 @@ export default {
         handleDownloadFile() {
             return new Promise((resolve, reject) => {
                 const downloadTask = uni.downloadFile({
-                    url: this.fileElem.sourceUrl,
+                    url: this.sourceUrl,
                     success: res => {
                         resolve(res.tempFilePath);
                     },
@@ -125,7 +128,7 @@ export default {
                 };
             }
             const downloadTask = plus.downloader.createDownload(
-                this.fileElem.sourceUrl,
+                this.sourceUrl,
                 options,
                 (d, status) => {
                     if (status == 200) {

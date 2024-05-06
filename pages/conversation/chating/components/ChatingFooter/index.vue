@@ -273,7 +273,8 @@ export default {
             activeMessage: null,
             isRecordStart: false,
             isRecordCancel: false,
-            recordCancelBtnInfo: {}
+            recordCancelBtnInfo: {},
+            callType: ''
         };
     },
     computed: {
@@ -592,22 +593,33 @@ export default {
             if (!message) return;
             this.sendMessage(message);
         },
-        async sendMessage(message) {
+        async sendMessage(message, options = {}) {
             console.log('消息创建成功', message);
             if (this.storeHasMoreAfterMessage) {
                 await this.$emit('sendInit');
             }
-            const { userID, groupID } = this.storeCurrentConversation;
-            !isEdit(message) &&
-                this.pushNewMessage({
-                    ...message,
-                    recvID: userID,
-                    groupID,
-                    sessionType: userID
-                        ? SessionType.Single
-                        : SessionType.WorkingGroup
-                });
-            uni.$emit(PageEvents.ScrollToBottom);
+            let { recvID, groupID, needPush } = options;
+            const sourceID = recvID || groupID;
+            const currentUserID = this.storeCurrentConversation?.userID;
+            const currentGroupID = this.storeCurrentConversation?.groupID;
+            const inCurrentConversation =
+                currentUserID === sourceID ||
+                currentGroupID === sourceID ||
+                !sourceID;
+            needPush = needPush ?? inCurrentConversation;
+
+            if (needPush) {
+                !isEdit(message) &&
+                    this.pushNewMessage({
+                        ...message,
+                        recvID: currentUserID,
+                        groupID: currentGroupID,
+                        sessionType: currentUserID
+                            ? SessionType.Single
+                            : SessionType.WorkingGroup
+                    });
+                uni.$emit(PageEvents.ScrollToBottom);
+            }
             if (TextRenderTypes.includes(message.contentType)) {
                 this.customEditorCtx.clear();
             }
@@ -619,15 +631,16 @@ export default {
                     });
                     data = m.data;
                 } else {
+                    const params = {
+                        recvID: recvID ?? currentUserID ?? '',
+                        groupID: groupID ?? currentGroupID ?? '',
+                        message,
+                        offlinePushInfo
+                    };
                     const m = await IMSDK.asyncApi(
                         IMMethods.SendMessage,
                         IMSDK.uuid(),
-                        {
-                            recvID: userID,
-                            groupID,
-                            message,
-                            offlinePushInfo
-                        }
+                        params
                     );
                     data = m.data;
                     uni.$emit(
@@ -789,19 +802,30 @@ export default {
         },
         async handleSendGif(original) {
             this.$loading('加载中');
-            if (
-                !original.url.includes('https://') &&
-                !original.url.includes('http://')
-            ) {
-                this.batchCreateImageMesage([original.url], 1);
-                this.$hideLoading();
-                return;
-            }
+            const { userID, groupID } = this.storeCurrentConversation;
+            const sendOptions = {
+                recvID: userID,
+                groupID: groupID
+            };
+            // if (
+            //     !original.url.includes('https://') &&
+            //     !original.url.includes('http://')
+            // ) {
+            //     this.batchCreateImageMesage([original.url], {
+            //         ...sendOptions,
+            //         type: 1
+            //     });
+            //     this.$hideLoading();
+            //     return;
+            // }
             uni.downloadFile({
                 url: original.url, // webp
                 success: res => {
                     if (res.statusCode === 200) {
-                        this.batchCreateImageMesage([res.tempFilePath]);
+                        this.batchCreateImageMesage(
+                            [res.tempFilePath],
+                            sendOptions
+                        );
                     }
                 },
                 fail: () => {
@@ -812,17 +836,17 @@ export default {
                 }
             });
         },
-        batchCreateImageMesage(paths, type) {
+        batchCreateImageMesage(paths, sendOptions) {
             paths.forEach(async path => {
                 const message = await IMSDK.asyncApi(
                     IMMethods.CreateImageMessageFromFullPath,
                     IMSDK.uuid(),
-                    type ? path : getPurePath(path)
+                    getPurePath(path)
                 );
                 if (!message) {
                     return;
                 }
-                this.sendMessage(message);
+                this.sendMessage(message, sendOptions);
             });
         },
         async receiveSnapBase64({ base64, path, duration, videoType }) {
@@ -921,6 +945,7 @@ export default {
                 const friendList = showFriendList.filter(
                     user => user.userID !== this.storeUserID
                 );
+                this.callType = type;
                 uni.navigateTo({
                     url: `/pages/common/contactChoose/index?type=initWebrtc&showFriendList=${JSON.stringify(
                         friendList
@@ -931,7 +956,7 @@ export default {
         createGroupRoom(userList, type) {
             if (type === 'initWebrtc') {
                 const userIDs = userList.map(user => user.userID);
-                this.createRoom(type, userIDs);
+                this.createRoom(this.callType, userIDs);
             }
         },
         async createRoom(type, userIDs) {

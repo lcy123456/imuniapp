@@ -190,6 +190,7 @@ export default {
     visibility: hidden;
 }
 .text_message_container {
+    max-width: 100%;
     overflow: hidden;
     word-break: break-all;
     align-items: flex-end;
@@ -201,7 +202,9 @@ export default {
     }
 }
 .give-like-box {
+    max-width: 100%;
     display: flex;
+    overflow: hidden;
 }
 /deep/.read-content {
     position: absolute;

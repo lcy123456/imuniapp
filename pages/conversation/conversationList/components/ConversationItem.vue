@@ -35,8 +35,10 @@
                         >
                             {{ messagePrefix }}
                         </text>
-                        <text class="lastest_msg_content">
-                            {{ html2Text(latestMessage) }}
+                        <text
+                            class="lastest_msg_content"
+                            v-html="latestMessage"
+                        >
                         </text>
                     </view>
                 </view>
@@ -125,21 +127,18 @@ export default {
         },
         latestMessage() {
             const { conversationType, draftText, latestMsg } = this.source;
-            if (html2Text(draftText2Text(draftText)))
-                return draftText2Text(draftText);
-            if (latestMsg === '') return '';
-            let parsedMessage;
-            try {
-                parsedMessage = JSON.parse(latestMsg);
-            } catch (e) {
-                // console.log(e);
+            let text = '';
+            if (draftText2Text(draftText)) {
+                text = draftText2Text(draftText);
+            } else if (latestMsg) {
+                let parsedMessage = JSON.parse(latestMsg || '{}');
+                let showName = '';
+                if (conversationType === 3 && parsedMessage.senderNickname) {
+                    showName = `${getName(parsedMessage)}：`;
+                }
+                text = `${showName}${parseMessageByType(parsedMessage)}`;
             }
-            if (!parsedMessage) return '';
-            return (
-                (conversationType === 3 && parsedMessage.senderNickname
-                    ? `${getName(parsedMessage)}: `
-                    : '') + parseMessageByType(parsedMessage)
-            );
+            return text.replace(/<([^>]*>)/g, '');
         },
         needActivePerfix() {
             return this.source.groupAtType !== GroupAtType.AtNormal;
@@ -161,7 +160,7 @@ export default {
         isArchvist() {
             try {
                 const attachedInfo = JSON.parse(this.source.attachedInfo);
-                return attachedInfo.archvist === 1;
+                return attachedInfo.archivist === 1;
             } catch (err) {
                 return false;
             }
@@ -256,9 +255,9 @@ export default {
         },
         async handleArchive() {
             try {
-                const archvist =
+                const archivist =
                     this.source.attachedInfo &&
-                    JSON.parse(this.source.attachedInfo).archvist === 1
+                    JSON.parse(this.source.attachedInfo).archivist === 1
                         ? 2
                         : 1;
                 await setConversations({
@@ -268,11 +267,11 @@ export default {
                         conversationType: this.source.conversationType,
                         groupID: this.source.groupID,
                         attachedInfo: JSON.stringify({
-                            archvist: archvist
+                            archivist: archivist
                         })
                     }
                 });
-                uni.$u.toast(archvist === 1 ? '设置归档成功' : '取消归档成功');
+                uni.$u.toast(archivist === 1 ? '设置归档成功' : '取消归档成功');
             } catch (err) {
                 console.log(err);
             }
@@ -384,6 +383,7 @@ export default {
                     margin-right: 160rpx;
                     // /deep/uni-view {
                     @include ellipsisWithLine(1);
+
                     // }
                 }
             }

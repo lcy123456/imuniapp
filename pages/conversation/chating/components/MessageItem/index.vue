@@ -183,7 +183,7 @@ export default {
                 ]
             });
             IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                recvID: this.source.recvID,
+                recvID: this.source.groupID ? '' : this.source.recvID,
                 groupID: this.source.groupID,
                 message: this.source,
                 offlinePushInfo
@@ -377,6 +377,7 @@ export default {
                 align-items: flex-end;
 
                 /deep/ .message_content_wrap .message_content_container {
+                    width: inherit;
                     align-items: flex-end;
                     // .bg_container {
                     //     background-color: #c5e3ff !important;

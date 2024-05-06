@@ -31,8 +31,8 @@
                 :scroll-with-animation="true"
                 scroll-y
                 :upper-threshold="0"
-                @scrolltolower="queryList"
             >
+                <!-- @scrolltolower="queryList" -->
                 <!-- @refresherTouchmove="refresherTouchmove"
                 @refresherTouchend="refresherTouchend" -->
                 <uni-swipe-action ref="swipeWrapperRef" class="swipe_wrapper">
@@ -98,7 +98,7 @@ export default {
                 conversationType: 0,
                 isPinned: false,
                 attachedInfo: JSON.stringify({
-                    archvist: 1
+                    archivist: 1
                 }),
                 ex: '',
                 hasReadSeq: 0,
@@ -127,7 +127,7 @@ export default {
             this.storeConversationList.forEach(item => {
                 try {
                     const attachedInfo = JSON.parse(item.attachedInfo);
-                    if (attachedInfo.archvist === 1) {
+                    if (attachedInfo.archivist === 1) {
                         isArchvistList.push(item);
                     }
                 } catch (err) {
@@ -184,9 +184,8 @@ export default {
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
     onShow() {
-        this.$nextTick(() => {
-            isNeedRestart.call(this, '#conversation_container');
-        });
+        if (!this.storeUserID) return;
+        isNeedRestart.call(this, '#conversation_container');
     },
     onUnload() {
         clearInterval(this.timer);
@@ -195,6 +194,7 @@ export default {
     methods: {
         ...mapActions('incomingCall', ['appearLoadingCall']),
         async authGetPcLoginPlatform() {
+            if (!this.storeUserID) return;
             try {
                 const { platformID } = await authGetPcLoginPlatform();
                 this.platformID = platformID;
@@ -203,6 +203,7 @@ export default {
             }
         },
         async getCall() {
+            if (!this.storeUserID) return;
             try {
                 const { sendID, room, type } = await videoGetOfflineInfo({
                     recvID: this.storeUserID
@@ -240,12 +241,12 @@ export default {
         handleToSearch() {
             uni.$u.route('/pages/common/searchRecord/index');
         },
-        async queryList() {
-            await this.$store.dispatch(
-                'conversation/getConversationList',
-                false
-            );
-        },
+        // async queryList() {
+        //     await this.$store.dispatch(
+        //         'conversation/getConversationList',
+        //         false
+        //     );
+        // },
         closeAllSwipe() {
             this.key = +new Date();
             this.$refs.swipeWrapperRef.closeAll();

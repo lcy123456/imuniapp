@@ -34,6 +34,9 @@ import { AllType } from '@/enum';
 import { mapGetters } from 'vuex';
 import { html2Text, draftText2Text } from '@/util/common';
 import IMSDK, { IMMethods } from 'openim-uniapp-polyfill';
+
+const editorEmptyValue = '<p><br></p>';
+
 export default {
     props: {
         placeholder: {
@@ -97,14 +100,14 @@ export default {
                     if (!sendID) return;
                     if (sendID.includes(',')) {
                         // 所有人
-                        const sendIDList = sendID.split(',');
-                        const groupNicknameList = senderNickname.split(',');
-                        sendIDList.forEach((item, index) => {
-                            list.push({
-                                atUserID: item,
-                                groupNickname: groupNicknameList[index]
-                            });
-                        });
+                        // const sendIDList = sendID.split(',');
+                        // const groupNicknameList = senderNickname.split(',');
+                        // sendIDList.forEach((item, index) => {
+                        //     list.push({
+                        //         atUserID: item,
+                        //         groupNickname: groupNicknameList[index]
+                        //     });
+                        // });
                         list.push({
                             atUserID: AllType.Code,
                             groupNickname: AllType.Text
@@ -171,7 +174,8 @@ export default {
         setDraftTextItem() {
             IMSDK.asyncApi(IMMethods.SetConversationDraft, IMSDK.uuid(), {
                 conversationID: this.conversationID,
-                draftText: this.inputHtml
+                draftText:
+                    this.inputHtml === editorEmptyValue ? '' : this.inputHtml
             });
         },
         async createCanvasData(

@@ -53,7 +53,7 @@ import { mapGetters } from 'vuex';
 import IMSDK, { IMMethods, SessionType } from 'openim-uniapp-polyfill';
 import RecordItem from './components/RecordItem.vue';
 import { navigateToDesignatedConversation } from '@/util/imCommon';
-import { RecordFormMap, RecordTypeMap } from '@/constant';
+import { RecordFormMap, RecordTypeMap, TextRenderTypes } from '@/constant';
 
 export default {
     components: {
@@ -80,7 +80,7 @@ export default {
             this.storeConversationList.forEach(item => {
                 try {
                     const attachedInfo = JSON.parse(item.attachedInfo);
-                    if (attachedInfo.archvist === 1) {
+                    if (attachedInfo.archivist === 1) {
                         isArchvistList.push(item);
                     }
                 } catch (err) {
@@ -90,7 +90,7 @@ export default {
             return isArchvistList;
         },
         isArchvist() {
-            return this.searchType === 'archvist';
+            return this.searchType === 'archivist';
         },
         showFriendList() {
             if (this.isArchvist) {
@@ -142,7 +142,7 @@ export default {
                         ? item.conversationID
                         : this.conversationID,
                     keywordList: [this.keyword],
-                    messageTypeList: [],
+                    messageTypeList: TextRenderTypes,
                     searchTimePosition: 0,
                     searchTimePeriod: 0,
                     pageIndex: 1,

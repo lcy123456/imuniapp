@@ -63,10 +63,7 @@ export default {
             show: false,
             options: [
                 {
-                    icon: '/static/images/chating_message_del.png',
-                    style: {
-                        backgroundColor: '#f00'
-                    }
+                    icon: '/static/images/chating_message_del.png'
                 }
             ]
         };
@@ -92,7 +89,10 @@ export default {
         async goLogin(type) {
             this.onDangerCall();
             try {
-                !type && uni.$u.route('/pages/login/index');
+                !type &&
+                    uni.reLaunch({
+                        url: '/pages/login/index'
+                    });
             } catch (err) {
                 console.log(err);
                 uni.$u.toast('网络异常，请重试');
@@ -118,9 +118,12 @@ export default {
 <style lang="scss" scoped>
 .add-user {
     margin: 20rpx 40rpx;
-    background-color: $uni-bg-color;
+    flex: 1;
+    overflow: auto;
     border-radius: 30rpx;
     .ul {
+        background-color: $uni-bg-color;
+        border-radius: 30rpx;
         .li {
             height: 130rpx;
             display: flex;

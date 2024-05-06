@@ -11,5 +11,13 @@ module.exports = {
     arrowParens: 'avoid', // 单个参数的箭头函数是否需要括号
     htmlWhitespaceSensitivity: 'strict', // 指定 HTML 的全局空格敏感性
     endOfLine: 'auto', // 行尾换行
-    trailingComma: 'none'
+    trailingComma: 'none',
+    overrides: [
+        {
+            files: '*.nvue',
+            options: {
+                parser: 'vue'
+            }
+        }
+    ]
 };

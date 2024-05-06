@@ -34,6 +34,13 @@
                         type="number"
                         clearable
                     />
+                    <input
+                        v-model="loginInfo.phoneNumber"
+                        class="input-hidden"
+                        placeholder="防止密码回填"
+                        type="number"
+                        clearable
+                    />
                 </u-form-item>
                 <u-form-item prop="password">
                     <u-input

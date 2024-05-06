@@ -18,7 +18,9 @@
 import defaultAvatars from '@/common/defaultAvatars.js';
 import defaultNotifyIcon from '@/static/images/default_notify_icon.png';
 import { getFirstCharacter, colors, adjustColor } from '@/util/common';
+import { formatFileUrl } from '@/util/imCommon';
 const defaultGroupIcon = '/static/images/contact_my_group.svg';
+
 export default {
     name: 'MyAvatar',
     props: {
@@ -63,7 +65,7 @@ export default {
                 return defaultNotifyIcon;
             }
             if (this.src) {
-                return defaultAvatars[this.src] ?? this.src;
+                return defaultAvatars[this.src] ?? formatFileUrl(this.src);
             }
             if (this.isGroup) {
                 return defaultGroupIcon;
