@@ -2,25 +2,20 @@
     <web-view
         ref="webviewRef"
         :src="src"
-        :style="{flex: 1}"
+        :style="{ flex: 1 }"
         @onPostMessage="handlePostMessage"
     ></web-view>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions } from 'vuex';
 import { AudioVideoStatus } from '@/enum';
 import { getFirstCharacter, colors, adjustColor } from '@/util/common';
-import {
-    PageEvents
-} from '@/constant';
-import IMSDK, {
-    IMMethods,
-    SessionType
-} from 'openim-uniapp-polyfill';
+import { PageEvents } from '@/constant';
+import IMSDK, { IMMethods, SessionType } from 'openim-uniapp-polyfill';
 
 export default {
-    data () {
+    data() {
         return {
             time: '',
             updateKey: '',
@@ -29,48 +24,51 @@ export default {
     },
     computed: {
         ...mapGetters([
-            "storeUserID",
-            "storeIncomingCallMessage",
-            "storeIncomingCallCallTime",
-            "storeIsIncomingCallTop",
-			"storeIsIncomingCallLoading",
-            "storeIsIncomingCallIng",
-            "storeIsAnswer",
-            "storeIncomingCallUserInfo",
-            "storeSelfInfo",
-            "storeIncomingCallToken",
-            "storeIsIncomingConversation",
-            "storeBusinessToken",
-            "storeThirdData",
-            "storeIMToken"
+            'storeUserID',
+            'storeIncomingCallMessage',
+            'storeIncomingCallCallTime',
+            'storeIsIncomingCallTop',
+            'storeIsIncomingCallLoading',
+            'storeIsIncomingCallIng',
+            'storeIsAnswer',
+            'storeIncomingCallUserInfo',
+            'storeSelfInfo',
+            'storeIncomingCallToken',
+            'storeIsIncomingConversation',
+            'storeBusinessToken',
+            'storeThirdData',
+            'storeIMToken'
         ]),
-        src () {
+        src() {
             return `/hybrid/html/chat.html`;
         }
     },
     watch: {
-		storeIsIncomingCallTop: {
-			handler(val) {
-				if (val) this.startMusic();
-				else this.stopMusic();
-			}
-		}
+        storeIsIncomingCallTop: {
+            handler(val) {
+                if (val) this.startMusic();
+                else this.stopMusic();
+            }
+        }
     },
-    onLoad () {
-    },
-    onReady () {
+    onLoad() {},
+    onReady() {
         uni.$on('incoming_message_callback', this.incomingMessageCallback);
     },
-    onShow () {
-        setTimeout(async() => {
+    onShow() {
+        setTimeout(async () => {
             if (this.time !== this.storeIncomingCallCallTime) {
                 const { groupID } = this.storeIncomingCallMessage;
                 let selfUserInfo = {};
                 if (groupID) {
-                    const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo, IMSDK.uuid(), {
-                        groupID,
-                        userIDList: [this.storeUserID]
-                    });
+                    const { data } = await IMSDK.asyncApi(
+                        IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,
+                        IMSDK.uuid(),
+                        {
+                            groupID,
+                            userIDList: [this.storeUserID]
+                        }
+                    );
                     const usersInfo = data[0];
                     selfUserInfo = {
                         ...usersInfo
@@ -87,7 +85,9 @@ export default {
                     isAnswer: this.storeIsAnswer,
                     callUserInfo: {
                         ...this.storeIncomingCallUserInfo,
-                        bgColor: this.getBgColor(this.storeIncomingCallUserInfo.nickname)
+                        bgColor: this.getBgColor(
+                            this.storeIncomingCallUserInfo.nickname
+                        )
                     },
                     selfUserInfo: {
                         ...selfUserInfo,
@@ -103,30 +103,34 @@ export default {
             this.time = this.storeIncomingCallCallTime;
         }, 1000);
     },
-    onUnload () {
+    onUnload() {
         uni.$off('incoming_message_callback', this.incomingMessageCallback);
     },
-    onHide () {
+    onHide() {
         if (this.storeIsIncomingCallLoading) {
-			this.onSmall();
-		}
+            this.onSmall();
+        }
     },
     methods: {
-        ...mapActions('incomingCall', ['onSmall', 'onDangerCall', 'onSuccessCall']),
+        ...mapActions('incomingCall', [
+            'onSmall',
+            'onDangerCall',
+            'onSuccessCall'
+        ]),
         ...mapActions('message', ['pushNewMessage', 'updateOneMessage']),
         // 唤起铃声
-        startMusic () {
+        startMusic() {
             // 避免重复唤起铃声
             if (this.isStartMusic) return;
             this.isStartMusic = true;
             uni.$emit('play_audio', '/static/audio/incoming_call_music.mp3');
         },
         // 销毁铃声
-        stopMusic () {
+        stopMusic() {
             this.isStartMusic = false;
             uni.$emit('stop_audio', '/static/audio/incoming_call_music.mp3');
         },
-        getBgColor (text) {
+        getBgColor(text) {
             const hexColor = colors[getFirstCharacter(text || '未知')];
             const rgbaColor = adjustColor(hexColor, 30);
             return `radial-gradient(${hexColor}, ${rgbaColor})`;
@@ -137,35 +141,48 @@ export default {
                     type: 'invite',
                     userIDs: list.map(user => user.userID)
                 });
-                this.postMessage(`toast(${JSON.stringify({
-                    message: '邀请成功'
-                })})`);
+                this.postMessage(
+                    `toast(${JSON.stringify({
+                        message: '邀请成功'
+                    })})`
+                );
             } catch (err) {
-                this.postMessage(`toast(${JSON.stringify({
-                    message: '邀请失败, 请重试'
-                })})`);
+                this.postMessage(
+                    `toast(${JSON.stringify({
+                        message: '邀请失败, 请重试'
+                    })})`
+                );
             }
         },
-        async inviteOrKick ({ type, userIDs }) {
+        async inviteOrKick({ type, userIDs }) {
             try {
-                await uni.$u?.http.post('/video/signal_invite_or_kick_msg', JSON.stringify({
-                    userIDs: userIDs,
-                    roomName: this.idsGetConversationID(this.storeIncomingCallMessage),
-                    type: this.storeIncomingCallMessage.type === 'audio' ? 130 : 131,
-                    opType: type === 'invite' ? 1654 : 1655
-                }), {
-                    custom: {
-                        isIMApi: true
-                    },
-                    header: {
-                        token: this.storeIMToken
+                await uni.$u?.http.post(
+                    '/video/signal_invite_or_kick_msg',
+                    JSON.stringify({
+                        userIDs: userIDs,
+                        roomName: this.idsGetConversationID(
+                            this.storeIncomingCallMessage
+                        ),
+                        type:
+                            this.storeIncomingCallMessage.type === 'audio'
+                                ? 130
+                                : 131,
+                        opType: type === 'invite' ? 1654 : 1655
+                    }),
+                    {
+                        custom: {
+                            isIMApi: true
+                        },
+                        header: {
+                            token: this.storeIMToken
+                        }
                     }
-                });
+                );
             } catch (err) {
                 console.log(err);
             }
         },
-        async handlePostMessage (event) {
+        async handlePostMessage(event) {
             const [data] = event.detail.data;
             if (data.goOut) {
                 if (data.isDanger === 'fail') {
@@ -210,13 +227,17 @@ export default {
                         type: 'kick',
                         userIDs: data.userIDs
                     });
-                    this.postMessage(`toast(${JSON.stringify({
-                        message: '移出成功'
-                    })})`);
+                    this.postMessage(
+                        `toast(${JSON.stringify({
+                            message: '移出成功'
+                        })})`
+                    );
                 } catch (err) {
-                    this.postMessage(`toast(${JSON.stringify({
-                        message: '移出失败, 请重试'
-                    })})`);
+                    this.postMessage(
+                        `toast(${JSON.stringify({
+                            message: '移出失败, 请重试'
+                        })})`
+                    );
                 }
             }
             if (data.isSmall) {
@@ -230,7 +251,7 @@ export default {
             }
             if (data.isSuccess) {
                 // 接听
-				this.onSuccessCall();
+                this.onSuccessCall();
                 await this.userJoinCalling(data.joinUserID);
             }
         },
@@ -240,54 +261,66 @@ export default {
             const { groupID } = this.storeIncomingCallMessage;
             let usersInfo = null;
             if (groupID) {
-                const { data } = await IMSDK.asyncApi(IMSDK.IMMethods.GetSpecifiedGroupMembersInfo, IMSDK.uuid(), {
-                    groupID,
-                    userIDList: [joinUserID]
-                });
+                const { data } = await IMSDK.asyncApi(
+                    IMSDK.IMMethods.GetSpecifiedGroupMembersInfo,
+                    IMSDK.uuid(),
+                    {
+                        groupID,
+                        userIDList: [joinUserID]
+                    }
+                );
                 usersInfo = data[0];
             } else {
-                const { data } = await IMSDK.asyncApi(IMMethods.GetUsersInfo, IMSDK.uuid(),
+                const { data } = await IMSDK.asyncApi(
+                    IMMethods.GetUsersInfo,
+                    IMSDK.uuid(),
                     [joinUserID]
                 );
                 usersInfo = data[0]?.publicInfo;
             }
-            
+
             if (usersInfo) {
                 const map = {
                     ...usersInfo,
                     bgColor: this.getBgColor(usersInfo.nickname),
                     isGroupUserJoin: true
                 };
-                this.postMessage(`uniGroupUserJoinEvent(${JSON.stringify(map)})`);
+                this.postMessage(
+                    `uniGroupUserJoinEvent(${JSON.stringify(map)})`
+                );
             }
         },
-        postMessage (str) {
+        postMessage(str) {
             this.$refs.webviewRef && this.$refs.webviewRef.evalJs(str);
         },
-        getIsInWebrtc () {
+        getIsInWebrtc() {
             const pages = getCurrentPages();
             const currentPage = pages[pages.length - 1];
             const url = currentPage.route;
             return url === `pages/conversation/webrtc/index`;
         },
-        idsGetConversationID (message) {
+        idsGetConversationID(message) {
             const { sessionType, sendID, recvID, groupID } = message;
             const min = Math.min(sendID, recvID);
             const max = Math.max(sendID, recvID);
             switch (sessionType) {
-            case SessionType.Single:
-                if (sendID && recvID) {
-                    return `si_${min}_${max}`;
-                }
-                return new Error('单聊缺少sendID或recvID，无法组成conversationID');
-            case SessionType.WorkingGroup:
-                if (groupID) {
-                    return `sg_${groupID}`;
-                }
-                return new Error('工作群缺少groupID，无法组成conversationID');
+                case SessionType.Single:
+                    if (sendID && recvID) {
+                        return `si_${min}_${max}`;
+                    }
+                    return new Error(
+                        '单聊缺少sendID或recvID，无法组成conversationID'
+                    );
+                case SessionType.WorkingGroup:
+                    if (groupID) {
+                        return `sg_${groupID}`;
+                    }
+                    return new Error(
+                        '工作群缺少groupID，无法组成conversationID'
+                    );
             }
         },
-        async incomingMessageCallback (data) {
+        async incomingMessageCallback(data) {
             const { customStatus } = data;
             const map = {
                 isInWebrtc: this.getIsInWebrtc(),
@@ -310,23 +343,35 @@ export default {
         },
         // 双方等待接听，拨打方挂断电话，状态已取消
         // 双方通话中，任意方挂断电话，状态已完成
-        async reject (map) {
-            if (this.storeIsIncomingCallIng || map.customStatus || map.isDanger === 'fail') return;
-            const { recvID, sendID, groupID, sessionType, customElem } = this.storeIncomingCallMessage;
+        async reject(map) {
+            if (
+                this.storeIsIncomingCallIng ||
+                map.customStatus ||
+                map.isDanger === 'fail'
+            )
+                return;
+            const { recvID, sendID, groupID, sessionType, customElem } =
+                this.storeIncomingCallMessage;
             if (sessionType === 3) return;
             if (this.storeIsAnswer) {
                 // 拒绝
-                await uni.$u?.http.post('/video/single_chat_refused', JSON.stringify({
-                    sendID,
-                    conversationID: this.idsGetConversationID(this.storeIncomingCallMessage)
-                }), {
-                    custom: {
-                        isIMApi: true
-                    },
-                    header: {
-                        token: this.storeBusinessToken
+                await uni.$u?.http.post(
+                    '/video/single_chat_refused',
+                    JSON.stringify({
+                        sendID,
+                        conversationID: this.idsGetConversationID(
+                            this.storeIncomingCallMessage
+                        )
+                    }),
+                    {
+                        custom: {
+                            isIMApi: true
+                        },
+                        header: {
+                            token: this.storeBusinessToken
+                        }
                     }
-                });
+                );
                 return;
             }
             // 取消
@@ -348,21 +393,27 @@ export default {
                     ...message,
                     recvID: recvID,
                     groupID,
-                    sessionType: recvID ? SessionType.Single : SessionType.WorkingGroup
+                    sessionType: recvID
+                        ? SessionType.Single
+                        : SessionType.WorkingGroup
                 });
             }
-            const { data } = await IMSDK.asyncApi(IMMethods.SendMessage, IMSDK.uuid(), {
-                recvID: recvID,
-                groupID: groupID,
-                message,
-                offlinePushInfo: {
-                    title: "you have a new message",
-                    desc: "you have a new message",
-                    ex: "",
-                    iOSPushSound: "",
-                    iOSBadgeCount: true
+            const { data } = await IMSDK.asyncApi(
+                IMMethods.SendMessage,
+                IMSDK.uuid(),
+                {
+                    recvID: recvID,
+                    groupID: groupID,
+                    message,
+                    offlinePushInfo: {
+                        title: 'you have a new message',
+                        desc: 'you have a new message',
+                        ex: '',
+                        iOSPushSound: '',
+                        iOSBadgeCount: true
+                    }
                 }
-            });
+            );
             this.updateOneMessage({
                 message: data,
                 isSuccess: true
