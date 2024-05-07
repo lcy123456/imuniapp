@@ -102,6 +102,7 @@ import { getGifsSearch } from '@/api/index.js';
 import { emojiCollectList, emojiCollectCancel } from '@/api/emoji.js';
 import emojis from '@/common/emojis.js';
 import MyImage from '@/components/MyImage';
+import { formatFileUrl } from '@/util/imCommon';
 
 const limit = 25;
 const showNumber = 12;
@@ -209,9 +210,10 @@ export default {
             };
             const { list } = await emojiCollectList(map);
             const emoticonsListIdList = this.emoticonsList.map(item => item.id);
-            const l = (list || []).filter(
-                item => !emoticonsListIdList.includes(item.id)
-            );
+            const l = (list || []).filter(item => {
+                item.url = formatFileUrl(item.url);
+                return !emoticonsListIdList.includes(item.id);
+            });
             this.emojisEnd = list.length !== showNumber;
             this.emoticonsList = this.emoticonsList.concat(l);
             this.emojiLoading = false;
