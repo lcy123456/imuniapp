@@ -57,6 +57,9 @@
                     :value="source.unreadCount"
                 />
             </view>
+            <view class="burn_wrap" v-if="source.isPrivateChat">
+                {{ burnToText }}
+            </view>
         </view>
     </uni-swipe-action-item>
 </template>
@@ -74,7 +77,8 @@ import {
     parseMessageByType,
     formatConversionTime,
     prepareConversationState,
-    getName
+    getName,
+    burnMenuList
 } from '@/util/imCommon';
 import { setConversations } from '@/api/conversation';
 
@@ -139,6 +143,11 @@ export default {
                 text = `${showName}${parseMessageByType(parsedMessage)}`;
             }
             return text.replace(/<([^>]*>)/g, '');
+        },
+        burnToText() {
+            const { burnDuration } = this.source;
+            const item = burnMenuList.find(v => v.id === burnDuration);
+            return item?.text || '';
         },
         needActivePerfix() {
             return this.source.groupAtType !== GroupAtType.AtNormal;
@@ -411,6 +420,22 @@ export default {
             width: 20px;
             height: 20px;
         }
+    }
+    .burn_wrap {
+        width: 50rpx;
+        height: 50rpx;
+        position: absolute;
+        left: 8rpx;
+        top: 10rpx;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 100%;
+        border: 4rpx solid #5b21b6;
+        background-color: #fff;
+        font-size: 20rpx;
+        color: #5b21b6;
     }
 }
 /deep/.uni-swipe_button-group {

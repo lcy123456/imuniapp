@@ -43,22 +43,22 @@ dayjs.updateLocale('zh-cn', {
     }
 });
 
-const timeMap = {
-    86400: `一天`,
-    604800: `一周`,
-    2592000: `一个月`,
-    5184000: `二个月`,
-    7776000: `三个月`,
-    10368000: `四个月`,
-    12960000: `五个月`,
-    15552000: `六个月`,
-    18144000: `七个月`,
-    20736000: `八个月`,
-    23328000: `九个月`,
-    25920000: `十个月`,
-    28512000: `十一个月`,
-    31104000: `十二个月`
-};
+export const burnMenuList = [
+    { id: 24 * 60 * 60, label: '一天', text: '1D' },
+    { id: 24 * 60 * 60 * 7, label: '一周', text: '1W' },
+    { id: 24 * 60 * 60 * 30, label: '一个月', text: '1M' },
+    { id: 24 * 60 * 60 * 30 * 2, label: '二个月', text: '2M' },
+    { id: 24 * 60 * 60 * 30 * 3, label: '三个月', text: '3M' },
+    { id: 24 * 60 * 60 * 30 * 4, label: '四个月', text: '4M' },
+    { id: 24 * 60 * 60 * 30 * 5, label: '五个月', text: '5M' },
+    { id: 24 * 60 * 60 * 30 * 6, label: '六个月', text: '6M' },
+    { id: 24 * 60 * 60 * 30 * 7, label: '七个月', text: '7M' },
+    { id: 24 * 60 * 60 * 30 * 8, label: '八个月', text: '8M' },
+    { id: 24 * 60 * 60 * 30 * 9, label: '九个月', text: '9M' },
+    { id: 24 * 60 * 60 * 30 * 10, label: '十个月', text: '10M' },
+    { id: 24 * 60 * 60 * 30 * 11, label: '十一个月', text: '11M' },
+    { id: 24 * 60 * 60 * 30 * 12, label: '十二个月', text: '12M' }
+];
 
 const nomalTypes = [GroupAtType.AtAll, GroupAtType.AtAllAtMe, GroupAtType.AtMe];
 
@@ -427,10 +427,11 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                         ? '你'
                         : burnDetails.revokerNickname
                 }`;
+                const timeText =
+                    burnMenuList.find(v => v.id === burnDetails.revokeTime)
+                        ?.label || '';
                 return burnDetails.revokerRole
-                    ? `${name}已设置自动删除${
-                          timeMap[burnDetails.revokeTime]
-                      }前发送的消息`
+                    ? `${name}已设置自动删除${timeText}前发送的消息`
                     : `${name}已停用自动删除消息`;
             default:
                 return '';
@@ -636,10 +637,11 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                         ? '你'
                         : burnDetails.revokerNickname
                 }`;
+                const timeText =
+                    burnMenuList.find(v => v.id === burnDetails.revokeTime)
+                        ?.label || '';
                 return burnDetails.revokerRole
-                    ? `${name}已设置自动删除${
-                          timeMap[burnDetails.revokeTime]
-                      }前发送的消息`
+                    ? `${name}已设置自动删除${timeText}前发送的消息`
                     : `${name}已停用自动删除消息`;
             case MessageType.OANotification:
                 const customNoti = JSON.parse(msg.notificationElem.detail);

@@ -37,12 +37,12 @@
             <view class="item-box">
                 <view
                     v-for="v of timeMenus"
-                    :key="v.title"
+                    :key="v.id"
                     class="flex li h-80 align-center"
                     :style="v.style"
                     @click="setBurnDuration(v)"
                 >
-                    <text>{{ v.title }}</text>
+                    <text>{{ v.label }}</text>
                 </view>
             </view>
             <view class="flex word li h-108 align-center">
@@ -62,6 +62,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import IMSDK, { IMMethods } from 'openim-uniapp-polyfill';
+import { burnMenuList } from '@/util/imCommon';
 
 export default {
     name: 'MoreFeat',
@@ -84,78 +85,16 @@ export default {
         return {
             show: false,
             moreIndex: 0,
-            columns: [
-                [
-                    {
-                        id: 60 * 60 * 24 * 30,
-                        label: '一个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 2,
-                        label: '二个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 3,
-                        label: '三个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 4,
-                        label: '四个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 5,
-                        label: '五个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 6,
-                        label: '六个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 7,
-                        label: '七个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 8,
-                        label: '八个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 9,
-                        label: '九个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 10,
-                        label: '十个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 11,
-                        label: '十一个月'
-                    },
-                    {
-                        id: 60 * 60 * 24 * 30 * 12,
-                        label: '十二个月'
-                    }
-                ]
-            ],
+            columns: [burnMenuList.slice(2)],
             timeMenus: [
+                ...burnMenuList.slice(0, 3),
                 {
-                    title: '一天',
-                    time: 60 * 60 * 24
+                    label: '其他',
+                    id: 'other'
                 },
                 {
-                    title: '一周',
-                    time: 60 * 60 * 24 * 7
-                },
-                {
-                    title: '一个月',
-                    time: 60 * 60 * 24 * 30
-                },
-                {
-                    title: '其他',
-                    time: 'other'
-                },
-                {
-                    title: '停用',
-                    time: 'stop',
+                    label: '停用',
+                    id: 'stop',
                     style: {
                         color: '#EC4B37'
                     }
@@ -182,14 +121,14 @@ export default {
             console.log(e);
             this.setConversationBurnDuration(e.value[0].id);
         },
-        async setBurnDuration({ time }) {
-            switch (time) {
+        async setBurnDuration({ id }) {
+            switch (id) {
                 case 'other':
                     this.show = true;
                     this.setMoreIndex(0);
                     break;
                 default:
-                    this.setConversationBurnDuration(time);
+                    this.setConversationBurnDuration(id);
                     break;
             }
         },
