@@ -7,7 +7,13 @@ module.exports = {
     },
     // required to lint *.vue files
     plugins: ['vue', 'prettier'],
-
+    overrides: [
+        {
+            files: '.nvue',
+            // 使用 vue-eslint-parser 解析 .nvue 文件
+            parser: 'vue-eslint-parser'
+        }
+    ],
     globals: {
         uni: 'writable',
         getApp: 'writable',
