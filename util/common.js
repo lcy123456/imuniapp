@@ -1,5 +1,5 @@
 import PinYin from './pinyin';
-import { AllType } from '@/enum';
+import { AllType, PhoneReg } from '@/enum';
 import { pinyin } from 'pinyin-pro';
 
 export const html2Text = (html, type) => {
@@ -377,4 +377,8 @@ export const getPageRoute = () => {
     const currentPage = pages[pages.length - 1];
     const page = currentPage.route;
     return page;
+};
+
+export const getPhoneReg = areaCode => {
+    return PhoneReg[areaCode] || /^\d{8,11}$/;
 };

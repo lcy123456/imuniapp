@@ -98,7 +98,7 @@ import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import AreaPicker from '@/components/AreaPicker';
 import { businessSendSms, emailSendCode } from '@/api/login';
 import { SmsUserFor } from '@/constant';
-import { checkLoginError } from '@/util/common';
+import { checkLoginError, getPhoneReg } from '@/util/common';
 
 export default {
     components: {
@@ -122,6 +122,15 @@ export default {
                         required: true,
                         message: '请输入手机号码',
                         trigger: ['blur', 'change']
+                    },
+                    {
+                        validator: (rule, value) => {
+                            return getPhoneReg(
+                                `+${this.userInfo.areaCode}`
+                            ).test(value);
+                        },
+                        message: '请输入正确的手机号',
+                        trigger: ['change', 'blur']
                     }
                 ],
                 email: [

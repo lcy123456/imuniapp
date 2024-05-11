@@ -123,7 +123,7 @@
 import { mapMutations, mapGetters } from 'vuex';
 import md5 from 'md5';
 import AreaPicker from '@/components/AreaPicker';
-import { checkLoginError } from '@/util/common';
+import { checkLoginError, getPhoneReg } from '@/util/common';
 import { login } from '@/util/imCommon';
 import { SmsUserFor } from '@/constant';
 
@@ -157,10 +157,18 @@ export default {
                 ],
                 phoneNumber: [
                     {
-                        type: 'string',
                         required: true,
                         message: '手机号码不能为空',
                         trigger: ['blur', 'change']
+                    },
+                    {
+                        validator: (rule, value) => {
+                            return getPhoneReg(
+                                `+${this.loginInfo.areaCode}`
+                            ).test(value);
+                        },
+                        message: '请输入正确的手机号',
+                        trigger: ['change', 'blur']
                     }
                 ]
             }
