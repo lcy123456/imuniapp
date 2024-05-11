@@ -87,11 +87,15 @@ export default {
                         ...this.storeIncomingCallUserInfo,
                         bgColor: this.getBgColor(
                             this.storeIncomingCallUserInfo.nickname
+                        ),
+                        faceURL: this.formatFileUrl(
+                            this.storeIncomingCallUserInfo.faceURL
                         )
                     },
                     selfUserInfo: {
                         ...selfUserInfo,
-                        bgColor: this.getBgColor(selfUserInfo.nickname)
+                        bgColor: this.getBgColor(selfUserInfo.nickname),
+                        faceURL: this.formatFileUrl(selfUserInfo.faceURL)
                     },
                     token: this.storeIncomingCallToken,
                     url: this.storeThirdData?.livekit?.url,
@@ -419,6 +423,11 @@ export default {
                 isSuccess: true
             });
             uni.$emit(PageEvents.ScrollToBottom);
+        },
+        formatFileUrl(url) {
+            if (!url || /blob|http(s?)|base64|\/storage|\/var/.test(url))
+                return url;
+            return this.storeThirdData?.oss?.url + url;
         }
     }
 };
