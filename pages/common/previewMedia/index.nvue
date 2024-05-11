@@ -4,16 +4,22 @@
             class="swiper_container"
             :current="current"
             :disable-touch="disableTouch"
-            :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
+            :style="{
+                width: systemInfo.windowWidth + 'px',
+                height: systemInfo.windowHeight + 'px'
+            }"
             @change="change"
         >
             <swiper-item
                 v-for="(v, i) in list"
                 :key="v.url + '-' + i"
-                :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
+                :style="{
+                    width: systemInfo.windowWidth + 'px',
+                    height: systemInfo.windowHeight + 'px'
+                }"
             >
                 <view
-                    v-if="v.type === 'image'"
+                    v-if="v.type === 'image' && Math.abs(current - i) < 3"
                     @touchmove="touchmove($event, v, i)"
                     @touchstart="touchstart($event, v, i)"
                     @touchend="touchend($event, v, i)"
@@ -26,7 +32,7 @@
                         :src="v.url"
                         :style="{
                             marginLeft: (v.left || 0) + 'px',
-                            marginTop: (v.top || 0)+ 'px'
+                            marginTop: (v.top || 0) + 'px'
                         }"
                         class="image"
                         mode="aspectFit"
@@ -38,10 +44,13 @@
                     </u--image>
                 </view>
                 <video
-                    v-else-if="v.type === 'video'"
+                    v-else-if="v.type === 'video' && Math.abs(current - i) < 3"
                     :id="v.url"
                     :src="v.url"
-                    :style="{width: systemInfo.windowWidth + 'px', height: systemInfo.windowHeight + 'px'}"
+                    :style="{
+                        width: systemInfo.windowWidth + 'px',
+                        height: systemInfo.windowHeight + 'px'
+                    }"
                     :poster="v.poster && v.poster[0]"
                     :show-fullscreen-btn="false"
                     @longpress="longpress(1)"
@@ -63,8 +72,7 @@
 
 <script>
 export default {
-
-    data () {
+    data() {
         return {
             list: [],
             touchMap: [],
@@ -89,7 +97,7 @@ export default {
         };
     },
 
-    onLoad (options) {
+    onLoad(options) {
         const { list, current } = options;
         this.list = JSON.parse(decodeURIComponent(list));
         this.current = current;
@@ -97,18 +105,21 @@ export default {
     },
 
     methods: {
-        longpress (type) {
-            this.actionSheetMenu = [this.baseList[type], { name: '取消', type: 2 }];
+        longpress(type) {
+            this.actionSheetMenu = [
+                this.baseList[type],
+                { name: '取消', type: 2 }
+            ];
             this.showActionSheet = true;
         },
         fail() {
             uni.hideLoading();
             uni.showToast({
-                title: "保存失败，请稍后重试",
-                icon: "none"
+                title: '保存失败，请稍后重试',
+                icon: 'none'
             });
         },
-        touchstart (event, item) {
+        touchstart(event, item) {
             const { windowWidth, windowHeight } = this.systemInfo;
             const changedTouches = event.changedTouches;
             item.width = item.width || windowWidth;
@@ -124,8 +135,8 @@ export default {
                     left: item.left,
                     top: item.top,
                     width: item.width,
-                    height: item.height,
-                }
+                    height: item.height
+                };
             });
             if (Object.keys(this.touchMap).length === 2) {
                 const touchIdentifierList = Object.keys(this.touchMap);
@@ -135,7 +146,7 @@ export default {
                 item.initialDistance = initialDistance;
             }
         },
-        touchmove (event, item, index) {
+        touchmove(event, item, index) {
             const changedTouches = event.changedTouches;
             const list = [...this.list];
             const map = list[index];
@@ -146,14 +157,17 @@ export default {
                     ...(this.touchMap[m.identifier] || {}),
                     pageX: m.pageX,
                     pageY: m.pageY
-                }
+                };
             });
             if (Object.keys(this.touchMap).length === 2) {
                 const touch1 = this.touchMap[touchIdentifierList[0]];
                 const touch2 = this.touchMap[touchIdentifierList[1]];
                 const initialDistance = this.getInitialDistance(touch1, touch2);
                 const proportion = initialDistance / map.initialDistance;
-                const [ centerX, centerY ] = [(touch1.startX + touch2.startX) / 2, (touch1.startY + touch2.startY) / 2]
+                const [centerX, centerY] = [
+                    (touch1.startX + touch2.startX) / 2,
+                    (touch1.startY + touch2.startY) / 2
+                ];
                 const startX = (centerX - touch1.left) * (1 - proportion);
                 const startY = (centerY - touch1.top) * (1 - proportion);
                 const width = touch1.width * proportion;
@@ -171,7 +185,8 @@ export default {
                 const startX = touch1.pageX - touch1.startX;
                 const startY = touch1.pageY - touch1.startY;
                 if (!touch1.isScale) {
-                    map.left = touch1.left + startX > 0 ? 0 : touch1.left + startX;
+                    map.left =
+                        touch1.left + startX > 0 ? 0 : touch1.left + startX;
                     map.top = touch1.top + startY > 0 ? 0 : touch1.top + startY;
                     if (map.width + map.left < windowWidth) {
                         map.left = -(map.width - windowWidth);
@@ -182,11 +197,12 @@ export default {
                 }
             }
             this.list = list;
-            this.disableTouch = item.left < -5 && (item.left + item.width > windowWidth);
+            this.disableTouch =
+                item.left < -5 && item.left + item.width > windowWidth;
         },
-        touchend (event, item, index) {
+        touchend(event, item, index) {
             const changedTouches = event.changedTouches;
-            const touchMap = {...this.touchMap};
+            const touchMap = { ...this.touchMap };
             const { windowWidth, windowHeight } = this.systemInfo;
             const list = [...this.list];
             const map = list[index];
@@ -201,32 +217,37 @@ export default {
                 map.top = -(map.height - windowHeight);
             }
             this.list = list;
-            this.disableTouch = item.left < -5 && (item.left + item.width > windowWidth);
+            this.disableTouch =
+                item.left < -5 && item.left + item.width > windowWidth;
         },
-        getInitialDistance (touch1, touch2) {
-            return Math.sqrt((touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) + (touch1.pageY - touch2.pageY) * (touch1.pageY - touch2.pageY));
+        getInitialDistance(touch1, touch2) {
+            return Math.sqrt(
+                (touch1.pageX - touch2.pageX) * (touch1.pageX - touch2.pageX) +
+                    (touch1.pageY - touch2.pageY) *
+                        (touch1.pageY - touch2.pageY)
+            );
         },
-        selectClick ({ type }) {
+        selectClick({ type }) {
             if (type !== 2) {
                 uni.showLoading();
                 uni.downloadFile({
-					url: this.list[this.current].url,
-					success: (res) => {
-						if (res.statusCode === 200) {
-							uni.saveImageToPhotosAlbum({
-								filePath: res.tempFilePath,
-								success: () => {
-									uni.hideLoading();
-									uni.showToast({
-										title: "保存成功",
-										icon: "success"
-									});
-								},
-								fail: () => {
-									this.fail();
-								}
-							});
-						} else {
+                    url: this.list[this.current].url,
+                    success: res => {
+                        if (res.statusCode === 200) {
+                            uni.saveImageToPhotosAlbum({
+                                filePath: res.tempFilePath,
+                                success: () => {
+                                    uni.hideLoading();
+                                    uni.showToast({
+                                        title: '保存成功',
+                                        icon: 'success'
+                                    });
+                                },
+                                fail: () => {
+                                    this.fail();
+                                }
+                            });
+                        } else {
                             this.fail();
                         }
                     },
@@ -238,22 +259,23 @@ export default {
                 this.showActionSheet = false;
             }
         },
-        change (e) {
+        change(e) {
             const { windowWidth, windowHeight } = this.systemInfo;
             let current = e.detail.current;
             if (this.item.type === 'video') {
                 let video = uni.createVideoContext(this.item.url, this);
                 video && video.pause();
             }
+            this.current = current;
             this.item = this.list[current];
             const list = [...this.list];
             list.forEach((item, index) => {
                 this.initImageItem(item);
             });
             this.list = list;
-            console.log('change---', this.list);
+            // console.log('change---', this.list);
         },
-        click (event, item, index) {
+        click(event, item, index) {
             const { windowWidth, windowHeight } = this.systemInfo;
             this.clickCount++;
             console.log('this.clickCount', this.clickCount);
@@ -277,7 +299,7 @@ export default {
             item.top = 0;
             return item;
         }
-    },
+    }
 };
 </script>
 
