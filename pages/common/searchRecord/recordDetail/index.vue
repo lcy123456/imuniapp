@@ -268,6 +268,7 @@ export default {
             uni.$u.debounce(this.getSearchRecord, 300);
         },
         handleItemClick(v) {
+            // console.log('xxx', v);
             if (this.storeCurrentConversationID) {
                 // let pages = getCurrentPages();
                 // let prevPage = pages[pages.length - 3];
@@ -276,12 +277,13 @@ export default {
                 uni.navigateBack({
                     delta: 2
                 });
-                uni.$emit('setPositionMsgID', v?.clientMsgID);
+                uni.$emit('setPositionMsgID', v?.clientMsgID, v.seq);
             } else {
                 recordToDesignatedConversation(
                     this.conversation.conversationID,
                     false,
-                    v?.clientMsgID
+                    v?.clientMsgID,
+                    v.seq
                 );
             }
         },

@@ -23,6 +23,7 @@
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
             :client-msg-i-d="clientMsgID"
+            :positionSeq="seq"
             @scroll="scroll"
             @touchstart="chatingTouchStart"
             @touchend="chatingTouchEnd"
@@ -100,6 +101,7 @@ export default {
             updatePinKey: '',
             transition: '',
             clientMsgID: '',
+            seq: 0,
             listHeight: 0,
             isHide: false,
             footerOutsideFlag: 0,
@@ -143,9 +145,10 @@ export default {
         }
     },
     onLoad(options) {
-        const { back2Tab, clientMsgID } = options;
+        const { back2Tab, clientMsgID, seq } = options;
         this.back2Tab = !!JSON.parse(back2Tab);
         this.clientMsgID = clientMsgID;
+        this.seq = Number(seq);
         uni.$on('multiple_message', this.handleMultipleMessage);
         uni.$on('forward_finish', this.hideMultipleMsg);
         uni.$on('deleteMsg', this.handleMsgDel);

@@ -107,6 +107,10 @@ export default {
         clientMsgID: {
             type: String,
             default: ''
+        },
+        positionSeq: {
+            type: Number,
+            default: 0
         }
     },
     data() {
@@ -155,6 +159,7 @@ export default {
     mounted() {
         this.conversationID = this.storeCurrentConversation.conversationID;
         this.positionMsgID = this.clientMsgID;
+        this.seq = this.positionSeq;
         uni.$on(PageEvents.ScrollToBottom, this.scrollToBottom);
         uni.$on('reloadMore', this.reloadMore);
         this.init();

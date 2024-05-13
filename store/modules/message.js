@@ -66,7 +66,7 @@ const actions = {
             return messageList;
         } catch (e) {
             const { errCode } = e;
-            console.log('eeeeeee-eeee222', errCode);
+            console.log('eeeeeee-eeee222', e);
             if (errCode === 10005) {
                 uni.$u.toast('获取历史数据失败');
             }

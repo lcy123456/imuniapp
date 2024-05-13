@@ -786,7 +786,8 @@ export const markConversationAsRead = (conversation, fromChating = false) => {
 export const prepareConversationState = (
     conversation,
     back2Tab = false,
-    clientMsgID = ''
+    clientMsgID = '',
+    seq = ''
 ) => {
     const pages = getCurrentPages();
     const currentPage = pages[pages.length - 1];
@@ -813,7 +814,7 @@ export const prepareConversationState = (
     store.dispatch('message/resetMessageState');
     store.commit('conversation/SET_CURRENT_CONVERSATION', conversation);
 
-    let url = `/pages/conversation/chating/index?back2Tab=${back2Tab}&clientMsgID=${clientMsgID}`;
+    let url = `/pages/conversation/chating/index?back2Tab=${back2Tab}&clientMsgID=${clientMsgID}&seq=${seq}`;
     if (conversation.conversationType === SessionType.Notification) {
         url = '/pages/conversation/notifyMessageList/index';
     }
@@ -848,7 +849,8 @@ export const navigateToDesignatedConversation = (
 export const recordToDesignatedConversation = (
     conversationID,
     back2Tab = false,
-    clientMsgID = ''
+    clientMsgID = '',
+    seq = ''
 ) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -857,7 +859,7 @@ export const recordToDesignatedConversation = (
                 IMSDK.uuid(),
                 [conversationID]
             );
-            prepareConversationState(data[0], back2Tab, clientMsgID);
+            prepareConversationState(data[0], back2Tab, clientMsgID, seq);
             resolve();
         } catch (e) {
             reject(e);
