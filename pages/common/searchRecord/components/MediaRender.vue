@@ -1,13 +1,15 @@
 <template>
     <view
         class="media_container"
-        :style="{ height: size + 'px' }"
+        :style="{
+            width: size + 'px',
+            height: size + 'px'
+        }"
         @click="$emit('click')"
     >
-        <u--image
+        <MyImage
             :width="size"
             :height="size"
-            :mode="mode"
             :src="imgUrl"
             @click="$emit('click')"
         />
@@ -26,13 +28,13 @@
 <script>
 import { secFormat, formatFileUrl } from '@/util/imCommon';
 import { MessageType } from 'openim-uniapp-polyfill';
+import MyImage from '@/components/MyImage';
 
 export default {
+    components: {
+        MyImage
+    },
     props: {
-        mode: {
-            type: String,
-            default: undefined
-        },
         message: {
             type: Object,
             default: () => ({})

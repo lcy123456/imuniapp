@@ -26,11 +26,11 @@ export default {
             default: 'aspectFill'
         },
         width: {
-            type: String,
+            type: String | Number,
             default: '100%'
         },
         height: {
-            type: String,
+            type: String | Number,
             default: '100%'
         }
     },
