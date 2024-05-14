@@ -170,28 +170,28 @@ export default {
             return res;
         },
         mediaMessage() {
-            const temp = {
-                week: {
+            const temp = [
+                {
                     label: '本周',
                     value: [],
                     time: dayjs().startOf('week').valueOf()
                 },
-                month: {
+                {
                     label: '本月',
                     value: [],
                     time: dayjs().startOf('month').valueOf()
                 },
-                year: {
+                {
                     label: '本年',
                     value: [],
                     time: dayjs().startOf('year').valueOf()
                 }
-            };
-            const keys = Object.keys(temp);
+            ];
+            const len = temp.length;
             this.messageList.forEach(v => {
                 const sendTime = v.sendTime;
                 let isOtherYear = true;
-                for (let j of keys) {
+                for (let j = 0; j < len; j++) {
                     if (sendTime > temp[j].time) {
                         temp[j].value.push(v);
                         isOtherYear = false;
@@ -200,21 +200,18 @@ export default {
                 }
                 if (isOtherYear) {
                     const year = dayjs(sendTime).format('YYYY');
-                    if (!temp[year]) {
-                        temp[year] = {
+                    const index = temp.findIndex(j => j.label === year);
+                    if (index === -1) {
+                        temp[temp.length] = {
                             label: year,
-                            value: []
+                            value: [v]
                         };
+                    } else {
+                        temp[index].value.push(v);
                     }
-                    temp[year].value.push(v);
                 }
             });
-            Object.keys(temp).forEach(key => {
-                if (temp[key].value.length === 0) {
-                    delete temp[key];
-                }
-            });
-            return temp;
+            return temp.filter(v => v.value.length !== 0);
         }
     },
     watch: {
@@ -383,6 +380,7 @@ export default {
     .time_label {
         color: $uni-text-color-grey;
         font-size: 28rpx;
+        margin-top: 20rpx;
     }
 }
 </style>
