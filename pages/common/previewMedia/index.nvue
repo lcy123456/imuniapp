@@ -1,7 +1,6 @@
 <template>
     <view>
         <swiper
-            class="swiper_container"
             :current="current"
             :disable-touch="disableTouch"
             :style="{
@@ -99,9 +98,18 @@ export default {
 
     onLoad(options) {
         const { list, current } = options;
-        this.list = JSON.parse(decodeURIComponent(list));
+        this.list = [
+            ...JSON.parse(decodeURIComponent(list)),
+            {
+                url: 'http://placeholder',
+                type: ''
+            }
+        ];
         this.current = current;
         this.item = this.list[current];
+        setTimeout(() => {
+            this.list.pop();
+        }, 0);
     },
 
     methods: {
@@ -304,9 +312,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.swiper_container {
-    background-color: $uni-bg-color-inverse;
-}
 .image {
     // transition: all 1s;
     // border: 1px solid red;
