@@ -204,7 +204,9 @@ export default {
             clearTimeout(timer);
             if (this.domainCount === 20) {
                 this.SET_IS_PROD();
-                this.$toast(`${this.storeIsProd ? '生产' : '测试'}环境`);
+                this.$toast(
+                    `${this.storeIsProd ? '生产' : '测试'}环境；渠道环境：${plus.runtime.channel}`
+                );
             }
             timer = setTimeout(() => {
                 this.domainCount = 0;
