@@ -59,6 +59,8 @@ export default {
     onLoad(params) {
         const { message } = params;
         this.message = JSON.parse(decodeURIComponent(message));
+    },
+    onShow() {
         this.getSearchRecordMedia();
     },
 
@@ -67,7 +69,7 @@ export default {
             const imgList = this.multiMessage.filter(message =>
                 MediaRenderTypes.includes(message.contentType)
             );
-            uni.$emit('getSearchRecordMedia', imgList);
+            uni.$emit('setMediaList', imgList);
         }
     }
 };

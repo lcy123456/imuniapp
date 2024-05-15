@@ -124,8 +124,8 @@ export default {
             this.goPreviewMedia();
         },
         goPreviewMedia() {
-            const i = this.storeConversationMediaList.findIndex(item =>
-                item.clientMsgID === this.message.clientMsgID
+            const i = this.storeConversationMediaList.findIndex(
+                item => item.clientMsgID === this.message.clientMsgID
             );
             const index = i > -1 ? i : 0;
             uni.$u.route('/pages/common/previewMedia/index', {

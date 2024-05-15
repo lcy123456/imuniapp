@@ -67,6 +67,9 @@ export default {
     onLoad() {
         this.collectList(1);
     },
+    onShow() {
+        this.getSearchRecordMedia();
+    },
     methods: {
         async queryList(pageNo) {
             this.collectList(pageNo);
