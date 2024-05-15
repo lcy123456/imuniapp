@@ -98,18 +98,18 @@ export default {
 
     onLoad(options) {
         const { list, current } = options;
-        this.list = [
-            ...JSON.parse(decodeURIComponent(list)),
-            {
-                url: 'http://placeholder',
-                type: ''
-            }
-        ];
+        this.list = JSON.parse(decodeURIComponent(list));
         this.current = current;
         this.item = this.list[current];
-        setTimeout(() => {
-            this.list.pop();
-        }, 0);
+		if (uni.$u.os() === 'android') {
+			this.list.push({
+                url: 'http://placeholder',
+                type: ''
+            })
+			setTimeout(() => {
+				this.list.pop();
+			}, 0);
+		}
     },
 
     methods: {

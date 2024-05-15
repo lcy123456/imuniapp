@@ -81,9 +81,13 @@ export default {
                 }
             });
             let l = list.map(item => {
+                const message = JSON.parse(item.content);
                 return {
                     ...item,
-                    content: JSON.parse(item.content)
+                    content: {
+                        ...message,
+                        clientMsgID: message.clientMsgID + item.id
+                    }
                 };
             });
             const favoriteListIdList = this.favoriteList.map(item => item.id);

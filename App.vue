@@ -1069,7 +1069,7 @@ export default {
         },
         setMediaList(list, type = '') {
             let imgList = list.map(message => {
-                const { contentType, pictureElem, videoElem } = message;
+                const { contentType, pictureElem, videoElem, clientMsgID } = message;
                 const isVideo = contentType === MessageType.VideoMessage;
                 let map = {
                     url: formatFileUrl(pictureElem?.sourcePicture.url),
@@ -1091,6 +1091,7 @@ export default {
                         type: 'video'
                     };
                 }
+				map.clientMsgID = clientMsgID;
                 return map;
             });
             type === 'reverse' && imgList.reverse();
