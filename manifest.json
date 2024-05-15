@@ -1,39 +1,39 @@
 {
-    "name" : "MuskIM",
-    "appid" : "__UNI__E9FEB0B",
-    "description" : "",
-    "versionName" : "3.0.6",
-    "versionCode" : 306,
-    "transformPx" : false,
-    "app-plus" : {
-        "bounce" : "none",
-        "usingComponents" : true,
-        "nvueStyleCompiler" : "uni-app",
-        "compilerVersion" : 3,
-        "kernel" : {
-            "ios" : "WKWebview",
-            "recovery" : "restart"
+    "name": "MuskIM",
+    "appid": "__UNI__E9FEB0B",
+    "description": "",
+    "versionName": "3.0.6",
+    "versionCode": 306,
+    "transformPx": false,
+    "app-plus": {
+        "bounce": "none",
+        "usingComponents": true,
+        "nvueStyleCompiler": "uni-app",
+        "compilerVersion": 3,
+        "kernel": {
+            "ios": "WKWebview",
+            "recovery": "restart"
         },
-        "splashscreen" : {
-            "alwaysShowBeforeRender" : false,
-            "waiting" : true,
-            "autoclose" : false,
-            "delay" : 0
+        "splashscreen": {
+            "alwaysShowBeforeRender": false,
+            "waiting": true,
+            "autoclose": false,
+            "delay": 0
         },
-        "compatible" : {
-            "ignoreVersion" : true
+        "compatible": {
+            "ignoreVersion": true
         },
-        "modules" : {
-            "VideoPlayer" : {},
-            "Camera" : {},
-            "Record" : {},
-            "Barcode" : {},
-            "Orientation" : {},
-            "Push" : {}
+        "modules": {
+            "VideoPlayer": {},
+            "Camera": {},
+            "Record": {},
+            "Barcode": {},
+            "Orientation": {},
+            "Push": {}
         },
-        "distribute" : {
-            "android" : {
-                "permissions" : [
+        "distribute": {
+            "android": {
+                "permissions": [
                     "<uses-feature android:name=\"android.hardware.camera\"/>",
                     "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
                     "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
@@ -56,227 +56,227 @@
                     "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
                 ],
-                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ],
-                "minSdkVersion" : 28,
-                "targetSdkVersion" : 33,
-                "excludePermissions" : [
+                "abiFilters": ["armeabi-v7a", "arm64-v8a", "x86"],
+                "minSdkVersion": 28,
+                "targetSdkVersion": 33,
+                "excludePermissions": [
                     "<uses-permission android:name=\"android.permission.MANAGE_EXTERNAL_STORAGE\"/>"
                 ]
             },
-            "ios" : {
-                "dSYMs" : false,
-                "privacyDescription" : {
-                    "NSPhotoLibraryUsageDescription" : "请求获取读取相册权限，用于上传头像图片服务",
-                    "NSPhotoLibraryAddUsageDescription" : "请求获取存入相册权限",
-                    "NSCameraUsageDescription" : "请求获取摄像头权限，用于视频通话服务",
-                    "NSMicrophoneUsageDescription" : "请求获取麦克风权限，用于语音通话服务",
-                    "NSLocationWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
-                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
-                    "NSLocationAlwaysUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
-                    "NSBluetoothAlwaysUsageDescription" : "请求获取蓝牙权限"
+            "ios": {
+                "dSYMs": false,
+                "privacyDescription": {
+                    "NSPhotoLibraryUsageDescription": "请求获取读取相册权限，用于上传头像图片服务",
+                    "NSPhotoLibraryAddUsageDescription": "请求获取存入相册权限",
+                    "NSCameraUsageDescription": "请求获取摄像头权限，用于视频通话服务",
+                    "NSMicrophoneUsageDescription": "请求获取麦克风权限，用于语音通话服务",
+                    "NSLocationWhenInUseUsageDescription": "请求获取位置权限，用于分享位置信息服务",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription": "请求获取位置权限，用于分享位置信息服务",
+                    "NSLocationAlwaysUsageDescription": "请求获取位置权限，用于分享位置信息服务",
+                    "NSBluetoothAlwaysUsageDescription": "请求获取蓝牙权限"
                 },
-                "UIBackgroundModes" : "audio"
+                "UIBackgroundModes": "audio"
             },
-            "sdkConfigs" : {
-                "ad" : {},
-                "share" : {},
-                "statics" : {},
-                "speech" : {},
-                "push" : {
-                    "unipush" : {
-                        "icons" : {
-                            "small" : {
-                                "ldpi" : "/Users/newpc/Downloads/png_icon/18.png",
-                                "mdpi" : "/Users/newpc/Downloads/png_icon/24.png",
-                                "hdpi" : "/Users/newpc/Downloads/png_icon/36.png",
-                                "xhdpi" : "/Users/newpc/Downloads/png_icon/48.png",
-                                "xxhdpi" : "/Users/newpc/Downloads/png_icon/72.png"
+            "sdkConfigs": {
+                "ad": {},
+                "share": {},
+                "statics": {},
+                "speech": {},
+                "push": {
+                    "unipush": {
+                        "icons": {
+                            "small": {
+                                "ldpi": "/Users/newpc/Downloads/png_icon/18.png",
+                                "mdpi": "/Users/newpc/Downloads/png_icon/24.png",
+                                "hdpi": "/Users/newpc/Downloads/png_icon/36.png",
+                                "xhdpi": "/Users/newpc/Downloads/png_icon/48.png",
+                                "xxhdpi": "/Users/newpc/Downloads/png_icon/72.png"
                             }
                         }
                     }
                 }
             },
-            "splashscreen" : {
-                "androidStyle" : "default",
-                "iosStyle" : "common",
-                "android" : {
-                    "hdpi" : "unpackage/res/cover/480_762.png",
-                    "xhdpi" : "unpackage/res/cover/720_1242.png",
-                    "xxhdpi" : "unpackage/res/cover/1080_1882.png"
+            "splashscreen": {
+                "androidStyle": "default",
+                "iosStyle": "common",
+                "android": {
+                    "hdpi": "unpackage/res/cover/480_762.png",
+                    "xhdpi": "unpackage/res/cover/720_1242.png",
+                    "xxhdpi": "unpackage/res/cover/1080_1882.png"
                 }
             },
-            "icons" : {
-                "android" : {
-                    "hdpi" : "unpackage/res/icons/72x72.png",
-                    "xhdpi" : "unpackage/res/icons/96x96.png",
-                    "xxhdpi" : "unpackage/res/icons/144x144.png",
-                    "xxxhdpi" : "unpackage/res/icons/192x192.png"
+            "icons": {
+                "android": {
+                    "hdpi": "unpackage/res/icons/72x72.png",
+                    "xhdpi": "unpackage/res/icons/96x96.png",
+                    "xxhdpi": "unpackage/res/icons/144x144.png",
+                    "xxxhdpi": "unpackage/res/icons/192x192.png"
                 },
-                "ios" : {
-                    "appstore" : "unpackage/res/icons/1024x1024.png",
-                    "ipad" : {
-                        "app" : "unpackage/res/icons/76x76.png",
-                        "app@2x" : "unpackage/res/icons/152x152.png",
-                        "notification" : "unpackage/res/icons/20x20.png",
-                        "notification@2x" : "unpackage/res/icons/40x40.png",
-                        "proapp@2x" : "unpackage/res/icons/167x167.png",
-                        "settings" : "unpackage/res/icons/29x29.png",
-                        "settings@2x" : "unpackage/res/icons/58x58.png",
-                        "spotlight" : "unpackage/res/icons/40x40.png",
-                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
+                "ios": {
+                    "appstore": "unpackage/res/icons/1024x1024.png",
+                    "ipad": {
+                        "app": "unpackage/res/icons/76x76.png",
+                        "app@2x": "unpackage/res/icons/152x152.png",
+                        "notification": "unpackage/res/icons/20x20.png",
+                        "notification@2x": "unpackage/res/icons/40x40.png",
+                        "proapp@2x": "unpackage/res/icons/167x167.png",
+                        "settings": "unpackage/res/icons/29x29.png",
+                        "settings@2x": "unpackage/res/icons/58x58.png",
+                        "spotlight": "unpackage/res/icons/40x40.png",
+                        "spotlight@2x": "unpackage/res/icons/80x80.png"
                     },
-                    "iphone" : {
-                        "app@2x" : "unpackage/res/icons/120x120.png",
-                        "app@3x" : "unpackage/res/icons/180x180.png",
-                        "notification@2x" : "unpackage/res/icons/40x40.png",
-                        "notification@3x" : "unpackage/res/icons/60x60.png",
-                        "settings@2x" : "unpackage/res/icons/58x58.png",
-                        "settings@3x" : "unpackage/res/icons/87x87.png",
-                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
-                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
+                    "iphone": {
+                        "app@2x": "unpackage/res/icons/120x120.png",
+                        "app@3x": "unpackage/res/icons/180x180.png",
+                        "notification@2x": "unpackage/res/icons/40x40.png",
+                        "notification@3x": "unpackage/res/icons/60x60.png",
+                        "settings@2x": "unpackage/res/icons/58x58.png",
+                        "settings@3x": "unpackage/res/icons/87x87.png",
+                        "spotlight@2x": "unpackage/res/icons/80x80.png",
+                        "spotlight@3x": "unpackage/res/icons/120x120.png"
                     }
                 }
             }
         },
-        "nativePlugins" : {
-            "DCTestUniPlugin" : {
-                "__plugin_info__" : {
-                    "name" : "backgroundTaskUniPlugin",
-                    "description" : "uni开启后台任务",
-                    "platforms" : "iOS",
-                    "url" : "",
-                    "android_package_name" : "",
-                    "ios_bundle_id" : "",
-                    "isCloud" : false,
-                    "bought" : -1,
-                    "pid" : "",
-                    "parameters" : {}
+        "nativePlugins": {
+            "DCTestUniPlugin": {
+                "__plugin_info__": {
+                    "name": "backgroundTaskUniPlugin",
+                    "description": "uni开启后台任务",
+                    "platforms": "iOS",
+                    "url": "",
+                    "android_package_name": "",
+                    "ios_bundle_id": "",
+                    "isCloud": false,
+                    "bought": -1,
+                    "pid": "",
+                    "parameters": {}
                 }
             },
-            "lemonjk-FileSelect" : {
-                "appid_android" : "",
-                "__plugin_info__" : {
-                    "name" : "APP文件选择(支持安卓和ios)",
-                    "description" : "支持双端的APP文件选取插件",
-                    "platforms" : "Android,iOS",
-                    "url" : "https://ext.dcloud.net.cn/plugin?id=14059",
-                    "android_package_name" : "online.tbas.muskim02",
-                    "ios_bundle_id" : "online.tbas.muskim02",
-                    "isCloud" : true,
-                    "bought" : 1,
-                    "pid" : "14059",
-                    "parameters" : {
-                        "appid_android" : {
-                            "des" : "请填写你当前应用的包名，必需填写，否则可能无法使用。（在菜单中->发行->原生App-云打包中可以查看包名信息）",
-                            "key" : "",
-                            "value" : ""
+            "lemonjk-FileSelect": {
+                "appid_android": "",
+                "__plugin_info__": {
+                    "name": "APP文件选择(支持安卓和ios)",
+                    "description": "支持双端的APP文件选取插件",
+                    "platforms": "Android,iOS",
+                    "url": "https://ext.dcloud.net.cn/plugin?id=14059",
+                    "android_package_name": "online.tbas.muskim02",
+                    "ios_bundle_id": "online.tbas.muskim02",
+                    "isCloud": true,
+                    "bought": 1,
+                    "pid": "14059",
+                    "parameters": {
+                        "appid_android": {
+                            "des": "请填写你当前应用的包名，必需填写，否则可能无法使用。（在菜单中->发行->原生App-云打包中可以查看包名信息）",
+                            "key": "",
+                            "value": ""
                         }
                     }
                 }
             },
-            "Tuoyun-OpenIMSDK" : {
-                "__plugin_info__" : {
-                    "name" : "OpenIMSDK",
-                    "description" : "IM",
-                    "platforms" : "Android,iOS",
-                    "url" : "",
-                    "android_package_name" : "",
-                    "ios_bundle_id" : "",
-                    "isCloud" : false,
-                    "bought" : -1,
-                    "pid" : "",
-                    "parameters" : {}
+            "Tuoyun-OpenIMSDK": {
+                "__plugin_info__": {
+                    "name": "OpenIMSDK",
+                    "description": "IM",
+                    "platforms": "Android,iOS",
+                    "url": "",
+                    "android_package_name": "",
+                    "ios_bundle_id": "",
+                    "isCloud": false,
+                    "bought": -1,
+                    "pid": "",
+                    "parameters": {}
                 }
             }
         },
-        "uniStatistics" : {
-            "enable" : true
+        "uniStatistics": {
+            "enable": true
         }
     },
     /* 快应用特有相关 */
-    "quickapp" : {},
+    "quickapp": {},
     /* 小程序特有相关 */
-    "mp-weixin" : {
-        "appid" : "",
-        "setting" : {
-            "urlCheck" : false
+    "mp-weixin": {
+        "appid": "",
+        "setting": {
+            "urlCheck": false
         },
-        "usingComponents" : true,
-        "uniStatistics" : {
-            "enable" : true
+        "usingComponents": true,
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "mp-alipay" : {
-        "usingComponents" : true,
-        "uniStatistics" : {
-            "enable" : true
+    "mp-alipay": {
+        "usingComponents": true,
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "mp-baidu" : {
-        "usingComponents" : true,
-        "uniStatistics" : {
-            "enable" : true
+    "mp-baidu": {
+        "usingComponents": true,
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "mp-toutiao" : {
-        "usingComponents" : true,
-        "uniStatistics" : {
-            "enable" : true
+    "mp-toutiao": {
+        "usingComponents": true,
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "uniStatistics" : {
-        "enable" : true,
-        "version" : "1"
+    "uniStatistics": {
+        "enable": true,
+        "version": "1"
     },
-    "vueVersion" : "2",
-    "h5" : {
-        "template" : "",
-        "sdkConfigs" : {
-            "maps" : {}
+    "vueVersion": "2",
+    "h5": {
+        "template": "",
+        "sdkConfigs": {
+            "maps": {}
         },
-        "devServer" : {
-            "port" : 8080, //端口号
-            "disableHostCheck" : true,
-            "proxy" : {
-                "/apiv2" : {
-                    "target" : "https://www.pgyer.com/", //目标接口域名
-                    "changeOrigin" : true, //是否跨域
-                    "secure" : true // 设置支持https协议的代理
+        "devServer": {
+            "port": 8080, //端口号
+            "disableHostCheck": true,
+            "proxy": {
+                "/apiv2": {
+                    "target": "https://www.pgyer.com/", //目标接口域名
+                    "changeOrigin": true, //是否跨域
+                    "secure": true // 设置支持https协议的代理
                 }
             }
         },
-        "uniStatistics" : {
-            "enable" : true
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "mp-jd" : {
-        "uniStatistics" : {
-            "enable" : true
+    "mp-jd": {
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "mp-kuaishou" : {
-        "uniStatistics" : {
-            "enable" : true
+    "mp-kuaishou": {
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "mp-lark" : {
-        "uniStatistics" : {
-            "enable" : true
+    "mp-lark": {
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "mp-qq" : {
-        "uniStatistics" : {
-            "enable" : true
+    "mp-qq": {
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "quickapp-webview-huawei" : {
-        "uniStatistics" : {
-            "enable" : true
+    "quickapp-webview-huawei": {
+        "uniStatistics": {
+            "enable": true
         }
     },
-    "quickapp-webview-union" : {
-        "uniStatistics" : {
-            "enable" : true
+    "quickapp-webview-union": {
+        "uniStatistics": {
+            "enable": true
         }
     }
 }
