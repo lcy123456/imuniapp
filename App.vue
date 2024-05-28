@@ -250,7 +250,6 @@ export default {
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnConnectSuccess, data => {
                 console.log(data);
-                this.$store.commit('base/SET_CONNECTING_STATUS', '');
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnKickedOffline, () => {
                 kickHander('您的账号在其他设备登录，请重新登陆！');
@@ -268,6 +267,7 @@ export default {
                 // uni.$u.toast('同步');
                 console.log('同步开始');
                 this.$store.commit('user/SET_IS_SYNCING', true);
+                this.$store.commit('base/SET_CONNECTING_STATUS', '同步中...');
             };
             const done = () => {
                 this.$store.commit('user/SET_IS_SYNCING', false);
@@ -277,6 +277,7 @@ export default {
                 // uni.hideLoading();
                 this.$store.dispatch('conversation/getConversationList');
                 this.$store.dispatch('conversation/getUnReadCount');
+                this.$store.commit('base/SET_CONNECTING_STATUS', '');
 
                 uni.$emit(
                     PageEvents.ClickPushMessage,

@@ -76,18 +76,29 @@ export default {
             'storeConversationList'
         ]),
         isArchvistList() {
-            const isArchvistList = [];
-            this.storeConversationList.forEach(item => {
-                try {
-                    const attachedInfo = JSON.parse(item.attachedInfo);
-                    if (attachedInfo.archivist === 1) {
-                        isArchvistList.push(item);
-                    }
-                } catch (err) {
-                    //
+            // const isArchvistList = [];
+            // this.storeConversationList.forEach(item => {
+            //     const tempAttachedInfo = JSON.parse(v.attachedInfo || '{}');
+            //     try {
+            //         const attachedInfo = JSON.parse(item.attachedInfo);
+            //         if (attachedInfo.archivist === 1) {
+            //             isArchvistList.push(item);
+            //         }
+            //     } catch (err) {
+            //         //
+            //     }
+            // });
+            // return isArchvistList;
+            return this.storeConversationList.filter(v => {
+                const tempAttachedInfo = JSON.parse(v.attachedInfo || '{}');
+                if (this.archive_id) {
+                    return tempAttachedInfo.archive_id === this.archive_id;
                 }
+                return (
+                    tempAttachedInfo.archive_id &&
+                    tempAttachedInfo.archive_id !== -1
+                );
             });
-            return isArchvistList;
         },
         isArchvist() {
             return this.searchType === 'archivist';
@@ -119,16 +130,23 @@ export default {
         keyword() {
             if (!this.keyword) {
                 this.showList = [];
+                return;
             }
             uni.$u.debounce(this.throttleSearchRecord, 300);
         }
     },
 
     onLoad(options) {
-        const { type = '', keyword = '', searchType = '' } = options;
+        const {
+            type = '',
+            keyword = '',
+            searchType = '',
+            archive_id = 0
+        } = options;
         this.moreType = type;
         this.keyword = keyword;
         this.searchType = searchType;
+        this.archive_id = Number(archive_id);
     },
 
     methods: {

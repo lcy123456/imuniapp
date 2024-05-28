@@ -21,7 +21,7 @@
                     <image src="/static/images/read_white.svg" />
                 </view>
                 <view v-if="getLike(user.userID)" class="right">
-                    <image :src="`/static/like/${getLike(user.userID)}.png`" />
+                    <image :src="`/static/like/${getLike(user.userID)}.svg`" />
                 </view>
             </view>
         </view>
@@ -48,7 +48,7 @@ export default {
         giveLike() {
             try {
                 const ex = JSON.parse(this.message.ex);
-                return ex.giveLike;
+                return ex.giveLike || [];
             } catch (err) {
                 // console.log(err);
             }
