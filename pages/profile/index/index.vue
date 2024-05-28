@@ -167,6 +167,7 @@ export default {
         async logoutConfirm() {
             await IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
             this.$store.commit('user/SET_AUTH_DATA', {});
+            this.$store.commit('conversation/SET_CONVERSATION_FOLDER', []);
             this.showComfirm = false;
             uni.reLaunch({
                 url: '/pages/login/index'

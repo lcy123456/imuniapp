@@ -41,6 +41,7 @@ export default {
     storeCurrentGroup: state => state.conversation.currentGroup,
     storeCurrentMemberInGroup: state => state.conversation.currentMemberInGroup,
     conversationUnread: state => state.conversation.conversationUnread,
+    storeConversationFolder: state => state.conversation.conversationFolder,
     storeFriendList: state => state.contact.friendList,
     storeBlackList: state => state.contact.blackList,
     storeGroupList: state => state.contact.groupList,

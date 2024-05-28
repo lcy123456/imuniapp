@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import IMSDK from 'openim-uniapp-polyfill';
+import { apiConversationFolder } from '@/api/conversation';
+import { sortByChinesePinyin } from '@/util/common';
 
 const state = {
     conversationList: [],
@@ -10,7 +12,8 @@ const state = {
     currentGroup: {},
     currentMemberInGroup: {},
     conversationMediaList: [],
-    lastConversation: {}
+    lastConversation: {},
+    conversationFolder: []
 };
 
 const mutations = {
@@ -66,6 +69,9 @@ const mutations = {
         state.currentMemberInGroup = {
             ...member
         };
+    },
+    SET_CONVERSATION_FOLDER(state, list) {
+        state.conversationFolder = list;
     }
 };
 
@@ -149,6 +155,31 @@ const actions = {
         commit('SET_CURRENT_MEMBER_IN_GROUP', {});
         commit('SET_CURRENT_GROUP', {});
         commit('SET_CURRENT_CONVERSATION', {});
+    },
+    getConversationFolder: async ({ commit }) => {
+        const res = await apiConversationFolder({
+            pagination: {
+                pageNumber: 1,
+                showNumber: 100
+            }
+        });
+        commit(
+            'SET_CONVERSATION_FOLDER',
+            sortByChinesePinyin(res.list || [], 'name')
+        );
+    },
+    updateConversationFolder: ({ commit, state }, item) => {
+        const tmpList = [...state.conversationFolder];
+        const isRemove = item.state === -1;
+        const idx = tmpList.findIndex(f => f.id === item.id);
+        if (idx < 0) {
+            tmpList.push(item);
+        } else if (isRemove) {
+            tmpList.splice(idx, 1);
+        } else {
+            tmpList[idx] = { ...item };
+        }
+        commit('SET_CONVERSATION_FOLDER', sortByChinesePinyin(tmpList, 'name'));
     }
 };
 

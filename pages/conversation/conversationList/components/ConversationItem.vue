@@ -81,6 +81,7 @@ import {
     burnMenuList
 } from '@/util/imCommon';
 import { setConversations } from '@/api/conversation';
+import { ContactChooseTypes } from '@/constant';
 
 export default {
     components: {
@@ -100,7 +101,11 @@ export default {
         return {};
     },
     computed: {
-        ...mapGetters(['storeCurrentUserID', 'storeCurrentConversation']),
+        ...mapGetters([
+            'storeCurrentUserID',
+            'storeCurrentConversation',
+            'storeConversationList'
+        ]),
         messagePrefix() {
             if (html2Text(draftText2Text(this.source.draftText))) {
                 return '[草稿]';
@@ -166,19 +171,36 @@ export default {
         isNotify() {
             return this.source.conversationType === SessionType.Notification;
         },
-        isArchvist() {
-            try {
-                const attachedInfo = JSON.parse(this.source.attachedInfo);
-                return attachedInfo.archivist === 1;
-            } catch (err) {
-                return false;
-            }
+        isArchive() {
+            const attachedInfo = JSON.parse(this.source.attachedInfo || '{}');
+            return attachedInfo.archive_id && attachedInfo.archive_id != -1;
         },
         getSwipeActions() {
+            if (this.source.isGroupSwiper) {
+                return [
+                    {
+                        type: 'editArchive',
+                        text: '编辑',
+                        icon: `/static/images/chating_message_edit.svg`,
+                        style: {
+                            backgroundColor: '#37A0EC'
+                        }
+                    },
+                    {
+                        type: 'deleteArchive',
+                        text: '删除',
+                        icon: `/static/images/conversation_del.png`,
+                        style: {
+                            backgroundColor: '#ec4b37'
+                        }
+                    }
+                ];
+            }
             const notAccept =
                 this.source.recvMsgOpt !== MessageReceiveOptType.Nomal;
             let actions = [
                 {
+                    type: 'accept',
                     text: `${notAccept ? '打开' : '关闭'}通知`,
                     icon: `/static/images/conversation_${
                         notAccept ? 'accept' : 'not_accept_white'
@@ -188,6 +210,7 @@ export default {
                     }
                 },
                 {
+                    type: 'pinned',
                     text: `${this.source.isPinned ? '取消' : ''}置顶`,
                     icon: `/static/images/conversation${
                         this.source.isPinned ? '_not' : ''
@@ -197,6 +220,7 @@ export default {
                     }
                 },
                 {
+                    type: 'delete',
                     text: '删除',
                     icon: `/static/images/conversation_del.png`,
                     style: {
@@ -204,9 +228,10 @@ export default {
                     }
                 },
                 {
-                    text: `${this.isArchvist ? '取消归档' : '归档'}`,
+                    type: 'archive',
+                    text: `${this.isArchive ? '取消' : ''}分组`,
                     icon: `/static/images/archive${
-                        this.isArchvist ? '_not' : ''
+                        this.isArchive ? '_not' : ''
                     }.svg`,
                     style: {
                         backgroundColor: '#37A0EC'
@@ -215,6 +240,7 @@ export default {
             ];
             if (this.source.unreadCount > 0) {
                 actions.unshift({
+                    type: 'read',
                     text: '标记已读',
                     icon: `/static/images/conversation_read.png`,
                     style: {
@@ -230,45 +256,63 @@ export default {
         clickConversationItem() {
             if (this.source.isArchvistItem) {
                 uni.$u.route(
-                    'pages/conversation/conversationList/conversationArchvist'
+                    'pages/conversation/conversationList/conversationArchive',
+                    {
+                        archive_id: this.source.archive_id
+                    }
                 );
             } else {
                 prepareConversationState(this.source);
             }
         },
-        async clickConversationMenu({ index }) {
+        async clickConversationMenu({ content }) {
             this.$loading('加载中');
-            const noUnRead = this.getSwipeActions.length === 4;
 
-            let tempIndex = index;
-            if (noUnRead) tempIndex += 1;
-
-            switch (tempIndex) {
-                case 0:
+            switch (content.type) {
+                case 'read':
                     await this.handleAsRead();
                     break;
-                case 1:
+                case 'accept':
                     await this.handleAccept();
                     break;
-                case 2:
+                case 'pinned':
                     await this.handlePin();
                     break;
-                case 3:
+                case 'delete':
                     await this.handleDel();
                     break;
-                case 4:
+                case 'archive':
                     await this.handleArchive();
+                    break;
+                case 'editArchive':
+                    this.handleEditArchive();
+                    break;
+                case 'deleteArchive':
+                    this.$emit('deleteArchive');
+                    break;
             }
             this.$hideLoading();
             this.$emit('closeAllSwipe');
         },
         async handleArchive() {
             try {
-                const archivist =
-                    this.source.attachedInfo &&
-                    JSON.parse(this.source.attachedInfo).archivist === 1
-                        ? 2
-                        : 1;
+                const tempAttachedInfo = JSON.parse(
+                    this.source?.attachedInfo || '{}'
+                );
+                if (
+                    !tempAttachedInfo.archive_id ||
+                    tempAttachedInfo.archive_id === -1
+                ) {
+                    uni.$u.route(
+                        'pages/conversation/conversationList/archiveFolderList',
+                        {
+                            conversation: encodeURIComponent(
+                                JSON.stringify(this.source)
+                            )
+                        }
+                    );
+                    return;
+                }
                 await setConversations({
                     userIDs: [this.storeCurrentUserID],
                     conversation: {
@@ -276,11 +320,12 @@ export default {
                         conversationType: this.source.conversationType,
                         groupID: this.source.groupID,
                         attachedInfo: JSON.stringify({
-                            archivist: archivist
+                            ...tempAttachedInfo,
+                            archive_id: -1
                         })
                     }
                 });
-                uni.$u.toast(archivist === 1 ? '设置归档成功' : '取消归档成功');
+                uni.$u.toast('取消分组成功');
             } catch (err) {
                 console.log(err);
             }
@@ -341,6 +386,29 @@ export default {
             } catch {
                 uni.$u.toast('置顶失败');
             }
+        },
+        handleEditArchive() {
+            const conversations = this.storeConversationList.filter(v => {
+                const tempAttachedInfo = JSON.parse(v.attachedInfo || '{}');
+                return (
+                    v.userID &&
+                    tempAttachedInfo.archive_id === this.source.archive_id
+                );
+            });
+            uni.$u.route('/pages/common/createGroup/index', {
+                type: ContactChooseTypes.EditArchive,
+                params: JSON.stringify({
+                    id: this.source.archive_id,
+                    groupName: this.source.showName
+                }),
+                checkedMemberList: JSON.stringify(
+                    conversations.map(v => ({
+                        userID: v.userID,
+                        faceURL: v.faceURL,
+                        nickname: v.showName
+                    }))
+                )
+            });
         }
     }
 };

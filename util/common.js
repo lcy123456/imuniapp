@@ -382,3 +382,15 @@ export const getPageRoute = () => {
 export const getPhoneReg = areaCode => {
     return PhoneReg[areaCode] || /^\d{8,11}$/;
 };
+
+export const sortByChinesePinyin = (arr, key) => {
+    return arr.sort((a, b) => {
+        const aTemp = pinyin(String(key ? a[key] : a), {
+            separator: ''
+        });
+        const bTemp = pinyin(String(key ? b[key] : b), {
+            separator: ''
+        });
+        return aTemp.localeCompare(bTemp);
+    });
+};

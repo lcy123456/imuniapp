@@ -1,10 +1,17 @@
 <template>
     <Page>
         <view class="create_group_container">
-            <CustomNavBar title="发起群聊" is-bg-color2 />
+            <CustomNavBar :title="navbarTitle" is-bg-color2 />
 
             <view class="group_base_info">
+                <image
+                    v-if="isArchive"
+                    class="w-124 h-124"
+                    style="border-radius: 100%"
+                    src="/static/images/archive_active.svg"
+                ></image>
                 <MyAvatar
+                    v-else
                     :is-group="true"
                     :src="groupFaceUrl"
                     size="62"
@@ -12,7 +19,7 @@
                 />
                 <u--input
                     v-model="groupName"
-                    placeholder="取个群名"
+                    :placeholder="`取个${isArchive ? '组' : '群'}名`"
                     border="none"
                 />
             </view>
@@ -70,6 +77,13 @@ import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import MyAvatar from '@/components/MyAvatar/index.vue';
 import { navigateToDesignatedConversation } from '@/util/imCommon';
 import { getPurePath } from '@/util/common';
+import {
+    apiConversationFolderCreate,
+    apiConversationFolderUpdate,
+    setConversations
+} from '@/api/conversation';
+import { mapActions, mapGetters } from 'vuex';
+
 export default {
     components: {
         CustomNavBar,
@@ -77,36 +91,72 @@ export default {
     },
     data() {
         return {
+            type: '',
+            params: {},
             groupName: '',
             groupFaceUrl: '',
+            oldMemberList: [],
             checkedMemberList: [],
             fileList: [],
             createLoading: false
         };
     },
     computed: {
+        ...mapGetters(['storeConversationList', 'storeCurrentUserID']),
         disabledNext() {
             return !this.groupName;
         },
         checkedIDList() {
             return this.checkedMemberList.map(v => v.userID);
+        },
+        isArchive() {
+            return [
+                ContactChooseTypes.Archive,
+                ContactChooseTypes.EditArchive
+            ].includes(this.type);
+        },
+        navbarTitle() {
+            switch (this.type) {
+                case ContactChooseTypes.Archive:
+                    return '创建分组';
+                    break;
+                case ContactChooseTypes.EditArchive:
+                    return '编辑分组';
+                    break;
+            }
+            return '发起群聊';
         }
     },
     onLoad(options) {
-        const { checkedMemberList } = options;
-        this.checkedMemberList = checkedMemberList
+        const { checkedMemberList, type, params } = options;
+        this.oldMemberList = this.checkedMemberList = checkedMemberList
             ? JSON.parse(checkedMemberList)
             : [];
+        this.type = type;
+        this.params = JSON.parse(params || '{}');
+        this.groupName = this.params.groupName || '';
     },
     methods: {
+        ...mapActions('conversation', ['updateConversationFolder']),
         toChooseMember() {
             uni.$u.route('/pages/common/contactChoose/index', {
-                type: ContactChooseTypes.GetList,
+                type: this.type || ContactChooseTypes.GetList,
                 checkUserIDList: JSON.stringify(this.checkedIDList)
             });
         },
         async complateCreate() {
             this.createLoading = true;
+            if (this.type === ContactChooseTypes.Archive) {
+                await this.handleArchive();
+            } else if (this.type === ContactChooseTypes.EditArchive) {
+                await this.handleArchive(true);
+            } else {
+                await this.handleCreateGroup();
+            }
+
+            this.createLoading = false;
+        },
+        async handleCreateGroup() {
             const options = {
                 adminUserIDs: [],
                 memberUserIDs: this.checkedIDList,
@@ -131,7 +181,85 @@ export default {
             } catch (err) {
                 this.$toast('创建失败');
             }
-            this.createLoading = false;
+        },
+        async handleArchive(isUpdate = false) {
+            try {
+                // 文件夹
+                let folderItem;
+                if (isUpdate) {
+                    const params = {
+                        ...this.params,
+                        name: this.groupName
+                    };
+                    await apiConversationFolderUpdate(params);
+                    folderItem = params;
+                } else {
+                    const res = await apiConversationFolderCreate({
+                        name: this.groupName
+                    });
+                    folderItem = res;
+                }
+                this.updateConversationFolder(folderItem);
+                // 分组
+                const ids = this.checkedMemberList.map(
+                    v => v.conversationID || v.groupID || v.userID || ''
+                );
+                let newConversationList = this.storeConversationList.filter(v =>
+                    ids.find(j => v.conversationID.includes(j))
+                );
+                let notConversationList = [];
+                if (isUpdate) {
+                    const oldIds = this.oldMemberList.map(v => v.userID);
+                    const archiveList = this.storeConversationList.filter(v =>
+                        oldIds.find(j => v.conversationID.includes(j))
+                    );
+                    const archiveIds = archiveList.map(v => v.conversationID);
+                    newConversationList = newConversationList.filter(
+                        v => !archiveIds.includes(v.conversationID)
+                    );
+                    notConversationList = archiveList.filter(
+                        v => !ids.find(j => v.conversationID.includes(j))
+                    );
+                }
+                // console.log("xxx", newConversationList, notConversationList);
+                newConversationList.length > 0 &&
+                    (await this.handleSetConversition(
+                        folderItem.id,
+                        newConversationList
+                    ));
+                notConversationList.length > 0 &&
+                    (await this.handleSetConversition(-1, notConversationList));
+                this.$toast('设置分组成功');
+                setTimeout(() => {
+                    uni.navigateBack({
+                        delta: isUpdate ? 1 : 2
+                    });
+                }, 1000);
+            } catch (err) {
+                console.log(err);
+                this.$toast('设置分组失败');
+            } finally {
+            }
+        },
+        async handleSetConversition(archive_id, conversations) {
+            const promiseArr = conversations.map(conversation => {
+                const tempAttachedInfo = JSON.parse(
+                    conversation.attachedInfo || '{}'
+                );
+                return setConversations({
+                    userIDs: [this.storeCurrentUserID],
+                    conversation: {
+                        conversationID: conversation.conversationID,
+                        conversationType: conversation.conversationType,
+                        groupID: conversation.groupID,
+                        attachedInfo: JSON.stringify({
+                            ...tempAttachedInfo,
+                            archive_id
+                        })
+                    }
+                });
+            });
+            await Promise.all(promiseArr);
         },
         getCheckUsers(list) {
             this.checkedMemberList = [...list];

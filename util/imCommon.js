@@ -795,7 +795,7 @@ export const prepareConversationState = (
     if (
         ![
             `pages/conversation/conversationList/index`,
-            `pages/conversation/conversationList/conversationArchvist`
+            `pages/conversation/conversationList/conversationArchive`
         ].includes(page)
     ) {
         uni.switchTab({

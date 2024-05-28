@@ -40,7 +40,9 @@
                         v-for="(item, index) in showConversationList"
                         :key="index"
                         :source="item"
-                        :is-disabled="item.isArchvistItem"
+                        :is-disabled="
+                            item.isArchvistItem && !item.isGroupSwiper
+                        "
                         @closeAllSwipe="closeAllSwipe"
                     />
                 </uni-swipe-action>
@@ -68,6 +70,35 @@ import { PageEvents } from '@/constant';
 import { videoGetToken, videoGetOfflineInfo } from '@/api/incoming';
 import { authGetPcLoginPlatform } from '@/api/login';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
+import { MessageReceiveOptType } from 'openim-uniapp-polyfill';
+
+export let archiveConversation = {
+    isArchvistItem: true,
+    unreadCount: 0,
+    groupAtType: 0,
+    isPrivateChat: false,
+    groupID: '',
+    isNotInGroup: false,
+    draftText: '',
+    userID: '',
+    latestMsgSendTime: 0,
+    maxSeq: 0,
+    showName: '我的分组',
+    conversationID: '',
+    conversationType: 0,
+    isPinned: false,
+    attachedInfo: '{}',
+    ex: '',
+    hasReadSeq: 0,
+    updateUnreadCountTime: 0,
+    recvMsgOpt: 0,
+    draftTextTime: 0,
+    burnDuration: 0,
+    minSeq: 0,
+    faceURL: '',
+    msgDestructTime: 0,
+    isMsgDestruct: false
+};
 
 export default {
     components: {
@@ -81,36 +112,7 @@ export default {
             keyword: '',
             refreshing: false,
             platformID: 0,
-            isDisabledSwipe: false,
-            isArchvistItem: {
-                isArchvistItem: true,
-                unreadCount: 0,
-                groupAtType: 0,
-                isPrivateChat: false,
-                groupID: '',
-                isNotInGroup: false,
-                draftText: '',
-                userID: '',
-                latestMsgSendTime: 0,
-                maxSeq: 0,
-                showName: '归档信息',
-                conversationID: '',
-                conversationType: 0,
-                isPinned: false,
-                attachedInfo: JSON.stringify({
-                    archivist: 1
-                }),
-                ex: '',
-                hasReadSeq: 0,
-                updateUnreadCountTime: 0,
-                recvMsgOpt: 0,
-                draftTextTime: 0,
-                burnDuration: 0,
-                minSeq: 0,
-                faceURL: '/static/images/archive.png',
-                msgDestructTime: 0,
-                isMsgDestruct: false
-            }
+            isDisabledSwipe: false
         };
     },
     computed: {
@@ -119,51 +121,68 @@ export default {
             'storeIsSyncing',
             'storeSelfInfo',
             'storeUserID',
-            'storeCurrentConversationID'
+            'storeCurrentConversationID',
+            'storeConversationFolder'
         ]),
         showConversationList() {
-            const isArchvistList = [];
-            let conversationList = [];
-            this.storeConversationList.forEach(item => {
-                try {
-                    const attachedInfo = JSON.parse(item.attachedInfo);
-                    if (attachedInfo.archivist === 1) {
-                        isArchvistList.push(item);
-                    }
-                } catch (err) {
-                    //
+            if (this.storeConversationFolder.length === 0) {
+                return this.storeConversationList;
+            }
+            const archiveIds = this.storeConversationFolder.map(v => v.id);
+            const archiveList = [];
+            const notArchiveList = [];
+            this.storeConversationList.forEach(v => {
+                const tempAttachedInfo = JSON.parse(v.attachedInfo || '{}');
+                if (archiveIds.includes(tempAttachedInfo.archive_id)) {
+                    archiveList.push(v);
+                } else {
+                    notArchiveList.push(v);
                 }
             });
-            if (isArchvistList.length) {
-                const conversationIsArchvistIdList = isArchvistList.map(
-                    conversation => conversation.conversationID
-                );
-                conversationList = [
-                    {
-                        ...this.isArchvistItem,
-                        unreadCount: isArchvistList.filter(
-                            item => item.unreadCount
-                        ).length,
-                        latestMsg: JSON.stringify({
-                            contentType: 101,
-                            textElem: {
-                                content: isArchvistList
-                                    .map(item => item.showName)
-                                    .join(',')
-                            }
-                        })
-                    },
-                    ...this.storeConversationList.filter(
-                        item =>
-                            !conversationIsArchvistIdList.includes(
-                                item.conversationID
-                            )
-                    )
-                ];
+            const unreadCount = archiveList
+                .filter(v => v.recvMsgOpt === MessageReceiveOptType.Nomal)
+                .reduce((count, item) => {
+                    return item.unreadCount + count;
+                }, 0);
+            let _archiveConversation = { ...archiveConversation };
+            _archiveConversation.unreadCount = unreadCount;
+            if (this.storeConversationFolder.length > 1) {
+                _archiveConversation = {
+                    ..._archiveConversation,
+                    faceURL: plus.io.convertLocalFileSystemURL(
+                        '/static/images/archive_more.png'
+                    ),
+                    showName: '我的分组',
+                    latestMsg: JSON.stringify({
+                        contentType: 101,
+                        textElem: {
+                            content: this.storeConversationFolder
+                                .map(item => item.name)
+                                .join(',')
+                        }
+                    }),
+                    isGroupSwiper: false
+                };
+            } else {
+                _archiveConversation = {
+                    ..._archiveConversation,
+                    faceURL: plus.io.convertLocalFileSystemURL(
+                        '/static/images/archive.png'
+                    ),
+                    showName: this.storeConversationFolder[0].name,
+                    archive_id: this.storeConversationFolder[0].id,
+                    latestMsg: JSON.stringify({
+                        contentType: 101,
+                        textElem: {
+                            content: archiveList
+                                .map(item => item.showName)
+                                .join(',')
+                        }
+                    }),
+                    isGroupSwiper: true
+                };
             }
-            return conversationList.length
-                ? conversationList
-                : this.storeConversationList;
+            return [_archiveConversation, ...notArchiveList];
         }
     },
     onReady() {
@@ -185,6 +204,7 @@ export default {
     },
     onShow() {
         if (!this.storeUserID) return;
+        this.getConversationFolder();
         isNeedRestart.call(this, '#conversation_container');
     },
     onUnload() {
@@ -193,6 +213,7 @@ export default {
     },
     methods: {
         ...mapActions('incomingCall', ['appearLoadingCall']),
+        ...mapActions('conversation', ['getConversationFolder']),
         async authGetPcLoginPlatform() {
             if (!this.storeUserID) return;
             try {

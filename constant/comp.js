@@ -50,7 +50,9 @@ export const GroupMemberListTypes = {
 export const ContactChooseTypes = {
     Invite: 'Invite',
     GetList: 'GetList',
-    Forward: 'forward'
+    Forward: 'forward',
+    Archive: 'Archive',
+    EditArchive: 'edit_archive'
 };
 
 export const UpdateMessageTypes = {
