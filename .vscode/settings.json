@@ -6,6 +6,6 @@
     "javascript.updateImportsOnFileMove.enabled": "always", //js重命名文件自动更新路径
     // 自动修复
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
+        "source.fixAll.eslint": "explicit"
     }
 }
