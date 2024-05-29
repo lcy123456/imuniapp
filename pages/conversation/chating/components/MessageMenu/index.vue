@@ -522,6 +522,7 @@ export default {
                 IMSDK.uuid(),
                 this.message
             );
+            message.ex = undefined;
             if (message.quoteElem) {
                 message.quoteElem.quoteMessage = undefined;
             }

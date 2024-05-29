@@ -82,7 +82,11 @@
                             <view v-if="isMergeRender">
                                 [合并消息]{{ message.mergeElem.title }}
                             </view>
-                            <MessageContentWrap v-else :message="message" />
+                            <MessageContentWrap
+                                v-else
+                                :message="message"
+                                :only-message="true"
+                            />
                         </view>
                     </view>
                 </u-modal>
@@ -278,6 +282,9 @@ export default {
         & > view {
             @include ellipsisWithLine(2);
         }
+    }
+    /deep/.text_message_container .base-box {
+        display: none;
     }
 }
 </style>
