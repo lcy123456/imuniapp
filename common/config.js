@@ -8,9 +8,9 @@ function getUrl() {
     // let registerUrl = 'https://www.qncjkeusoge.cfd/chat';
     // let apiUrl = 'https://www.qncjkeusoge.cfd/api';
     // let wsUrl = 'wss://www.qncjkeusoge.cfd/msg_gateway';
-    let registerUrl = 'https://test-old-web.musk-im.life/chat';
-    let apiUrl = 'https://test-old-web.musk-im.life/api';
-    let wsUrl = 'wss://test-old-web.musk-im.life/msg_gateway';
+    let registerUrl = 'https://test-web.musk-im.life/chat';
+    let apiUrl = 'https://test-web.musk-im.life/api';
+    let wsUrl = 'wss://test-web.musk-im.life/msg_gateway';
 
     if (store.getters.storeIsProd) {
         registerUrl = 'https://imlogic.muskim.com';

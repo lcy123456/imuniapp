@@ -52,10 +52,19 @@
 
             <view class="my-30">
                 <u-button
-                    :loading="createLoading"
+                    v-if="isArchive"
                     :disabled="disabledNext"
                     type="primary"
-                    text="下一步"
+                    :text="archiveBtnText"
+                    shape="circle"
+                    size="large"
+                    class="mb-40"
+                    @click="complateCreate"
+                />
+                <u-button
+                    :disabled="disabledNext"
+                    type="primary"
+                    :text="isArchive ? '添加好友' : '下一步'"
                     shape="circle"
                     size="large"
                     @click="toChooseMember"
@@ -97,8 +106,8 @@ export default {
             groupFaceUrl: '',
             oldMemberList: [],
             checkedMemberList: [],
-            fileList: [],
-            createLoading: false
+            checkedConversation: [],
+            fileList: []
         };
     },
     computed: {
@@ -125,16 +134,39 @@ export default {
                     break;
             }
             return '发起群聊';
+        },
+        archiveBtnText() {
+            switch (this.type) {
+                case ContactChooseTypes.Archive:
+                    return '创建分组';
+                    break;
+                case ContactChooseTypes.EditArchive:
+                    return '完成';
+                    break;
+            }
         }
     },
     onLoad(options) {
-        const { checkedMemberList, type, params } = options;
-        this.oldMemberList = this.checkedMemberList = checkedMemberList
-            ? JSON.parse(checkedMemberList)
-            : [];
+        const { checkedMemberList, type, params, checkedConversation } =
+            options;
+
         this.type = type;
         this.params = JSON.parse(params || '{}');
         this.groupName = this.params.groupName || '';
+        if (checkedConversation) {
+            this.checkedConversation = JSON.parse(
+                decodeURIComponent(checkedConversation)
+            );
+            this.checkedMemberList = this.checkedConversation
+                .filter(v => v.userID)
+                .map(v => ({
+                    userID: v.userID,
+                    faceURL: v.faceURL,
+                    nickname: v.nickname
+                }));
+        } else {
+            this.checkedMemberList = JSON.parse(checkedMemberList || '[]');
+        }
     },
     methods: {
         ...mapActions('conversation', ['updateConversationFolder']),
@@ -145,7 +177,7 @@ export default {
             });
         },
         async complateCreate() {
-            this.createLoading = true;
+            this.$loading('加载中');
             if (this.type === ContactChooseTypes.Archive) {
                 await this.handleArchive();
             } else if (this.type === ContactChooseTypes.EditArchive) {
@@ -153,8 +185,6 @@ export default {
             } else {
                 await this.handleCreateGroup();
             }
-
-            this.createLoading = false;
         },
         async handleCreateGroup() {
             const options = {
@@ -201,23 +231,22 @@ export default {
                 }
                 this.updateConversationFolder(folderItem);
                 // 分组
-                const ids = this.checkedMemberList.map(
-                    v => v.conversationID || v.groupID || v.userID || ''
-                );
+                const ids = [
+                    ...this.checkedMemberList,
+                    ...this.checkedConversation.filter(v => !v.userID)
+                ].map(v => v.conversationID || v.groupID || v.userID || '');
                 let newConversationList = this.storeConversationList.filter(v =>
                     ids.find(j => v.conversationID.includes(j))
                 );
                 let notConversationList = [];
                 if (isUpdate) {
-                    const oldIds = this.oldMemberList.map(v => v.userID);
-                    const archiveList = this.storeConversationList.filter(v =>
-                        oldIds.find(j => v.conversationID.includes(j))
+                    const archiveIds = this.checkedConversation.map(
+                        v => v.conversationID
                     );
-                    const archiveIds = archiveList.map(v => v.conversationID);
                     newConversationList = newConversationList.filter(
                         v => !archiveIds.includes(v.conversationID)
                     );
-                    notConversationList = archiveList.filter(
+                    notConversationList = this.checkedConversation.filter(
                         v => !ids.find(j => v.conversationID.includes(j))
                     );
                 }

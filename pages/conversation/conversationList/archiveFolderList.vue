@@ -8,6 +8,12 @@
                     >
                 </template>
             </CustomNavBar>
+            <div
+                v-if="storeConversationFolder.length === 0"
+                class="primary pt-40 text-center"
+                @click="handleCreate"
+                >暂无分组，请新建分组</div
+            >
             <view class="folder_container py-15">
                 <div
                     class="folder_item mx-10 px-30 py-15"
@@ -80,18 +86,12 @@ export default {
             }
         },
         handleCreate() {
-            const checkedMemberList =
-                this.conversation.userID &&
-                JSON.stringify([
-                    {
-                        userID: this.conversation.userID,
-                        faceURL: this.conversation.faceURL,
-                        nickname: this.conversation.showName
-                    }
-                ]);
+            const checkedConversation = encodeURIComponent(
+                JSON.stringify([this.conversation])
+            );
             uni.$u.route('/pages/common/createGroup/index', {
                 type: ContactChooseTypes.Archive,
-                checkedMemberList
+                checkedConversation
             });
         }
     }

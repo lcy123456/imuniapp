@@ -38,7 +38,12 @@
             <view class="flex justify-end my-30">
                 <view>
                     <u-button
-                        :disabled="checkFriendList.length === 0"
+                        :disabled="
+                            ![
+                                ContactChooseTypes.Archive,
+                                ContactChooseTypes.EditArchive
+                            ].includes(type) && checkFriendList.length === 0
+                        "
                         type="primary"
                         :text="`完成 (${checkFriendList.length})`"
                         @click="confirm"
@@ -67,6 +72,7 @@ export default {
     },
     data() {
         return {
+            ContactChooseTypes: Object.freeze(ContactChooseTypes),
             SessionType: Object.freeze(SessionType),
             keyword: '',
             type: ContactChooseTypes.GetList,

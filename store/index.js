@@ -19,7 +19,7 @@ const vuexPersisted = createPersistedState({
         const { user, conversation, contact, base } = state;
         const { keyBoardHeight, thirdData } = base;
         const { authData, isProd, selfInfo, userList } = user;
-        const { conversationList } = conversation;
+        const { conversationList, conversationFolder } = conversation;
         const { friendList, blackList, groupList } = contact;
         return {
             user: {
@@ -29,7 +29,8 @@ const vuexPersisted = createPersistedState({
                 userList
             },
             conversation: {
-                conversationList
+                conversationList,
+                conversationFolder
             },
             contact: {
                 friendList,

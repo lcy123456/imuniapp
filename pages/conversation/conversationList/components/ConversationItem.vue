@@ -390,10 +390,7 @@ export default {
         handleEditArchive() {
             const conversations = this.storeConversationList.filter(v => {
                 const tempAttachedInfo = JSON.parse(v.attachedInfo || '{}');
-                return (
-                    v.userID &&
-                    tempAttachedInfo.archive_id === this.source.archive_id
-                );
+                return tempAttachedInfo.archive_id === this.source.archive_id;
             });
             uni.$u.route('/pages/common/createGroup/index', {
                 type: ContactChooseTypes.EditArchive,
@@ -401,12 +398,8 @@ export default {
                     id: this.source.archive_id,
                     groupName: this.source.showName
                 }),
-                checkedMemberList: JSON.stringify(
-                    conversations.map(v => ({
-                        userID: v.userID,
-                        faceURL: v.faceURL,
-                        nickname: v.showName
-                    }))
+                checkedConversation: encodeURIComponent(
+                    JSON.stringify(conversations)
                 )
             });
         }
