@@ -412,7 +412,7 @@ export default {
     @include btwBox();
     padding: 20rpx;
     position: relative;
-    transform: translateZ(1px);
+    // transform: translateZ(1px);
 
     .left_info {
         @include btwBox();

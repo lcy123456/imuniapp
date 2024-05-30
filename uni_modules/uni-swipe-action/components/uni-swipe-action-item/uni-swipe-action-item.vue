@@ -6,21 +6,21 @@
 		<view class="uni-swipe_box" :change:prop="wxsswipe.showWatch" :prop="is_show" :data-threshold="threshold"
 			:data-disabled="disabled" @touchstart="wxsswipe.touchstart" @touchmove="wxsswipe.touchmove"
 			@touchend="wxsswipe.touchend">
-			<!-- #endif -->
+		<!-- #endif -->
 			<!--  #ifndef MP-WEIXIN || VUE3 -->
 			<view class="uni-swipe_box" :change:prop="renderswipe.showWatch" :prop="is_show" :data-threshold="threshold"
 				:data-disabled="disabled+''" @touchstart="renderswipe.touchstart" @touchmove="renderswipe.touchmove"
 				@touchend="renderswipe.touchend">
-				<!-- #endif -->
+			<!-- #endif -->
 				<!-- 在微信小程序 app vue端 h5 使用wxs 实现-->
 				<view class="uni-swipe_button-group button-group--left">
 					<slot name="left">
 						<view v-for="(item,index) in leftOptions" :key="index" :style="{
 					  backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD'
-					}" class="uni-swipe_button button-hock" @touchstart="appTouchStart"
-							@touchend="appTouchEnd($event,index,item,'left')"
+					}" class="uni-swipe_button button-hock" @touchstart.stop="appTouchStart"
+							@touchend.stop="appTouchEnd($event,index,item,'left')" 
 							@click.stop="onClickForPC(index,item,'left')">
-                            <u-icon v-if="item.icon" :name="item.icon"
+							<u-icon v-if="item.icon" :name="item.icon"
                                 :color="item.style && item.style.color ? item.style.color : '#ffffff'"
                                 :size="item.iconSize ? $u.addUnit(item.iconSize) : item.style && item.style.fontSize ? $u.getPx(item.style.fontSize) * 1.2 : 17"
                                 :customStyle="{
@@ -38,17 +38,16 @@
 					<slot name="right">
 						<view v-for="(item,index) in rightOptions" :key="index" :style="{
 					  backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD'
-					}" class="uni-swipe_button button-hock" @touchstart="appTouchStart"
-							@touchend="appTouchEnd($event,index,item,'right')"
+					}" class="uni-swipe_button button-hock" @touchstart.stop="appTouchStart"
+							@touchend.stop="appTouchEnd($event,index,item,'right')" 
 							@click.stop="onClickForPC(index,item,'right')">
-
-                            <u-icon v-if="item.icon" :name="item.icon"
+							<u-icon v-if="item.icon" :name="item.icon"
                                 :color="item.style && item.style.color ? item.style.color : '#ffffff'"
                                 :size="item.iconSize ? $u.addUnit(item.iconSize) : item.style && item.style.fontSize ? $u.getPx(item.style.fontSize) * 1.2 : 17"
                                 :customStyle="{
                                     marginRight: item.text ? '2px' : 0
-                                }"></u-icon>
-                            <text class="uni-swipe_button-text"
+                                }"></u-icon><text
+								class="uni-swipe_button-text"
 								:style="{color: item.style && item.style.color ? item.style.color : '#FFFFFF',fontSize: item.style && item.style.fontSize ? item.style.fontSize : '16px'}">{{ item.text }}</text>
 						</view>
 					</slot>
@@ -63,9 +62,11 @@
 				<slot name="left">
 					<view v-for="(item,index) in leftOptions" :key="index" :style="{
 				  backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD'
-				}" class="uni-swipe_button button-hock" @click.stop="onClick(index,item,'left')"><text
-							class="uni-swipe_button-text"
-							:style="{color: item.style && item.style.color ? item.style.color : '#FFFFFF', fontSize: item.style && item.style.fontSize ? item.style.fontSize : '16px'}">{{ item.text }}</text>
+				}" class="uni-swipe_button button-hock" @click.stop="onClick(index,item,'left')">
+						<text class="uni-swipe_button-text"
+							:style="{color: item.style && item.style.color ? item.style.color : '#FFFFFF', fontSize: item.style && item.style.fontSize ? item.style.fontSize : '16px'}">
+							{{ item.text }}
+						</text>
 					</view>
 				</slot>
 			</view>
@@ -94,8 +95,8 @@
 						<view v-for="(item,index) in leftOptions" :key="index" :style="{
 					  backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD',
 					  fontSize: item.style && item.style.fontSize ? item.style.fontSize : '16px'
-					}" class="uni-swipe_button button-hock" @touchstart="appTouchStart"
-							@touchend="appTouchEnd($event,index,item,'left')"><text class="uni-swipe_button-text"
+					}" class="uni-swipe_button button-hock" @touchstart.stop="appTouchStart"
+							@touchend.stop="appTouchEnd($event,index,item,'left')"><text class="uni-swipe_button-text"
 								:style="{color: item.style && item.style.color ? item.style.color : '#FFFFFF',}">{{ item.text }}</text>
 						</view>
 					</slot>
@@ -106,7 +107,7 @@
 						<view v-for="(item,index) in rightOptions" :key="index" :style="{
 					  backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD',
 					  fontSize: item.style && item.style.fontSize ? item.style.fontSize : '16px'
-					}" @touchstart="appTouchStart" @touchend="appTouchEnd($event,index,item,'right')"
+					}" @touchstart.stop="appTouchStart" @touchend.stop="appTouchEnd($event,index,item,'right')"
 							class="uni-swipe_button button-hock"><text class="uni-swipe_button-text"
 								:style="{color: item.style && item.style.color ? item.style.color : '#FFFFFF',}">{{ item.text }}</text>
 						</view>
