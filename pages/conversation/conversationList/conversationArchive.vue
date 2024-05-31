@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <view class="conversation_container" @click="closeAllSwipe">
+        <view class="archive_container" @click="closeAllSwipe">
             <CustomNavBar :title="navbarTitle" is-bg-color2 />
             <view class="px-20 pt-10 pb-20 bg-grey" @click="handleToSearch">
                 <uni-search-bar
@@ -11,7 +11,24 @@
                     readonly
                 />
             </view>
-            <scroll-view
+            <z-paging
+                ref="paging"
+                use-virtual-list
+                :force-close-inner-list="true"
+                :fixed="false"
+                preload-page="20"
+            >
+                <uni-swipe-action ref="swipeWrapperRef" class="swipe_wrapper">
+                    <ConversationItem
+                        v-for="(item, index) in showConversationList"
+                        :id="`zp-id-${index}`"
+                        :key="index"
+                        :source="item"
+                        @closeAllSwipe="closeAllSwipe"
+                    />
+                </uni-swipe-action>
+            </z-paging>
+            <!-- <scroll-view
                 class="scroll_view"
                 :scroll-with-animation="true"
                 scroll-y
@@ -23,20 +40,10 @@
                         :key="index"
                         :source="item"
                         @closeAllSwipe="closeAllSwipe"
-                        @deleteArchive="deleteArchive(item)"
                     />
                 </uni-swipe-action>
-            </scroll-view>
-            <div>
-                <u-modal
-                    async-close
-                    show-cancel-button
-                    :show="showConfirm"
-                    :content="`确定删除分组 ${operationFolder.name} 吗？`"
-                    @confirm="handleDeleteArchive"
-                    @cancel="() => (showConfirm = false)"
-                />
-            </div>
+            </scroll-view> -->
+            <DeleteArchiveModal></DeleteArchiveModal>
         </view>
     </Page>
 </template>
@@ -47,36 +54,24 @@ import ConversationItem from './components/ConversationItem.vue';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import { archiveConversation } from './index.vue';
 import { MessageReceiveOptType } from 'openim-uniapp-polyfill';
-import {
-    apiConversationFolderUpdate,
-    setConversations
-} from '@/api/conversation';
+import DeleteArchiveModal from './components/DeleteArchiveModal.vue';
 
 export default {
     components: {
         CustomNavBar,
-        ConversationItem
+        ConversationItem,
+        DeleteArchiveModal
     },
     data() {
         return {
             keyword: '',
             refreshing: false,
             platformID: 0,
-            archive_id: 0,
-            showConfirm: false,
-            operationFolder: {}
+            archive_id: 0
         };
     },
     computed: {
-        ...mapGetters([
-            'storeConversationList',
-            'storeIsSyncing',
-            'storeSelfInfo',
-            'storeUserID',
-            'storeCurrentConversationID',
-            'storeConversationFolder',
-            'storeCurrentUserID'
-        ]),
+        ...mapGetters(['storeConversationList', 'storeConversationFolder']),
         navbarTitle() {
             return this.currentConversationFolder?.name || '分组列表';
         },
@@ -146,56 +141,13 @@ export default {
         },
         closeAllSwipe() {
             this.$refs.swipeWrapperRef.closeAll();
-        },
-        deleteArchive(item) {
-            this.showConfirm = true;
-            this.operationFolder = this.storeConversationFolder.find(
-                v => v.id === item.archive_id
-            );
-        },
-        async handleDeleteArchive() {
-            try {
-                const params = {
-                    ...this.operationFolder,
-                    state: -1
-                };
-                await apiConversationFolderUpdate(params);
-                this.updateConversationFolder(params);
-
-                const conversations = this.storeConversationList.filter(v => {
-                    const tempAttachedInfo = JSON.parse(v.attachedInfo || '{}');
-                    return tempAttachedInfo.archive_id === params.id;
-                });
-                const promiseArr = conversations.map(v => {
-                    const tempAttachedInfo = JSON.parse(v.attachedInfo || '{}');
-                    return setConversations({
-                        userIDs: [this.storeCurrentUserID],
-                        conversation: {
-                            conversationID: v.conversationID,
-                            conversationType: v.conversationType,
-                            groupID: v.groupID,
-                            attachedInfo: JSON.stringify({
-                                ...tempAttachedInfo,
-                                archive_id: -1
-                            })
-                        }
-                    });
-                });
-                await Promise.all(promiseArr);
-                this.$toast('删除分组成功');
-            } catch (err) {
-                console.log(err);
-                this.$toast('删除分组失败');
-            } finally {
-                this.showConfirm = false;
-            }
         }
     }
 };
 </script>
 
 <style lang="scss" scoped>
-.conversation_container {
+.archive_container {
     @include colBox(false);
     height: 100vh;
     overflow-y: hidden;
@@ -203,13 +155,6 @@ export default {
 
 .z-paging-content {
     flex: 1;
-}
-
-.loading_wrap {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
 }
 .scroll_view {
     flex: 1;

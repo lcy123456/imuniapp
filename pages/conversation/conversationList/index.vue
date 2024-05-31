@@ -55,6 +55,9 @@
         >
             <u-loading-icon text="同步中" />
         </view> -->
+            <DeleteArchiveModal
+                :isShowModal="isShowArchiveModal"
+            ></DeleteArchiveModal>
         </view>
     </Page>
 </template>
@@ -65,6 +68,7 @@ import ChatHeader from './components/ChatHeader.vue';
 import { isNeedRestart } from '@/util/common';
 import PcLoginTip from './components/PcLoginTip.vue';
 import ConversationItem from './components/ConversationItem.vue';
+import DeleteArchiveModal from './components/DeleteArchiveModal.vue';
 import { prepareConversationState } from '@/util/imCommon';
 import { PageEvents } from '@/constant';
 import { videoGetToken, videoGetOfflineInfo } from '@/api/incoming';
@@ -104,7 +108,8 @@ export default {
     components: {
         ChatHeader,
         ConversationItem,
-        PcLoginTip
+        PcLoginTip,
+        DeleteArchiveModal
     },
     data() {
         return {
@@ -112,7 +117,8 @@ export default {
             keyword: '',
             refreshing: false,
             platformID: 0,
-            isDisabledSwipe: false
+            isDisabledSwipe: false,
+            isShowArchiveModal: true
         };
     },
     computed: {
@@ -202,14 +208,18 @@ export default {
         this.getCall();
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
     },
+    onUnload() {
+        clearInterval(this.timer);
+        uni.$off(PageEvents.ClickPushMessage, this.handlePushConversation);
+    },
     onShow() {
+        this.isShowArchiveModal = true;
         if (!this.storeUserID) return;
         this.getConversationFolder();
         isNeedRestart.call(this, '#conversation_container');
     },
-    onUnload() {
-        clearInterval(this.timer);
-        uni.$off(PageEvents.ClickPushMessage, this.handlePushConversation);
+    onHide() {
+        this.isShowArchiveModal = false;
     },
     methods: {
         ...mapActions('incomingCall', ['appearLoadingCall']),

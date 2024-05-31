@@ -256,7 +256,7 @@ export default {
         clickConversationItem() {
             if (this.source.isArchvistItem) {
                 uni.$u.route(
-                    'pages/conversation/conversationList/conversationArchive',
+                    '/pages/conversation/conversationList/conversationArchive',
                     {
                         archive_id: this.source.archive_id
                     }
@@ -288,7 +288,7 @@ export default {
                     this.handleEditArchive();
                     break;
                 case 'deleteArchive':
-                    this.$emit('deleteArchive');
+                    uni.$emit('deleteArchive', this.source);
                     break;
             }
             this.$hideLoading();
