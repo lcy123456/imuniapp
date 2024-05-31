@@ -207,16 +207,17 @@ export default {
         }, 3000);
         this.getCall();
         uni.$on(PageEvents.ClickPushMessage, this.handlePushConversation);
+        uni.$on('app_show', this.handleRestart);
     },
     onUnload() {
         clearInterval(this.timer);
         uni.$off(PageEvents.ClickPushMessage, this.handlePushConversation);
+        uni.$off('app_show', this.handleRestart);
     },
     onShow() {
         this.isShowArchiveModal = true;
         if (!this.storeUserID) return;
         this.getConversationFolder();
-        isNeedRestart.call(this, '#conversation_container');
     },
     onHide() {
         this.isShowArchiveModal = false;
@@ -224,6 +225,9 @@ export default {
     methods: {
         ...mapActions('incomingCall', ['appearLoadingCall']),
         ...mapActions('conversation', ['getConversationFolder']),
+        handleRestart() {
+            isNeedRestart.call(this, '#conversation_container');
+        },
         async authGetPcLoginPlatform() {
             if (!this.storeUserID) return;
             try {

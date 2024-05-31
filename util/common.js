@@ -103,22 +103,24 @@ export const getDbDir = () => {
 };
 
 export function isNeedRestart(el) {
-    setTimeout(() => {
+    let noFindCount = 0;
+    const handle = () => {
+        if (noFindCount > 5) {
+            plus.runtime.restart();
+        }
         const query = uni.createSelectorQuery().in(this);
-        let isRecovery = true;
-        query
-            .select(el)
-            .boundingClientRect(() => {
-                isRecovery = false;
-            })
-            .exec();
+        const node = query.select(el);
+        node.boundingClientRect(() => {
+            noFindCount = 99999;
+        }).exec();
 
         setTimeout(() => {
-            if (isRecovery) {
-                plus.runtime.restart();
-            }
-        }, 800);
-    }, 2000);
+            if (noFindCount === 99999) return;
+            noFindCount++;
+            handle();
+        }, 1000);
+    };
+    handle();
 }
 
 export const formatChooseData = (data, key = 'nickname') => {
