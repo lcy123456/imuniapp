@@ -108,9 +108,7 @@ export default {
                 let _archiveConversation = {
                     ...archiveConversation,
                     archive_id: v.id,
-                    faceURL: plus.io.convertLocalFileSystemURL(
-                        '/static/images/archive.png'
-                    ),
+                    faceURL: '/static/images/archive.png',
                     showName: v.name,
                     unreadCount,
                     latestMsg: JSON.stringify({

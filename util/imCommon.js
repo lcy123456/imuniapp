@@ -1029,7 +1029,12 @@ export const parseAtInsertImg = atel => {
 };
 
 export const formatFileUrl = url => {
-    if (!url || /blob|http(s?)|base64|\/storage|\/var/.test(url)) return url;
+    if (
+        !url ||
+        /blob|base64/.test(url) ||
+        /^(http(s?)|\/storage|\/var|\/static)/.test(url)
+    )
+        return url;
     const { storeThirdData } = store.getters;
     return storeThirdData?.oss?.url + url;
 };

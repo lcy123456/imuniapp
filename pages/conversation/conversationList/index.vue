@@ -155,9 +155,7 @@ export default {
             if (this.storeConversationFolder.length > 1) {
                 _archiveConversation = {
                     ..._archiveConversation,
-                    faceURL: plus.io.convertLocalFileSystemURL(
-                        '/static/images/archive_more.png'
-                    ),
+                    faceURL: '/static/images/archive_more.png',
                     showName: '我的分组',
                     latestMsg: JSON.stringify({
                         contentType: 101,
@@ -172,9 +170,7 @@ export default {
             } else {
                 _archiveConversation = {
                     ..._archiveConversation,
-                    faceURL: plus.io.convertLocalFileSystemURL(
-                        '/static/images/archive.png'
-                    ),
+                    faceURL: '/static/images/archive.png',
                     showName: this.storeConversationFolder[0].name,
                     archive_id: this.storeConversationFolder[0].id,
                     latestMsg: JSON.stringify({
