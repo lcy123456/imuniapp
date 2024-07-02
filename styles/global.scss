@@ -1,0 +1,293 @@
+/* #ifndef APP-NVUE */
+image {
+	image-rendering:-moz-crisp-edges;
+	image-rendering:-o-crisp-edges;
+	image-rendering:-webkit-optimize-contrast;
+	image-rendering: crisp-edges;
+	-ms-interpolation-mode:nearest-neighbor;
+}
+/* #endif */
+
+/* 行为相关颜色 */
+.primary {
+	color: $uni-color-primary;
+};
+.success {
+	color: $uni-color-success;
+};
+.warning {
+	color: $uni-color-warning;
+};
+.error {
+	color: $uni-color-error;
+};
+
+/* 文字基本颜色 */
+.text-color {
+	color: $uni-text-color;
+}
+.text-inverse {
+	color: $uni-text-color-inverse;
+}
+.text-grey {
+	color: $uni-text-color-grey;
+}
+.text-placeholder {
+	color: $uni-text-color-placeholder;
+}
+.text-disable {
+	color: $uni-text-color-disable;
+}
+
+/* 背景颜色 */
+.bg-color {
+	background-color: $uni-bg-color;
+}
+.bg-inverse {
+	background-color: $uni-bg-color-black;
+}
+.bg-grey {
+	background-color: $uni-bg-color-grey;
+}
+.bg-hover {
+	background-color: $uni-bg-color-hover;
+}
+.bg-mask {
+	background-color: $uni-bg-color-mask;
+}
+.bg-primary {
+	background-color: $uni-color-primary;
+};
+
+/* 边框颜色 */
+.border-primary {
+	border: 2rpx solid $uni-color-primary;
+};
+.border-color {
+	border: 2rpx solid $uni-border-color;
+};
+.border-inverse {
+	border: 2rpx solid $uni-border-color-inverse;
+};
+
+/* 导航栏高度，含状态栏 */
+/* #ifndef APP-NVUE */
+.navbar-height-all {
+	height: calc(#{$uni-navbar-height} + var(--status-bar-height));
+}
+.navbar-height {
+	height: $uni-navbar-height;
+}
+/* 状态栏高度 */
+.status-bar-height {
+	height: var(--status-bar-height);
+	flex-shrink: 0;
+}
+/* #endif */
+
+.ff-bold {
+	font-family: MiSans-Demibold;
+}
+.ff-medium {
+	font-family: MiSans-Medium;
+}
+.ff-regular {
+	font-family: MiSans-Regular;
+}
+
+@for $i from 0 through 300 {
+	.w-#{$i * 1} {
+		width: #{$i * 1}rpx;
+	}
+	.h-#{$i * 1} {
+		height: #{$i * 1}rpx;
+	}
+	.lh-#{$i * 1} {
+		line-height: #{$i * 1}rpx;
+	}
+	.m-#{$i * 1} {
+		margin: #{$i * 1}rpx;
+	}
+	.mx-#{$i * 1} {
+		margin-left: #{$i * 1}rpx;
+		margin-right: #{$i * 1}rpx;
+	}
+	.my-#{$i * 1} {
+		margin-top: #{$i * 1}rpx;
+		margin-bottom: #{$i * 1}rpx;
+	}
+	.mt-#{$i * 1} {
+		margin-top: #{$i * 1}rpx;
+	}
+	.mr-#{$i * 1} {
+		margin-right: #{$i * 1}rpx;
+	}
+	.mb-#{$i * 1} {
+		margin-bottom: #{$i * 1}rpx;
+	}
+	.ml-#{$i * 1} {
+		margin-left: #{$i * 1}rpx;
+	}
+	.p-#{$i * 1} {
+		padding: #{$i * 1}rpx;
+	}
+	.px-#{$i * 1} {
+		padding-left: #{$i * 1}rpx;
+		padding-right: #{$i * 1}rpx;
+	}
+	.py-#{$i * 1} {
+		padding-top: #{$i * 1}rpx;
+		padding-bottom: #{$i * 1}rpx;
+	}
+	.pt-#{$i * 1} {
+		padding-top: #{$i * 1}rpx;
+	}
+	.pr-#{$i * 1} {
+		padding-right: #{$i * 1}rpx;
+	}
+	.pb-#{$i * 1} {
+		padding-bottom: #{$i * 1}rpx;
+	}
+	.pl-#{$i * 1} {
+		padding-left: #{$i * 1}rpx;
+	}
+	.l-#{$i} {
+		left: #{$i * 1}rpx;
+	}
+	.r-#{$i * 1} {
+		right: #{$i * 1}rpx;
+	}
+	.b-#{$i * 1} {
+		bottom: #{$i * 1}rpx;
+	}
+	.t-#{$i * 1} {
+		top: #{$i * 1}rpx;
+	}
+}
+@for $i from 12 through 60 {
+	.fz-#{$i} {
+		font-size: #{$i}rpx;
+	}
+	.br-#{$i * 1} {
+		border-radius: #{$i * 1}rpx;
+	}
+}
+
+.w-full {
+	width: 100%;
+}
+.h-full {
+	height: 100%;
+}
+.absolute {
+	position: absolute;
+}
+.relative {
+	position: relative;
+}
+.fixed {
+	position: fixed;
+}
+.left-center {
+	left: 50%;;
+	transform: translateX(-50%);
+}
+.top-center {
+	top: 50%;;
+	transform: translateY(-50%);
+}
+
+.flex {
+	display: flex;
+}
+.flex-wrap {
+	flex-wrap: wrap;
+}
+.flex-column {
+	flex-direction: column;
+}
+.justify-center {
+	justify-content: center;
+}
+.justify-end {
+	justify-content: flex-end;
+}
+.justify-start {
+	justify-content: flex-start;
+}
+.justify-around {
+	justify-content: space-around;
+}
+.justify-between {
+	justify-content: space-between;
+}
+/* #ifndef APP-NVUE */
+.justify-evenly {
+	justify-content: space-evenly;
+}
+/* #endif */
+.align-center {
+	align-items: center;
+}
+.align-end {
+	align-items: flex-end;
+}
+.align-start {
+	align-items: flex-start;
+}
+/* #ifndef APP-NVUE */
+.flex-grow {
+	flex-grow: 1;
+}
+.flex-shrink {
+	flex-shrink: 0;
+}
+/* #endif */
+.text-center {
+	text-align: center;
+}
+.text-right {
+	text-align: right;
+}
+.over-hide {
+	overflow: hidden;
+}
+/* #ifndef APP-NVUE */
+.over-auto {
+	overflow: auto;
+}
+/* #endif */
+.nomalEllipsis {
+	@include nomalEllipsis();
+}
+
+
+// 插件
+.uni-searchbar {
+	padding: 0 !important;
+	.uni-searchbar__box {
+		padding: 0 8px !important;
+		height: 100% !important;
+		.uni-searchbar__box-icon-search {
+			padding: 0;
+		}
+		.uni-searchbar__box-search-input {
+			margin-left: 10rpx
+		}
+	}
+	.uni-searchbar__cancel {
+		@include vCenterBox();
+	}
+}
+.u-popup__content {
+	overflow: hidden;
+}
+.base-count {
+    background: red;
+    color: #fff;
+    border-radius: 30rpx;
+    padding: 5rpx 10rpx;
+    font-size: 24rpx;
+    min-width: 40rpx;
+    text-align: center;
+}

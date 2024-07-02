@@ -1,0 +1,11 @@
+{
+    "editor.fontSize": 14, // 代码字体大小
+    "editor.tabSize": 4, // tab 大小
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode", // 使用prettier作为格式化插件
+    "javascript.updateImportsOnFileMove.enabled": "always", //js重命名文件自动更新路径
+    // 自动修复
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    }
+}

@@ -1,0 +1,77 @@
+{
+    "id": "lemon-filePicker",
+    "displayName": "安卓iOS 双端APP文件选择",
+    "version": "1.5",
+    "description": "支持IOS 、安卓 双平台的APP文件选取插件",
+    "keywords": [
+        "文件选择",
+        "APP",
+        "安卓",
+        "ios"
+    ],
+    "repository": "",
+    "engines": {
+        "HBuilderX": "^3.8.7"
+    },
+    "dcloudext": {
+        "type": "uts",
+        "contact": {
+            "qq": ""
+        },
+        "declaration": {
+            "ads": "无",
+            "data": "无",
+            "permissions": "文件读取权限 <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\"/>"
+        },
+        "npmurl": ""
+    },
+    "uni_modules": {
+        "dependencies": [],
+        "encrypt": [],
+        "platforms": {
+            "cloud": {
+                "tcb": "y",
+                "aliyun": "y"
+            },
+            "client": {
+                "Vue": {
+                    "vue2": "y",
+                    "vue3": "y"
+                },
+                "App": {
+                    "app-android": "y",
+                    "app-ios": "y"
+                },
+                "H5-mobile": {
+                    "Safari": "n",
+                    "Android Browser": "n",
+                    "微信浏览器(Android)": "n",
+                    "QQ浏览器(Android)": "n"
+                },
+                "H5-pc": {
+                    "Chrome": "n",
+                    "IE": "n",
+                    "Edge": "n",
+                    "Firefox": "n",
+                    "Safari": "n"
+                },
+                "小程序": {
+                    "微信": "n",
+                    "阿里": "n",
+                    "百度": "n",
+                    "字节跳动": "n",
+                    "QQ": "n",
+                    "钉钉": "n",
+                    "快手": "n",
+                    "飞书": "n",
+                    "京东": "n"
+                },
+                "快应用": {
+                    "华为": "n",
+                    "联盟": "n"
+                }
+            }
+        }
+    },
+    "name": "安卓iOS 双端APP文件选择"
+}

@@ -1,0 +1,53 @@
+/* #ifndef APP-NVUE */
+.box-logo {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	margin: calc(122rpx - #{$uni-navbar-height}) 0 80rpx;
+	.logo {
+		margin-bottom: 34rpx;
+	}
+}
+
+.login-input.u-input {
+    height: 96rpx;
+    border-radius: 16rpx !important;
+    // border-width: 2rpx !important;
+    border-color: $uni-color-primary !important;
+}
+
+.phoneNumber_areacode {
+	height: 96rpx;
+    display: flex;
+    align-items: center;
+    font-size: 36rpx;
+    margin-right: 20rpx;
+	background-color: $uni-bg-color-grey;
+	border-radius: 16rpx;
+	padding: 0 20rpx;
+
+    .areacode_content {
+        font-weight: 400;
+        font-size: 28rpx;
+        margin: 0 12rpx 0 10rpx;
+    }
+
+    .arrow_down {
+        margin-right: 12rpx;
+    }
+}
+
+.agreement {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 36rpx 24rpx;
+	font-size: 24rpx;
+
+    .detail {
+        font-weight: 400;
+        color: $u-primary;
+		text-decoration: underline;
+    }
+}
+/* #endif */

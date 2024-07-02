@@ -1,0 +1,24 @@
+.page_container {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+    overflow: hidden;
+}
+
+.operation-btn {
+    height: 130rpx;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $uni-bg-color;
+    border-radius: 30rpx;
+    margin-bottom: 30rpx;
+}
+
+.emoji_display {
+    width: 24px;
+    height: 18px;
+    /* #ifndef APP-NVUE */
+    vertical-align: sub;
+    /* #endif */
+}
