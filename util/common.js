@@ -1,6 +1,7 @@
 import PinYin from './pinyin';
 import { AllType, PhoneReg } from '@/enum';
 import { pinyin } from 'pinyin-pro';
+import i18n from '../lang/index';
 
 export const html2Text = (html, type) => {
     if (!html) {
@@ -247,28 +248,24 @@ export const toastWithCallback = (message, callBack, duration = 1000) => {
 };
 
 const errCodeMap = {
-    1001: '输入信息有误',
-    1004: '邮箱不存在',
-    10001: '密码错误',
-    10002: '用户不存在',
-    10003: '账号已注册',
-    10004: '账号已注册',
-    10005: '验证码的发送频率太快了！',
-    10006: '验证码错误',
-    10007: '验证码已过期',
-    10008: '验证码失败次数过多',
-    10009: '验证码已被使用',
-    10010: '邀请码已被使用',
-    10011: '邀请码不存在',
-    10013: '拒绝添加好友',
-    10016: '邮箱格式错误'
+    1001: i18n.t('Input_information_is_incorrect'),
+    1004: i18n.t('Email_address_does_not_exist'),
+    10001: i18n.t('Wrong_password'),
+    10002: i18n.t('User_does_not_exist'),
+    10003: i18n.t('Account_has_been_registered'),
+    10004: i18n.t('Account_has_been_registered'),
+    10005: i18n.t('Verification_code_is_sent_too_fast'),
+    10006: i18n.t('Verification_code_error'),
+    10007: i18n.t('Verification_code_has_expired'),
+    10008: i18n.t('Verification_code_has_failed_too_many_times'),
+    10009: i18n.t('Verification_code_has_been_used'),
+    10010: i18n.t('Invitation_code_has_been_used'),
+    10011: i18n.t('Invitation_code_does_not_exist'),
+    10013: i18n.t('Reject_adding_friends'),
+    10016: i18n.t('Email_format_error')
 };
 export const checkLoginError = error => {
-    return (
-        errCodeMap[error?.errCode] ||
-        error?.errMsg ||
-        '未知的接口错误，请联系管理员'
-    );
+    return errCodeMap[error?.errCode] || error?.errMsg || i18n.t('SYS_error');
 };
 
 export const lightTextStr = (str, key) => {
