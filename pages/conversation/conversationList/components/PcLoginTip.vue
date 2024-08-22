@@ -2,11 +2,7 @@
     <view class="pc_login_tip" @click="goScanLogin">
         <view class="flex box">
             <image src="/static/images/scan-login-icon.png" />
-            <text
-                >已在{{
-                    PlatformMap[platformID] || '客户'
-                }}端登录，手机通知已关闭</text
-            >
+            <text>{{ loginTips }}</text>
         </view>
     </view>
 </template>
@@ -27,7 +23,32 @@ export default {
             PlatformMap
         };
     },
-    computed: {},
+    computed: {
+        loginTips() {
+            return (
+                {
+                    1: this.$t(
+                        'Logged_in_on_iOS_mobile_notifications_are_turned_off'
+                    ),
+                    2: this.$t(
+                        'Logged_in_on_Android_mobile_notifications_are_turned_off'
+                    ),
+                    3: this.$t(
+                        'Logged_in_on_client_mobile_notifications_are_turned_off'
+                    ),
+                    4: this.$t(
+                        'Logged_in_on_iOS_mobile_notifications_are_turned_off'
+                    ),
+                    5: this.$t(
+                        'Logged_in_on_PC_mobile_notifications_are_turned_off'
+                    )
+                }[this.platformID] ||
+                this.$t(
+                    'Logged_in_on_client_mobile_notifications_are_turned_off'
+                )
+            );
+        }
+    },
     methods: {
         goScanLogin() {
             uni.navigateTo({

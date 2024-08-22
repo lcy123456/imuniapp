@@ -195,7 +195,7 @@ export default {
                     });
                 })
                 .catch(({ data, errCode }) => {
-                    console.log('发送失败', data, errCode);
+                    console.log(this.$t('Send_failed'), data, errCode);
                     this.$store.dispatch('message/updateOneMessage', {
                         message: data,
                         type: UpdateMessageTypes.KeyWords,

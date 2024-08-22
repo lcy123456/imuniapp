@@ -7,7 +7,7 @@
                     v-model="keyword"
                     bg-color="#fff"
                     class="h-70"
-                    placeholder="搜索"
+                    :placeholder="$t('Search')"
                     readonly
                 />
             </view>
@@ -73,7 +73,9 @@ export default {
     computed: {
         ...mapGetters(['storeConversationList', 'storeConversationFolder']),
         navbarTitle() {
-            return this.currentConversationFolder?.name || '分组列表';
+            return (
+                this.currentConversationFolder?.name || this.$t('Group_List')
+            );
         },
         currentConversationFolder() {
             return this.storeConversationFolder.find(

@@ -36,7 +36,7 @@ export default {
     methods: {
         bytesToSize,
         clickFileItem() {
-            this.$loading('加载中');
+            this.$loading(this.$t('Loading'));
             if (this.path) {
                 this.openDoc(this.path);
             } else {
@@ -60,7 +60,11 @@ export default {
                 },
                 fail: err => {
                     console.log('打开文档失败', err);
-                    this.$toast('暂不支持的文件格式，请保存到本地进行预览');
+                    this.$toast(
+                        this.$t(
+                            'File_format_is_not_supported_yet_please_save_to_local_for_preview'
+                        )
+                    );
                 }
             });
         }

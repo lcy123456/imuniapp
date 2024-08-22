@@ -48,31 +48,31 @@ export default {
                 {
                     idx: 0,
                     type: ChatingFooterActionTypes.Album,
-                    title: '相册',
+                    title: this.$t('Album'),
                     icon: require('static/images/chating_action_image.png')
                 },
                 {
                     idx: 1,
                     type: ChatingFooterActionTypes.Camera,
-                    title: '拍摄',
+                    title: this.$t('Photograph'),
                     icon: require('static/images/chating_action_camera.png')
                 },
                 // {
                 //     idx: 2,
                 //     type: ChatingFooterActionTypes.Call,
-                //     title: '视频通话',
+                //     title: this.$t('Video_call'),
                 //     icon: require('static/images/chating_action_call.png')
                 // },
                 {
                     idx: 3,
                     type: ChatingFooterActionTypes.File,
-                    title: '文件',
+                    title: this.$t('File'),
                     icon: require('static/images/chating_action_file.png')
                 },
                 {
                     idx: 4,
                     type: ChatingFooterActionTypes.special,
-                    title: '不可编辑消息',
+                    title: this.$t('Uneditable_message'),
                     icon: require(
                         `static/images/${
                             this.isSpecial ? 'special_checked' : 'special'

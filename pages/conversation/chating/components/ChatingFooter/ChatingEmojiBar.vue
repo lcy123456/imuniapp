@@ -23,7 +23,7 @@
                 <uni-search-bar
                     v-model="keyword"
                     class="h-70"
-                    placeholder="搜索"
+                    :placeholder="$t('Search')"
                     @confirm="handleGetGifs(true)"
                     @cancel="handleSearchCancle"
                 />
@@ -118,11 +118,11 @@ export default {
             pageNumber: 1,
             actionSheetMenu: [
                 {
-                    name: '删除表情',
+                    name: this.$t('Delete_emoticon'),
                     type: 0
                 },
                 {
-                    name: '取消',
+                    name: this.$t('Cancel'),
                     type: 1
                 }
             ],
@@ -160,7 +160,7 @@ export default {
                     await emojiCollectCancel({
                         id: this.item.id
                     });
-                    uni.$u.toast('删除成功');
+                    uni.$u.toast(this.$t('Delete_successfully'));
                     const l = [...this.emoticonsList];
                     const index = this.emoticonsList.findIndex(
                         v => v.id === this.item.id
@@ -170,7 +170,7 @@ export default {
                     this.emojiCollectList();
                     this.showActionSheet = false;
                 } catch (err) {
-                    uni.$u.toast('删除失败');
+                    uni.$u.toast(this.$t('Delete_failed'));
                 }
             } else {
                 this.showActionSheet = false;
@@ -223,7 +223,7 @@ export default {
             if (this.gifScrollEnd) return;
             this.gifLoading = true;
             const res = await getGifsSearch({
-                q: this.keyword || '搞笑',
+                q: this.keyword || 'funny',
                 offset: isInit ? 0 : this.gifsData.length,
                 limit
             });

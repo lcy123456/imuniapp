@@ -39,7 +39,7 @@ export default {
         },
         download() {
             if (this.downloading) return;
-            this.showToast('下载中', true);
+            this.showToast(this.$t('Downloading'), true);
             this.downloading = true;
             uni.downloadFile({
                 url: this.previewVideoUrl,
@@ -48,18 +48,22 @@ export default {
                         uni.saveVideoToPhotosAlbum({
                             filePath: res.tempFilePath,
                             success: () => {
-                                this.showToast('下载成功,已保存到相册');
+                                this.showToast(this.$t('Download_successful'));
                             },
                             fail: () => {
-                                this.showToast('保存失败');
+                                this.showToast(
+                                    this.$t(
+                                        'Save_failed_please_try_again_later'
+                                    )
+                                );
                             }
                         });
                     } else {
-                        this.showToast('下载失败');
+                        this.showToast(this.$t('Download_failed'));
                     }
                 },
                 fail: () => {
-                    this.showToast('下载失败');
+                    this.showToast(this.$t('Download_failed'));
                 }
             });
         },

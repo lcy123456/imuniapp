@@ -92,7 +92,7 @@ export default {
                     emoji
                 });
             } catch (err) {
-                uni.$u.toast('点赞失败');
+                uni.$u.toast(this.$t('Like_failed'));
             }
         }
     }

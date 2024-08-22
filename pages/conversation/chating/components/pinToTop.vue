@@ -11,7 +11,7 @@
             />
         </view>
         <view class="content">
-            <text>置顶消息</text>
+            <text>{{ $t('Pinned_message') }}</text>
             <scroll-view
                 class="scroll_view"
                 :scroll-with-animation="true"

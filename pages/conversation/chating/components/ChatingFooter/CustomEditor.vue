@@ -186,7 +186,9 @@ export default {
             filePathMap
         ) {
             const canvas = this.canvasData;
-            canvas.title = !type ? '@' + senderNickname : '@所有人';
+            canvas.title = !type
+                ? '@' + senderNickname
+                : `@${this.$t('[Everyone]').slice(1, -1)}`;
             await this.$nextTick();
             setTimeout(() => {
                 const query = uni.createSelectorQuery().in(this);
@@ -278,7 +280,7 @@ export default {
                     });
                 },
                 fail: () => {
-                    console.log('失败失败失败失败失败失败失败失败失败失败');
+                    // console.log('失败失败失败失败失败失败失败失败失败失败');
                 }
             });
         },

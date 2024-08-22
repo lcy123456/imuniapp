@@ -19,7 +19,12 @@
         </view>
         <template slot="center">
             <view v-if="isMultipleMsg" class="ff-bold">
-                已选中{{ checkedMsgIds.length }}条
+                {{
+                    $t('{value}_items_selected').replace(
+                        '{value}',
+                        checkedMsgIds.length
+                    )
+                }}
             </view>
             <view v-else class="conversation_info">
                 <view class="title">
@@ -51,7 +56,7 @@
         </template>
         <view slot="more" class="right_action">
             <view v-if="isMultipleMsg" class="primary" @click="handleMultiple">
-                取消
+                {{ $t('Cancel') }}
             </view>
             <MyAvatar
                 v-else-if="isSingle"
@@ -101,7 +106,7 @@ export default {
     data() {
         return {
             isOnline: false,
-            onlineStr: '离线',
+            onlineStr: this.$t('Offline'),
             typingText: ''
         };
     },
@@ -134,7 +139,10 @@ export default {
             );
         },
         groupMemberCount() {
-            return `${this.storeCurrentGroup?.memberCount ?? 0}位成员`;
+            return this.$t('{value}_members').replace(
+                '{value}',
+                this.storeCurrentGroup?.memberCount ?? 0
+            );
         }
     },
     created() {

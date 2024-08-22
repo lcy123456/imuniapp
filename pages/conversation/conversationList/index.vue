@@ -11,7 +11,7 @@
                     v-model="keyword"
                     bg-color="#fff"
                     class="h-70"
-                    placeholder="搜索"
+                    :placeholder="$t('Search')"
                     readonly
                 />
             </view>
@@ -87,7 +87,7 @@ export let archiveConversation = {
     userID: '',
     latestMsgSendTime: 0,
     maxSeq: 0,
-    showName: '我的分组',
+    showName: this.$t('My_group1'),
     conversationID: '',
     conversationType: 0,
     isPinned: false,
@@ -156,7 +156,7 @@ export default {
                 _archiveConversation = {
                     ..._archiveConversation,
                     faceURL: '/static/images/archive_more.png',
-                    showName: '我的分组',
+                    showName: this.$t('My_group1'),
                     latestMsg: JSON.stringify({
                         contentType: 101,
                         textElem: {

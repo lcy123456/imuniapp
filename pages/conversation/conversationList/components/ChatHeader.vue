@@ -69,22 +69,22 @@ export default {
             moreMenus: [
                 // {
                 //     idx: 3,
-                //     title: '创建群聊',
+                //     title: this.$t('Create_group_chat'),
                 //     icon: '/static/images/more_create_group.svg'
                 // },
                 {
                     idx: 2,
-                    title: '加入群聊',
+                    title: this.$t('Join_group_chat'),
                     icon: '/static/images/more_add_group.svg'
                 },
                 {
                     idx: 1,
-                    title: '搜索好友',
+                    title: this.$t('Search_for_friends'),
                     icon: '/static/images/more_add_friend.svg'
                 },
                 {
                     idx: 0,
-                    title: '扫一扫',
+                    title: this.$t('Scan'),
                     icon: '/static/images/more_qr.svg'
                 }
             ]

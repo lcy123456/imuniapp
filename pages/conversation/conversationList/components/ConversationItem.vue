@@ -57,7 +57,7 @@
                     :value="source.unreadCount"
                 />
             </view>
-            <view class="burn_wrap" v-if="source.isPrivateChat">
+            <view v-if="source.isPrivateChat" class="burn_wrap">
                 {{ burnToText }}
             </view>
         </view>
@@ -113,21 +113,21 @@ export default {
             let prefix = '';
 
             if (this.notAccept && this.source.unreadCount > 0) {
-                prefix = `[${this.source.unreadCount}条] `;
+                prefix = `[${this.source.unreadCount}${this.$t('Strip')}] `;
             }
             if (this.needActivePerfix) {
                 switch (this.source.groupAtType) {
                     case GroupAtType.AtAll:
-                        prefix = '[所有人]';
+                        prefix = this.$t('[Everyone]');
                         break;
                     case GroupAtType.AtMe:
-                        prefix = '[有人@你]';
+                        prefix = this.$t('[Someone_@_you]');
                         break;
                     case GroupAtType.AtAllAtMe:
-                        prefix = '[有人@你]';
+                        prefix = this.$t('[Someone_@_you]');
                         break;
                     case GroupAtType.AtGroupNotice:
-                        prefix = '[群公告]';
+                        prefix = this.$t('[Group_announcement]');
                         break;
                 }
             }
@@ -180,7 +180,7 @@ export default {
                 return [
                     {
                         type: 'editArchive',
-                        text: '编辑',
+                        text: this.$t('Edit'),
                         icon: `/static/images/chating_message_edit.svg`,
                         style: {
                             backgroundColor: '#37A0EC'
@@ -188,7 +188,7 @@ export default {
                     },
                     {
                         type: 'deleteArchive',
-                        text: '删除',
+                        text: this.$t('Delete'),
                         icon: `/static/images/conversation_del.png`,
                         style: {
                             backgroundColor: '#ec4b37'
@@ -201,7 +201,11 @@ export default {
             let actions = [
                 {
                     type: 'accept',
-                    text: `${notAccept ? '打开' : '关闭'}通知`,
+                    text: `${
+                        notAccept
+                            ? this.$t('Open_Notification')
+                            : this.$t('Close_notification')
+                    }`,
                     icon: `/static/images/conversation_${
                         notAccept ? 'accept' : 'not_accept_white'
                     }.png`,
@@ -211,7 +215,9 @@ export default {
                 },
                 {
                     type: 'pinned',
-                    text: `${this.source.isPinned ? '取消' : ''}置顶`,
+                    text: `${
+                        this.source.isPinned ? this.$t('Cancel') : ''
+                    }${this.$t('Pin')}`,
                     icon: `/static/images/conversation${
                         this.source.isPinned ? '_not' : ''
                     }_pinned.png`,
@@ -221,7 +227,7 @@ export default {
                 },
                 {
                     type: 'delete',
-                    text: '删除',
+                    text: this.$t('Delete'),
                     icon: `/static/images/conversation_del.png`,
                     style: {
                         backgroundColor: '#ec4b37'
@@ -229,7 +235,9 @@ export default {
                 },
                 {
                     type: 'archive',
-                    text: `${this.isArchive ? '取消' : ''}分组`,
+                    text: `${this.isArchive ? this.$t('Cancel') : ''}${this.$t(
+                        'Group'
+                    )}`,
                     icon: `/static/images/archive${
                         this.isArchive ? '_not' : ''
                     }.svg`,
@@ -241,7 +249,7 @@ export default {
             if (this.source.unreadCount > 0) {
                 actions.unshift({
                     type: 'read',
-                    text: '标记已读',
+                    text: this.$t('Mark_as_read'),
                     icon: `/static/images/conversation_read.png`,
                     style: {
                         backgroundColor: '#3478f5'
@@ -266,7 +274,7 @@ export default {
             }
         },
         async clickConversationMenu({ content }) {
-            this.$loading('加载中');
+            this.$loading(this.$t('Loading'));
 
             switch (content.type) {
                 case 'read':
@@ -325,7 +333,7 @@ export default {
                         })
                     }
                 });
-                uni.$u.toast('取消分组成功');
+                uni.$u.toast(this.$t('Cancel_group_successfully'));
             } catch (err) {
                 console.log(err);
             }
@@ -338,7 +346,7 @@ export default {
                     this.source.conversationID
                 );
             } catch (err) {
-                uni.$u.toast('已读失败');
+                uni.$u.toast(this.$t('Read_failed'));
             }
         },
         async handleAccept() {
@@ -354,7 +362,7 @@ export default {
                     }
                 );
             } catch {
-                uni.$u.toast('通知失败');
+                uni.$u.toast(this.$t('Notification_failed'));
             }
         },
         async handleDel() {
@@ -370,7 +378,7 @@ export default {
                 );
                 return res;
             } catch {
-                uni.$u.toast('删除失败');
+                uni.$u.toast(this.$t('Delete_failed'));
             }
         },
         async handlePin() {
@@ -384,7 +392,7 @@ export default {
                     }
                 );
             } catch {
-                uni.$u.toast('置顶失败');
+                uni.$u.toast(this.$t('Pin_failed'));
             }
         },
         handleEditArchive() {

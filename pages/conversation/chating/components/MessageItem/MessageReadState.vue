@@ -13,7 +13,7 @@
             ]"
         >
             <text v-if="isEdit" class="edit">
-                {{ '已编辑 ' }}
+                {{ $t('Edited') }}
             </text>
             {{ new Date(message.sendTime).Format('hh:mm') }}
         </text>
@@ -72,7 +72,9 @@ export default {
                 this.message &&
                 this.message.sessionType === SessionType.Single
             ) {
-                return this.message.isRead ? '已读' : '未读';
+                return this.message.isRead
+                    ? this.$t('Read')
+                    : this.$t('Unread');
             }
             return ' ';
         },

@@ -3,22 +3,22 @@
         <view class="page_container">
             <CustomNavBar title="选择分组" is-bg-color2>
                 <template slot="more">
-                    <text class="text-grey mr-30 fz-32" @click="handleCreate"
-                        >新建分组</text
-                    >
+                    <text class="text-grey mr-30 fz-32" @click="handleCreate">{{
+                        $t('Create_a_new_group')
+                    }}</text>
                 </template>
             </CustomNavBar>
             <div
                 v-if="storeConversationFolder.length === 0"
                 class="primary pt-40 text-center"
                 @click="handleCreate"
-                >暂无分组，请新建分组</div
+                >{{ $t('No_group_yet_please_create_a_new_group') }}</div
             >
             <view class="folder_container py-15">
                 <div
-                    class="folder_item mx-10 px-30 py-15"
                     v-for="v in storeConversationFolder"
                     :key="v.id"
+                    class="folder_item mx-10 px-30 py-15"
                     @click="handleArchive(v)"
                 >
                     <image
@@ -76,12 +76,12 @@ export default {
                         })
                     }
                 });
-                this.$toast('设置分组成功');
+                this.$toast(this.$t('Set_group_successfully'));
                 setTimeout(() => {
                     uni.navigateBack();
                 }, 1000);
             } catch (err) {
-                this.$toast('设置分组失败');
+                this.$toast(this.$t('Set_group_failed'));
                 console.log(err);
             }
         },

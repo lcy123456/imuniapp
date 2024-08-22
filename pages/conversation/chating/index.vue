@@ -23,7 +23,7 @@
             :is-multiple-msg="isMultipleMsg"
             :checked-msg-ids="checkedMsgIds"
             :client-msg-i-d="clientMsgID"
-            :positionSeq="seq"
+            :position-seq="seq"
             @scroll="scroll"
             @touchstart="chatingTouchStart"
             @touchend="chatingTouchEnd"
@@ -356,7 +356,9 @@ export default {
                             }
                         });
                         if (!isAllMyMsg) {
-                            uni.$u.toast('无法删除其他人的消息');
+                            uni.$u.toast(
+                                this.$t('Cannot_delete_other_peoples_messages')
+                            );
                             break;
                         }
                     }
@@ -375,11 +377,19 @@ export default {
                         IMSDK.uuid(),
                         {
                             messageList: this.checkedMsg,
-                            title:
-                                (this.isWorkingGroup
-                                    ? ''
-                                    : `${this.storeSelfInfo.nickname}与`) +
-                                `${this.storeCurrentConversation.showName}的聊天记录`,
+                            title: this.isWorkingGroup
+                                ? this.$t('Chat_history')
+                                : this.$t(
+                                      'Chat_history_between_{value1}_and_{value2}'
+                                  )
+                                      .replace(
+                                          '{value1}',
+                                          this.storeSelfInfo.nickname
+                                      )
+                                      .replace(
+                                          '{value2}',
+                                          this.storeCurrentConversation.showName
+                                      ),
                             summaryList: []
                         }
                     );
@@ -396,10 +406,10 @@ export default {
                             ? this.storeCurrentConversation.showName
                             : message.senderNickname
                 });
-                uni.$u.toast('收藏成功');
+                uni.$u.toast(this.$t('Favorite_successfully'));
             } catch (err) {
                 console.log(err);
-                uni.$u.toast('收藏失败，请重试');
+                uni.$u.toast(this.$t('Favorite_failed_please_try_again'));
             }
         },
         async handleMultipleFavorite() {
@@ -408,11 +418,14 @@ export default {
                 IMSDK.uuid(),
                 {
                     messageList: this.checkedMsg,
-                    title:
-                        (this.isWorkingGroup
-                            ? ''
-                            : `${this.storeSelfInfo.nickname}与`) +
-                        `${this.storeCurrentConversation.showName}的聊天记录`,
+                    title: this.isWorkingGroup
+                        ? this.$t('Chat_history')
+                        : this.$t('Chat_history_between_{value1}_and_{value2}')
+                              .replace('{value1}', this.storeSelfInfo.nickname)
+                              .replace(
+                                  '{value2}',
+                                  this.storeCurrentConversation.showName
+                              ),
                     summaryList: []
                 }
             );
@@ -433,10 +446,10 @@ export default {
                         }
                     );
                 }
-                // uni.$u.toast('删除成功');
+                // uni.$u.toast(this.$t('Delete_successfully'));
             } catch (err) {
                 console.log(err);
-                // uni.$u.toast('删除失败');
+                // uni.$u.toast(this.$t('Delete_failed'));
             }
         },
         async handleForward(msg) {

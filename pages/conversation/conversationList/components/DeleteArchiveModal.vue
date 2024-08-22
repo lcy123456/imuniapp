@@ -4,7 +4,9 @@
             async-close
             show-cancel-button
             :show="showConfirm"
-            :content="`确定删除分组 ${operationFolder.name} 吗？`"
+            :content="`${$t('Confirm_to_delete_group')} ${
+                operationFolder.name
+            } ？`"
             @confirm="tryDeleteArchive"
             @cancel="() => (showConfirm = false)"
         />
@@ -20,17 +22,17 @@ import {
 } from '@/api/conversation';
 
 export default {
-    data() {
-        return {
-            showConfirm: false,
-            operationFolder: {}
-        };
-    },
     props: {
         isShowModal: {
             type: Boolean,
             default: true
         }
+    },
+    data() {
+        return {
+            showConfirm: false,
+            operationFolder: {}
+        };
     },
     computed: {
         ...mapGetters([
@@ -83,10 +85,10 @@ export default {
                     });
                 });
                 await Promise.all(promiseArr);
-                this.$toast('删除分组成功');
+                this.$toast(this.$t('Delete_group_successfully'));
             } catch (err) {
                 console.log(err);
-                this.$toast('删除分组失败');
+                this.$toast(this.$t('Delete_group_failed'));
             } finally {
                 this.showConfirm = false;
             }

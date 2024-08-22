@@ -64,13 +64,21 @@ export default {
             const res = JSON.parse(data);
             switch (res.status) {
                 case AudioVideoStatus.Reject:
-                    return this.isSender ? `[对方已拒绝]` : `[已拒绝]`;
+                    return this.isSender
+                        ? `${this.$t('[The_other_party_has_rejected]')}`
+                        : `${this.$t('[Rejected]')}`;
                 case AudioVideoStatus.Cancel:
-                    return this.isSender ? `[已取消]` : `[对方已取消]`;
+                    return this.isSender
+                        ? `${this.$t('[Cancelled]')}`
+                        : `${this.$t('[The_other_party_has_canceled]')}`;
                 case AudioVideoStatus.NotAnswered:
-                    return this.isSender ? `[对方未应答]` : `[未应答]`;
+                    return this.isSender
+                        ? `${this.$t('[The_other_party_did_not_answer]')}`
+                        : `${this.$t('[Did_not_answer]')}`;
                 case AudioVideoStatus.Busy:
-                    return this.isSender ? `[对方忙线中]` : `[忙线中]`;
+                    return this.isSender
+                        ? `${this.$t('[The_other_party_is_busy]')}`
+                        : `${this.$t('[Busy]')}`;
                 case AudioVideoStatus.Done:
                     const t = new Date(
                         new Date().Format('yyyy/MM/dd') + ' 00:00:00'
@@ -78,9 +86,11 @@ export default {
                     let time = new Date(t + res.duration).Format(
                         res.duration >= 1000 * 60 * 60 ? 'hh:mm:ss' : 'mm:ss'
                     );
-                    return `[通话时长]${time}`;
+                    return `${this.$t('[Call_duration]')}${time}`;
                 default:
-                    return this.isVideo ? `[发起视频通话]` : `[发起语音通话]`;
+                    return this.isVideo
+                        ? this.$t('[Initiate_video_call]')
+                        : this.$t('[Initiate_voice_call]');
             }
         },
         isVideo() {

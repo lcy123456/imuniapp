@@ -11,7 +11,7 @@
             <text class="name_box"> {{ v.senderNickname }}： </text>
             <ChatQuote :message="v" origin-type="merge_record" />
         </view>
-        <view class="record_box"> 聊天记录 </view>
+        <view class="record_box">{{ $t('Chat_history') }}</view>
     </view>
 </template>
 

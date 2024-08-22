@@ -158,7 +158,7 @@ export default {
                         style="display: ${this.isEdit ? 'inline' : 'none'}"
                         class="edit"
                     >
-                        ${'已编辑 '}
+                        ${'Edited '}
                     </text>
                     00:00
                 </div>

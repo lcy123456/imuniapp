@@ -1,6 +1,6 @@
 <template>
     <view class="err_message_container bg_container">
-        <view> [暂未支持的消息类型] </view>
+        <view> {{ $t('[Message_type_not_currently_supported]') }} </view>
         <MessageReadState :message="message" :is-sender="isSender" />
     </view>
 </template>

@@ -25,7 +25,7 @@
                 <uni-search-bar
                     v-model="keyword"
                     class="h-60"
-                    placeholder="搜索好友"
+                    :placeholder="$t('Search_for_friends')"
                     cancel-button="none"
                 >
                     <view
@@ -97,8 +97,8 @@ export default {
             userInfo: {},
             allCell: {
                 faceURL: '',
-                nickname: '所有人',
-                groupName: '所有人'
+                nickname: this.$t('[Everyone]').slice(1, -1),
+                groupName: this.$t('[Everyone]').slice(1, -1)
             }
         };
     },

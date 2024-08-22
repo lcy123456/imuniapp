@@ -6,7 +6,7 @@
             left: getLeft + 'px',
             top: getTop + 'px'
         }"
-        :copyHtml="copyHtml"
+        :copy-html="copyHtml"
         :change:copyHtml="renderjs.getCopyText"
     >
         <Like @like="like" />
@@ -19,7 +19,8 @@
             <view class="left">
                 <image src="/static/images/read_white.svg" />
                 <text>
-                    {{ attachedInfo.groupHasReadInfo.hasReadCount }}人已读
+                    {{ attachedInfo.groupHasReadInfo.hasReadCount
+                    }}{{ $t('Read_by_people') }}
                 </text>
             </view>
             <view class="right">
@@ -188,19 +189,19 @@ export default {
             return [
                 {
                     type: MessageMenuTypes.AddEmoticons,
-                    title: '添加到表情',
+                    title: this.$t('Add_to_emoticon'),
                     icon: '/static/images/chating_message_gif.svg',
                     visible: this.showMediaRender
                 },
                 {
                     type: MessageMenuTypes.Forward,
-                    title: '转发',
+                    title: this.$t('Forward'),
                     icon: '/static/images/chating_message_forward.svg',
                     visible: true
                 },
                 {
                     type: MessageMenuTypes.Pin,
-                    title: '置顶',
+                    title: this.$t('Pin'),
                     icon: '/static/images/pin.svg',
                     visible:
                         !this.message.pinMap &&
@@ -208,7 +209,7 @@ export default {
                 },
                 {
                     type: MessageMenuTypes.PinCancel,
-                    title: '取消置顶',
+                    title: this.$t('Unpin'),
                     icon: '/static/images/cancel-pin.svg',
                     visible:
                         this.message.pinMap &&
@@ -216,13 +217,13 @@ export default {
                 },
                 {
                     type: MessageMenuTypes.Reply,
-                    title: '回复',
+                    title: this.$t('Reply'),
                     icon: '/static/images/chating_message_reply.svg',
                     visible: true
                 },
                 {
                     type: MessageMenuTypes.Edit,
-                    title: '编辑',
+                    title: this.$t('Edit'),
                     icon: '/static/images/chating_message_edit.svg',
                     visible:
                         TextRenderTypes.includes(this.message.contentType) &&
@@ -231,37 +232,37 @@ export default {
                 },
                 {
                     type: MessageMenuTypes.Copy,
-                    title: '复制',
+                    title: this.$t('Copy'),
                     icon: '/static/images/chating_message_copy.svg',
                     visible: TextRenderTypes.includes(this.message.contentType)
                 },
                 {
                     type: MessageMenuTypes.Revoke,
-                    title: '撤回',
+                    title: this.$t('Withdraw'),
                     icon: '/static/images/chating_message_revoke.svg',
                     visible: this.isSender
                 },
                 {
                     type: MessageMenuTypes.Multiple,
-                    title: '多选',
+                    title: this.$t('Multiple_selections'),
                     icon: '/static/images/chating_message_multiple.svg',
                     visible: true
                 },
                 {
                     type: MessageMenuTypes.Favorite,
-                    title: '收藏',
+                    title: this.$t('Favorite'),
                     icon: '/static/images/chating_message_favorite.svg',
                     visible: true
                 },
                 {
                     type: MessageMenuTypes.Del,
-                    title: '删除',
+                    title: this.$t('Delete'),
                     icon: '/static/images/chating_message_del.svg',
                     visible: this.isMyMsg || this.isSingle
                 },
                 {
                     type: MessageMenuTypes.Save,
-                    title: '保存',
+                    title: this.$t('Save'),
                     icon: '/static/images/chating_message_save.svg',
                     visible: this.showMediaRender
                 }
@@ -390,7 +391,7 @@ export default {
             function fail() {
                 uni.hideLoading();
                 uni.showToast({
-                    title: '保存失败，请稍后重试',
+                    title: this.$t('Save_failed_please_try_again_later'),
                     icon: 'none'
                 });
             }
@@ -404,7 +405,7 @@ export default {
                             success: () => {
                                 uni.hideLoading();
                                 uni.showToast({
-                                    title: '保存成功',
+                                    title: this.$t('Save_successfully'),
                                     icon: 'success'
                                 });
                             },
@@ -448,16 +449,16 @@ export default {
                 await emojiCollect({
                     url: filePath
                 });
-                uni.$u.toast('添加成功');
+                uni.$u.toast(this.$t('Add_successfully'));
                 uni.$emit('undateEmoticons', 'init');
             } catch (err) {
                 const { errCode } = err;
                 console.log('err---err', err);
                 if (errCode === 222) {
-                    uni.$u.toast('重复添加');
+                    uni.$u.toast(this.$t('Add_repeatedly'));
                     return;
                 }
-                uni.$u.toast('添加失败');
+                uni.$u.toast(this.$t('Add_failed'));
             }
         },
         getContent() {
@@ -499,11 +500,11 @@ export default {
                 this.$emit('updatePin', {
                     type: 'success',
                     icon: `/static/images/pin.svg`,
-                    text: '消息内容已置顶'
+                    text: this.$t('Message_content_has_been_pinned')
                 });
             } catch (err) {
                 //
-                uni.$u.toast('置顶失败');
+                uni.$u.toast(this.$t('Pin_failed'));
             }
         },
         async PinCancel() {
@@ -514,10 +515,10 @@ export default {
                 this.$emit('updatePin', {
                     type: 'fail',
                     icon: `/static/images/cancel-pin.svg`,
-                    text: '已取消置顶'
+                    text: this.$t('Unpinned')
                 });
             } catch (err) {
-                uni.$u.toast('取消置顶失败');
+                uni.$u.toast(this.$t('Unpin_failed'));
             }
         },
         async handleForward() {
@@ -539,17 +540,17 @@ export default {
             uni.setClipboardData({
                 data: value,
                 success: () => {
-                    uni.$u.toast('复制成功');
+                    uni.$u.toast(this.$t('Copy_successfully'));
                 },
                 fail: () => {
                     reject();
-                    uni.$u.toast('复制失败');
+                    uni.$u.toast(this.$t('Copy_failed'));
                 }
             });
         },
         async handleRevoke() {
             try {
-                this.$loading('撤回中');
+                this.$loading(this.$t('Withdrawing'));
                 await IMSDK.asyncApi(
                     IMSDK.IMMethods.RevokeMessage,
                     IMSDK.uuid(),
@@ -570,7 +571,7 @@ export default {
                                 clientMsgID: this.message.clientMsgID,
                                 revokeTime: Date.now(),
                                 revokerID: this.storeCurrentUserID,
-                                revokerNickname: '你',
+                                revokerNickname: this.$t('You'),
                                 revokerRole: 0,
                                 seq: this.message.seq,
                                 sessionType: this.message.sessionType,
@@ -583,7 +584,7 @@ export default {
                     }
                 });
             } catch {
-                uni.$u.toast('撤回失败');
+                uni.$u.toast(this.$t('Withdraw_failed'));
             }
         },
         handleMultiple() {
@@ -609,7 +610,7 @@ export default {
                 this.$emit('close');
             } catch (err) {
                 console.log('err-err', err);
-                uni.$u.toast('点赞失败');
+                uni.$u.toast(this.$t('Like_failed'));
             }
         }
     }

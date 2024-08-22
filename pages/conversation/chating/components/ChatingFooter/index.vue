@@ -85,9 +85,8 @@
                             @touchstart="handleRecorderStart"
                             @touchend="handleRecorderEnd"
                             @touchmove="handleRecordMove"
+                            >{{ $t('Press_and_hold_to_speak') }}</div
                         >
-                            按住说话
-                        </div>
                         <CustomEditor
                             v-else
                             ref="customEditor"
@@ -188,36 +187,36 @@ import { AllType } from '@/enum';
 
 const albumChoose = [
     {
-        name: '图片',
+        name: this.$t('Picture'),
         type: ChatingFooterActionTypes.Album,
         idx: 0
     },
     {
-        name: '视频',
+        name: this.$t('Video'),
         type: ChatingFooterActionTypes.Album,
         idx: 1
     }
 ];
 const cameraChoose = [
     {
-        name: '拍照',
+        name: this.$t('Photograph'),
         type: ChatingFooterActionTypes.Camera,
         idx: 0
     },
     {
-        name: '录制',
+        name: this.$t('Record'),
         type: ChatingFooterActionTypes.Camera,
         idx: 1
     }
 ];
 const callChoose = [
     {
-        name: '视频通话',
+        name: this.$t('Video_call'),
         type: ChatingFooterActionTypes.Call,
         idx: 0
     },
     {
-        name: '语音通话',
+        name: this.$t('Voice_call'),
         type: ChatingFooterActionTypes.Call,
         idx: 1
     }
@@ -512,7 +511,9 @@ export default {
                 });
                 return this.sendAudioVideoMessage(message, type);
             } catch (err) {
-                uni.$u.toast('网络异常，请稍后重试');
+                uni.$u.toast(
+                    this.$t('Network_abnormality_please_try_again_later')
+                );
                 return false;
             }
         },
@@ -557,7 +558,9 @@ export default {
                     // 占线发送占线消息
                     this.sendBusyMessage(type);
                 } else {
-                    uni.$u.toast('网络异常，请稍后重试');
+                    uni.$u.toast(
+                        this.$t('Network_abnormality_please_try_again_later')
+                    );
                 }
                 return false;
             }
@@ -581,7 +584,7 @@ export default {
                     });
                     this.customEditorCtx.clear();
                 } catch (err) {
-                    uni.$u.toast('发送失败，请重试');
+                    uni.$u.toast(this.$t('Send_failed_please_try_again'));
                 }
                 return;
             }
@@ -658,9 +661,11 @@ export default {
                 return data;
             } catch (err) {
                 const { data, errCode } = err;
-                console.log('发送失败', data, errCode, err);
+                console.log(this.$t('Send_failed'), data, errCode, err);
                 if (errCode === 1302) {
-                    this.notificationText = '消息已发出，但对方拒收了！';
+                    this.notificationText = this.$t(
+                        'Message_has_been_sent_but_the_other_party_refused_to_receive_it'
+                    );
                     this.isShowNotification = true;
                 }
                 this.updateOneMessage({
@@ -732,7 +737,7 @@ export default {
             }
             this.inputHtml = e.detail.html;
             this.oldText = newText;
-            this.sendTypingMessage('正在输入中...');
+            this.sendTypingMessage(`${this.$t('Inputting')}...`);
         },
         async sendTypingMessage(msgTip) {
             const { userID } = this.storeCurrentConversation;
@@ -759,7 +764,13 @@ export default {
         async prepareNoEditMessage() {
             this.isNoEditMsg = !this.isNoEditMsg;
             uni.$u.toast(
-                `${this.isNoEditMsg ? '开启' : '关闭'}发送不可编辑新消息`
+                `${
+                    this.isNoEditMsg
+                        ? this.$t('Enable_sending_of_new_non-editable_messages')
+                        : this.$t(
+                              'Disable_sending_of_new_non-editable_messages'
+                          )
+                }`
             );
         },
         async prepareFileMessage() {
@@ -801,7 +812,7 @@ export default {
             this.$refs.customEditor.insertImage(options);
         },
         async handleSendGif(original) {
-            this.$loading('加载中');
+            this.$loading(this.$t('Loading'));
             const { userID, groupID } = this.storeCurrentConversation;
             const sendOptions = {
                 recvID: userID,
@@ -876,7 +887,8 @@ export default {
                     fileName: name
                 }
             );
-            if (!message) return uni.$u.toast('不支持文件格式');
+            if (!message)
+                return uni.$u.toast(this.$t('File_format_not_supported'));
             this.sendMessage(message);
         },
         async batchCreateSoundMesage({ path, duration }) {
@@ -930,13 +942,13 @@ export default {
         async initWebrtc(type) {
             const { groupID, userID } = this.storeCurrentConversation;
             if (groupID && this.storeIncomingIsGroupChat) {
-                return uni.$u.toast('群通话正在进行中');
+                return uni.$u.toast(this.$t('Group_call_in_progress'));
             }
             if (
                 this.storeIsIncomingCallLoading ||
                 this.storeIsIncomingCallIng
             ) {
-                return uni.$u.toast('通话正在进行中');
+                return uni.$u.toast(this.$t('Call_in_progress'));
             }
             if (!groupID) {
                 this.createRoom(type, [userID]);
@@ -967,7 +979,7 @@ export default {
                     // await this.getGroupMemberList();
                     const data = await this.sendCustomMessage(type, userIDs);
                     if (typeof data === 'boolean' && !data) {
-                        // uni.$u.toast('网络异常，请稍后重试');
+                        // uni.$u.toast(this.$t('Network_abnormality_please_try_again_later'));
                         uni.hideLoading();
                         return;
                     }
@@ -980,7 +992,9 @@ export default {
                         url: `/pages/conversation/webrtc/index`
                     });
                 } catch (err) {
-                    uni.$u.toast('网络异常，请稍后重试');
+                    uni.$u.toast(
+                        this.$t('Network_abnormality_please_try_again_later')
+                    );
                     uni.hideLoading();
                     return;
                 }
@@ -1167,7 +1181,7 @@ export default {
             clearTimeout(timer);
             if (isGetPermission) return;
             if (recordResult !== 1) {
-                uni.$u.toast('请开通语音权限');
+                uni.$u.toast(this.$t('Please_enable_voice_permission'));
                 return;
             }
             start();
@@ -1178,7 +1192,7 @@ export default {
                 '.chating_record_cancel'
             );
             this.timer = setInterval(() => {
-                this.sendTypingMessage('正在说话中...');
+                this.sendTypingMessage(`${this.$t('Speaking')}...`);
             }, 1000);
         },
         handleRecordMove(e) {
@@ -1203,7 +1217,7 @@ export default {
                         duration: res.duration
                     });
                 } else {
-                    uni.$u.toast('语音时长不小于2s');
+                    uni.$u.toast(this.$t('Voice_duration_is_not_less_than_2s'));
                 }
             }
             this.isRecordStart = false;

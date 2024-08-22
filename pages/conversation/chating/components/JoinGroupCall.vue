@@ -8,16 +8,19 @@
                 size="80rpx"
             />
             <view class="flex ml-20 flex-column">
-                <text class="text-color fz-30"> 群组语音通话中 </text>
-                <text class="text-color fz-28"> {{ count }}人 </text>
+                <text class="text-color fz-30">{{
+                    $t('Group_voice_call_in_progress')
+                }}</text>
+                <text class="text-color fz-28">
+                    {{ count }}{{ $t('People') }}
+                </text>
             </view>
         </view>
         <u-button
             v-if="!storeIsIncomingCallLoading && !storeIsIncomingCallIng"
             @click="onJoin"
+            >{{ $t('Join') }}</u-button
         >
-            加入
-        </u-button>
     </view>
 </template>
 

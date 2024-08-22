@@ -11,8 +11,10 @@
         </u-swipe-action-item>
         <view>
             <u-modal
-                title="删除成员"
-                :content="`确定删除成员${curMember.nickname}吗？`"
+                :title="$t('Delete_member')"
+                :content="`${$t('Confirm_to_delete_member')}${
+                    curMember.nickname
+                } ？`"
                 async-close
                 :show="kickModal.show"
                 show-cancel-button
@@ -81,13 +83,13 @@ export default {
         getSwipOptions(v) {
             const swipeOptions = [
                 {
-                    text: '设置管理员',
+                    text: this.$t('Set_administrator'),
                     style: {
                         backgroundColor: '#37abec'
                     }
                 },
                 {
-                    text: '删除',
+                    text: this.$t('Delete'),
                     style: {
                         backgroundColor: '#ec4b37'
                     }
@@ -95,8 +97,10 @@ export default {
             ];
             if (this.isOwner) {
                 swipeOptions[0].text = `${
-                    GroupMemberRole.Admin === v.roleLevel ? '取消' : '设置'
-                }管理员`;
+                    GroupMemberRole.Admin === v.roleLevel
+                        ? this.$t('Cancel_administrator')
+                        : this.$t('Set_administrator')
+                }`;
             } else if (this.isAdmin) {
                 swipeOptions.shift();
             }
@@ -139,7 +143,7 @@ export default {
                     reason: '',
                     userIDList: [this.curMember.userID]
                 });
-                this.$toast('操作成功');
+                this.$toast(this.$t('Operation_successful'));
                 this.$emit('change');
             } catch (err) {
                 this.$toast(checkLoginError(err));
@@ -161,7 +165,7 @@ export default {
                                 : GroupMemberRole.Admin
                     }
                 );
-                this.$toast('操作成功');
+                this.$toast(this.$t('Operation_successful'));
                 this.$emit('change');
             } catch (err) {
                 this.$toast(checkLoginError(err));

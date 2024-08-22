@@ -31,7 +31,7 @@
             <view class="flex mb-30">
                 <SettingItem
                     class="flex-grow"
-                    title="查找用户/聊天记录"
+                    :title="$t('Find_userchat_history')"
                     show-arrow
                     @click="handleRecord"
                 />
@@ -43,13 +43,15 @@
                         class="h-10 my-20 w-42"
                         src="/static/images/common_more_active.png"
                     />
-                    <text class="fz-26"> 更多 </text>
+                    <text class="fz-26">{{ $t('More') }}</text>
                     <more-feat
                         ref="moreFeat"
                         :options="[
                             {
                                 icon: '/static/images/group_out.png',
-                                text: isOwner ? '解散群聊' : '退出群聊',
+                                text: isOwner
+                                    ? $t('Disband_group_chat')
+                                    : $t('Exit_group_chat'),
                                 style: {
                                     color: '#EC4B37'
                                 },
@@ -69,10 +71,17 @@
                             src="/static/images/contact_add_search_user.svg"
                             class="w-44 h-44"
                         />
-                        <text class="ml-20 primary"> 邀请新成员 </text>
+                        <text class="ml-20 primary">{{
+                            $t('Invite_new_member')
+                        }}</text>
                     </view>
                     <text class="text-grey">
-                        {{ `${currentGroup.memberCount}位成员` }}
+                        {{
+                            $t('{value}_members').replace(
+                                '{value}',
+                                currentGroup.memberCount
+                            )
+                        }}
                     </text>
                 </view>
                 <GroupMemberSwipe
@@ -151,10 +160,14 @@ export default {
         }),
         getConfirmContent() {
             if (this.confirmType === ConfirmTypes.Quit) {
-                return '确定要退出当前群聊吗？';
+                return this.$t(
+                    'Are_you_sure_you_want_to_exit_the_current_group_chat'
+                );
             }
             if (this.confirmType === ConfirmTypes.Dismiss) {
-                return '确定要解散当前群聊吗？';
+                return this.$t(
+                    'Are_you_sure_you_want_to_disband_the_current_group_chat'
+                );
             }
             return '';
         },
@@ -188,7 +201,7 @@ export default {
                     groupID: this.currentGroup.groupID,
                     ...data
                 });
-                this.$toast('修改成功');
+                this.$toast(this.$t('Change_successfully'));
                 this.getCurrentGroup(this.currentGroup.groupID);
             } catch (err) {
                 console.log(err);
@@ -215,7 +228,7 @@ export default {
             uni.setClipboardData({
                 data: this.currentGroup.groupID,
                 success: () => {
-                    uni.$u.toast('复制成功');
+                    uni.$u.toast(this.$t('Copy_successfully'));
                 }
             });
         },
@@ -260,7 +273,7 @@ export default {
                         userIDList: data.map(user => user.userID)
                     }
                 );
-                this.$toast('操作成功');
+                this.$toast(this.$t('Operation_successful'));
                 this.getGroupMemberList();
                 this.getCurrentGroup(this.currentGroup.groupID);
             } catch (err) {
@@ -283,7 +296,7 @@ export default {
             }
             IMSDK.asyncApi(funcName, IMSDK.uuid(), sourceID)
                 .then(() => {
-                    uni.$u.toast('操作成功');
+                    uni.$u.toast(this.$t('Operation_successful'));
                     if (this.confirmType === ConfirmTypes.Clear) {
                         this.$store.commit(
                             'message/SET_HISTORY_MESSAGE_LIST',
@@ -299,7 +312,7 @@ export default {
                         );
                     }
                 })
-                .catch(() => uni.$u.toast('操作失败'))
+                .catch(() => uni.$u.toast(this.$t('Operation_failed')))
                 .finally(() => (this.confirmType = null));
         }
     }
