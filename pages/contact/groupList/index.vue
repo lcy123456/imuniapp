@@ -2,13 +2,13 @@
     <Page>
         <view class="group_list_container">
             <CustomNavBar title="我的群组" is-bg-color2>
-                <view
+                <!-- <view
                     slot="more"
                     class="mr-30 primary ff-medium fz-30"
                     @click="toCreateGroup"
                 >
                     <text>发起群聊</text>
-                </view>
+                </view> -->
             </CustomNavBar>
             <view class="px-20 pb-20 pt-10">
                 <u-search

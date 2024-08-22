@@ -67,11 +67,11 @@ export default {
                 right: 0
             },
             moreMenus: [
-                {
-                    idx: 3,
-                    title: '创建群聊',
-                    icon: '/static/images/more_create_group.svg'
-                },
+                // {
+                //     idx: 3,
+                //     title: '创建群聊',
+                //     icon: '/static/images/more_create_group.svg'
+                // },
                 {
                     idx: 2,
                     title: '加入群聊',

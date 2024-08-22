@@ -8,7 +8,8 @@ module.exports = vm => {
             /* 对响应成功做点什么 可使用async await 做异步操作*/
             const data = response.data;
             // 自定义参数
-            const custom = response.config?.custom;
+            // const custom = response.config?.custom;
+            console.log('res---config', data.data);
             if (data.meta) {
                 return data.meta.status === 200 ? data : Promise.reject(data);
             }

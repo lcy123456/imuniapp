@@ -746,6 +746,7 @@ export default {
         async tryLogin() {
             try {
                 const path = await getDbDir();
+                console.log('path----path', path);
                 const flag = await IMSDK.asyncApi(
                     IMMethods.InitSDK,
                     IMSDK.uuid(),

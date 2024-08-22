@@ -30,7 +30,7 @@
                     <u-input
                         v-model="loginInfo.phoneNumber"
                         class="login-input"
-                        placeholder="请输入您的手机号码"
+                        :placeholder="$t('Please_enter_your_mobile_number')"
                         type="number"
                         clearable
                     />
@@ -46,7 +46,7 @@
                     <u-input
                         v-model="loginInfo.password"
                         class="login-input"
-                        placeholder="请输入您的登录密码"
+                        :placeholder="$t('Please_enter_your_login_password')"
                         :password="!eying"
                         clearable
                     >
@@ -67,7 +67,7 @@
                     size="large"
                     @click="startLogin"
                 >
-                    登录
+                    {{ $t('Login') }}
                 </u-button>
             </view>
             <view class="agreement">
@@ -76,7 +76,7 @@
                         icon-size="12"
                         label-size="12"
                         shape="circle"
-                        label="我已阅读并同意："
+                        :label="$t('I_have_read_and_agreed_to')"
                         :name="true"
                     />
                 </u-checkbox-group>
@@ -95,7 +95,7 @@
                         handleGoToPolicy('/pages/login/privacyPolicy/index')
                     "
                 >
-                    隐私政策
+                    {{ $t('Privacy_Policy') }}
                 </text>
             </view>
 
@@ -104,15 +104,15 @@
 
         <view class="action_bar">
             <text class="primary" @click="toRegisterOrForget(SmsUserFor.Reset)">
-                忘记密码
+                {{ $t('Forgot_password') }}
             </text>
             <view class="mt-43">
-                <text class="text-grey"> 没有账号？ </text>
+                <text class="text-grey"> {{ $t('No_account') }} </text>
                 <text
                     class="primary"
                     @click="toRegisterOrForget(SmsUserFor.Register)"
                 >
-                    立即注册
+                    {{ $t('Register_now') }}
                 </text>
             </view>
         </view>
@@ -151,14 +151,14 @@ export default {
                     {
                         type: 'string',
                         required: true,
-                        message: '密码不能为空',
+                        message: this.$t('Password_cannot_be_empty'),
                         trigger: ['blur', 'change']
                     }
                 ],
                 phoneNumber: [
                     {
                         required: true,
-                        message: '手机号码不能为空',
+                        message: this.$t('Mobile_number_cannot_be_empty'),
                         trigger: ['blur', 'change']
                     },
                     {
@@ -167,7 +167,9 @@ export default {
                                 `+${this.loginInfo.areaCode}`
                             ).test(value);
                         },
-                        message: '请输入正确的手机号',
+                        message: this.$t(
+                            'Please_enter_the_correct_mobile_number'
+                        ),
                         trigger: ['change', 'blur']
                     }
                 ]
@@ -205,7 +207,9 @@ export default {
             if (this.domainCount === 20) {
                 this.SET_IS_PROD();
                 this.$toast(
-                    `${this.storeIsProd ? '生产' : '测试'}环境；渠道环境：${plus.runtime.channel}`
+                    `${this.storeIsProd ? '生产' : '测试'}环境；渠道环境：${
+                        plus.runtime.channel
+                    }`
                 );
             }
             timer = setTimeout(() => {

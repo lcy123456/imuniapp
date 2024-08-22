@@ -8,14 +8,14 @@ function getUrl() {
     // let registerUrl = 'https://www.qncjkeusoge.cfd/chat';
     // let apiUrl = 'https://www.qncjkeusoge.cfd/api';
     // let wsUrl = 'wss://www.qncjkeusoge.cfd/msg_gateway';
-    let registerUrl = 'http://172.16.96.253:10008';
-    let apiUrl = 'http://172.16.96.253:10002';
-    let wsUrl = 'ws://172.16.96.253:10001';
+    let registerUrl = 'https://api.sumi.chat/im-logic';
+    let apiUrl = 'https://api.sumi.chat/open-im';
+    let wsUrl = 'wss://api.sumi.chat/open-im-ws';
 
     if (store.getters.storeIsProd) {
-        registerUrl = 'https://imlogic.muskim.com';
-        apiUrl = 'https://imapi.muskim.com';
-        wsUrl = 'wss://imws.muskim.com';
+        registerUrl = 'https://api.sumi.chat/im-logic';
+        apiUrl = 'https://api.sumi.chat/open-im';
+        wsUrl = 'wss://api.sumi.chat/open-im-ws';
         // registerUrl = 'https://imlogic.qncjkeusoge.cfd';
         // apiUrl = 'https://imapi.qncjkeusoge.cfd';
         // wsUrl = 'wss://imws.qncjkeusoge.cfd';

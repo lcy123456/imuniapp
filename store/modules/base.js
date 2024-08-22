@@ -6,6 +6,7 @@ import {
     gotoAppPermissionSetting
 } from '@/util/permission.js';
 const state = {
+    lang: '',
     pinList: [],
     connectingStatus: '',
     keyBoardHeight: 0,

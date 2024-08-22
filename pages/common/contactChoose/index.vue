@@ -1,7 +1,7 @@
 <template>
     <Page>
         <view class="contact_choose_container">
-            <CustomNavBar title="选择成员" is-bg-color2 />
+            <CustomNavBar :title="$t('Select_members')" is-bg-color2 />
 
             <view class="search_box">
                 <MyAvatar
@@ -16,7 +16,7 @@
                 <uni-search-bar
                     v-model="keyword"
                     class="h-60"
-                    placeholder="搜索好友"
+                    :placeholder="$t('Search_for_friends')"
                     cancel-button="none"
                 >
                     <view
@@ -45,7 +45,7 @@
                             ].includes(type) && checkFriendList.length === 0
                         "
                         type="primary"
-                        :text="`完成 (${checkFriendList.length})`"
+                        :text="`${$t('Complete')} (${checkFriendList.length})`"
                         @click="confirm"
                     />
                 </view>

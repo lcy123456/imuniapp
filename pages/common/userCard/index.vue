@@ -46,11 +46,11 @@
                             <more-feat
                                 ref="moreFeat"
                                 :options="[
-                                    {
-                                        icon: '/static/images/user_card_group.png',
-                                        text: '建立群组',
-                                        id: 1
-                                    }
+                                    // {
+                                    //     icon: '/static/images/user_card_group.png',
+                                    //     text: '建立群组',
+                                    //     id: 1
+                                    // }
                                 ]"
                                 :source-i-d="sourceID"
                                 @callBack="callBack"

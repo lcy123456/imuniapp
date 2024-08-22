@@ -57,12 +57,12 @@ export default {
                     title: '拍摄',
                     icon: require('static/images/chating_action_camera.png')
                 },
-                {
-                    idx: 2,
-                    type: ChatingFooterActionTypes.Call,
-                    title: '视频通话',
-                    icon: require('static/images/chating_action_call.png')
-                },
+                // {
+                //     idx: 2,
+                //     type: ChatingFooterActionTypes.Call,
+                //     title: '视频通话',
+                //     icon: require('static/images/chating_action_call.png')
+                // },
                 {
                     idx: 3,
                     type: ChatingFooterActionTypes.File,

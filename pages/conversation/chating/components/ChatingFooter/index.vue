@@ -58,17 +58,17 @@
                 </view>
                 <view class="send_box">
                     <view class="flex align-center">
-                        <image
+                        <!-- <image
                             class="w-48 h-48"
                             src="/static/images/chating_footer_emoji.svg"
                             @click="updateEmojiBar"
-                        />
+                        /> -->
                         <image
                             class="w-48 h-48 mx-20"
                             src="/static/images/chating_footer_add.svg"
                             @click.prevent="updateActionBar"
                         />
-                        <image
+                        <!-- <image
                             class="w-48 h-48"
                             :src="`/static/images/${
                                 recordVisible
@@ -76,7 +76,7 @@
                                     : 'chating_footer_audio'
                             }.svg`"
                             @click="updateRecordBar"
-                        />
+                        /> -->
                     </view>
                     <view class="input_content">
                         <div

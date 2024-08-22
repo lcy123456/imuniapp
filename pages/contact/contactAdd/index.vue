@@ -44,12 +44,12 @@ export default {
     data() {
         return {
             groupActionMenus: [
-                {
-                    idx: 0,
-                    title: '创建群聊',
-                    desc: '创建群聊，全面使用司聊',
-                    icon: require('static/images/contact_add_create_group.svg')
-                },
+                // {
+                //     idx: 0,
+                //     title: '创建群聊',
+                //     desc: '创建群聊，全面使用司聊',
+                //     icon: require('static/images/contact_add_create_group.svg')
+                // },
                 {
                     idx: 1,
                     title: '加入群聊',
