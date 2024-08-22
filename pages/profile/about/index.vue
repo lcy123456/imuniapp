@@ -1,7 +1,7 @@
 <template>
     <Page>
         <view class="page_container">
-            <custom-nav-bar title="关于我们" />
+            <custom-nav-bar :title="$t('About_us')" />
             <view class="mb-20 box-logo mt-80">
                 <image class="logo w-130 h-120" src="/static/images/logo.png" />
                 <image class="w-249 h-37" src="/static/images/logo_name.png" />

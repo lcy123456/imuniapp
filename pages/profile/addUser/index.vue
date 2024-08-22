@@ -39,7 +39,7 @@
                     @click="goLogin('')"
                 >
                     <image src="/static/images/add_user.png" />
-                    <text>添加账号</text>
+                    <text>{{ $t('Add_account') }}</text>
                     <u-loading-icon v-if="addUserLoading" />
                 </view>
             </view>
@@ -95,7 +95,9 @@ export default {
                     });
             } catch (err) {
                 console.log(err);
-                uni.$u.toast('网络异常，请重试');
+                uni.$u.toast(
+                    this.$t('Network_abnormality_please_try_again_later')
+                );
             }
         },
         async checkUser(requestMap) {

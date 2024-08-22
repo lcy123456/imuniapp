@@ -1,7 +1,7 @@
 <template>
     <Page>
         <view class="favorite_container">
-            <CustomNavBar title="我的收藏" is-bg-color2 />
+            <CustomNavBar :title="$t('My_favorites')" is-bg-color2 />
             <Empty v-if="favoriteList.length === 0" />
             <z-paging
                 ref="pagingRef"
@@ -51,7 +51,7 @@ export default {
         swipeAction() {
             let action = [
                 {
-                    text: '删除该收藏',
+                    text: this.$t('Delete_this_collection'),
                     icon: `/static/images/conversation_del.png`,
                     style: {
                         iconSize: '40rpx',
@@ -129,7 +129,7 @@ export default {
                 await collectCancel({
                     id: item.id
                 });
-                uni.$u.toast('删除成功');
+                uni.$u.toast(this.$t('Delete_successfully'));
                 const l = [...this.favoriteList];
                 const index = this.favoriteList.findIndex(
                     v => v.id === item.id

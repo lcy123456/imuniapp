@@ -57,7 +57,11 @@
                 width="500rpx"
                 show-cancel-button
                 :show="showComfirm"
-                content="确定要退出当前账号吗？"
+                :content="
+                    $t(
+                        'Are_you_sure_you_want_to_log_out_of_the_current_account'
+                    )
+                "
                 async-close
                 @confirm="logoutConfirm"
                 @cancel="closeModal"
@@ -81,27 +85,27 @@ export default {
             profileMenus: [
                 {
                     idx: 0,
-                    title: '我的信息',
+                    title: this.$t('My_information'),
                     icon: require('static/images/profile_menu_info.svg')
                 },
                 {
                     idx: 2,
-                    title: '账号设置',
+                    title: this.$t('Account_settings'),
                     icon: require('static/images/profile_menu_account.svg')
                 },
                 {
                     idx: 3,
-                    title: '我的收藏',
+                    title: this.$t('My_favorites'),
                     icon: require('static/images/profile_menu_favorite.svg')
                 },
                 {
                     idx: 4,
-                    title: '关于我们',
+                    title: this.$t('About_us'),
                     icon: require('static/images/profile_menu_about.svg')
                 },
                 {
                     idx: 5,
-                    title: '退出登录',
+                    title: this.$t('Log_out1'),
                     icon: require('static/images/profile_menu_logout.svg')
                 }
             ]
@@ -125,7 +129,7 @@ export default {
                 success: () => {
                     uni.hideToast();
                     this.$nextTick(() => {
-                        uni.$u.toast('复制成功');
+                        uni.$u.toast(this.$t('Copy_successfully'));
                     });
                 }
             });

@@ -1,7 +1,7 @@
 <template>
     <Page>
         <view class="page_container">
-            <CustomNavBar title="通讯录黑名单" />
+            <CustomNavBar :title="$t('Address_book_blacklist')" />
 
             <u-list v-if="blockList.length > 0" class="block_list" height="1">
                 <u-list-item v-for="item in blockList" :key="item.userID">
@@ -10,9 +10,8 @@
                             slot="action"
                             class="user_action"
                             @click="tryRemove(item)"
+                            >{{ $t('Remove') }}</view
                         >
-                            移除
-                        </view>
                     </UserItem>
                 </u-list-item>
             </u-list>
@@ -23,7 +22,9 @@
                 width="500rpx"
                 show-cancel-button
                 :show="showComfirm"
-                content="确定将用户移除黑名单吗？"
+                :content="
+                    $t('Are_you_sure_to_remove_the_user_from_the_blacklist')
+                "
                 :async-close="true"
                 @confirm="confirm"
                 @cancel="closeModal"
@@ -67,8 +68,8 @@ export default {
                 IMSDK.uuid(),
                 this.selectedUser.userID
             )
-                .then(() => uni.$u.toast('移除成功'))
-                .catch(() => uni.$u.toast('移除失败'))
+                .then(() => uni.$u.toast(this.$t('Remove_successfully')))
+                .catch(() => uni.$u.toast(this.$t('Remove_failed')))
                 .finally(() => (this.showComfirm = false));
         },
         closeModal() {

@@ -1,12 +1,12 @@
 <template>
     <Page>
         <view class="page_container">
-            <CustomNavBar title="我的信息" is-bg-color2 />
+            <CustomNavBar :title="$t('My_information')" is-bg-color2 />
 
             <view class="info_wrap">
                 <SettingItem
                     :loading="loadingState.faceURL"
-                    title="头像"
+                    :title="$t('Avatar')"
                     show-arrow
                     @click="updateAvatar"
                 >
@@ -18,21 +18,21 @@
                     />
                 </SettingItem>
                 <SettingItem
-                    title="姓名"
+                    :title="$t('Name')"
                     :content="selfInfo.nickname"
                     show-arrow
                     @click="updateNickname"
                 />
                 <SettingItem
                     :loading="loadingState.gender"
-                    title="性别"
+                    :title="$t('Gender')"
                     :content="getGender"
                     show-arrow
                     @click="updateGender"
                 />
                 <SettingItem
                     :loading="loadingState.birth"
-                    title="生日"
+                    :title="$t('Birthday')"
                     :content="getBirth"
                     show-arrow
                     @click="() => (showDatePicker = true)"
@@ -41,18 +41,18 @@
             <view class="info_wrap">
                 <SettingItem
                     :show-arrow="false"
-                    title="手机号码"
+                    :title="$t('Mobile_number')"
                     :content="selfInfo.phoneNumber || '-'"
                 />
                 <SettingItem
                     :loading="loadingState.isHiddenPhone"
-                    title="隐藏/显示手机号"
+                    :title="$t('Hideshow_mobile_number')"
                     :content="getIsHiddenPhone"
                     show-arrow
                     @click="updateIsHiddenPhone"
                 />
                 <SettingItem
-                    title="邮箱"
+                    :title="$t('Email')"
                     :content="selfInfo.email || '-'"
                     show-arrow
                     @click="updateEmail"
@@ -75,9 +75,9 @@
                 @click="copyID"
             /> -->
             </view>
-            <view class="operation-btn error" @click="handleAccountCancel">
-                注销账号
-            </view>
+            <view class="operation-btn error" @click="handleAccountCancel">{{
+                $t('Log_out2')
+            }}</view>
 
             <u-datetime-picker
                 v-model="selfInfo.birth"
@@ -125,15 +125,17 @@ export default {
         },
         getGender() {
             if (this.selfInfo.gender === 0) {
-                return '保密';
+                return this.$t('Confidential');
             }
             if (this.selfInfo.gender === 1) {
-                return '男';
+                return this.$t('Male');
             }
-            return '女';
+            return this.$t('Female');
         },
         getIsHiddenPhone() {
-            return this.selfInfo.isHiddenPhone === 1 ? '显示' : '隐藏';
+            return this.selfInfo.isHiddenPhone === 1
+                ? this.$t('Show')
+                : this.$t('Hide');
         },
         getBirth() {
             const birth = this.selfInfo.birth;
@@ -150,7 +152,9 @@ export default {
         },
         updateEmail() {
             if (this.selfInfo.email) {
-                return uni.$u.toast('暂不支持修改邮箱');
+                return uni.$u.toast(
+                    this.$t('Email_modification_is_not_supported')
+                );
             }
             uni.navigateTo({
                 url: `/pages/common/emailBind/index?type=${
@@ -160,7 +164,7 @@ export default {
         },
         updateGender() {
             uni.showActionSheet({
-                itemList: ['男', '女'],
+                itemList: [this.$t('Male'), this.$t('Female')],
                 success: async ({ tapIndex }) => {
                     this.loadingState.gender = true;
                     await this.updateSelfInfo(
@@ -172,7 +176,7 @@ export default {
         },
         updateIsHiddenPhone() {
             uni.showActionSheet({
-                itemList: ['显示', '隐藏'],
+                itemList: [this.$t('Show'), this.$t('Hide')],
                 success: async ({ tapIndex }) => {
                     this.loadingState.isHiddenPhone = true;
                     await this.updateSelfInfo(
@@ -230,7 +234,7 @@ export default {
                 success: () => {
                     uni.hideToast();
                     this.$nextTick(() => {
-                        uni.$u.toast('复制成功');
+                        uni.$u.toast(this.$t('Copy_successfully'));
                     });
                 }
             });
@@ -242,10 +246,10 @@ export default {
                     userID: this.selfInfo.userID
                 });
                 await this.$store.dispatch('user/updateBusinessInfo');
-                uni.$u.toast('修改成功');
+                uni.$u.toast(this.$t('Change_successfully'));
             } catch (e) {
                 console.log(e);
-                uni.$u.toast('修改失败');
+                uni.$u.toast(this.$t('Modification_failed'));
             }
             this.loadingState[key] = false;
         },

@@ -2,23 +2,23 @@
 <template>
     <Page>
         <view class="page_container">
-            <CustomNavBar title="账号设置" is-bg-color2 />
+            <CustomNavBar :title="$t('Account_settings')" is-bg-color2 />
 
             <view class="info_wrap">
                 <SettingItem
-                    title="通讯录黑名单"
+                    :title="$t('Address_book_blacklist')"
                     show-arrow
                     @click="toBlockList"
                 />
                 <SettingItem
                     :loading="loading"
-                    title="勿扰模式"
+                    :title="$t('Do_not_disturb_mode')"
                     :switch-value="globalOptEnable"
                     show-switch
                     @switch="switchGlobalOpt"
                 />
                 <SettingItem
-                    title="消息提示音"
+                    :title="$t('Message_alert_tone')"
                     show-arrow
                     @click="checkoutVoice"
                 />
@@ -88,29 +88,28 @@ export default {
             showModel: false,
             defaultIndex: [],
             defaultIndexModel: [],
-            title: '兼容模式',
-            content:
-                'IOS系统下少数手机会在程序后台运行时出现卡死、闪退等问题，可尝试打开此模式，使程序在一定时间内自动关闭后台程序。',
+            title: this.$t('Compatibility_Mode'),
+            content: this.$t('IOS_SYS_TIPS'),
             columns: [
                 [
                     {
                         id: 1,
-                        label: '提示声一',
+                        label: this.$t('Prompt_sound_1'),
                         value: '/static/audio/voice1.mp3'
                     },
                     {
                         id: 2,
-                        label: '提示声二',
+                        label: this.$t('Prompt_sound_2'),
                         value: '/static/audio/voice2.mp3'
                     },
                     {
                         id: 3,
-                        label: '提示声三',
+                        label: this.$t('Prompt_sound_3'),
                         value: '/static/audio/voice3.mp3'
                     },
                     {
                         id: 4,
-                        label: '提示声四',
+                        label: this.$t('Prompt_sound_4'),
                         value: '/static/audio/voice4.mp3'
                     }
                 ]
@@ -119,12 +118,12 @@ export default {
                 [
                     {
                         id: 1,
-                        label: '开启',
+                        label: this.$t('On'),
                         value: '1'
                     },
                     {
                         id: 2,
-                        label: '关闭',
+                        label: this.$t('Off'),
                         value: '2'
                     }
                 ]
@@ -172,14 +171,14 @@ export default {
             const item = value[0];
             uni.setStorageSync('voice', item.value);
             this.show = false;
-            uni.$u.toast('设置成功');
+            uni.$u.toast(this.$t('Set_up_successfully'));
         },
         confirmModel(e) {
             const { value } = e;
             const item = value[0];
             uni.setStorageSync('model', item.value);
             this.showModel = false;
-            uni.$u.toast('设置成功');
+            uni.$u.toast(this.$t('Set_up_successfully'));
         },
         checkoutModel() {
             const index = this.columnsModel[0].findIndex(
@@ -214,7 +213,7 @@ export default {
                     this.loading = false;
                 })
                 .catch(() => {
-                    uni.$u.toast('设置失败');
+                    uni.$u.toast(this.$t('Set_up_failed'));
                 });
         }
     }
