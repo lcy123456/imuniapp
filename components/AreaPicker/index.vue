@@ -4,6 +4,8 @@
         :default-index="defaultIndex"
         :columns="columns"
         key-name="label"
+        :confirm-text="$t('Sure')"
+        :cancel-text="$t('Cancel')"
         @cancel="cancel"
         @confirm="confirm"
     />

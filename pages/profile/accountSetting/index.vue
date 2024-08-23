@@ -50,6 +50,8 @@
             :key-name="'label'"
             :columns="columns"
             :default-index="defaultIndex"
+            :confirm-text="$t('Sure')"
+            :cancel-text="$t('Cancel')"
             @confirm="confirm"
             @change="changeHandler"
             @cancel="show = false"
@@ -59,6 +61,8 @@
             :key-name="'label'"
             :columns="columnsLang"
             :default-index="defaultIndexLang"
+            :confirm-text="$t('Sure')"
+            :cancel-text="$t('Cancel')"
             @confirm="confirmLang"
             @cancel="showLang = false"
         />
@@ -67,11 +71,15 @@
             :key-name="'label'"
             :columns="columnsModel"
             :default-index="defaultIndexModel"
+            :confirm-text="$t('Sure')"
+            :cancel-text="$t('Cancel')"
             @confirm="confirmModel"
             @cancel="showModel = false"
         />
         <u-modal
             :show="showModal"
+            :confirm-text="$t('Sure')"
+            :cancel-text="$t('Cancel')"
             :title="title"
             :content="content"
             :close-on-click-overlay="true"
@@ -134,7 +142,7 @@ export default {
                 [
                     {
                         id: 1,
-                        label: '日语',
+                        label: '日本語',
                         value: 'jp'
                     },
                     {
@@ -144,12 +152,12 @@ export default {
                     },
                     {
                         id: 3,
-                        label: '英文',
+                        label: 'English',
                         value: 'en'
                     },
                     {
                         id: 4,
-                        label: '韩语',
+                        label: '한국인',
                         value: 'ko'
                     }
                 ]
@@ -225,18 +233,11 @@ export default {
             this.$store.commit('base/SET_LANG_DATA', item.value);
             this.$i18n.locale = item.value;
             this.showLang = false;
-            console.log(
-                '----=====',
-                this.$i18n.t('dialogue'),
-                this.$i18n.t('Address_book'),
-                this.$i18n.t('mine')
-            );
-            setTabBarItem([
-                this.$i18n.t('dialogue'),
-                this.$i18n.t('Address_book'),
-                this.$i18n.t('mine')
-            ]);
-            uni.$u.toast('设置成功');
+            setTabBarItem();
+            uni.$u.toast(this.$t('Set_up_successfully'));
+            setTimeout(() => {
+                plus.runtime.restart();
+            }, 2000);
         },
         confirmModel(e) {
             const { value } = e;

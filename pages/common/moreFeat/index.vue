@@ -56,6 +56,8 @@
         <u-picker
             :show="show"
             :key-name="'label'"
+            :confirm-text="$t('Sure')"
+            :cancel-text="$t('Cancel')"
             :columns="columns"
             @confirm="confirm"
             @cancel="show = false"

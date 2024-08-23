@@ -103,6 +103,8 @@
             <u-modal
                 :title="isOwner ? '解散群聊' : '退出群聊'"
                 :content="getConfirmContent"
+                :confirm-text="$t('Sure')"
+                :cancel-text="$t('Cancel')"
                 async-close
                 :show="confirmType !== null"
                 show-cancel-button

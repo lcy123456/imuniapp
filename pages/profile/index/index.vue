@@ -57,6 +57,8 @@
                 width="500rpx"
                 show-cancel-button
                 :show="showComfirm"
+                :confirm-text="$t('Sure')"
+                :cancel-text="$t('Cancel')"
                 :content="
                     $t(
                         'Are_you_sure_you_want_to_log_out_of_the_current_account'

@@ -86,9 +86,9 @@
                         handleGoToPolicy('/pages/login/servicePolicy/index')
                     "
                 >
-                    服务协议
+                    {{ $t('Service_Agreement') }}
                 </text>
-                <text>与</text>
+                <text>、</text>
                 <text
                     class="detail"
                     @click="

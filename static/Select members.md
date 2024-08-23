@@ -240,7 +240,7 @@
 "Please_enter_your_email_address":"ddddd",
 "Next":"ddddd",
 "Get_verification_code":"ddddd",
-"I_have_read_and_agreed_to:":"ddddd",
+"I_have_read_and_agreed_to":"ddddd",
 "Service_Agreement":"ddddd",
 "Privacy_Policy":"ddddd",
 "Please_enter_your_mobile_number":"ddddd",

@@ -84,6 +84,8 @@
                 :min-date="0"
                 :max-date="nowDate"
                 :show="showDatePicker"
+                :confirm-text="$t('Sure')"
+                :cancel-text="$t('Cancel')"
                 mode="date"
                 @confirm="confirmDate"
                 @cancel="() => (showDatePicker = false)"

@@ -187,12 +187,12 @@ export default {
         },
         menuList() {
             return [
-                {
-                    type: MessageMenuTypes.AddEmoticons,
-                    title: this.$t('Add_to_emoticon'),
-                    icon: '/static/images/chating_message_gif.svg',
-                    visible: this.showMediaRender
-                },
+                // {
+                //     type: MessageMenuTypes.AddEmoticons,
+                //     title: this.$t('Add_to_emoticon'),
+                //     icon: '/static/images/chating_message_gif.svg',
+                //     visible: this.showMediaRender
+                // },
                 {
                     type: MessageMenuTypes.Forward,
                     title: this.$t('Forward'),

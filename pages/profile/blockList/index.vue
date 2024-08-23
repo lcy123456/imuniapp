@@ -25,6 +25,8 @@
                 :content="
                     $t('Are_you_sure_to_remove_the_user_from_the_blacklist')
                 "
+                :confirm-text="$t('Sure')"
+                :cancel-text="$t('Cancel')"
                 :async-close="true"
                 @confirm="confirm"
                 @cancel="closeModal"

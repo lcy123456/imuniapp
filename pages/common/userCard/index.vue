@@ -108,6 +108,8 @@
                         { value: sourceUserInfo.nickname }
                     )
                 "
+                :confirm-text="$t('Sure')"
+                :cancel-text="$t('Cancel')"
                 async-close
                 :show="showConfirm"
                 show-cancel-button

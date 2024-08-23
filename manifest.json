@@ -1,9 +1,9 @@
 {
     "name" : "sumi.chat",
-    "appid" : "__UNI__E9FEB0B",
+    "appid" : "__UNI__E694C80",
     "description" : "",
-    "versionName" : "3.0.9",
-    "versionCode" : 309,
+    "versionName" : "1.0.0",
+    "versionCode" : 100,
     "transformPx" : false,
     "app-plus" : {
         "bounce" : "none",
@@ -100,9 +100,9 @@
                 "androidStyle" : "default",
                 "iosStyle" : "common",
                 "android" : {
-                    "hdpi" : "unpackage/res/cover/480_762.png",
-                    "xhdpi" : "unpackage/res/cover/720_1242.png",
-                    "xxhdpi" : "unpackage/res/cover/1080_1882.png"
+                    "hdpi" : "unpackage/res/cover/480x762.png",
+                    "xhdpi" : "unpackage/res/cover/720x1242.png",
+                    "xxhdpi" : "unpackage/res/cover/1080x1882.png"
                 }
             },
             "icons" : {
@@ -153,27 +153,6 @@
                     "parameters" : {}
                 }
             },
-            "lemonjk-FileSelect" : {
-                "appid_android" : "",
-                "__plugin_info__" : {
-                    "name" : "APP文件选择(支持安卓和ios)",
-                    "description" : "支持双端的APP文件选取插件",
-                    "platforms" : "Android,iOS",
-                    "url" : "https://ext.dcloud.net.cn/plugin?id=14059",
-                    "android_package_name" : "online.tbas.muskim02",
-                    "ios_bundle_id" : "online.tbas.muskim02",
-                    "isCloud" : true,
-                    "bought" : 1,
-                    "pid" : "14059",
-                    "parameters" : {
-                        "appid_android" : {
-                            "des" : "请填写你当前应用的包名，必需填写，否则可能无法使用。（在菜单中->发行->原生App-云打包中可以查看包名信息）",
-                            "key" : "",
-                            "value" : ""
-                        }
-                    }
-                }
-            },
             "Tuoyun-OpenIMSDK" : {
                 "__plugin_info__" : {
                     "name" : "OpenIMSDK",
@@ -186,6 +165,27 @@
                     "bought" : -1,
                     "pid" : "",
                     "parameters" : {}
+                }
+            },
+            "lemonjk-FileSelect" : {
+                "appid_android" : "",
+                "__plugin_info__" : {
+                    "name" : "FileSelect",
+                    "description" : "文件选取插件",
+                    "platforms" : "Android,iOS",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {
+                        "appid_android" : {
+                            "des" : "请填写你当前应用的包名，必需填写，否则可能无法使用。（在菜单中->发行->原生App-云打包中可以查看包名信息）",
+                            "key" : "",
+                            "value" : ""
+                        }
+                    }
                 }
             }
         },

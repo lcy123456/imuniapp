@@ -184,39 +184,40 @@ import { chooseFile, recordVoiceManager } from '@/util/unisdk';
 import { videoCreateRoomAndGetToken } from '@/api/incoming';
 import { updateMsg, sendAdvmsg } from '@/api/message';
 import { AllType } from '@/enum';
+import i18n from '@/locale/index';
 
 const albumChoose = [
     {
-        name: this.$t('Picture'),
+        name: i18n.t('Picture'),
         type: ChatingFooterActionTypes.Album,
         idx: 0
     },
     {
-        name: this.$t('Video'),
+        name: i18n.t('Video'),
         type: ChatingFooterActionTypes.Album,
         idx: 1
     }
 ];
 const cameraChoose = [
     {
-        name: this.$t('Photograph'),
+        name: i18n.t('Photograph'),
         type: ChatingFooterActionTypes.Camera,
         idx: 0
     },
     {
-        name: this.$t('Record'),
+        name: i18n.t('Record'),
         type: ChatingFooterActionTypes.Camera,
         idx: 1
     }
 ];
 const callChoose = [
     {
-        name: this.$t('Video_call'),
+        name: i18n.t('Video_call'),
         type: ChatingFooterActionTypes.Call,
         idx: 0
     },
     {
-        name: this.$t('Voice_call'),
+        name: i18n.t('Voice_call'),
         type: ChatingFooterActionTypes.Call,
         idx: 1
     }

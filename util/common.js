@@ -1,21 +1,21 @@
 import PinYin from './pinyin';
 import { AllType, PhoneReg } from '@/enum';
 import { pinyin } from 'pinyin-pro';
-import i18n from '../lang/index';
+import i18n from '@/locale/index';
 
-export const setTabBarItem = textList => {
+export const setTabBarItem = () => {
     setTimeout(() => {
         uni.setTabBarItem({
             index: 0,
-            text: textList[0]
+            text: i18n.t('dialogue')
         });
         uni.setTabBarItem({
             index: 1,
-            text: textList[1]
+            text: i18n.t('Address_book')
         });
         uni.setTabBarItem({
             index: 2,
-            text: textList[2]
+            text: i18n.t('mine')
         });
     }, 200);
 };

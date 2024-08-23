@@ -4,6 +4,8 @@
             async-close
             show-cancel-button
             :show="showConfirm"
+            :confirm-text="$t('Sure')"
+            :cancel-text="$t('Cancel')"
             :content="`${$t('Confirm_to_delete_group')} ${
                 operationFolder.name
             } ？`"

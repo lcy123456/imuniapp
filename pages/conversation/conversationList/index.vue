@@ -56,7 +56,7 @@
             <u-loading-icon text="同步中" />
         </view> -->
             <DeleteArchiveModal
-                :isShowModal="isShowArchiveModal"
+                :is-show-modal="isShowArchiveModal"
             ></DeleteArchiveModal>
         </view>
     </Page>
@@ -75,6 +75,7 @@ import { videoGetToken, videoGetOfflineInfo } from '@/api/incoming';
 import { authGetPcLoginPlatform } from '@/api/login';
 import { AudioVideoType, AudioVideoStatus } from '@/enum';
 import { MessageReceiveOptType } from 'openim-uniapp-polyfill';
+import i18n from '@/locale/index';
 
 export let archiveConversation = {
     isArchvistItem: true,
@@ -87,7 +88,7 @@ export let archiveConversation = {
     userID: '',
     latestMsgSendTime: 0,
     maxSeq: 0,
-    showName: this.$t('My_group1'),
+    showName: i18n.t('My_group1'),
     conversationID: '',
     conversationType: 0,
     isPinned: false,

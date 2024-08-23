@@ -16,7 +16,7 @@
                     <uni-swipe-action-item
                         v-for="(item, index) in favoriteList"
                         :key="index"
-                        :index="item.id"
+                        :index="index"
                         :right-options="swipeAction"
                         :disabled="isDisabled"
                         :threshold="50"

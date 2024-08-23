@@ -45,7 +45,8 @@
                 <u-modal
                     :show="showModal"
                     show-cancel-button
-                    confirm-text="发送"
+                    :confirm-text="$t('Send')"
+                    :cancel-text="$t('Cancel')"
                     @confirm="handleConfirm"
                     @cancel="showModal = false"
                 >

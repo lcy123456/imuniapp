@@ -20,12 +20,14 @@ Vue.use(MyPlugin);
 
 Vue.config.productionTip = false;
 App.mpType = 'app';
+const lang = store.state.base.lang || 'jp';
+i18n.locale = lang;
 const app = new Vue({
     store,
     i18n,
     ...App
 });
-setTabBarItem([i18n.t('dialogue'), i18n.t('Address_book'), i18n.t('mine')]);
+setTabBarItem();
 // 引入请求封装
 require('./util/request/index')(app);
 

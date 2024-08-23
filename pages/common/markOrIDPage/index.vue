@@ -42,6 +42,8 @@
                     sourceInfo.nickname
                 }？`"
                 async-close
+                :confirm-text="$t('Sure')"
+                :cancel-text="$t('Cancel')"
                 :show="showConfirm"
                 show-cancel-button
                 @confirm="confirm"

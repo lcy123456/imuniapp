@@ -17,6 +17,8 @@
                 } ？`"
                 async-close
                 :show="kickModal.show"
+                :confirm-text="$t('Sure')"
+                :cancel-text="$t('Cancel')"
                 show-cancel-button
                 @confirm="kickConfirm"
                 @cancel="() => (kickModal.show = false)"
