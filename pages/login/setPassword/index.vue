@@ -1,15 +1,21 @@
 <template>
     <view class="set_password_container">
-        <CustomNavBar :title="isRegister ? '注册' : '修改登录密码'" />
+        <CustomNavBar
+            :title="isRegister ? $t('Register') : $t('Change_login_password')"
+        />
         <view class="fz-50 ff-bold mt-100 mb-175">
-            请设置{{ isRegister ? '信息与密码' : '新登录密码' }}
+            {{
+                isRegister
+                    ? $t('Please_set_information_and_password')
+                    : $t('Please_set_new_login_password')
+            }}
         </view>
         <u-form ref="loginForm" :model="formData">
             <u-form-item prop="password">
                 <u-input
                     v-model="formData.password"
                     class="login-input"
-                    placeholder="请输入新登录密码"
+                    :placeholder="$t('Please_enter_new_login_password')"
                     :password="!passwordEying"
                 >
                     <u-icon
@@ -23,7 +29,7 @@
                 <u-input
                     v-model="formData.confirmPassword"
                     class="login-input"
-                    placeholder="再次确认新登录密码"
+                    :placeholder="$t('Confirm_new_login_password_again')"
                     :password="!comfirmEying"
                 >
                     <u-icon
@@ -38,17 +44,17 @@
             <Alert
                 :value="formData.password"
                 :verify-res="isLen"
-                description="6-20位字符"
+                :description="$t('6-20_characters')"
             />
             <Alert
                 :value="formData.password"
                 :verify-res="isNumAndLetter"
-                description="必须包含字母和数字"
+                :description="$t('Must_contain_letters_and_numbers')"
             />
             <Alert
                 :value="formData.password"
                 :verify-res="isEqual"
-                description="两次密码不相同"
+                :description="$t('Two_passwords_are_different')"
             />
         </view>
         <view class="mt-68">
@@ -59,7 +65,7 @@
                 size="large"
                 @click="doNext"
             >
-                {{ isRegister ? '下一步' : '确定' }}
+                {{ isRegister ? $t('Next') : $t('Sure') }}
             </u-button>
         </view>
     </view>
@@ -141,7 +147,7 @@ export default {
                     verifyCode: this.codeValue,
                     password: md5(this.formData.password)
                 });
-                uni.$u.toast('修改成功，请重新登录');
+                uni.$u.toast(this.$t('Change_successful_please_log_in_again'));
                 setTimeout(() => {
                     uni.reLaunch({
                         url: '/pages/login/index'

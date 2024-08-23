@@ -34,7 +34,7 @@
                     v-html="lightTextStr(getContent(source.messageList[0]))"
                 />
                 <text v-else-if="source.messageCount > 1">
-                    {{ source.messageCount }}条相关聊天记录
+                    {{ source.messageCount }}{{ $t('Related_chat_records') }}
                 </text>
             </view>
         </view>

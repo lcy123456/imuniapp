@@ -60,13 +60,13 @@
                 </view>
                 <SettingItem
                     class="info-row"
-                    title="查找聊天记录"
+                    :title="$t('Find_chat_history')"
                     show-arrow
                     @click="handleRecord"
                 />
                 <SettingItem
                     class="info-row"
-                    title="加入黑名单"
+                    :title="$t('Add_to_blacklist')"
                     show-switch
                     :loading="blackLoading"
                     :switch-value="isBlacked"
@@ -76,7 +76,7 @@
                     class="flex justify-center h-130 bg-color br-30 align-center error"
                     @click="() => (showConfirm = true)"
                 >
-                    解除好友关系
+                    {{ $t('Remove_friend_relationship') }}
                 </view>
             </view>
             <!-- <SettingItem
@@ -93,16 +93,21 @@
                     @click="toDesignatedConversation"
                 >
                     <img src="static/images/send_message.svg" alt="" />
-                    <text>发消息</text>
+                    <text>{{ $t('Send_message') }}</text>
                 </view>
                 <view v-if="!isFriend" class="action_item" @click="toAddFriend">
                     <img src="static/images/add_friend.svg" alt="" />
-                    <text>添加好友</text>
+                    <text>{{ $t('Add_friends') }}</text>
                 </view>
             </view>
 
             <u-modal
-                :content="`确定要解除与${sourceUserInfo.nickname}的好友关系吗？`"
+                :content="
+                    $t(
+                        'Are_you_sure_you_want_to_remove_friend_relationship_with_{value}',
+                        { value: sourceUserInfo.nickname }
+                    )
+                "
                 async-close
                 :show="showConfirm"
                 show-cancel-button
@@ -142,22 +147,22 @@ export default {
             sourceID: '',
             sourceUserInfo: {},
             from: '',
-            onlineStr: '离线',
+            onlineStr: this.$t('Offline'),
             isOnline: false,
             infoMenus: [
                 {
                     idx: 0,
-                    title: '备注',
+                    title: this.$t('Notes'),
                     icon: '/static/images/profile_menu_info.svg'
                 },
                 {
                     idx: 1,
-                    title: '更多资料',
+                    title: this.$t('More_information'),
                     icon: '/static/images/profile_menu_account.svg'
                 },
                 {
                     idx: 2,
-                    title: '更多',
+                    title: this.$t('More'),
                     icon: '/static/images/common_more_active.svg',
                     w: 42,
                     h: 10
@@ -165,23 +170,23 @@ export default {
             ],
             timeMenus: [
                 {
-                    title: '一天',
+                    title: this.$t('One_day'),
                     time: 60 * 60 * 24
                 },
                 {
-                    title: '一周',
+                    title: this.$t('One_week'),
                     time: 60 * 60 * 24 * 7
                 },
                 {
-                    title: '一个月',
+                    title: this.$t('One_month'),
                     time: 60 * 60 * 24 * 30
                 },
                 {
-                    title: '其他',
+                    title: this.$t('Others'),
                     time: 'other'
                 },
                 {
-                    title: '停用',
+                    title: this.$t('Deactivate'),
                     time: 60 * 60 * 24 * 30 * 12 * 100,
                     style: {
                         color: '#EC4B37'
@@ -288,14 +293,16 @@ export default {
                 navigateToDesignatedConversation(
                     this.sourceID,
                     SessionType.Single
-                ).catch(() => uni.$u.toast('获取会话信息失败'));
+                ).catch(() =>
+                    uni.$u.toast(this.$t('Failed_to_get_session_information'))
+                );
             }
         },
         copyID() {
             uni.setClipboardData({
                 data: this.sourceID,
                 success: () => {
-                    uni.$u.toast('复制成功');
+                    uni.$u.toast(this.$t('Copy_successfully'));
                 }
             });
         },
@@ -344,7 +351,7 @@ export default {
                     from: RecordFormMap.Contact
                 });
             } catch {
-                uni.$u.toast('获取会话信息失败');
+                uni.$u.toast(this.$t('Failed_to_get_session_information'));
             }
         },
         async blackChange(isBlack) {
@@ -355,7 +362,7 @@ export default {
                     blackUserID: this.sourceID,
                     ownerUserID: this.storeUserID
                 });
-                this.$toast('操作成功');
+                this.$toast(this.$t('Operation_successful'));
                 this.$store.dispatch('contact/getBlacklist');
             } catch (err) {
                 console.log(err);
@@ -371,7 +378,7 @@ export default {
                     this.sourceID
                 );
                 this.$store.dispatch('contact/getFriendList');
-                this.$toast('操作成功');
+                this.$toast(this.$t('Operation_successful'));
             } catch (err) {
                 console.log(err);
                 this.$toast(checkLoginError(err));

@@ -2,14 +2,22 @@
     <Page>
         <view class="application_list_container">
             <CustomNavBar
-                :title="isGroupApplication ? '群通知' : '新的朋友'"
+                :title="
+                    isGroupApplication
+                        ? $t('Group_notification')
+                        : $t('New_friends')
+                "
                 is-bg-color2
             />
             <view class="px-20 pb-20 pt-10">
                 <u-search
                     v-model="keyword"
                     shape="square"
-                    :placeholder="`搜索${isGroupApplication ? '群' : '朋友'}`"
+                    :placeholder="`${
+                        isGroupApplication
+                            ? $t('Search_group')
+                            : $t('Search_friends')
+                    }`"
                     :show-action="false"
                     input-align="center"
                     bg-color="#fff"
@@ -147,10 +155,12 @@ export default {
         tabList() {
             return [
                 {
-                    label: this.isGroupApplication ? '入群申请' : '好友请求',
+                    label: this.isGroupApplication
+                        ? this.$t('Apply_for_group_entry2')
+                        : this.$t('Friend_request'),
                     value: 0
                 },
-                { label: '我的请求', value: 1 }
+                { label: this.$t('My_request'), value: 1 }
             ];
         }
     },

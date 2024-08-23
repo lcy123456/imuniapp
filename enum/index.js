@@ -32,6 +32,10 @@ export const AllType = {
     Text: '所有人'
 };
 
+export const UrlMap = {
+    base: 'https://r2.sumi.chat'
+};
+
 export const PlatformMap = {
     1: 'iPhone',
     2: 'Android',

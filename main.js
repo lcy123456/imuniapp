@@ -1,7 +1,8 @@
 import App from './App';
 import Vue from 'vue';
 import MyPlugin from './plugins/index';
-import i18n from '@/lang/index';
+import i18n from '@/locale/index';
+import { setTabBarItem } from '@/util/common';
 
 // vuex
 import store from './store';
@@ -24,7 +25,7 @@ const app = new Vue({
     i18n,
     ...App
 });
-
+setTabBarItem([i18n.t('dialogue'), i18n.t('Address_book'), i18n.t('mine')]);
 // 引入请求封装
 require('./util/request/index')(app);
 

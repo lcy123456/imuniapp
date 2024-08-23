@@ -8,7 +8,7 @@
                     bg-color="#fff"
                     class="h-70"
                     focus
-                    placeholder="搜索"
+                    :placeholder="$t('Search')"
                     @cancel="handleCancel"
                 />
             </view>
@@ -40,7 +40,8 @@
                         class="more_box"
                         @click="handleMore(v.type)"
                     >
-                        更多{{ v.title }}
+                        {{ $t('More') }}
+                        {{ v.title }}
                     </view>
                 </view>
             </view>
@@ -204,19 +205,19 @@ export default {
             let _list = [];
             this.showFriendList.length !== 0 &&
                 _list.push({
-                    title: '联系人',
+                    title: this.$t('Contact'),
                     list: this.showFriendList,
                     type: RecordTypeMap.Contact
                 });
             this.showGroupList.length !== 0 &&
                 _list.push({
-                    title: '群聊',
+                    title: this.$t('Group_Chat'),
                     list: this.showGroupList,
                     type: RecordTypeMap.Group
                 });
             this.recordList.length !== 0 &&
                 _list.push({
-                    title: '聊天记录',
+                    title: this.$t('Chat_History'),
                     list: this.recordList,
                     type: RecordTypeMap.Record
                 });
@@ -244,7 +245,9 @@ export default {
                 navigateToDesignatedConversation(
                     params.id,
                     params.sessionType
-                ).catch(() => uni.$u.toast('获取会话信息失败'));
+                ).catch(() =>
+                    uni.$u.toast(this.$t('Failed_to_get_session_information'))
+                );
             } else if (RecordTypeMap.Record === type) {
                 uni.$u.route('/pages/common/searchRecord/recordDetail/index', {
                     conversation: encodeURIComponent(

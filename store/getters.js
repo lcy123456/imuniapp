@@ -123,6 +123,7 @@ export default {
     storeIsSyncing: state => state.user.isSyncing,
     storeIsLoginStatus: state => state.user.isLoginStatus,
     storeIsProd: state => state.user.isProd,
+    storeBaseLang: state => state.base.lang,
     storePinList: state => state.base.pinList,
     storeIsShowTip: state => state.base.isShowTip,
     storeKeyBoardHeight: state => state.base.keyBoardHeight,

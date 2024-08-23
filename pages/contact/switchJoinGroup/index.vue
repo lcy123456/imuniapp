@@ -1,7 +1,7 @@
 <template>
     <Page>
         <view class="switch_join_container">
-            <custom-nav-bar title="加入群聊" />
+            <custom-nav-bar :title="$t('Join_group_chat')" />
 
             <view class="action_row">
                 <action-item
@@ -37,14 +37,14 @@ export default {
             joinGroupMenus: [
                 {
                     idx: 0,
-                    title: '扫码加入',
-                    desc: '扫描二维码名片',
+                    title: this.$t('Scan_QR_code_to_join'),
+                    desc: this.$t('Scan_QR_code_business_card'),
                     icon: require('static/images/switch_join_qr.svg')
                 },
                 {
                     idx: 1,
-                    title: '群ID号加入',
-                    desc: '向管理员或团队成员询问ID',
+                    title: this.$t('Join_by_group_ID_number'),
+                    desc: this.$t('Ask_administrator_or_team_member_for_ID'),
                     icon: require('static/images/switch_join_id.svg')
                 }
             ]

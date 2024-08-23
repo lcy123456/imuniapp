@@ -58,9 +58,11 @@ export default {
         },
         getTitle() {
             if (!this.isRecv) {
-                return '我的申请';
+                return this.$t('My_application');
             }
-            return this.isGroupApplication ? '群通知' : '好友请求';
+            return this.isGroupApplication
+                ? this.$t('Group_notification')
+                : this.$t('Friend_request');
         }
     },
     onLoad(options) {

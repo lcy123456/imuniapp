@@ -1,6 +1,8 @@
 <template>
     <view class="register_container">
-        <CustomNavBar :title="isRegister ? '注册' : '忘记密码'" />
+        <CustomNavBar
+            :title="isRegister ? $t('Register') : $t('Forgot_password')"
+        />
         <view class="box-logo">
             <image class="logo w-130 h-120" src="/static/images/logo.png" />
             <image class="w-249 h-37" src="/static/images/logo_name.png" />
@@ -30,7 +32,7 @@
                     v-model="userInfo.phoneNumber"
                     type="number"
                     class="login-input"
-                    placeholder="请输入您的手机号码"
+                    :placeholder="$t('Please_enter_your_mobile_number')"
                     clearable
                 />
             </u-form-item>
@@ -38,8 +40,10 @@
                 <u-input
                     v-model="userInfo.invitationCode"
                     class="login-input"
-                    :placeholder="`请输入您的邀请码${
-                        needInvitationCodeRegister ? '(必填)' : '(选填)'
+                    :placeholder="`${$t('Please_enter_your_invitation_code')}${
+                        needInvitationCodeRegister
+                            ? `(${$t('Required')})`
+                            : `(${$t('Optional')})`
                     }`"
                     clearable
                 />
@@ -58,7 +62,7 @@
                     v-model="userInfo.email"
                     type="text"
                     class="login-input"
-                    placeholder="请输入您的邮箱"
+                    :placeholder="$t('Please_enter_your_email_address')"
                     clearable
                 />
             </u-form-item>
@@ -72,7 +76,7 @@
                 :loading="loading"
                 @click="sendSms"
             >
-                {{ isRegister ? '下一步' : '获取验证码' }}
+                {{ isRegister ? $t('Next') : $t('Get_verification_code') }}
             </u-button>
         </view>
         <view v-if="isRegister" class="agreement">
@@ -81,13 +85,13 @@
                     icon-size="12"
                     label-size="12"
                     shape="circle"
-                    label="我已阅读并同意："
+                    :label="$t('I_have_read_and_agreed_to')"
                     :name="true"
                 />
             </u-checkbox-group>
-            <text class="detail"> 服务协议 </text>
+            <text class="detail"> {{ $t('Service_Agreement') }} </text>
             <text>与</text>
-            <text class="detail"> 隐私政策 </text>
+            <text class="detail"> {{ $t('Privacy_Policy') }} </text>
         </view>
         <AreaPicker ref="AreaPicker" @chooseArea="chooseArea" />
     </view>
@@ -120,7 +124,7 @@ export default {
                     {
                         type: 'string',
                         required: true,
-                        message: '请输入手机号码',
+                        message: this.$t('Please_enter_your_mobile_number'),
                         trigger: ['blur', 'change']
                     },
                     {
@@ -129,7 +133,9 @@ export default {
                                 `+${this.userInfo.areaCode}`
                             ).test(value);
                         },
-                        message: '请输入正确的手机号',
+                        message: this.$t(
+                            'Please_enter_the_correct_mobile_number'
+                        ),
                         trigger: ['change', 'blur']
                     }
                 ],
@@ -137,7 +143,7 @@ export default {
                     {
                         type: 'string',
                         required: true,
-                        message: '请输入邮箱',
+                        message: this.$t('Please_enter_your_email_address'),
                         trigger: ['blur', 'change']
                     }
                 ]
@@ -175,7 +181,9 @@ export default {
                         {
                             type: 'string',
                             required: true,
-                            message: '请输入邀请码',
+                            message: this.$t(
+                                'Please_enter_your_invitation_code'
+                            ),
                             trigger: ['blur', 'change']
                         }
                     ]
@@ -208,7 +216,7 @@ export default {
                         });
                         console.log('emailSendCode--emailSendCode', data);
                     }
-                    uni.$u.toast('验证码已发送！');
+                    uni.$u.toast(this.$t('Verification_code_has_been_sent'));
                     setTimeout(
                         () =>
                             uni.$u.route('/pages/login/verifyCode/index', {

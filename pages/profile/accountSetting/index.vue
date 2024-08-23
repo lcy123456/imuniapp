@@ -22,6 +22,11 @@
                     show-arrow
                     @click="checkoutVoice"
                 />
+                <SettingItem
+                    :title="$t('language')"
+                    show-arrow
+                    @click="checkLang"
+                />
                 <!-- <SettingItem
                     v-if="isIos"
                     title="兼容模式"
@@ -50,6 +55,14 @@
             @cancel="show = false"
         />
         <u-picker
+            :show="showLang"
+            :key-name="'label'"
+            :columns="columnsLang"
+            :default-index="defaultIndexLang"
+            @confirm="confirmLang"
+            @cancel="showLang = false"
+        />
+        <u-picker
             :show="showModel"
             :key-name="'label'"
             :columns="columnsModel"
@@ -73,6 +86,7 @@ import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import SettingItem from '@/components/SettingItem/index.vue';
 import { mapGetters } from 'vuex';
 import addUser from '../addUser';
+import { setTabBarItem } from '@/util/common';
 
 export default {
     components: {
@@ -82,12 +96,14 @@ export default {
     },
     data() {
         return {
+            showLang: false,
             loading: false,
             show: false,
             showModal: false,
             showModel: false,
             defaultIndex: [],
             defaultIndexModel: [],
+            defaultIndexLang: [],
             title: this.$t('Compatibility_Mode'),
             content: this.$t('IOS_SYS_TIPS'),
             columns: [
@@ -111,6 +127,30 @@ export default {
                         id: 4,
                         label: this.$t('Prompt_sound_4'),
                         value: '/static/audio/voice4.mp3'
+                    }
+                ]
+            ],
+            columnsLang: [
+                [
+                    {
+                        id: 1,
+                        label: '日语',
+                        value: 'jp'
+                    },
+                    {
+                        id: 2,
+                        label: '中文',
+                        value: 'zh'
+                    },
+                    {
+                        id: 3,
+                        label: '英文',
+                        value: 'en'
+                    },
+                    {
+                        id: 4,
+                        label: '韩语',
+                        value: 'ko'
                     }
                 ]
             ],
@@ -139,7 +179,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeSelfInfo']),
+        ...mapGetters(['storeSelfInfo', 'storeBaseLang']),
         globalOptEnable() {
             return (
                 this.storeSelfInfo.globalRecvMsgOpt !==
@@ -161,6 +201,12 @@ export default {
             );
             this.defaultIndex = index === -1 ? [0] : [index];
         },
+        setLangDefaultIndex() {
+            const index = this.columnsLang[0].findIndex(
+                item => item.value === this.storeBaseLang
+            );
+            this.defaultIndexLang = index === -1 ? [0] : [index];
+        },
         changeHandler(e) {
             const { value } = e;
             const item = value[0];
@@ -172,6 +218,25 @@ export default {
             uni.setStorageSync('voice', item.value);
             this.show = false;
             uni.$u.toast(this.$t('Set_up_successfully'));
+        },
+        confirmLang(e) {
+            const { value } = e;
+            const item = value[0];
+            this.$store.commit('base/SET_LANG_DATA', item.value);
+            this.$i18n.locale = item.value;
+            this.showLang = false;
+            console.log(
+                '----=====',
+                this.$i18n.t('dialogue'),
+                this.$i18n.t('Address_book'),
+                this.$i18n.t('mine')
+            );
+            setTabBarItem([
+                this.$i18n.t('dialogue'),
+                this.$i18n.t('Address_book'),
+                this.$i18n.t('mine')
+            ]);
+            uni.$u.toast('设置成功');
         },
         confirmModel(e) {
             const { value } = e;
@@ -186,6 +251,10 @@ export default {
             );
             this.defaultIndexModel = index === -1 ? [0] : [index];
             this.showModel = true;
+        },
+        checkLang() {
+            this.setLangDefaultIndex();
+            this.showLang = true;
         },
         checkoutVoice() {
             this.setDefaultIndex();

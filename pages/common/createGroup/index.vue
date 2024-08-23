@@ -19,7 +19,7 @@
                 />
                 <u--input
                     v-model="groupName"
-                    :placeholder="`取个${isArchive ? '组' : '群'}名`"
+                    :placeholder="$t('Give_a_group_name')"
                     border="none"
                 />
             </view>
@@ -64,7 +64,7 @@
                 <u-button
                     :disabled="disabledNext"
                     type="primary"
-                    :text="isArchive ? '添加好友' : '下一步'"
+                    :text="isArchive ? $t('Add_friends') : $t('Next')"
                     shape="circle"
                     size="large"
                     @click="toChooseMember"
@@ -127,23 +127,20 @@ export default {
         navbarTitle() {
             switch (this.type) {
                 case ContactChooseTypes.Archive:
-                    return '创建分组';
-                    break;
+                    return this.$t('Create_a_group');
                 case ContactChooseTypes.EditArchive:
-                    return '编辑分组';
-                    break;
+                    return this.$t('Edit_group');
             }
-            return '发起群聊';
+            return this.$t('Start_a_group_chat');
         },
         archiveBtnText() {
             switch (this.type) {
                 case ContactChooseTypes.Archive:
-                    return '创建分组';
-                    break;
+                    return this.$t('Create_a_group');
                 case ContactChooseTypes.EditArchive:
-                    return '完成';
-                    break;
+                    return this.$t('Complete');
             }
+            return '';
         }
     },
     onLoad(options) {
@@ -202,14 +199,14 @@ export default {
                     IMSDK.uuid(),
                     options
                 );
-                this.$toast('创建成功');
+                this.$toast(this.$t('Create_successfully'));
                 await navigateToDesignatedConversation(
                     data.groupID,
                     SessionType.WorkingGroup,
                     true
                 );
             } catch (err) {
-                this.$toast('创建失败');
+                this.$toast(this.$t('Create_failed'));
             }
         },
         async handleArchive(isUpdate = false) {
@@ -258,7 +255,7 @@ export default {
                     ));
                 notConversationList.length > 0 &&
                     (await this.handleSetConversition(-1, notConversationList));
-                this.$toast('设置分组成功');
+                this.$toast(this.$t('Set_group_successfully'));
                 setTimeout(() => {
                     uni.navigateBack({
                         delta: isUpdate ? 1 : 2
@@ -266,7 +263,7 @@ export default {
                 }, 1000);
             } catch (err) {
                 console.log(err);
-                this.$toast('设置分组失败');
+                this.$toast(this.$t('Set_group_failed'));
             } finally {
             }
         },
@@ -324,11 +321,11 @@ export default {
                         );
                         this.groupFaceUrl = url;
                     } catch (error) {
-                        this.showToast('上传失败');
+                        this.showToast(this.$t('Upload_failed'));
                     }
                 },
                 fail: function () {
-                    this.showToast('上传失败');
+                    this.showToast(this.$t('Upload_failed'));
                 }
             });
         },

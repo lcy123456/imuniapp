@@ -8,7 +8,7 @@
                     bg-color="#fff"
                     class="h-70"
                     focus
-                    placeholder="搜索"
+                    :placeholder="$t('Search')"
                     @cancel="handleCancel"
                 >
                     <view
@@ -154,11 +154,11 @@ export default {
         ...mapGetters(['storeCurrentUserID', 'storeCurrentConversationID']),
         tabList() {
             const arr = [
-                { label: '聊天记录', value: this.TextRenderTypes },
-                { label: '媒体', value: this.MediaRenderTypes },
-                { label: '文件', value: this.FileRenderTypes },
+                { label: this.$t('Chat_history'), value: this.TextRenderTypes },
+                { label: this.$t('Media'), value: this.MediaRenderTypes },
+                { label: this.$t('File'), value: this.FileRenderTypes },
                 ...(this.from === RecordFormMap.Group
-                    ? [{ label: '用户', value: UserRenderTypes }]
+                    ? [{ label: this.$t('User'), value: UserRenderTypes }]
                     : [])
             ];
             return arr;
@@ -172,17 +172,17 @@ export default {
         mediaMessage() {
             const temp = [
                 {
-                    label: '本周',
+                    label: this.$t('This_week'),
                     value: [],
                     time: dayjs().startOf('week').valueOf()
                 },
                 {
-                    label: '本月',
+                    label: this.$t('This_month'),
                     value: [],
                     time: dayjs().startOf('month').valueOf()
                 },
                 {
-                    label: '本年',
+                    label: this.$t('This_year'),
                     value: [],
                     time: dayjs().startOf('year').valueOf()
                 }

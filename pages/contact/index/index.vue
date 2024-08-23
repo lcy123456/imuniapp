@@ -6,7 +6,11 @@
             <text @click="roomModule.toggleVideo">开关视频</text>
             <text @click="roomModule.toggleVideoInput">切换视频</text>
         </div> -->
-            <CustomNavBar :show-left="false" is-bg-color2 title="通讯录">
+            <CustomNavBar
+                :show-left="false"
+                is-bg-color2
+                :title="$t('Address_book')"
+            >
                 <view slot="more" class="mr-30" @click="contactAddClick">
                     <image
                         src="@/static/images/common_circle_add.svg"
@@ -19,7 +23,7 @@
                     v-model="keyword"
                     bg-color="#fff"
                     class="h-70"
-                    placeholder="搜索"
+                    :placeholder="$t('Search')"
                     readonly
                 />
             </view>

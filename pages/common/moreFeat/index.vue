@@ -12,7 +12,7 @@
                 <image :class="['w-38', 'h-38']" :src="item.icon" />
             </view>
             <view class="flex li h-80 align-center" @click.stop="moreIndex = 2">
-                <text>开启自动删除</text>
+                <text>{{ $t('Turn_on_automatic_deletion') }}</text>
                 <image
                     :class="['w-38', 'h-38']"
                     :src="'/static/images/automatic_del.png'"
@@ -32,7 +32,7 @@
                     :class="['w-38', 'h-35']"
                     :src="'/static/images/back_time.svg'"
                 />
-                <text class="ml-20"> 返回 </text>
+                <text class="ml-20"> {{ $t('Return') }} </text>
             </view>
             <view class="item-box">
                 <view
@@ -46,7 +46,11 @@
                 </view>
             </view>
             <view class="flex word li h-108 align-center">
-                <text>在此之后发送的消息将在一段时间后被自动删除。</text>
+                <text>{{
+                    $t(
+                        'Messages_sent_after_this_will_be_automatically_deleted_after_a_period_of_time'
+                    )
+                }}</text>
             </view>
         </view>
         <u-picker
@@ -89,11 +93,11 @@ export default {
             timeMenus: [
                 ...burnMenuList.slice(0, 3),
                 {
-                    label: '其他',
+                    label: this.$t('Others'),
                     id: 'other'
                 },
                 {
-                    label: '停用',
+                    label: this.$t('Deactivate'),
                     id: 'stop',
                     style: {
                         color: '#EC4B37'
@@ -160,7 +164,7 @@ export default {
                 );
                 if (privateChatData && time === 'stop') {
                     this.show = false;
-                    uni.$u.toast('设置成功');
+                    uni.$u.toast(this.$t('Set_up_successfully'));
                     this.moreIndex = 0;
                     return;
                 }
@@ -175,11 +179,11 @@ export default {
                 );
                 if (data) {
                     this.show = false;
-                    uni.$u.toast('设置成功');
+                    uni.$u.toast(this.$t('Set_up_successfully'));
                     this.moreIndex = 0;
                 }
             } catch (err) {
-                uni.$u.toast('设置失败，请稍后重试');
+                uni.$u.toast(this.$t('Setup_failed_please_try_again_later'));
                 console.log(err);
             }
         }

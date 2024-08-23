@@ -28,7 +28,7 @@
                 class="member_row info_row"
             >
                 <view class="member_desc">
-                    <text>群成员</text>
+                    <text>{{ $t('Group_Members') }}</text>
                     <text class="member_count">
                         {{ `${sourceGroupInfo.memberCount}人` }}
                     </text>
@@ -54,17 +54,17 @@
 
             <view class="info_row">
                 <user-info-row-item
-                    lable="群ID号"
+                    :lable="$t('Group_ID')"
                     :content="sourceGroupInfo.groupID"
                 />
             </view>
 
             <view v-if="!isJoinedGroup" class="action_row" @click="joinGroup">
-                <text>申请加入该群</text>
+                <text>{{ $t('Apply_to_join_the_group') }}</text>
             </view>
 
             <view v-else class="action_row" @click="chatingInGroup">
-                <text>发消息</text>
+                <text>{{ $t('Send_message') }}</text>
             </view>
 
             <u-toast ref="uToast" />
@@ -156,7 +156,9 @@ export default {
             navigateToDesignatedConversation(
                 this.sourceID,
                 SessionType.WorkingGroup
-            ).catch(() => this.showToast('获取会话信息失败'));
+            ).catch(() =>
+                this.showToast(this.$t('Failed_to_get_session_information'))
+            );
         },
         async getSourceGroupInfo() {
             let info = null;

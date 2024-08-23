@@ -381,5 +381,17 @@
     "Invitation_code_does_not_exist": "招待コードが存在しません",
     "Reject_adding_friends": "友達の追加を拒否",
     "Email_format_error": "メール形式エラー",
-    "SYS_error": "不明なインターフェイス エラー。管理者に問い合わせてください。"
+    "SYS_error": "不明なインターフェイス エラー。管理者に問い合わせてください。",
+    "Group_Members": "グループメンバー",
+    "Group_ID": "グループID番号",
+    "Apply_to_join_the_group": "このグループへの参加を申請する",
+    "Forwarding_failed": "転送に失敗しました",
+    "Contact": "連絡担当者",
+    "Group_Chat": "グループチャット",
+    "Chat_History": "チャット履歴",
+    "Add_to": "に追加",
+    "Sure": "もちろん",
+    "dialogue": "対話",
+    "mine": "私の",
+    "language": "言語"
 }

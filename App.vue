@@ -775,6 +775,7 @@ export default {
         async thirdConfig() {
             try {
                 const data = await thirdConfig();
+                console.log('thirdConfig---', data);
                 this.$store.commit('base/SET_THIRD_DATA', data);
                 return data;
             } catch (err) {

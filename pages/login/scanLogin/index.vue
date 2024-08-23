@@ -3,17 +3,19 @@
         <view class="top">
             <image src="/static/images/scan-login-icon.png" />
             <text
-                >{{ platformID ? '' : '登录'
-                }}{{ PlatformMap[platformID] || '客户' }}端</text
+                >{{ platformID ? '' : $t('Login')
+                }}{{ PlatformMap[platformID] || $t('Client') }}</text
             >
         </view>
         <view v-if="platformID" class="btns">
-            <view class="submit" @click="authForceLogout"> 退出登录 </view>
-            <view class="cancel" @click="back"> 取消 </view>
+            <view class="submit" @click="authForceLogout">
+                {{ $t('Log_out1') }}
+            </view>
+            <view class="cancel" @click="back"> {{ $t('Cancel') }} </view>
         </view>
         <view v-else class="btns">
-            <view class="submit" @click="accountScan"> 登录 </view>
-            <view class="cancel" @click="back"> 取消登录 </view>
+            <view class="submit" @click="accountScan"> {{ $t('Login') }} </view>
+            <view class="cancel" @click="back"> {{ $t('Cancel_login') }} </view>
         </view>
     </view>
 </template>
@@ -51,7 +53,7 @@ export default {
                 });
                 this.back();
             } catch (err) {
-                uni.$u.toast('网络异常请重试');
+                // uni.$u.toast('网络异常请重试');
             }
         },
         back() {

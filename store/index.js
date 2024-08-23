@@ -17,7 +17,7 @@ const vuexPersisted = createPersistedState({
     },
     reducer(state) {
         const { user, conversation, contact, base } = state;
-        const { keyBoardHeight, thirdData } = base;
+        const { keyBoardHeight, thirdData, lang } = base;
         const { authData, isProd, selfInfo, userList } = user;
         const { conversationList, conversationFolder } = conversation;
         const { friendList, blackList, groupList } = contact;
@@ -39,7 +39,8 @@ const vuexPersisted = createPersistedState({
             },
             base: {
                 keyBoardHeight,
-                thirdData
+                thirdData,
+                lang
             }
         };
     }

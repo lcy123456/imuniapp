@@ -13,7 +13,7 @@
                 </text>
 
                 <view v-if="isGroupApplication" class="title">
-                    申请加入
+                    {{ $t('Apply_to_join') }}
                     <text class="group_name">
                         {{ application.groupName }}
                     </text>
@@ -42,7 +42,7 @@
                     size="mini"
                     @tap.stop="greetToUser"
                 >
-                    打招呼
+                    {{ $t('Say_hello') }}
                 </button>
                 <button
                     v-if="showAccept"
@@ -53,7 +53,7 @@
                     size="mini"
                     @tap.stop="acceptApplication"
                 >
-                    {{ isGroupApplication ? '同意' : '接受' }}
+                    {{ isGroupApplication ? $t('Agree1') : $t('Accept') }}
                 </button>
             </view>
 
@@ -113,12 +113,12 @@ export default {
         },
         getStateStr() {
             if (this.application.handleResult === -1) {
-                return '已拒绝';
+                return this.$t('Rejected');
             }
             if (this.application.handleResult === 0) {
-                return '处理中';
+                return this.$t('Processing');
             }
-            return '已同意';
+            return this.$t('Agree2');
         },
         getAvatarUrl() {
             if (this.isGroupApplication) {
@@ -173,15 +173,17 @@ export default {
                     }
                 );
             }
-            func.then(() => uni.$u.toast('操作成功'))
-                .catch(() => uni.$u.toast('操作失败'))
+            func.then(() => uni.$u.toast(this.$t('Operation_successful')))
+                .catch(() => uni.$u.toast(this.$t('Operation_failed')))
                 .finally(() => (this.accessLoading = false));
         },
         greetToUser() {
             navigateToDesignatedConversation(
                 this.application[this.isRecv ? 'fromUserID' : 'toUserID'],
                 SessionType.Single
-            ).catch(() => uni.$u.toast('获取会话信息失败'));
+            ).catch(() =>
+                uni.$u.toast(this.$t('Failed_to_get_session_information'))
+            );
         }
     }
 };

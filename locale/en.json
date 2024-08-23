@@ -381,5 +381,17 @@
     "Invitation_code_does_not_exist": "Invitation code does not exist",
     "Reject_adding_friends": "Reject adding friends",
     "Email_format_error": "Email format error",
-    "SYS_error": "Unknown interface error, please contact the administrator"
+    "SYS_error": "Unknown interface error, please contact the administrator",
+    "Group_Members": "Group Members",
+    "Group_ID": "Group ID",
+    "Apply_to_join_the_group": "Apply to join the group",
+    "Forwarding_failed": "Forwarding failed",
+    "Contact": "Contact",
+    "Group_Chat": "Group Chat",
+    "Chat_History": "Chat History",
+    "Add_to": "Add to",
+    "Sure": "Sure",
+    "dialogue": "dialogue",
+    "mine": "mine",
+    "language": "language"
 }

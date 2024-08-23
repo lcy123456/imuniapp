@@ -1,10 +1,10 @@
 <template>
     <Page>
         <view class="contact_add_container">
-            <custom-nav-bar title="添加" />
+            <custom-nav-bar :title="$t('Add_to')" />
 
             <view class="desc_title">
-                <text>创建和加入群聊</text>
+                <text>{{ $t('Create_and_join_group_chat') }}</text>
             </view>
 
             <view class="action_row">
@@ -17,7 +17,7 @@
             </view>
 
             <view class="desc_title">
-                <text>添加好友</text>
+                <text>{{ $t('Add_friends') }}</text>
             </view>
 
             <view class="action_row">
@@ -52,7 +52,7 @@ export default {
                 // },
                 {
                     idx: 1,
-                    title: '加入群聊',
+                    title: this.$t('Join_group_chat'),
                     desc: '与成员一起沟通协作',
                     icon: require('static/images/contact_add_join_group.svg')
                 }
@@ -60,13 +60,13 @@ export default {
             friendActionMenus: [
                 {
                     idx: 0,
-                    title: '搜索好友',
+                    title: this.$t('Search_for_friends'),
                     desc: '通过ID号搜索添加',
                     icon: '/static/images/contact_add_search_user.svg'
                 },
                 {
                     idx: 1,
-                    title: '扫一扫',
+                    title: this.$t('Scan'),
                     desc: '扫描二维码名片',
                     icon: require('static/images/contact_add_qr_user.svg')
                 }

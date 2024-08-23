@@ -8,7 +8,7 @@
                 <u--image
                     v-if="!storeConnectingStatus"
                     src="/static/images/logo_name_blue.png"
-                    width="200rpx"
+                    width="250rpx"
                     height="28rpx"
                 />
             </template>

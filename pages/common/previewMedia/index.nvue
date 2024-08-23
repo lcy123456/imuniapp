@@ -83,11 +83,11 @@ export default {
             showActionSheet: false,
             baseList: [
                 {
-                    name: '保存图片',
+                    name: '画像を保存',
                     type: 0
                 },
                 {
-                    name: '保存视频',
+                    name: 'ビデオを保存する',
                     type: 1
                 }
             ],
@@ -101,29 +101,29 @@ export default {
         this.list = JSON.parse(decodeURIComponent(list));
         this.current = current;
         this.item = this.list[current];
-		if (uni.$u.os() === 'android') {
-			this.list.push({
+        if (uni.$u.os() === 'android') {
+            this.list.push({
                 url: 'http://placeholder',
                 type: ''
-            })
-			setTimeout(() => {
-				this.list.pop();
-			}, 0);
-		}
+            });
+            setTimeout(() => {
+                this.list.pop();
+            }, 0);
+        }
     },
 
     methods: {
         longpress(type) {
             this.actionSheetMenu = [
                 this.baseList[type],
-                { name: '取消', type: 2 }
+                { name: 'キャンセル', type: 2 }
             ];
             this.showActionSheet = true;
         },
         fail() {
             uni.hideLoading();
             uni.showToast({
-                title: '保存失败，请稍后重试',
+                title: '保存に失敗しました。後でもう一度お試しください',
                 icon: 'none'
             });
         },
@@ -268,7 +268,6 @@ export default {
             }
         },
         change(e) {
-            const { windowWidth, windowHeight } = this.systemInfo;
             let current = e.detail.current;
             if (this.item.type === 'video') {
                 let video = uni.createVideoContext(this.item.url, this);
@@ -277,14 +276,13 @@ export default {
             this.current = current;
             this.item = this.list[current];
             const list = [...this.list];
-            list.forEach((item, index) => {
+            list.forEach(item => {
                 this.initImageItem(item);
             });
             this.list = list;
             // console.log('change---', this.list);
         },
         click(event, item, index) {
-            const { windowWidth, windowHeight } = this.systemInfo;
             this.clickCount++;
             console.log('this.clickCount', this.clickCount);
             if (this.clickCount === 1) {

@@ -3,6 +3,23 @@ import { AllType, PhoneReg } from '@/enum';
 import { pinyin } from 'pinyin-pro';
 import i18n from '../lang/index';
 
+export const setTabBarItem = textList => {
+    setTimeout(() => {
+        uni.setTabBarItem({
+            index: 0,
+            text: textList[0]
+        });
+        uni.setTabBarItem({
+            index: 1,
+            text: textList[1]
+        });
+        uni.setTabBarItem({
+            index: 2,
+            text: textList[2]
+        });
+    }, 200);
+};
+
 export const html2Text = (html, type) => {
     if (!html) {
         return '';

@@ -1,7 +1,7 @@
 <template>
     <Page>
         <view class="group_list_container">
-            <CustomNavBar title="我的群组" is-bg-color2>
+            <CustomNavBar :title="$t('My_group2')" is-bg-color2>
                 <!-- <view
                     slot="more"
                     class="mr-30 primary ff-medium fz-30"
@@ -14,7 +14,7 @@
                 <u-search
                     v-model="keyword"
                     shape="square"
-                    placeholder="搜索群组"
+                    :placeholder="$t('Search_group')"
                     :show-action="false"
                     input-align="center"
                     bg-color="#fff"
@@ -82,8 +82,8 @@ export default {
         return {
             keyword: '',
             tabList: [
-                { label: '我创建的', value: 0 },
-                { label: '我加入的', value: 1 }
+                // { label: this.$t('Created_by_me'), value: 0 },
+                { label: this.$t('Joined_by_me'), value: 1 }
             ],
             isMyCreate: true
         };

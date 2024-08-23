@@ -4,7 +4,7 @@ import { AudioVideoType } from '@/enum';
 import { AddFriendQrCodePrefix, AddGroupQrCodePrefix } from '@/constant';
 import { getOnlineStateFromSvr } from '@/api/imApi';
 import { businessSearchUserInfo } from '@/api/login';
-import { AudioVideoStatus } from '@/enum';
+import { AudioVideoStatus, UrlMap } from '@/enum';
 import { checkLoginError } from '@/util/common';
 import IMSDK, {
     IMMethods,
@@ -1035,6 +1035,7 @@ export const formatFileUrl = url => {
         /^(http(s?)|\/storage|\/var|\/static)/.test(url)
     )
         return url;
-    const { storeThirdData } = store.getters;
-    return storeThirdData?.oss?.url + url;
+    // const { storeThirdData } = store.getters;
+    // return storeThirdData?.oss?.url + url;
+    return UrlMap.base + url.replace('/openim/openim', '/openim');
 };

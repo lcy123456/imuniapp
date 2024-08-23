@@ -381,5 +381,17 @@
     "Invitation_code_does_not_exist": "초대 코드가 존재하지 않습니다",
     "Reject_adding_friends": "친구 추가 거부",
     "Email_format_error": "이메일 형식 오류",
-    "SYS_error": "알 수 없는 인터페이스 오류입니다. 관리자에게 문의하십시오."
+    "SYS_error": "알 수 없는 인터페이스 오류입니다. 관리자에게 문의하십시오.",
+    "Group_Members": "그룹 구성원",
+    "Group_ID": "그룹 ID 번호",
+    "Apply_to_join_the_group": "이 그룹에 가입하려면 신청하세요",
+    "Forwarding_failed": "전달 실패",
+    "Contact": "“담당자",
+    "Group_Chat": "그룹 채팅",
+    "Chat_History": "채팅 기록",
+    "Add_to": "다음에 추가",
+    "Sure": "확신하는",
+    "dialogue": "대화",
+    "mine": "내 거",
+    "language": "언어"
 }

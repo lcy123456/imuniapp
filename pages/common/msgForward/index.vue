@@ -1,10 +1,10 @@
 <template>
     <Page>
         <view class="forward_container">
-            <CustomNavBar title="转发" is-bg-color2>
+            <CustomNavBar :title="$t('Forward')" is-bg-color2>
                 <template slot="more">
                     <text class="mr-32 primary fz-32" @click="chooseContact">
-                        选择联系人
+                        {{ $t('Select_contact') }}
                     </text>
                 </template>
             </CustomNavBar>
@@ -12,7 +12,7 @@
                 <uni-search-bar
                     v-model="keyword"
                     class="h-70"
-                    placeholder="搜索"
+                    :placeholder="$t('Search')"
                 />
             </view>
             <MyTabs
@@ -50,7 +50,9 @@
                     @cancel="showModal = false"
                 >
                     <view class="flex-grow over-hide">
-                        <view class="mb-20 ff-bold fz-36"> 发送给: </view>
+                        <view class="mb-20 ff-bold fz-36">
+                            {{ $t('Send_to') }}:
+                        </view>
                         <view class="flex align-center">
                             <MyAvatar
                                 v-for="item in sendObjectArr"
@@ -80,7 +82,9 @@
                             ]"
                         >
                             <view v-if="isMergeRender">
-                                [合并消息]{{ message.mergeElem.title }}
+                                [{{ $t('Merge_messages') }}]{{
+                                    message.mergeElem.title
+                                }}
                             </view>
                             <MessageContentWrap
                                 v-else
@@ -93,7 +97,11 @@
             </view>
             <Notification
                 v-model="isShowNotification"
-                text="消息已发出，但对方拒收了！"
+                :text="
+                    $t(
+                        'Message_has_been_sent_but_the_other_party_refused_to_receive_it'
+                    )
+                "
             />
         </view>
     </Page>
@@ -131,7 +139,7 @@ export default {
             SessionType: Object.freeze(SessionType),
             isShowNotification: false,
             keyword: '',
-            tabList: [{ label: '全部对话', value: 0 }],
+            tabList: [{ label: this.$t('All_conversations'), value: 0 }],
             showModal: false,
             message: {},
             sendObjectArr: [],
@@ -179,7 +187,7 @@ export default {
                 const isCurConversation =
                     this.storeCurrentConversation.userID === sendObject.userID;
                 try {
-                    this.$loading('转发中');
+                    this.$loading(this.$t('Forwarding'));
                     const message = this.message;
 
                     if (isCurConversation) {
@@ -201,7 +209,7 @@ export default {
                             offlinePushInfo
                         }
                     );
-                    this.$toast('转发成功');
+                    this.$toast(this.$t('Forwarded_successfully'));
                     if (isCurConversation) {
                         this.updateOneMessage({
                             message: res.data,
@@ -230,7 +238,7 @@ export default {
                             ]
                         });
                     }
-                    this.$toast('转发失败');
+                    this.$toast(this.$t('Forwarding_failed'));
                 }
             }
             this.showModal = false;

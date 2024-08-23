@@ -1,14 +1,14 @@
 <template>
     <Page>
         <view class="group_members_container page_container">
-            <CustomNavBar title="群成员" />
+            <CustomNavBar :title="$t('Group_Members')" />
             <view class="px-20 pb-20 pt-10">
                 <uni-search-bar
                     v-model="keyword"
                     bg-color="#fff"
                     class="h-70"
                     focus
-                    placeholder="搜索"
+                    :placeholder="$t('Search')"
                     @cancel="handleCancel"
                 />
             </view>

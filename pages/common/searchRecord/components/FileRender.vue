@@ -67,7 +67,7 @@ export default {
         dayjs,
         bytesToSize,
         async handleClick() {
-            this.$loading('加载中');
+            this.$loading(this.$t('Loading'));
             let path = this.path;
             if (!path) {
                 this.path = path = await this.handleDownloadFile();
@@ -100,14 +100,18 @@ export default {
                 },
                 fail: err => {
                     console.log('打开文档失败', err);
-                    this.$toast('暂不支持的文件格式，请保存到本地进行预览');
+                    this.$toast(
+                        this.$t(
+                            'File_format_is_not_supported_yet_please_save_to_local_for_preview'
+                        )
+                    );
                 }
             });
         },
         handleLongPress() {
             if (plus.os.name === 'iOS') return;
             uni.showActionSheet({
-                itemList: ['保存到本地'],
+                itemList: [this.$t('Save_to_local')],
                 success: async ({ tapIndex }) => {
                     if (tapIndex === 0) {
                         this.handleSave();
@@ -135,9 +139,12 @@ export default {
                         let fileSaveUrl = plus.io.convertLocalFileSystemURL(
                             d.filename
                         );
-                        this.$toast(`文件已保存到${fileSaveUrl}`, 3000);
+                        this.$toast(
+                            `${this.$t('File_saved_to')}${fileSaveUrl}`,
+                            3000
+                        );
                     } else {
-                        this.$toast(`文件下载失败`, 3000);
+                        this.$toast(this.$t('File_download_failed'), 3000);
                         plus.downloader.clear();
                     }
                 }

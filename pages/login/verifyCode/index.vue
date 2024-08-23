@@ -1,9 +1,13 @@
 <template>
     <view class="verify_code">
         <CustomNavBar />
-        <view class="fz-50 mt-100 ff-bold"> 请输入您的验证码 </view>
+        <view class="fz-50 mt-100 ff-bold">
+            {{ $t('Please_enter_your_verification_code') }}
+        </view>
         <view class="mb-128">
-            <text class="text-grey"> 验证码已发送至 </text>
+            <text class="text-grey">
+                {{ $t('Verification_code_has_been_sent_to') }}
+            </text>
             <text v-if="isRegister" class="primary">
                 {{ `+${userInfo.areaCode} ${userInfo.phoneNumber}` }}
             </text>
@@ -24,7 +28,7 @@
                     :class="[count === 0 ? 'primary' : 'text-grey']"
                     @click="getCodeAgain"
                 >
-                    重新发送
+                    {{ $t('Resend') }}
                 </text>
                 <text class="primary">
                     {{ count === 0 ? '' : `(${count}s)` }}
@@ -122,9 +126,9 @@ export default {
                     await businessSendSms(options);
                     this.count = 60;
                     this.startCount();
-                    uni.$u.toast('验证码已发送！');
+                    uni.$u.toast(this.$t('Verification_code_has_been_sent'));
                 } catch (err) {
-                    uni.$u.toast('验证码发送失败');
+                    uni.$u.toast(this.$t('Verification_code_failed_to_send'));
                 }
             }
         }

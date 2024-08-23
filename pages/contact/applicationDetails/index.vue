@@ -2,7 +2,11 @@
     <Page>
         <view class="page_container">
             <custom-nav-bar
-                :title="isGroupApplication ? '群通知' : '好友请求'"
+                :title="
+                    isGroupApplication
+                        ? $t('Group_notification')
+                        : $t('Friend_request')
+                "
             />
 
             <view class="application_item">
@@ -35,7 +39,7 @@
 
                 <view class="request_message">
                     <view v-if="isGroupApplication" class="title">
-                        <text>申请加入 </text>
+                        <text>{{ $t('Apply_to_join') }} </text>
                         <text class="group_name">
                             {{ currentApplication.groupName }}
                         </text>
@@ -52,7 +56,11 @@
                     :loading="loadingState.accept"
                     type="primary"
                     :plain="true"
-                    :text="`通过${isGroupApplication ? '入群' : '好友'}申请`"
+                    :text="`${
+                        isGroupApplication
+                            ? $t('Apply_for_group_entry')
+                            : $t('Apply_for_friend_entry')
+                    }`"
                     @click="acceptAplication"
                 />
             </view>
@@ -62,7 +70,11 @@
                     :loading="loadingState.refuse"
                     type="primary"
                     :plain="true"
-                    :text="`拒绝${isGroupApplication ? '入群' : '好友'}申请`"
+                    :text="`${
+                        isGroupApplication
+                            ? $t('Reject_group_entry')
+                            : $t('Reject_friend_entry')
+                    }`"
                     @click="refuseAplication"
                 />
             </view>
@@ -83,7 +95,7 @@ export default {
     data() {
         return {
             currentApplication: {},
-            onlineStr: '离线',
+            onlineStr: this.$t('Offline'),
             isOnline: false,
             loadingState: {
                 accept: false,
@@ -158,12 +170,12 @@ export default {
                 );
             }
             func.then(() => {
-                uni.$u.toast('操作成功');
+                uni.$u.toast(this.$t('Operation_successful'));
                 setTimeout(() => uni.navigateBack(), 500);
             })
                 .catch(e => {
                     console.log(e);
-                    uni.$u.toast('操作失败');
+                    uni.$u.toast(this.$t('Operation_failed'));
                 })
                 .finally(() => (this.loadingState.accept = false));
         },
@@ -191,10 +203,10 @@ export default {
                 );
             }
             func.then(() => {
-                uni.$u.toast('操作成功');
+                uni.$u.toast(this.$t('Operation_successful'));
                 setTimeout(() => uni.navigateBack(), 250);
             })
-                .catch(() => uni.$u.toast('操作失败'))
+                .catch(() => uni.$u.toast(this.$t('Operation_failed')))
                 .finally(() => (this.loadingState.refuse = false));
         }
     }

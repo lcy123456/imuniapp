@@ -8,6 +8,7 @@
         @click="clickMediaItem"
     >
         <!-- <view :style="{height:wrapperHeight}" class="media_message_container"> -->
+        <!-- <div style="word-break: break-all">{{ imgUrl }}</div> -->
         <u--image
             :show-loading="true"
             :width="systemInfo.windowWidth * 0.5 + 'px'"

@@ -6,7 +6,7 @@
                 <view slot="center" class="search_bar">
                     <u-search
                         v-model="keyword"
-                        action-text="取消"
+                        :action-text="$t('Cancel')"
                         shape="square"
                         :placeholder="getPlaceholder"
                         @change="keywordChange"
@@ -23,7 +23,7 @@
             >
                 <image class="icon" :src="getIcon" alt="" />
                 <view class="">
-                    <text>搜索：</text>
+                    <text>{{ $t('Search') }}：</text>
                     <text>{{ keyword }}</text>
                 </view>
             </view>
@@ -36,7 +36,7 @@
             </view>
 
             <view v-show="empty" class="result_row result_row_empty">
-                <text>暂无搜索结果</text>
+                <text>{{ $t('No_search_results') }}</text>
             </view>
         </view>
     </Page>
@@ -67,7 +67,9 @@ export default {
             return this.isSearchGroup ? searchGroup : searchUser;
         },
         getPlaceholder() {
-            return this.isSearchGroup ? '请输入群聊ID' : '请输入用户ID或手机号';
+            return this.isSearchGroup
+                ? this.$t('Please_enter_group_chat_ID')
+                : this.$t('Please_enter_user_ID_or_mobile_phone_number');
         }
     },
     onLoad(options) {

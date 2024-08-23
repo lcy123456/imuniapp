@@ -1,13 +1,13 @@
 <template>
     <Page>
         <view class="email-bind-css">
-            <CustomNavBar :title="'绑定邮箱'"> </CustomNavBar>
+            <CustomNavBar :title="$t('Bind_email')"> </CustomNavBar>
             <u-form ref="loginForm" class="loginForm" label-width="0">
                 <u-form-item prop="email">
                     <u-input
                         v-model="email"
                         class="login-input"
-                        placeholder="请输入您的邮箱"
+                        :placeholder="$t('Please_enter_your_email_address')"
                         type="text"
                         clearable
                     />
@@ -16,7 +16,7 @@
                     <u-input
                         v-model="verifyCode"
                         class="login-input"
-                        placeholder="请输入验证码"
+                        :placeholder="$t('Please_enter_verification_code')"
                         type="number"
                         clearable
                     />
@@ -26,7 +26,11 @@
                                 count === 0 && email ? 'primary' : 'text-grey'
                             ]"
                         >
-                            {{ isInit ? '发送验证码' : '重新发送' }}
+                            {{
+                                isInit
+                                    ? $t('Send_verification_code')
+                                    : $t('Resend')
+                            }}
                         </text>
                         <text class="primary">
                             {{ count === 0 ? '' : `(${count}s)` }}
@@ -43,7 +47,7 @@
                     size="large"
                     @click="emailBind"
                 >
-                    绑定邮箱
+                    {{ $t('Bind_email') }}
                 </u-button>
             </view>
         </view>
@@ -84,11 +88,11 @@ export default {
                     verifyCode,
                     platform: uni.$u.os() === 'ios' ? 1 : 2
                 });
-                uni.$u.toast('绑定成功');
+                uni.$u.toast(this.$t('Bind_successfully'));
                 setTimeout(() => uni.navigateBack(), 1000);
             } catch (err) {
                 console.log('err---err', err);
-                uni.$u.toast('绑定失败，请稍后重试');
+                uni.$u.toast(this.$t('Bind_failed_please_try_again_later'));
             }
             this.loading = false;
         },
@@ -115,7 +119,7 @@ export default {
                     console.log('emailSendCode---emailSendCode', data);
                     this.count = 60;
                     this.startCount();
-                    uni.$u.toast('验证码已发送！');
+                    uni.$u.toast(this.$t('Verification_code_has_been_sent'));
                 } catch (err) {
                     console.log('err---err', err);
                     uni.$u.toast(checkLoginError(err));

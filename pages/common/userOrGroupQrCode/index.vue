@@ -1,7 +1,7 @@
 <template>
     <Page>
         <view class="page_container">
-            <custom-nav-bar title="二维码" />
+            <custom-nav-bar :title="$t('QR_code')" />
 
             <view class="qr_wrap">
                 <view class="info_row">
@@ -52,8 +52,8 @@ export default {
     computed: {
         getDescTip() {
             return this.sourceInfo.groupID === undefined
-                ? '扫一扫下面的二维码，添加我为好友'
-                : '扫一扫下面的二维码，立刻加入该群';
+                ? this.$t('Scan_the_QR_code_below_to_add_me_as_a_friend')
+                : this.$t('Scan_the_QR_code_below_Join_the_group_now');
         }
     },
     onLoad(options) {

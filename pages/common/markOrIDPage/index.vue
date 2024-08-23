@@ -4,7 +4,7 @@
             <CustomNavBar :title="getTitle">
                 <template slot="more">
                     <text class="primary mr-30 fz-32" @click="saveOrCopy">
-                        完成
+                        {{ $t('Complete') }}
                     </text>
                 </template>
             </CustomNavBar>
@@ -30,11 +30,17 @@
                 v-if="type === CustomMarkType.AccountCancel"
                 class="fz-28 text-grey"
             >
-                请谨慎操作，注销后将对账号和数据进行清空！
+                {{
+                    $t(
+                        'Please_be_careful_the_account_and_data_will_be_cleared_after_logout'
+                    )
+                }}
             </text>
 
             <u-modal
-                :content="`确定要注销账户${sourceInfo.nickname}吗？`"
+                :content="`${$t('Confirm_to_logout')}: ${
+                    sourceInfo.nickname
+                }？`"
                 async-close
                 :show="showConfirm"
                 show-cancel-button
@@ -72,24 +78,23 @@ export default {
         getTitle() {
             switch (this.type) {
                 case CustomMarkType.Remark:
-                    return '设置备注';
+                    return this.$t('Set_notes');
                 case CustomMarkType.SelfNickname:
-                    return '修改姓名';
+                    return this.$t('Change_name');
                 case CustomMarkType.GroupName:
-                    return '修改组名';
+                    return this.$t('Change_group_name');
                 case CustomMarkType.AccountCancel:
-                    return '注销账户';
+                    return this.$t('Logout_account');
                 default:
                     return '';
             }
         },
         getPlaceholder() {
-            let str = '请输入您的';
             switch (this.type) {
                 case CustomMarkType.AccountCancel:
-                    return str + '密码';
+                    return this.$t('Please_enter_your_password');
                 default:
-                    return str + '信息';
+                    return this.$t('Please_enter_your_information');
             }
         }
     },
@@ -113,7 +118,7 @@ export default {
         async saveOrCopy() {
             if (!this.content) return;
             uni.showLoading({
-                title: '加载中'
+                title: this.$t('Loading')
             });
             try {
                 switch (this.type) {
@@ -126,7 +131,7 @@ export default {
                                 remark: this.content
                             }
                         );
-                        uni.$u.toast('设置成功');
+                        uni.$u.toast(this.$t('Set_up_successfully'));
                         setTimeout(() => uni.navigateBack(), 1000);
                         break;
                     case CustomMarkType.SelfNickname:
@@ -135,7 +140,7 @@ export default {
                             nickname: this.content
                         });
                         await this.$store.dispatch('user/updateBusinessInfo');
-                        uni.$u.toast('修改成功');
+                        uni.$u.toast(this.$t('Change_successfully'));
                         setTimeout(() => uni.navigateBack(), 1000);
                         break;
                     case CustomMarkType.GroupName:
@@ -147,7 +152,7 @@ export default {
                                 groupName: this.content
                             }
                         );
-                        this.$toast('修改成功');
+                        this.$toast(this.$t('Change_successfully'));
                         this.$store.dispatch(
                             'conversation/getCurrentGroup',
                             this.sourceInfo.groupID
@@ -167,14 +172,14 @@ export default {
         async confirm() {
             this.showConfirm = false;
             uni.showLoading({
-                title: '加载中'
+                title: this.$t('Loading')
             });
             try {
                 await businessCancellation({
                     userID: this.sourceInfo.userID,
                     password: md5(this.content)
                 });
-                this.$toast('注销成功');
+                this.$toast(this.$t('Logout_successfully'));
                 uni.clearStorage();
                 uni.reLaunch({
                     url: '/pages/login/index'

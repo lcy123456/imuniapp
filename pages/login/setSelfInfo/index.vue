@@ -2,14 +2,18 @@
     <view class="set_info_container">
         <CustomNavBar title="注册" />
         <view class="flex mb-5 align-center mt-100">
-            <text class="mr-10 fz-50 ff-bold"> 欢迎使用 </text>
+            <text class="mr-10 fz-50 ff-bold">
+                {{ $t('Welcome_to_use') }}
+            </text>
             <u--image
                 src="/static/images/logo_name_blue.png"
                 width="217rpx"
                 height="32rpx"
             />
         </view>
-        <view class="text-grey"> 请完善个人信息 </view>
+        <view class="text-grey">
+            {{ $t('Please_complete_personal_information') }}
+        </view>
         <view class="avatar_container">
             <view class="avatar_container_wrap" @click="chooseAvatar">
                 <my-avatar
@@ -24,14 +28,16 @@
                     color="#999"
                 />
             </view>
-            <view class="upload_desc"> 点击选择头像 </view>
+            <view class="upload_desc">
+                {{ $t('Click_to_select_avatar') }}
+            </view>
         </view>
         <u-form ref="loginForm" :model="userInfo">
             <u-form-item prop="nickname">
                 <u-input
                     v-model="userInfo.nickname"
                     class="login-input"
-                    placeholder="请填写您的昵称"
+                    :placeholder="$t('Please_fill_in_your_nickname')"
                     clearable
                 />
             </u-form-item>
@@ -46,7 +52,7 @@
                 :disabled="!isVerifyOk"
                 @click="doNext"
             >
-                进入MUSKIM
+                SUMI.CHAT
             </u-button>
         </view>
     </view>

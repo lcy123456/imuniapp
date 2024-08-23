@@ -1,10 +1,10 @@
 <template>
     <Page>
         <view class="page_container">
-            <CustomNavBar title="更多资料" is-bg-color2 />
+            <CustomNavBar :title="$t('More_information')" is-bg-color2 />
 
             <view class="info_wrap">
-                <SettingItem title="头像">
+                <SettingItem :title="$t('Avatar')">
                     <MyAvatar
                         slot="right"
                         :src="sourceInfo.faceURL"
@@ -12,16 +12,22 @@
                         size="80rpx"
                     />
                 </SettingItem>
-                <SettingItem title="姓名" :content="sourceInfo.nickname" />
-                <SettingItem title="性别" :content="getGender" />
-                <SettingItem title="生日" :content="getBirth" />
+                <SettingItem
+                    :title="$t('Name')"
+                    :content="sourceInfo.nickname"
+                />
+                <SettingItem :title="$t('Gender')" :content="getGender" />
+                <SettingItem :title="$t('Birthday')" :content="getBirth" />
             </view>
             <view class="info_wrap">
                 <SettingItem
-                    title="手机号码"
+                    :title="$t('Mobile_number')"
                     :content="sourceInfo.phoneNumber || '-'"
                 />
-                <SettingItem title="邮箱" :content="sourceInfo.email || '-'" />
+                <SettingItem
+                    :title="$t('Email')"
+                    :content="sourceInfo.email || '-'"
+                />
             </view>
         </view>
     </Page>
@@ -47,12 +53,12 @@ export default {
     computed: {
         getGender() {
             if (this.sourceInfo.gender === 1) {
-                return '男';
+                return this.$t('Male');
             }
             if (this.sourceInfo.gender === 2) {
-                return '女';
+                return this.$t('Female');
             }
-            return '保密';
+            return this.$t('Confidential');
         },
         getBirthStr() {
             const birth = this.sourceInfo.birth;

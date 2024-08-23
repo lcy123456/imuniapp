@@ -1,6 +1,6 @@
 <template>
     <view class="choose_container">
-        <custom-nav-bar title="默认头像" />
+        <custom-nav-bar :title="$t('Default_avatar')" />
 
         <view class="avatar_row">
             <view

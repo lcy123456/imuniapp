@@ -1,7 +1,7 @@
 <template>
     <Page>
         <view class="friend_list_container">
-            <CustomNavBar title="我的好友" is-bg-color2 />
+            <CustomNavBar :title="$t('My_friends')" is-bg-color2 />
             <view class="px-20 pb-20 pt-10">
                 <u-search
                     v-model="keyword"

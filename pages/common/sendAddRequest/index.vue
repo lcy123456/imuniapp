@@ -1,14 +1,26 @@
 <template>
     <Page>
         <view class="request_join_container">
-            <custom-nav-bar :title="isGroup ? '群聊验证' : '好友验证'">
+            <custom-nav-bar
+                :title="
+                    isGroup
+                        ? $t('Group_chat_verification')
+                        : $t('Friend_verification')
+                "
+            >
                 <view slot="more" class="top_right_btn">
                     <u-button text="发送" type="primary" @click="sendRequest" />
                 </view>
             </custom-nav-bar>
 
             <text class="title">
-                {{ `发送${isGroup ? '入群' : '好友'}申请` }}
+                {{
+                    `${
+                        isGroup
+                            ? $t('Send_group_application')
+                            : $t('Send_friend_application')
+                    }`
+                }}
             </text>
 
             <view class="input_container">
@@ -16,7 +28,7 @@
                     v-model="reason"
                     height="120"
                     border="none"
-                    placeholder="请输入内容"
+                    :placeholder="$t('Please_enter_content')"
                     maxlength="200"
                     count
                 />
@@ -75,21 +87,27 @@ export default {
             }
             func.then(() => {
                 uni.$u.toast(
-                    this.notNeedVerification ? '你已加入该群' : '发送成功'
+                    this.notNeedVerification
+                        ? this.$t('You_have_joined_the_group')
+                        : this.$t('Send_successfully')
                 );
                 setTimeout(() => {
                     if (this.notNeedVerification) {
                         navigateToDesignatedConversation(
                             this.sourceID,
                             Number(this.sessionType)
-                        ).catch(() => this.showToast('获取会话信息失败'));
+                        ).catch(() =>
+                            this.showToast(
+                                this.$t('Failed_to_get_session_information')
+                            )
+                        );
                     } else {
                         uni.navigateBack();
                     }
                 }, 1000);
             }).catch(err => {
                 console.log(err);
-                uni.$u.toast('发送失败');
+                uni.$u.toast(this.$t('Send_failed'));
             });
         },
         showToast(message) {
