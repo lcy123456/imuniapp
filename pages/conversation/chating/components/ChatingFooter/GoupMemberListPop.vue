@@ -26,6 +26,7 @@
                     v-model="keyword"
                     class="h-60"
                     :placeholder="$t('Search_for_friends')"
+                    :cancel-text="$t('Cancel')"
                     cancel-button="none"
                 >
                     <view

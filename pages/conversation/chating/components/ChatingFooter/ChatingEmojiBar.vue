@@ -24,6 +24,7 @@
                     v-model="keyword"
                     class="h-70"
                     :placeholder="$t('Search')"
+                    :cancel-text="$t('Cancel')"
                     @confirm="handleGetGifs(true)"
                     @cancel="handleSearchCancle"
                 />

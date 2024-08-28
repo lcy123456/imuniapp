@@ -53,7 +53,7 @@ export default {
                 {
                     idx: 1,
                     title: this.$t('Join_group_chat'),
-                    desc: '与成员一起沟通协作',
+                    desc: this.$t('Communicate_and_collaborate_with_members'),
                     icon: require('static/images/contact_add_join_group.svg')
                 }
             ],
@@ -61,13 +61,13 @@ export default {
                 {
                     idx: 0,
                     title: this.$t('Search_for_friends'),
-                    desc: '通过ID号搜索添加',
+                    desc: this.$t('Search_and_add_by_ID_number'),
                     icon: '/static/images/contact_add_search_user.svg'
                 },
                 {
                     idx: 1,
                     title: this.$t('Scan'),
-                    desc: '扫描二维码名片',
+                    desc: this.$t('Scan_QR_code_business_card'),
                     icon: require('static/images/contact_add_qr_user.svg')
                 }
             ]

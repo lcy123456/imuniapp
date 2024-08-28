@@ -9,6 +9,7 @@
                     class="h-70"
                     focus
                     :placeholder="$t('Search')"
+                    :cancel-text="$t('Cancel')"
                     @cancel="handleCancel"
                 >
                     <view

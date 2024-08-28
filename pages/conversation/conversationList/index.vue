@@ -12,6 +12,7 @@
                     bg-color="#fff"
                     class="h-70"
                     :placeholder="$t('Search')"
+                    :cancel-text="$t('Cancel')"
                     readonly
                 />
             </view>

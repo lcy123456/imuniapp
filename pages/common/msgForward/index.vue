@@ -12,6 +12,7 @@
                 <uni-search-bar
                     v-model="keyword"
                     class="h-70"
+                    :cancel-text="$t('Cancel')"
                     :placeholder="$t('Search')"
                 />
             </view>

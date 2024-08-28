@@ -44,8 +44,10 @@
                         <view class="primary title">
                             {{
                                 activeMessageType === 'quote_message'
-                                    ? `回复 ${activeMessage.senderNickname}`
-                                    : '编辑消息'
+                                    ? `${$t('Reply')} ${
+                                          activeMessage.senderNickname
+                                      }`
+                                    : $t('Edit_message')
                             }}
                         </view>
                         <ChatQuote :message="activeMessage" />

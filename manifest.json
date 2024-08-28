@@ -1,6 +1,6 @@
 {
     "name" : "sumi.chat",
-    "appid" : "__UNI__E694C80",
+    "appid" : "__UNI__9A06427",
     "description" : "",
     "versionName" : "1.0.0",
     "versionCode" : 100,
@@ -168,7 +168,7 @@
                 }
             },
             "lemonjk-FileSelect" : {
-                "appid_android" : "",
+                "appid_android" : "com.sumi02.www",
                 "__plugin_info__" : {
                     "name" : "FileSelect",
                     "description" : "文件选取插件",

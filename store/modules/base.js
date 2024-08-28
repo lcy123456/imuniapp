@@ -30,6 +30,7 @@ const state = {
 const mutations = {
     SET_LANG_DATA(state, data) {
         state.lang = data;
+        uni.setStorageSync('lang', data);
     },
     SET_THIRD_DATA(state, data) {
         state.thirdData = data;

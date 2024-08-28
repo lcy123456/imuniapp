@@ -6,6 +6,7 @@ import { getOnlineStateFromSvr } from '@/api/imApi';
 import { businessSearchUserInfo } from '@/api/login';
 import { AudioVideoStatus, UrlMap } from '@/enum';
 import { checkLoginError } from '@/util/common';
+import i18n from '@/locale/index';
 import IMSDK, {
     IMMethods,
     GroupAtType,
@@ -13,7 +14,7 @@ import IMSDK, {
     SessionType
 } from 'openim-uniapp-polyfill';
 import emojis from '@/common/emojis';
-import { getPurePath, html2Text } from '@/util/common';
+import { getPurePath } from '@/util/common';
 import { DecryptoAES } from '@/util/crypto';
 
 import dayjs from 'dayjs';
@@ -44,20 +45,24 @@ dayjs.updateLocale('zh-cn', {
 });
 
 export const burnMenuList = [
-    { id: 24 * 60 * 60, label: '一天', text: '1D' },
-    { id: 24 * 60 * 60 * 7, label: '一周', text: '1W' },
-    { id: 24 * 60 * 60 * 30, label: '一个月', text: '1M' },
-    { id: 24 * 60 * 60 * 30 * 2, label: '二个月', text: '2M' },
-    { id: 24 * 60 * 60 * 30 * 3, label: '三个月', text: '3M' },
-    { id: 24 * 60 * 60 * 30 * 4, label: '四个月', text: '4M' },
-    { id: 24 * 60 * 60 * 30 * 5, label: '五个月', text: '5M' },
-    { id: 24 * 60 * 60 * 30 * 6, label: '六个月', text: '6M' },
-    { id: 24 * 60 * 60 * 30 * 7, label: '七个月', text: '7M' },
-    { id: 24 * 60 * 60 * 30 * 8, label: '八个月', text: '8M' },
-    { id: 24 * 60 * 60 * 30 * 9, label: '九个月', text: '9M' },
-    { id: 24 * 60 * 60 * 30 * 10, label: '十个月', text: '10M' },
-    { id: 24 * 60 * 60 * 30 * 11, label: '十一个月', text: '11M' },
-    { id: 24 * 60 * 60 * 30 * 12, label: '十二个月', text: '12M' }
+    { id: 24 * 60 * 60, label: i18n.t('One_day'), text: '1D' },
+    { id: 24 * 60 * 60 * 7, label: i18n.t('One_week'), text: '1W' },
+    { id: 24 * 60 * 60 * 30, label: i18n.t('One_month'), text: '1M' },
+    { id: 24 * 60 * 60 * 30 * 2, label: i18n.$t('two_months'), text: '2M' },
+    { id: 24 * 60 * 60 * 30 * 3, label: i18n.$t('three_months'), text: '3M' },
+    { id: 24 * 60 * 60 * 30 * 4, label: i18n.$t('four_months'), text: '4M' },
+    { id: 24 * 60 * 60 * 30 * 5, label: i18n.$t('five_months'), text: '5M' },
+    { id: 24 * 60 * 60 * 30 * 6, label: i18n.$t('six_months'), text: '6M' },
+    { id: 24 * 60 * 60 * 30 * 7, label: i18n.$t('seven_months'), text: '7M' },
+    { id: 24 * 60 * 60 * 30 * 8, label: i18n.$t('eight_months'), text: '8M' },
+    { id: 24 * 60 * 60 * 30 * 9, label: i18n.$t('nine_months'), text: '9M' },
+    { id: 24 * 60 * 60 * 30 * 10, label: i18n.$t('ten_months'), text: '10M' },
+    {
+        id: 24 * 60 * 60 * 30 * 11,
+        label: i18n.$t('eleven_months'),
+        text: '11M'
+    },
+    { id: 24 * 60 * 60 * 30 * 12, label: i18n.$t('twelve_months'), text: '12M' }
 ];
 
 const nomalTypes = [GroupAtType.AtAll, GroupAtType.AtAllAtMe, GroupAtType.AtMe];

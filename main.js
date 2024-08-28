@@ -20,7 +20,7 @@ Vue.use(MyPlugin);
 
 Vue.config.productionTip = false;
 App.mpType = 'app';
-const lang = store.state.base.lang || 'jp';
+const lang = uni.getStorageSync('lang') || 'jp';
 i18n.locale = lang;
 const app = new Vue({
     store,

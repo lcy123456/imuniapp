@@ -18,6 +18,7 @@
                     class="h-60"
                     :placeholder="$t('Search_for_friends')"
                     cancel-button="none"
+                    :cancel-text="$t('Cancel')"
                 >
                     <view
                         v-if="checkFriendList.length !== 0"

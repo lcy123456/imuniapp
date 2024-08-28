@@ -8,6 +8,7 @@
                     bg-color="#fff"
                     class="h-70"
                     focus
+                    :cancel-text="$t('Cancel')"
                     :placeholder="$t('Search')"
                     @cancel="handleCancel"
                 />

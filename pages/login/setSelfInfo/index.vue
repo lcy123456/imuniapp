@@ -1,6 +1,6 @@
 <template>
     <view class="set_info_container">
-        <CustomNavBar title="注册" />
+        <CustomNavBar :title="$t('Register')" />
         <view class="flex mb-5 align-center mt-100">
             <text class="mr-10 fz-50 ff-bold">
                 {{ $t('Welcome_to_use') }}
