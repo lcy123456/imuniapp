@@ -543,7 +543,7 @@ export default {
                     uni.$u.toast(this.$t('Copy_successfully'));
                 },
                 fail: () => {
-                    reject();
+                    // reject();
                     uni.$u.toast(this.$t('Copy_failed'));
                 }
             });
