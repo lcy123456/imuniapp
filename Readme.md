@@ -61,3 +61,15 @@ yarn
 ## 安卓apk和谷歌abb打包注意事项：
 
     由于普通apk和谷歌abb的下载地址差异，打包时候需要修改 util/fCheckVersion.js中 appVersion 方法下的platform（abb为2，apk为3）
+
+"NSPhotoLibraryUsageDescription" : "请求获取读取相册权限，用于上传头像图片服",
+"NSPhotoLibraryAddUsageDescription" : "请求获取存入相册权",
+"NSCameraUsageDescription" : "请求获取摄像头权限，用于视频通话服",
+"NSMicrophoneUsageDescription" : "请求获取麦克风权限，用于语音通话服",
+"NSLocationWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服",
+"NSLocationAlwaysAndWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服",
+"NSLocationAlwaysUsageDescription" : "请求获取位置权限，用于分享位置信息服",
+"NSBluetoothAlwaysUsageDescription" : "请求获取蓝牙权限",
+"NSUserTrackingUsageDescription" : "请放心，开启权限不会获取您在其他站点的隐私信息，该权限仅用于标识设备并保障服务安全与提示浏览体",
+"NSRemindersUsageDescription" : "通知可能包括提醒、声音和图标标记。这些可在“设置”中配",
+"NSLocalNetworkUsageDescription" : "关闭无限数据时，部分功能可能无法使用。"

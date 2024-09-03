@@ -21,19 +21,19 @@ import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
-import 'dayjs/locale/zh-cn';
+import 'dayjs/locale/en';
 
 dayjs.extend(calendar);
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
-dayjs.locale('zh-cn');
+dayjs.locale('en');
 
 dayjs.updateLocale('en', {
     calendar: {
         sameElse: 'YYYY-MM-DD'
     }
 });
-dayjs.updateLocale('zh-cn', {
+dayjs.updateLocale('en', {
     calendar: {
         sameDay: `[${i18n.t('Today')}] HH:mm`, // The same day ( Today at 2:30 AM )
         nextDay: `[${i18n.t('Tomorrow')}] HH:mm`, // The next day ( Tomorrow at 2:30 AM )
@@ -48,21 +48,21 @@ export const burnMenuList = [
     { id: 24 * 60 * 60, label: i18n.t('One_day'), text: '1D' },
     { id: 24 * 60 * 60 * 7, label: i18n.t('One_week'), text: '1W' },
     { id: 24 * 60 * 60 * 30, label: i18n.t('One_month'), text: '1M' },
-    { id: 24 * 60 * 60 * 30 * 2, label: i18n.$t('two_months'), text: '2M' },
-    { id: 24 * 60 * 60 * 30 * 3, label: i18n.$t('three_months'), text: '3M' },
-    { id: 24 * 60 * 60 * 30 * 4, label: i18n.$t('four_months'), text: '4M' },
-    { id: 24 * 60 * 60 * 30 * 5, label: i18n.$t('five_months'), text: '5M' },
-    { id: 24 * 60 * 60 * 30 * 6, label: i18n.$t('six_months'), text: '6M' },
-    { id: 24 * 60 * 60 * 30 * 7, label: i18n.$t('seven_months'), text: '7M' },
-    { id: 24 * 60 * 60 * 30 * 8, label: i18n.$t('eight_months'), text: '8M' },
-    { id: 24 * 60 * 60 * 30 * 9, label: i18n.$t('nine_months'), text: '9M' },
-    { id: 24 * 60 * 60 * 30 * 10, label: i18n.$t('ten_months'), text: '10M' },
+    { id: 24 * 60 * 60 * 30 * 2, label: i18n.t('two_months'), text: '2M' },
+    { id: 24 * 60 * 60 * 30 * 3, label: i18n.t('three_months'), text: '3M' },
+    { id: 24 * 60 * 60 * 30 * 4, label: i18n.t('four_months'), text: '4M' },
+    { id: 24 * 60 * 60 * 30 * 5, label: i18n.t('five_months'), text: '5M' },
+    { id: 24 * 60 * 60 * 30 * 6, label: i18n.t('six_months'), text: '6M' },
+    { id: 24 * 60 * 60 * 30 * 7, label: i18n.t('seven_months'), text: '7M' },
+    { id: 24 * 60 * 60 * 30 * 8, label: i18n.t('eight_months'), text: '8M' },
+    { id: 24 * 60 * 60 * 30 * 9, label: i18n.t('nine_months'), text: '9M' },
+    { id: 24 * 60 * 60 * 30 * 10, label: i18n.t('ten_months'), text: '10M' },
     {
         id: 24 * 60 * 60 * 30 * 11,
-        label: i18n.$t('eleven_months'),
+        label: i18n.t('eleven_months'),
         text: '11M'
     },
-    { id: 24 * 60 * 60 * 30 * 12, label: i18n.$t('twelve_months'), text: '12M' }
+    { id: 24 * 60 * 60 * 30 * 12, label: i18n.t('twelve_months'), text: '12M' }
 ];
 
 const nomalTypes = [GroupAtType.AtAll, GroupAtType.AtAllAtMe, GroupAtType.AtMe];
@@ -290,7 +290,9 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                     const isAdminRevoke =
                         data.revokerID !== data.sourceMessageSendID;
                     if (isAdminRevoke) {
-                        return `${revoker}${i18n.t('A_message_was_withdrawn_user').replace('{value}', sourcer)}`;
+                        return `${revoker}${i18n
+                            .t('A_message_was_withdrawn_user')
+                            .replace('{value}', sourcer)}`;
                     }
                     return `${revoker}${i18n.t('[A_message_was_withdrawn]')}`;
                 } catch (err) {
@@ -312,17 +314,21 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
             case MessageType.FaceMessage:
                 return i18n.t('[Emoji]');
             case MessageType.FriendAdded:
-                return i18n.t('[You_are_already_friends_lets_start_chatting]');
+                return i18n.t('You_are_already_friends_lets_start_chatting');
             case MessageType.MemberEnter:
                 const enterDetails = JSON.parse(pmsg.notificationElem.detail);
                 const enterUser = enterDetails.entrantUser;
-                return `${getName(enterUser)}${i18n.t('[Entered_the_group_chat]')}`;
+                return `${getName(enterUser)}${i18n.t(
+                    'Entered_the_group_chat'
+                )}`;
             case MessageType.GroupCreated:
                 const groupCreatedDetail = JSON.parse(
                     pmsg.notificationElem.detail
                 );
                 const groupCreatedUser = groupCreatedDetail.opUser;
-                return `${getName(groupCreatedUser)}${i18n.t('[Created_a_group_chat]')}`;
+                return `${getName(groupCreatedUser)}${i18n.t(
+                    'Created_a_group_chat'
+                )}`;
             case MessageType.MemberInvited:
                 const inviteDetails = JSON.parse(pmsg.notificationElem.detail);
                 const inviteOpUser = inviteDetails.opUser;
@@ -331,7 +337,12 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                 invitedUserList.find(
                     (user, idx) => (inviteStr += getName(user) + ' ') && idx > 3
                 );
-                return `${getName(inviteOpUser)}${i18n.t('Invited_{value}_to_the_group_chat').replace('{value}', inviteStr + invitedUserList.length > 3 ? '...' : '')}`;
+                return `${getName(inviteOpUser)}${i18n
+                    .t('Invited_{value}_to_the_group_chat')
+                    .replace(
+                        '{value}',
+                        inviteStr + invitedUserList.length > 3 ? '...' : ''
+                    )}`;
 
             case MessageType.MemberKicked:
                 const kickDetails = JSON.parse(pmsg.notificationElem.detail);
@@ -341,9 +352,9 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                 kickdUserList.find(
                     (user, idx) => (kickStr += getName(user) + ' ') && idx > 3
                 );
-                return `${getName(kickOpUser)}${i18n.t('Kicked_out')}${kickStr}${
-                    kickdUserList.length > 3 ? '...' : ''
-                }`;
+                return `${getName(kickOpUser)}${i18n.t(
+                    'Kicked_out'
+                )}${kickStr}${kickdUserList.length > 3 ? '...' : ''}`;
             case MessageType.MemberQuit:
                 const quitDetails = JSON.parse(pmsg.notificationElem.detail);
                 const quitUser = quitDetails.quitUser;
@@ -358,7 +369,9 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                     updateFiled = i18n.t('Group_announcement');
                 }
                 if (groupUpdateDetail.group.groupName) {
-                    updateFiled = `${i18n.t('Group_name_is')} ${groupUpdateDetail.group.groupName}`;
+                    updateFiled = `${i18n.t('Group_name_is')} ${
+                        groupUpdateDetail.group.groupName
+                    }`;
                 }
                 if (groupUpdateDetail.group.faceURL) {
                     updateFiled = i18n.t('Group_avatar');
@@ -366,60 +379,70 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                 if (groupUpdateDetail.group.introduction) {
                     updateFiled = i18n.t('Group_introduction');
                 }
-                return `${getName(groupUpdateUser)}${i18n.t('Modified')}${updateFiled}`;
+                return `${getName(groupUpdateUser)}${i18n.t(
+                    'Modified'
+                )}${updateFiled}`;
             case MessageType.GroupOwnerTransferred:
                 const transferDetails = JSON.parse(
                     pmsg.notificationElem.detail
                 );
                 const transferOpUser = transferDetails.opUser;
                 const newOwner = transferDetails.newGroupOwner;
-                return `${getName(transferOpUser)}${i18n.t('Transferred_group_owner_to')}${getName(
-                    newOwner
-                )}`;
+                return `${getName(transferOpUser)}${i18n.t(
+                    'Transferred_group_owner_to'
+                )}${getName(newOwner)}`;
             case MessageType.GroupDismissed:
                 const dismissDetails = JSON.parse(pmsg.notificationElem.detail);
                 const dismissUser = dismissDetails.opUser;
-                return `${getName(dismissUser)}${i18n.t('Disbanded_the_group_chat')}`;
+                return `${getName(dismissUser)}${i18n.t(
+                    'Disbanded_the_group_chat'
+                )}`;
             case MessageType.GroupMuted:
                 const GROUPMUTEDDetails = JSON.parse(
                     pmsg.notificationElem.detail
                 );
                 const groupMuteOpUser = GROUPMUTEDDetails.opUser;
-                return `${getName(groupMuteOpUser)}${i18n.t('Enabled_all_mute')}`;
+                return `${getName(groupMuteOpUser)}${i18n.t(
+                    'Enabled_all_mute'
+                )}`;
             case MessageType.GroupCancelMuted:
                 const GROUPCANCELMUTEDDetails = JSON.parse(
                     pmsg.notificationElem.detail
                 );
                 const groupCancelMuteOpUser = GROUPCANCELMUTEDDetails.opUser;
-                return `${getName(groupCancelMuteOpUser)}${i18n.t('Cancelled_all_mute')}`;
+                return `${getName(groupCancelMuteOpUser)}${i18n.t(
+                    'Cancelled_all_mute'
+                )}`;
             case MessageType.GroupMemberMuted:
                 const gmMutedDetails = JSON.parse(pmsg.notificationElem.detail);
                 const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
-                return `${getName(gmMutedDetails.opUser)}${i18n.t('Muted')}${getName(
-                    gmMutedDetails.mutedUser
-                )} ${muteTime}`;
+                return `${getName(gmMutedDetails.opUser)}${i18n.t(
+                    'Muted'
+                )}${getName(gmMutedDetails.mutedUser)} ${muteTime}`;
             case MessageType.GroupMemberCancelMuted:
                 const gmcMutedDetails = JSON.parse(
                     pmsg.notificationElem.detail
                 );
-                return `${getName(gmcMutedDetails.opUser)}${i18n.t('Cancelled_mute')}${getName(
-                    gmcMutedDetails.mutedUser
-                )}`;
+                return `${getName(gmcMutedDetails.opUser)}${i18n.t(
+                    'Cancelled_mute'
+                )}${getName(gmcMutedDetails.mutedUser)}`;
             case MessageType.GroupAnnouncementUpdated:
                 const groupAnnouncementUpdateDetail = JSON.parse(
                     pmsg.notificationElem.detail
                 );
                 const groupAnnouncementUpdateUser =
                     groupAnnouncementUpdateDetail.opUser;
-                return `${getName(groupAnnouncementUpdateUser)}${i18n.t('Modified_group_announcement')}`;
+                return `${getName(groupAnnouncementUpdateUser)}${i18n.t(
+                    'Modified_group_announcement'
+                )}`;
             case MessageType.GroupNameUpdated:
                 const groupNameUpdateDetail = JSON.parse(
                     pmsg.notificationElem.detail
                 );
                 const groupNameUpdateUser = groupNameUpdateDetail.opUser;
-                return `${getName(groupNameUpdateUser)}${i18n.t('Modified_group_name_to')}${
-                    groupNameUpdateDetail.group.groupName
-                }`;
+                return `${getName(groupNameUpdateUser)}${i18n.t(
+                    'Modified_group_name_to'
+                )}${groupNameUpdateDetail.group.groupName}`;
             case MessageType.OANotification:
                 const customNoti = JSON.parse(pmsg.notificationElem.detail);
                 return customNoti.text;
@@ -434,7 +457,11 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                     burnMenuList.find(v => v.id === burnDetails.revokeTime)
                         ?.label || '';
                 return burnDetails.revokerRole
-                    ? `${name}${i18n.t('Automatic_deletion_has_been_set__Message_sent_before').replace('{value}', timeText)}`
+                    ? `${name}${i18n
+                          .t(
+                              'Automatic_deletion_has_been_set__Message_sent_before'
+                          )
+                          .replace('{value}', timeText)}`
                     : `${name}${i18n.t('Automatic_message_deletion_disabled')}`;
             default:
                 return '';
@@ -498,7 +525,9 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                     : data.sourceMessageSenderNickname;
 
             if (isAdminRevoke) {
-                return `${revoker}${i18n.t('A_message_was_withdrawn_user').replace('{value}', sourcer)}`;
+                return `${revoker}${i18n
+                    .t('A_message_was_withdrawn_user')
+                    .replace('{value}', sourcer)}`;
             }
             return `${revoker}${i18n.t('A_message_was_withdrawn')}`;
         }
@@ -548,7 +577,9 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                     msg.notificationElem.detail
                 );
                 const groupCreatedUser = groupCreatedDetail.opUser;
-                return `${getName(groupCreatedUser)}${i18n.t('Created_a_group_chat')}`;
+                return `${getName(groupCreatedUser)}${i18n.t(
+                    'Created_a_group_chat'
+                )}`;
             case MessageType.GroupInfoUpdated:
                 const groupUpdateDetail = JSON.parse(
                     msg.notificationElem.detail
@@ -559,7 +590,9 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                     updateFiled = i18n.t('Group_announcement');
                 }
                 if (groupUpdateDetail.group.groupName) {
-                    updateFiled = `${i18n.t('Group_name_is')} ${groupUpdateDetail.group.groupName}`;
+                    updateFiled = `${i18n.t('Group_name_is')} ${
+                        groupUpdateDetail.group.groupName
+                    }`;
                 }
                 if (groupUpdateDetail.group.faceURL) {
                     updateFiled = i18n.t('Group_avatar');
@@ -567,14 +600,16 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                 if (groupUpdateDetail.group.introduction) {
                     updateFiled = i18n.t('Group_introduction');
                 }
-                return `${getName(groupUpdateUser)}${i18n.t('Modified')}${updateFiled}`;
+                return `${getName(groupUpdateUser)}${i18n.t(
+                    'Modified'
+                )}${updateFiled}`;
             case MessageType.GroupOwnerTransferred:
                 const transferDetails = JSON.parse(msg.notificationElem.detail);
                 const transferOpUser = transferDetails.opUser;
                 const newOwner = transferDetails.newGroupOwner;
-                return `${getName(transferOpUser)}${i18n.t('Transferred_group_owner_to')}${getName(
-                    newOwner
-                )}`;
+                return `${getName(transferOpUser)}${i18n.t(
+                    'Transferred_group_owner_to'
+                )}${getName(newOwner)}`;
             case MessageType.MemberQuit:
                 const quitDetails = JSON.parse(msg.notificationElem.detail);
                 const quitUser = quitDetails.quitUser;
@@ -587,7 +622,12 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                 invitedUserList.find(
                     (user, idx) => (inviteStr += getName(user) + ' ') && idx > 3
                 );
-                return `${getName(inviteOpUser)}${i18n.t('Invited_{value}_to_the_group_chat').replace('{value}', inviteStr + invitedUserList.length > 3 ? '...' : '')}`;
+                return `${getName(inviteOpUser)}${i18n
+                    .t('Invited_{value}_to_the_group_chat')
+                    .replace(
+                        '{value}',
+                        inviteStr + invitedUserList.length > 3 ? '...' : ''
+                    )}`;
             case MessageType.MemberKicked:
                 const kickDetails = JSON.parse(msg.notificationElem.detail);
                 const kickOpUser = kickDetails.opUser;
@@ -596,48 +636,56 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                 kickdUserList.find(
                     (user, idx) => (kickStr += getName(user) + ' ') && idx > 3
                 );
-                return `${getName(kickOpUser)}${i18n.t('Kicked_out')}${kickStr}${
-                    kickdUserList.length > 3 ? '...' : ''
-                }`;
+                return `${getName(kickOpUser)}${i18n.t(
+                    'Kicked_out'
+                )}${kickStr}${kickdUserList.length > 3 ? '...' : ''}`;
             case MessageType.MemberEnter:
                 const enterDetails = JSON.parse(msg.notificationElem.detail);
                 const enterUser = enterDetails.entrantUser;
-                return `${getName(enterUser)}${i18n.t('[Entered_the_group_chat]')}`;
+                return `${getName(enterUser)}${i18n.t(
+                    '[Entered_the_group_chat]'
+                )}`;
             case MessageType.GroupDismissed:
                 const dismissDetails = JSON.parse(msg.notificationElem.detail);
                 const dismissUser = dismissDetails.opUser;
-                return `${getName(dismissUser)}${i18n.t('Disbanded_the_group_chat')}`;
+                return `${getName(dismissUser)}${i18n.t(
+                    'Disbanded_the_group_chat'
+                )}`;
             case MessageType.GroupMuted:
                 const groupMutedDetails = JSON.parse(
                     msg.notificationElem.detail
                 );
                 const groupMuteOpUser = groupMutedDetails.opUser;
-                return `${getName(groupMuteOpUser)}${i18n.t('Enabled_all_mute')}`;
+                return `${getName(groupMuteOpUser)}${i18n.t(
+                    'Enabled_all_mute'
+                )}`;
             case MessageType.GroupCancelMuted:
                 const groupCancelMutedDetails = JSON.parse(
                     msg.notificationElem.detail
                 );
                 const groupCancelMuteOpUser = groupCancelMutedDetails.opUser;
-                return `${getName(groupCancelMuteOpUser)}${i18n.t('Cancelled_all_mute')}`;
+                return `${getName(groupCancelMuteOpUser)}${i18n.t(
+                    'Cancelled_all_mute'
+                )}`;
             case MessageType.GroupMemberMuted:
                 const gmMutedDetails = JSON.parse(msg.notificationElem.detail);
                 const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
-                return `${getName(gmMutedDetails.opUser)}${i18n.t('Muted')}${getName(
-                    gmMutedDetails.mutedUser
-                )} ${muteTime}`;
+                return `${getName(gmMutedDetails.opUser)}${i18n.t(
+                    'Muted'
+                )}${getName(gmMutedDetails.mutedUser)} ${muteTime}`;
             case MessageType.GroupMemberCancelMuted:
                 const gmcMutedDetails = JSON.parse(msg.notificationElem.detail);
-                return `${getName(gmcMutedDetails.opUser)}${i18n.t('Cancelled_mute')}${getName(
-                    gmcMutedDetails.mutedUser
-                )}`;
+                return `${getName(gmcMutedDetails.opUser)}${i18n.t(
+                    'Cancelled_mute'
+                )}${getName(gmcMutedDetails.mutedUser)}`;
             case MessageType.GroupNameUpdated:
                 const groupNameUpdateDetail = JSON.parse(
                     msg.notificationElem.detail
                 );
                 const groupNameUpdateUser = groupNameUpdateDetail.opUser;
-                return `${getName(groupNameUpdateUser)}${i18n.t('Modified_group_name_to')}${
-                    groupNameUpdateDetail.group.groupName
-                }`;
+                return `${getName(groupNameUpdateUser)}${i18n.t(
+                    'Modified_group_name_to'
+                )}${groupNameUpdateDetail.group.groupName}`;
             case MessageType.BurnMessageChange:
                 const burnDetails = JSON.parse(msg.notificationElem.detail);
                 const name = `${
@@ -649,7 +697,11 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                     burnMenuList.find(v => v.id === burnDetails.revokeTime)
                         ?.label || '';
                 return burnDetails.revokerRole
-                    ? `${name}${i18n.t('Automatic_deletion_has_been_set__Message_sent_before').replace('{value}', timeText)}`
+                    ? `${name}${i18n
+                          .t(
+                              'Automatic_deletion_has_been_set__Message_sent_before'
+                          )
+                          .replace('{value}', timeText)}`
                     : `${name}${i18n.t('Automatic_message_deletion_disabled')}`;
             case MessageType.OANotification:
                 const customNoti = JSON.parse(msg.notificationElem.detail);

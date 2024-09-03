@@ -2,9 +2,10 @@
     "name" : "sumi.chat",
     "appid" : "__UNI__9A06427",
     "description" : "",
-    "versionName" : "1.0.0",
-    "versionCode" : 100,
+    "versionName" : "1.0.6",
+    "versionCode" : 106,
     "transformPx" : false,
+    "locale" : "en",
     "app-plus" : {
         "bounce" : "none",
         "usingComponents" : true,
@@ -58,7 +59,7 @@
                 ],
                 "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ],
                 "minSdkVersion" : 28,
-                "targetSdkVersion" : 33,
+                "targetSdkVersion" : 34,
                 "excludePermissions" : [
                     "<uses-permission android:name=\"android.permission.MANAGE_EXTERNAL_STORAGE\"/>"
                 ]
@@ -66,16 +67,19 @@
             "ios" : {
                 "dSYMs" : false,
                 "privacyDescription" : {
-                    "NSPhotoLibraryUsageDescription" : "请求获取读取相册权限，用于上传头像图片服务",
-                    "NSPhotoLibraryAddUsageDescription" : "请求获取存入相册权限",
-                    "NSCameraUsageDescription" : "请求获取摄像头权限，用于视频通话服务",
-                    "NSMicrophoneUsageDescription" : "请求获取麦克风权限，用于语音通话服务",
-                    "NSLocationWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
-                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
-                    "NSLocationAlwaysUsageDescription" : "请求获取位置权限，用于分享位置信息服务",
-                    "NSBluetoothAlwaysUsageDescription" : "请求获取蓝牙权限"
+                    "NSPhotoLibraryUsageDescription" : "アバター画像サービスをアップロードするためのアルバムの読み取り許可をリクエストします",
+                    "NSPhotoLibraryAddUsageDescription" : "フォトアルバムに保存する許可をリクエストする",
+                    "NSCameraUsageDescription" : "ビデオ通話サービスのカメラ許可をリクエストする",
+                    "NSMicrophoneUsageDescription" : "音声通話サービスのマイク許可を要求する",
+                    "NSLocationWhenInUseUsageDescription" : "位置情報共有サービスの位置情報の許可をリクエストする",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "位置情報共有サービスの位置情報の許可をリクエストする",
+                    "NSLocationAlwaysUsageDescription" : "位置情報共有サービスの位置情報の許可をリクエストする",
+                    "NSBluetoothAlwaysUsageDescription" : "Bluetooth 許可を要求する",
+                    "NSUserTrackingUsageDescription" : "この許可をオンにすると、他のサイトで個人情報が取得されることはありません。この許可は、デバイスを識別し、サービスのセキュリティと迅速な閲覧体験を確保するためにのみ使用されます。",
+                    "NSRemindersUsageDescription" : "通知には、アラート、サウンド、アイコン バッジが含まれる場合があります。これらは設定で構成可能です",
+                    "NSLocalNetworkUsageDescription" : "無制限データをオフにすると、一部の機能が利用できなくなる場合があります。"
                 },
-                "UIBackgroundModes" : "audio"
+                "UIBackgroundModes" : ""
             },
             "sdkConfigs" : {
                 "ad" : {},
@@ -134,6 +138,76 @@
                         "settings@3x" : "unpackage/res/icons/87x87.png",
                         "spotlight@2x" : "unpackage/res/icons/80x80.png",
                         "spotlight@3x" : "unpackage/res/icons/120x120.png"
+                    }
+                }
+            }
+        },
+        "locales" : {
+            "en" : {
+                "ios" : {
+                    "privacyDescription" : {
+                        "NSPhotoLibraryUsageDescription" : "Request permission to read photo albums for uploading avatar images",
+                        "NSPhotoLibraryAddUsageDescription" : "Request permission to save to photo albums",
+                        "NSCameraUsageDescription" : "Request permission to obtain camera for video calls",
+                        "NSMicrophoneUsageDescription" : "Request permission to obtain microphone for voice calls",
+                        "NSLocationWhenInUseUsageDescription" : "Request permission to obtain location for sharing location information",
+                        "NSLocationAlwaysAndWhenInUseUsageDescription" : "Request permission to obtain location for sharing location information",
+                        "NSLocationAlwaysUsageDescription" : "Request permission to obtain location for sharing location information",
+                        "NSBluetoothAlwaysUsageDescription" : "Request permission to obtain Bluetooth",
+                        "NSUserTrackingUsageDescription" : "Please rest assured that turning on the permission will not obtain your private information on other sites. The permission is only used to identify the device and ensure service security and prompt browsing experience.",
+                        "NSRemindersUsageDescription" : " Notifications may include reminders, sounds, and icon badges. These can be configured in “Settings",
+                        "NSLocalNetworkUsageDescription" : "When unlimited data is turned off, some features may not be available."
+                    }
+                }
+            },
+            "zh" : {
+                "ios" : {
+                    "privacyDescription" : {
+                        "NSPhotoLibraryUsageDescription" : "请求获取读取相册权限，用于上传头像图片服务---1",
+                        "NSPhotoLibraryAddUsageDescription" : "请求获取存入相册权限---1",
+                        "NSCameraUsageDescription" : "请求获取摄像头权限，用于视频通话服务---1",
+                        "NSMicrophoneUsageDescription" : "请求获取麦克风权限，用于语音通话服务---1",
+                        "NSLocationWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务---1",
+                        "NSLocationAlwaysAndWhenInUseUsageDescription" : "请求获取位置权限，用于分享位置信息服务---1",
+                        "NSLocationAlwaysUsageDescription" : "请求获取位置权限，用于分享位置信息服务---1",
+                        "NSBluetoothAlwaysUsageDescription" : "请求获取蓝牙权限----1",
+                        "NSUserTrackingUsageDescription" : "请放心，开启权限不会获取您在其他站点的隐私信息，该权限仅用于标识设备并保障服务安全与提示浏览体验---1",
+                        "NSRemindersUsageDescription" : "通知可能包括提醒、声音和图标标记。这些可在“设置”中配置---1",
+                        "NSLocalNetworkUsageDescription" : "关闭无限数据时，部分功能可能无法使用。----1"
+                    }
+                }
+            },
+            "ja" : {
+                "ios" : {
+                    "privacyDescription" : {
+                        "NSPhotoLibraryUsageDescription" : "アバター画像サービスをアップロードするためのアルバムの読み取り許可をリクエストします",
+                        "NSPhotoLibraryAddUsageDescription" : "フォトアルバムに保存する許可をリクエストする",
+                        "NSCameraUsageDescription" : "ビデオ通話サービスのカメラ許可をリクエストする",
+                        "NSMicrophoneUsageDescription" : "音声通話サービスのマイク許可を要求する",
+                        "NSLocationWhenInUseUsageDescription" : "位置情報共有サービスの位置情報の許可をリクエストする",
+                        "NSLocationAlwaysAndWhenInUseUsageDescription" : "位置情報共有サービスの位置情報の許可をリクエストする",
+                        "NSLocationAlwaysUsageDescription" : "位置情報共有サービスの位置情報の許可をリクエストする",
+                        "NSBluetoothAlwaysUsageDescription" : "Bluetooth 許可を要求する",
+                        "NSUserTrackingUsageDescription" : "この許可をオンにすると、他のサイトで個人情報が取得されることはありません。この許可は、デバイスを識別し、サービスのセキュリティと迅速な閲覧体験を確保するためにのみ使用されます。",
+                        "NSRemindersUsageDescription" : "通知には、アラート、サウンド、アイコン バッジが含まれる場合があります。これらは設定で構成可能です",
+                        "NSLocalNetworkUsageDescription" : "無制限データをオフにすると、一部の機能が利用できなくなる場合があります。"
+                    }
+                }
+            },
+            "ko" : {
+                "ios" : {
+                    "privacyDescription" : {
+                        "NSPhotoLibraryUsageDescription" : "아바타 이미지 서비스 업로드를 위해 앨범 읽기 권한을 요청합니다.",
+                        "NSPhotoLibraryAddUsageDescription" : "사진 앨범에 저장하기 위한 권한을 요청하세요",
+                        "NSCameraUsageDescription" : "영상통화 서비스를 위한 카메라 권한 요청",
+                        "NSMicrophoneUsageDescription" : "음성통화 서비스를 위한 마이크 권한 요청",
+                        "NSLocationWhenInUseUsageDescription" : "위치정보 서비스 공유를 위해 위치 권한 요청",
+                        "NSLocationAlwaysAndWhenInUseUsageDescription" : "위치정보 서비스 공유를 위해 위치 권한 요청",
+                        "NSLocationAlwaysUsageDescription" : "위치정보 서비스 공유를 위해 위치 권한 요청",
+                        "NSBluetoothAlwaysUsageDescription" : "블루투스 권한 요청",
+                        "NSUserTrackingUsageDescription" : "해당 권한을 켜도 다른 사이트에서 귀하의 개인 정보를 얻을 수 없으므로 안심하시기 바랍니다. 이 권한은 장치를 식별하고 서비스 보안 및 신속한 검색 경험을 보장하는 데만 사용됩니다.",
+                        "NSRemindersUsageDescription" : "알림에는 알림, 소리, 아이콘 배지가 포함될 수 있습니다. 이는 설정에서 구성할 수 있습니다. ",
+                        "NSLocalNetworkUsageDescription" : "무제한 데이터를 끄면 일부 기능을 사용하지 못할 수 있습니다."
                     }
                 }
             }

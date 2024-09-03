@@ -1,7 +1,7 @@
 <template>
     <Page>
         <view class="page_container">
-            <CustomNavBar title="选择分组" is-bg-color2>
+            <CustomNavBar title="グループを選択" is-bg-color2>
                 <template slot="more">
                     <text class="text-grey mr-30 fz-32" @click="handleCreate">{{
                         $t('Create_a_new_group')

@@ -6,8 +6,8 @@
             left: getLeft + 'px',
             top: getTop + 'px'
         }"
-        :copy-html="copyHtml"
-        :change:copyHtml="renderjs.getCopyText"
+        :copyhtml="copyhtml"
+        :change:copyhtml="renderjs.getCopyText"
     >
         <Like @like="like" />
         <view
@@ -131,7 +131,7 @@ export default {
             },
             userList: [],
             systemInfo: uni.getSystemInfoSync(),
-            copyHtml: ''
+            copyhtml: ''
         };
     },
     computed: {
@@ -359,7 +359,7 @@ export default {
                     break;
                 case MessageMenuTypes.Copy:
                     // await this.handleCopy();
-                    this.copyHtml = this.getContent();
+                    this.copyhtml = this.getContent();
                     break;
                 case MessageMenuTypes.Revoke:
                     await this.handleRevoke();

@@ -6,7 +6,7 @@
                 <u-search
                     v-model="keyword"
                     shape="square"
-                    placeholder="搜索"
+                    :placeholder="$t('Search')"
                     :show-action="false"
                     input-align="center"
                     bg-color="#fff"
@@ -21,7 +21,7 @@
                 :item-arr="getIndexData.dataList"
                 @itemClick="userClick"
             />
-            <u-empty v-else mode="list" />
+            <u-empty v-else text="リストが空です" mode="list" />
         </view>
     </Page>
 </template>

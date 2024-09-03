@@ -9,7 +9,11 @@
                 "
             >
                 <view slot="more" class="top_right_btn">
-                    <u-button text="发送" type="primary" @click="sendRequest" />
+                    <u-button
+                        :text="$t('Send')"
+                        type="primary"
+                        @click="sendRequest"
+                    />
                 </view>
             </custom-nav-bar>
 

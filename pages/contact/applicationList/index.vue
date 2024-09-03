@@ -56,7 +56,7 @@
                                 />
                             </u-list-item>
                         </u-list>
-                        <u-empty v-else mode="list" />
+                        <u-empty v-else text="リストが空です" mode="list" />
                     </view>
                     <view class="pane_content">
                         <u-list
@@ -76,7 +76,7 @@
                                 <ApplicationItem :application="application" />
                             </u-list-item>
                         </u-list>
-                        <u-empty v-else mode="list" />
+                        <u-empty v-else text="リストが空です" mode="list" />
                     </view>
                 </view>
 

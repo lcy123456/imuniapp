@@ -68,7 +68,7 @@ const actions = {
             const { errCode } = e;
             console.log('eeeeeee-eeee222', e);
             if (errCode === 10005) {
-                uni.$u.toast('获取历史数据失败');
+                // uni.$u.toast('获取历史数据失败');
             }
             return [];
         }
@@ -127,7 +127,7 @@ const actions = {
             const { errCode } = e;
             console.log('eeeeeee-eeee222', errCode);
             if (errCode === 10005) {
-                uni.$u.toast('获取历史数据失败');
+                // uni.$u.toast('获取历史数据失败');
             }
             return [];
         }

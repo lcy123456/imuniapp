@@ -49,6 +49,7 @@ export default {
         fCheckVersion();
         uni.preloadPage({ url: '/pages/conversation/webrtc/index' });
         this.initBackgroundTaskModule();
+        console.log('uni.getLocale()---uni.getLocale()', uni.getLocale());
     },
     async onShow() {
         this.num++;

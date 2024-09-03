@@ -16,7 +16,7 @@
                 </u-list-item>
             </u-list>
 
-            <u-empty v-else mode="list" />
+            <u-empty v-else text="リストが空です" mode="list" />
 
             <u-modal
                 width="500rpx"
