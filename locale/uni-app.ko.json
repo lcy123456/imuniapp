@@ -410,5 +410,16 @@
     "Sure": "확신하는",
     "dialogue": "대화",
     "mine": "내 거",
-    "language": "언어"
+    "language": "언어",
+    "Group_owner": "그룹 소유자",
+    "Administrator": "관리자",
+    "Invite_you_to_join_the_group_chat": "그룹 채팅에 참여하도록 초대",
+    "Invite_you": "당신을 초대합니다",
+    "Cannot_receive_verification_code": "인증코드를 받을 수 없습니다",
+    "Selected": "선택된",
+    "Quote_content_has_been_withdrawn": "인용이 철회되었습니다",
+    "File_access_permission_required": "파일 액세스 필요",
+    "The_application_does_not_have_permission_to_read_the_file": "애플리케이션에 파일을 읽을 수 있는 권한이 없습니다. 파일을 성공적으로 업로드하려면 권한 설정 페이지에서 파일 권한을 켜십시오(휴대폰 제조업체에 따라 문구가 약간 다를 수 있음). 휴대폰 브랜드에 맞게 설정해주세요.",
+    "Allow": "허용하다",
+    "Forget_it": "괜찮아요"
 }

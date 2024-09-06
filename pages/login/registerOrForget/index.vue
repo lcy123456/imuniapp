@@ -14,8 +14,14 @@
             :model="userInfo"
             :rules="rules"
         >
-            <u-form-item prop="phoneNumber">
-                <view class="phoneNumber_areacode" @click="showPicker">
+            <u-form-item prop="account">
+                <u-input
+                    v-model="userInfo.account"
+                    class="login-input"
+                    :placeholder="$t('Please_fill_in_your_nickname')"
+                    clearable
+                />
+                <!-- <view class="phoneNumber_areacode" @click="showPicker">
                     <u--image
                         src="/static/images/logo.png"
                         width="58rpx"
@@ -34,7 +40,35 @@
                     class="login-input"
                     :placeholder="$t('Please_enter_your_mobile_number')"
                     clearable
-                />
+                /> -->
+            </u-form-item>
+            <u-form-item prop="password">
+                <u-input
+                    v-model="userInfo.password"
+                    class="login-input"
+                    :placeholder="$t('Please_enter_new_login_password')"
+                    :password="!passwordEying"
+                >
+                    <u-icon
+                        slot="suffix"
+                        :name="passwordEying ? 'eye-off' : 'eye'"
+                        @click="updateEye('passwordEying')"
+                    />
+                </u-input>
+            </u-form-item>
+            <u-form-item prop="confirmPassword">
+                <u-input
+                    v-model="userInfo.confirmPassword"
+                    class="login-input"
+                    :placeholder="$t('Confirm_new_login_password_again')"
+                    :password="!comfirmEying"
+                >
+                    <u-icon
+                        slot="suffix"
+                        :name="comfirmEying ? 'eye-off' : 'eye'"
+                        @click="updateEye('comfirmEying')"
+                    />
+                </u-input>
             </u-form-item>
             <u-form-item prop="invitationCode">
                 <u-input
@@ -76,7 +110,7 @@
                 :loading="loading"
                 @click="sendSms"
             >
-                {{ isRegister ? $t('Next') : $t('Get_verification_code') }}
+                {{ isRegister ? 'SUMI.CHAT' : $t('Get_verification_code') }}
             </u-button>
         </view>
         <view v-if="isRegister" class="agreement">
@@ -98,11 +132,14 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import AreaPicker from '@/components/AreaPicker';
-import { businessSendSms, emailSendCode } from '@/api/login';
+import { businessSendSms, emailSendCode, businessRegister } from '@/api/login';
 import { SmsUserFor } from '@/constant';
 import { checkLoginError, getPhoneReg } from '@/util/common';
+import { IMLogin } from '@/util/imCommon';
+import md5 from 'md5';
 
 export default {
     components: {
@@ -112,39 +149,48 @@ export default {
     data() {
         return {
             usedFor: 0,
+            passwordEying: false,
+            comfirmEying: false,
             userInfo: {
-                phoneNumber: '',
-                email: '',
-                areaCode: '86',
+                faceURL: '',
+                account: '',
+                nickname: '',
+                password: '',
+                confirmPassword: '',
                 invitationCode: null
             },
             checked: [true],
             rules: {
-                phoneNumber: [
+                account: [
                     {
                         type: 'string',
                         required: true,
-                        message: this.$t('Please_enter_your_mobile_number'),
+                        message: this.$t('Please_fill_in_your_nickname'),
+                        trigger: ['blur', 'change']
+                    }
+                ],
+                password: [
+                    {
+                        type: 'string',
+                        required: true,
+                        message: this.$t('Please_enter_new_login_password'),
+                        trigger: ['blur', 'change']
+                    }
+                ],
+                confirmPassword: [
+                    {
+                        type: 'string',
+                        required: true,
+                        message: this.$t('Confirm_new_login_password_again'),
                         trigger: ['blur', 'change']
                     },
                     {
                         validator: (rule, value) => {
-                            return getPhoneReg(
-                                `+${this.userInfo.areaCode}`
-                            ).test(value);
+                            console.log('---', this.userInfo.password, value);
+                            return this.userInfo.password === value;
                         },
-                        message: this.$t(
-                            'Please_enter_the_correct_mobile_number'
-                        ),
+                        message: this.$t('Two_passwords_are_different'),
                         trigger: ['change', 'blur']
-                    }
-                ],
-                email: [
-                    {
-                        type: 'string',
-                        required: true,
-                        message: this.$t('Please_enter_your_email_address'),
-                        trigger: ['blur', 'change']
                     }
                 ]
             },
@@ -152,6 +198,7 @@ export default {
         };
     },
     computed: {
+        ...mapGetters(['storeClientID']),
         needInvitationCodeRegister() {
             return this.$store.getters.storeAppConfig
                 .needInvitationCodeRegister;
@@ -162,9 +209,7 @@ export default {
         canLogin() {
             return (
                 (this.isRegister ? this.checked[0] : true) &&
-                (this.isRegister
-                    ? this.userInfo.phoneNumber
-                    : this.userInfo.email)
+                (this.isRegister ? this.userInfo.account : this.userInfo.email)
             );
         }
     },
@@ -173,6 +218,9 @@ export default {
         this.checkInvitationCodeState();
     },
     methods: {
+        updateEye(key) {
+            this[key] = !this[key];
+        },
         checkInvitationCodeState() {
             if (this.needInvitationCodeRegister) {
                 this.rules = {
@@ -192,21 +240,38 @@ export default {
         },
         sendSms() {
             this.$refs.registerForm.validate().then(async () => {
-                const options = {
-                    phoneNumber: this.userInfo.phoneNumber,
-                    areaCode: `+${this.userInfo.areaCode}`,
-                    usedFor: this.usedFor,
-                    invitationCode: this.userInfo.invitationCode
-                };
                 try {
                     this.loading = true;
                     if (this.isRegister) {
-                        await businessSendSms(options);
-                        uni.$u.route('/pages/login/setPassword/index', {
-                            userInfo: JSON.stringify(this.userInfo),
-                            usedFor: this.usedFor
+                        let password = md5(this.userInfo.password);
+                        const options = {
+                            password,
+                            platform: uni.$u.os() === 'ios' ? 1 : 2,
+                            autoLogin: true,
+                            invitationCode: this.userInfo.invitationCode,
+                            user: {
+                                ...this.userInfo,
+                                nickname: this.userInfo.account,
+                                password
+                            },
+                            cid: this.storeClientID
+                        };
+                        console.log('options---options', options);
+                        // this.saveLoginInfo();
+                        const data = await businessRegister(options);
+                        this.$store.commit('user/SET_AUTH_DATA', data);
+                        this.$store.commit('user/SET_USER_LIST', {
+                            ...data,
+                            ...options
                         });
-                        return;
+                        uni.$u.toast(this.$t('Create_successfully'));
+                        // await IMLogin('login');
+                        setTimeout(() => {
+                            uni.reLaunch({
+                                url: '/pages/login/index'
+                            });
+                        }, 1000);
+                        this.loading = false;
                     } else {
                         const data = await emailSendCode({
                             email: this.userInfo.email,
@@ -215,16 +280,18 @@ export default {
                             platform: uni.$u.os() === 'ios' ? 1 : 2
                         });
                         console.log('emailSendCode--emailSendCode', data);
+                        uni.$u.toast(
+                            this.$t('Verification_code_has_been_sent')
+                        );
+                        setTimeout(
+                            () =>
+                                uni.$u.route('/pages/login/verifyCode/index', {
+                                    userInfo: JSON.stringify(this.userInfo),
+                                    usedFor: this.usedFor
+                                }),
+                            1000
+                        );
                     }
-                    uni.$u.toast(this.$t('Verification_code_has_been_sent'));
-                    setTimeout(
-                        () =>
-                            uni.$u.route('/pages/login/verifyCode/index', {
-                                userInfo: JSON.stringify(this.userInfo),
-                                usedFor: this.usedFor
-                            }),
-                        1000
-                    );
                 } catch (err) {
                     console.error(err);
                     uni.$u.toast(checkLoginError(err));

@@ -410,5 +410,16 @@
     "Sure": "もちろん",
     "dialogue": "対話",
     "mine": "私の",
-    "language": "言語"
+    "language": "言語",
+    "Group_owner": "グループオーナー",
+    "Administrator": "管理者",
+    "Invite_you_to_join_the_group_chat": "グループチャットに招待します",
+    "Invite_you": "あなたを招待します",
+    "Cannot_receive_verification_code": "確認コードを受信できません",
+    "Selected": "選択済み",
+    "Quote_content_has_been_withdrawn": "引用は撤回されました",
+    "File_access_permission_required": "ファイルアクセスが必要です",
+    "The_application_does_not_have_permission_to_read_the_file": "アプリケーションにはファイルを読み取る権限がありません。ファイルを正常にアップロードできるようにするには、[アクセス許可] 設定ページでファイルのアクセス許可をオンにします (携帯電話のメーカーによって文言が若干異なる場合があります)。携帯電話のブランドに合わせて設定してください。",
+    "Allow": "許可する",
+    "Forget_it": "どうでも"
 }

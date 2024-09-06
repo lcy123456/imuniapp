@@ -410,5 +410,16 @@
     "Sure": "确定",
     "dialogue": "对话",
     "mine": "我的",
-    "language": "语言"
+    "language": "语言",
+    "Group_owner": "群主",
+    "Administrator": "管理员",
+    "Invite_you_to_join_the_group_chat": "邀请你加入群聊",
+    "Invite_you": "邀请你",
+    "Cannot_receive_verification_code": "收不到验证码",
+    "Selected": "已选择",
+    "Quote_content_has_been_withdrawn": "引用内容已撤回",
+    "File_access_permission_required": "需要文件访问权限",
+    "The_application_does_not_have_permission_to_read_the_file": "该应用程序没有读取该文件的权限。为了能够成功上传文件，请在权限设置页面上打开文件权限（根据您的手机制造商的不同，措辞可能会略有不同）。请根据您的手机品牌进行设置。",
+    "Allow": "允许",
+    "Forget_it": "算了"
 }

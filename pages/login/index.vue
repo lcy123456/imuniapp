@@ -13,7 +13,7 @@
                 :rules="rules"
                 label-width="0"
             >
-                <u-form-item prop="phoneNumber">
+                <!-- <u-form-item prop="phoneNumber">
                     <view class="phoneNumber_areacode" @click="showPicker">
                         <u--image
                             src="/static/images/logo.png"
@@ -39,6 +39,14 @@
                         class="input-hidden"
                         placeholder="防止密码回填"
                         type="number"
+                        clearable
+                    />
+                </u-form-item> -->
+                <u-form-item prop="account">
+                    <u-input
+                        v-model="loginInfo.account"
+                        class="login-input"
+                        :placeholder="$t('Please_fill_in_your_nickname')"
                         clearable
                     />
                 </u-form-item>
@@ -103,9 +111,9 @@
         </view>
 
         <view class="action_bar">
-            <text class="primary" @click="toRegisterOrForget(SmsUserFor.Reset)">
+            <!-- <text class="primary" @click="toRegisterOrForget(SmsUserFor.Reset)">
                 {{ $t('Forgot_password') }}
-            </text>
+            </text> -->
             <view class="mt-43">
                 <text class="text-grey"> {{ $t('No_account') }} </text>
                 <text
@@ -138,9 +146,8 @@ export default {
             SmsUserFor,
             domainCount: 0,
             loginInfo: {
-                phoneNumber: '',
                 password: '',
-                areaCode: '1',
+                account: '',
                 verificationCode: undefined
             },
             checked: [true],
@@ -155,22 +162,11 @@ export default {
                         trigger: ['blur', 'change']
                     }
                 ],
-                phoneNumber: [
+                account: [
                     {
                         required: true,
-                        message: this.$t('Mobile_number_cannot_be_empty'),
+                        message: this.$t('Please_fill_in_your_nickname'),
                         trigger: ['blur', 'change']
-                    },
-                    {
-                        validator: (rule, value) => {
-                            return getPhoneReg(
-                                `+${this.loginInfo.areaCode}`
-                            ).test(value);
-                        },
-                        message: this.$t(
-                            'Please_enter_the_correct_mobile_number'
-                        ),
-                        trigger: ['change', 'blur']
                     }
                 ]
             }
@@ -181,7 +177,7 @@ export default {
         canLogin() {
             return (
                 this.checked[0] &&
-                this.loginInfo.phoneNumber &&
+                this.loginInfo.account &&
                 this.loginInfo.password
             );
         }
@@ -193,9 +189,9 @@ export default {
         ...mapMutations('user', ['SET_IS_PROD']),
         init() {
             // if (process.env.NODE_ENV === 'development') {
-            this.loginInfo.phoneNumber =
-                uni.getStorageSync('lastPhoneNumber') || '';
-            this.loginInfo.areaCode = uni.getStorageSync('lastAreaCode') || '1';
+            // this.loginInfo.phoneNumber =
+            //     uni.getStorageSync('lastPhoneNumber') || '';
+            // this.loginInfo.areaCode = uni.getStorageSync('lastAreaCode') || '1';
             // } else {
             //     this.loginInfo.phoneNumber = '';
             //     this.loginInfo.password = '';
@@ -225,8 +221,7 @@ export default {
                     this.loading = true;
                     this.saveLoginInfo();
                     const requestMap = {
-                        phoneNumber: this.loginInfo.phoneNumber,
-                        areaCode: `+${this.loginInfo.areaCode}`,
+                        account: this.loginInfo.account,
                         password: md5(this.loginInfo.password),
                         platform: uni.$u.os() === 'ios' ? 1 : 2,
                         verifyCode: this.loginInfo.verificationCode,

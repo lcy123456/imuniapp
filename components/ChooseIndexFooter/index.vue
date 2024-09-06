@@ -3,7 +3,7 @@
         <view class="flex justify-between">
             <view class="left_info" @click="showSelected = true">
                 <text class="text">
-                    {{ `已选择：${choosedData.length}人` }}
+                    {{ `${$t('Selected')}：${choosedData.length}` }}
                 </text>
                 <u-icon name="arrow-up" size="14" color="#007aff" />
             </view>
@@ -12,7 +12,7 @@
                     :loading="comfirmLoading"
                     :disabled="choosedData.length === 0"
                     type="primary"
-                    :text="isRemove ? '移除' : '确认'"
+                    :text="isRemove ? $t('Remove') : $t('Sure')"
                     @click="clickComfirm"
                 />
             </view>
@@ -20,8 +20,12 @@
         <u-popup round="24" :show="showSelected" mode="bottom" @close="close">
             <view class="selected_container">
                 <view class="top_desc">
-                    <text>{{ `已选择：${choosedData.length}人` }}</text>
-                    <text class="comfirm_text" @click="close"> 确认 </text>
+                    <text>{{
+                        `${$t('Selected')}：${choosedData.length}`
+                    }}</text>
+                    <text class="comfirm_text" @click="close">
+                        {{ $t('Sure') }}
+                    </text>
                 </view>
                 <u-list class="selected_list">
                     <u-list-item

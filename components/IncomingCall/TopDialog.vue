@@ -21,11 +21,14 @@
                     {{ nickname }}
                 </text>
                 <template v-if="isGroupMessage">
-                    <text class="fz-28 text-grey"> 邀请你加入群聊 </text>
+                    <text class="fz-28 text-grey">
+                        {{ $t('Invite_you_to_join_the_group_chat') }}
+                    </text>
                 </template>
                 <template v-else>
                     <text class="fz-28 text-grey">
-                        邀请你{{ isVideo ? '视频通话' : '语音通话' }}
+                        {{ $t('Invite_you') }}
+                        {{ isVideo ? $t('Video_call') : $t('Voice_call') }}
                     </text>
                 </template>
             </view>

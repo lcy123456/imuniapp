@@ -81,20 +81,22 @@ export default {
         getQuoteText() {
             switch (this.contentType) {
                 case MessageType.PictureMessage:
-                    return '[图片]';
+                    return this.$t('[Picture]');
                 case MessageType.VideoMessage:
-                    return '[视频]';
+                    return this.$t('[Video]');
                 case MessageType.FileMessage:
-                    return '[文件]';
+                    return this.$t('[File]');
                 case MessageType.VoiceMessage:
-                    return '[语音]';
+                    return this.$t('[Voice]');
                 case MessageType.MergeMessage:
                     if (this.originType === 'merge_record') {
-                        return '[聊天记录]';
+                        return `[${this.$t('Chat_History')}]`;
                     }
-                    return `[聊天记录]${this.message.mergeElem.title}`;
+                    return `[${this.$t('Chat_History')}]${
+                        this.message.mergeElem.title
+                    }`;
                 case MessageType.RevokeMessage:
-                    return '[引用内容已撤回]';
+                    return `[${this.$t('Quote_content_has_been_withdrawn')}]`;
                 default:
                     return '';
             }

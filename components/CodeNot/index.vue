@@ -1,6 +1,6 @@
 <template>
     <view class="code-not fs-28 text-grey" @click="handleCodeNot">
-        收不到验证码?
+        {{ $t('Cannot_receive_verification_code') }}?
     </view>
 </template>
 

@@ -10,7 +10,12 @@
             <text>{{ source.nickname || source.groupName }}</text>
         </view>
         <view>
-            <u-button plain text="移除" type="primary" @click="action" />
+            <u-button
+                plain
+                :text="$t('Remove')"
+                type="primary"
+                @click="action"
+            />
         </view>
     </view>
 </template>

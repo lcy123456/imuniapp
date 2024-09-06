@@ -1,5 +1,6 @@
 // import fileSelect from '@/uni_modules/lemon-filePicker';
 const lemonjkFileSelect = uni.requireNativePlugin('lemonjk-FileSelect');
+import i18n from '@/locale/index';
 
 // 提示框
 export const showToast = ({
@@ -55,11 +56,12 @@ export const chooseFile = () => {
                     });
                 } else if (result.code === '1001') {
                     uni.showModal({
-                        title: 'ファイルアクセスが必要です',
-                        content:
-                            'このアプリケーションにファイルを読み取る権限がありません。ファイルを正常にアップロードできるようにするには、許可設定ページでファイルのアクセス許可をオンにしてください (携帯電話のメーカーによって表現が若干異なる場合があります)。ご自身の携帯電話のブランドに応じて設定してください。',
-                        confirmText: '許可する',
-                        cancelText: 'どうでも',
+                        title: i18n.t('File_access_permission_required'),
+                        content: i18n.t(
+                            'The_application_does_not_have_permission_to_read_the_file'
+                        ),
+                        confirmText: i18n.t('Allow'),
+                        cancelText: i18n.t('Forget_it'),
                         success(e) {
                             if (e.confirm) {
                                 // 跳转到应用设置页

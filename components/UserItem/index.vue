@@ -40,10 +40,10 @@
             </text>
             <view>
                 <text v-if="item.roleLevel === 100" class="user_role">
-                    群主
+                    {{ $t('Group_owner') }}
                 </text>
                 <text v-else-if="item.roleLevel === 60" class="user_role">
-                    管理员
+                    {{ $t('Administrator') }}
                 </text>
             </view>
         </view>

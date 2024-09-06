@@ -410,5 +410,16 @@
     "Sure": "Sure",
     "dialogue": "dialogue",
     "mine": "mine",
-    "language": "language"
+    "language": "language",
+    "Group_owner": "Group owner",
+    "Administrator": "Administrator",
+    "Invite_you_to_join_the_group_chat": "Invite you to join the group chat",
+    "Invite_you": "Invite you",
+    "Cannot_receive_verification_code": "Cannot receive verification code",
+    "Selected": "Selected",
+    "Quote_content_has_been_withdrawn": "Quote content has been withdrawn",
+    "File_access_permission_required": "File access permission required",
+    "The_application_does_not_have_permission_to_read_the_file": "The application does not have permission to read the file. To be able to successfully upload the file, please turn on the file permission on the permission settings page (the wording may be slightly different depending on your phone manufacturer). Please set it according to your phone brand.",
+    "Allow": "Allow",
+    "Forget_it": "Forget it"
 }
