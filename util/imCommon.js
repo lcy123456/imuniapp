@@ -810,13 +810,14 @@ function switchOnline(oType, details) {
         case 'offline':
             return i18n.t('Offline');
         case 'online':
-            let str = '';
-            details?.map(detail => {
-                if (detail.status === 'online') {
-                    str += `${detail.platform}/`;
-                }
-            });
-            return `${str.slice(0, -1)} ${i18n.t('Online')}`;
+            // let str = '';
+            // details?.map(detail => {
+            //     if (detail.status === 'online') {
+            //         str += `${detail.platform}/`;
+            //     }
+            // });
+            return `${i18n.t('Online')}`;
+        // return `${str.slice(0, -1)} ${i18n.t('Online')}`;
         default:
             return oType;
     }
