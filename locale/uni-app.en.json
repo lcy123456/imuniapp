@@ -421,5 +421,16 @@
     "File_access_permission_required": "File access permission required",
     "The_application_does_not_have_permission_to_read_the_file": "The application does not have permission to read the file. To be able to successfully upload the file, please turn on the file permission on the permission settings page (the wording may be slightly different depending on your phone manufacturer). Please set it according to your phone brand.",
     "Allow": "Allow",
-    "Forget_it": "Forget it"
+    "Forget_it": "Forget it",
+    "Pressagaintoexittheapp": "Press again to exit the app",
+    "Networkabnormalitypleasecheckthenetwork": "Network abnormality, please check the network",
+    "Connecting": "Connecting",
+    "Youraccountisloggedinonanotherdevicepleaseloginagain": "Your account is logged in on another device, please log in again!",
+    "Yourloginhasexpiredpleaseloginagain": "Your login has expired, please log in again!",
+    "Synchronizing": "Synchronizing",
+    "Messagesynchronizationfailed": "Message synchronization failed",
+    "Youhavebeenremovedfromthegroupchat": "You have been removed from the group chat",
+    "IMSDKinitializationfailed": "IMSDK initialization failed!",
+    "Youhaveanewmessage": "You have a new message",
+    "must_contain_letters_and_numbers": "6-20 characters, must contain letters and numbers"
 }

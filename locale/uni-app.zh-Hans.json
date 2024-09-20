@@ -350,7 +350,7 @@
     "Disbanded_the_group_chat": "解散了群聊",
     "Enabled_all_mute": "开启了全体禁言",
     "Cancelled_all_mute": "取消了全体禁言",
-    "Muted": "禁言了",
+    "Muted": "禁言",
     "Cancelled_mute": "取消了禁言",
     "Modified_group_announcement": "修改了群公告",
     "Modified_group_name_to": "修改了群名称为",
@@ -421,5 +421,16 @@
     "File_access_permission_required": "需要文件访问权限",
     "The_application_does_not_have_permission_to_read_the_file": "该应用程序没有读取该文件的权限。为了能够成功上传文件，请在权限设置页面上打开文件权限（根据您的手机制造商的不同，措辞可能会略有不同）。请根据您的手机品牌进行设置。",
     "Allow": "允许",
-    "Forget_it": "算了"
+    "Forget_it": "算了",
+    "Pressagaintoexittheapp": "再按一次退出应用",
+    "Networkabnormalitypleasecheckthenetwork": "网络异常，请检查网络",
+    "Connecting": "连接中",
+    "Youraccountisloggedinonanotherdevicepleaseloginagain": "您的账号在其他设备登录，请重新登陆！",
+    "Yourloginhasexpiredpleaseloginagain": "您的登录已过期，请重新登陆！",
+    "Synchronizing": "同步中",
+    "Messagesynchronizationfailed": "同步消息失败",
+    "Youhavebeenremovedfromthegroupchat": "你被移除群聊",
+    "IMSDKinitializationfailed": "初始化IMSDK失败！",
+    "Youhaveanewmessage": "你有一条新消息",
+    "must_contain_letters_and_numbers": "6-20位字符，必须包含字母和数字"
 }

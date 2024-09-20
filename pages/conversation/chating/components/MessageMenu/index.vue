@@ -87,7 +87,8 @@ import { emojiCollect } from '@/api/emoji';
 import IMSDK, {
     IMMethods,
     MessageType,
-    SessionType
+    SessionType,
+    GroupMemberRole
 } from 'openim-uniapp-polyfill';
 import { DecryptoAES } from '@/util/crypto';
 import {
@@ -258,7 +259,11 @@ export default {
                     type: MessageMenuTypes.Del,
                     title: this.$t('Delete'),
                     icon: '/static/images/chating_message_del.svg',
-                    visible: this.isMyMsg || this.isSingle
+                    visible:
+                        this.isMyMsg ||
+                        this.isSingle ||
+                        this.isOwner ||
+                        this.isAdmin
                 },
                 {
                     type: MessageMenuTypes.Save,
@@ -267,6 +272,18 @@ export default {
                     visible: this.showMediaRender
                 }
             ].filter(v => v.visible);
+        },
+        isOwner() {
+            return (
+                this.storeCurrentMemberInGroup.roleLevel ===
+                GroupMemberRole.Owner
+            );
+        },
+        isAdmin() {
+            return (
+                this.storeCurrentMemberInGroup.roleLevel ===
+                GroupMemberRole.Admin
+            );
         },
         showTextRender() {
             return TextRenderTypes.includes(this.message.contentType);
@@ -292,6 +309,10 @@ export default {
             handler() {
                 if (this.visible) {
                     this.getMsgID();
+                    console.log(
+                        'storeCurrentMemberInGroup---storeCurrentMemberInGroup',
+                        this.storeCurrentMemberInGroup
+                    );
                 } else {
                     setTimeout(() => {
                         this.steps = 'first';

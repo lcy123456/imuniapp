@@ -66,7 +66,15 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentUserID']),
+        ...mapGetters(['storeCurrentUserID', 'storeCurrentMemberInGroup']),
+        isOwnerAdmin() {
+            return (
+                this.storeCurrentMemberInGroup.roleLevel ===
+                    GroupMemberRole.Owner ||
+                this.storeCurrentMemberInGroup.roleLevel ===
+                    GroupMemberRole.Admin
+            );
+        },
         isNormal() {
             return !this.isOwner && !this.isAdmin;
         }
@@ -83,9 +91,18 @@ export default {
             return false;
         },
         getSwipOptions(v) {
-            const swipeOptions = [
+            let swipeOptions = [
                 {
                     text: this.$t('Set_administrator'),
+                    style: {
+                        backgroundColor: '#37abec'
+                    }
+                },
+                {
+                    text:
+                        v.muteEndTime > 0
+                            ? this.$t('Cancelled_mute')
+                            : this.$t('Muted'),
                     style: {
                         backgroundColor: '#37abec'
                     }
@@ -105,6 +122,8 @@ export default {
                 }`;
             } else if (this.isAdmin) {
                 swipeOptions.shift();
+            } else {
+                swipeOptions = [];
             }
             return swipeOptions;
         },
@@ -117,11 +136,38 @@ export default {
                     this.handleAdmin();
                     break;
                 case 1:
+                    this.handleMute();
+                    break;
+                case 2:
                     this.kickModal.show = true;
                     break;
             }
 
             this.$refs.swipeActionRef.closeAll();
+        },
+        async handleMute() {
+            try {
+                await IMSDK.asyncApi(
+                    IMMethods.ChangeGroupMemberMute,
+                    IMSDK.uuid(),
+                    {
+                        groupID: this.groupID,
+                        userID: this.curMember.userID,
+                        mutedSeconds:
+                            this.curMember.muteEndTime > 0
+                                ? 0
+                                : 60 * 60 * 24 * 30 * 12
+                    }
+                );
+                this.$toast(this.$t('Operation_successful'));
+
+                this.$store.dispatch(
+                    'conversation/getCurrentGroup',
+                    this.groupID
+                );
+            } catch (err) {
+                this.$toast(checkLoginError(err));
+            }
         },
         userClick(member) {
             const sourceInfo = {

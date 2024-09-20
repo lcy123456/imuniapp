@@ -421,5 +421,16 @@
     "File_access_permission_required": "ファイルアクセスが必要です",
     "The_application_does_not_have_permission_to_read_the_file": "アプリケーションにはファイルを読み取る権限がありません。ファイルを正常にアップロードできるようにするには、[アクセス許可] 設定ページでファイルのアクセス許可をオンにします (携帯電話のメーカーによって文言が若干異なる場合があります)。携帯電話のブランドに合わせて設定してください。",
     "Allow": "許可する",
-    "Forget_it": "どうでも"
+    "Forget_it": "どうでも",
+    "Pressagaintoexittheapp": "もう一度押すとアプリを終了します",
+    "Networkabnormalitypleasecheckthenetwork": "ネットワーク異常です。ネットワークを確認してください",
+    "Connecting": "接続中",
+    "Youraccountisloggedinonanotherdevicepleaseloginagain": "あなたのアカウントは他のデバイスでログインしています。もう一度ログインしてください。",
+    "Yourloginhasexpiredpleaseloginagain": "ログインの有効期限が切れています。もう一度ログインしてください。",
+    "Synchronizing": "同期中",
+    "Messagesynchronizationfailed": "メッセージの同期に失敗しました",
+    "Youhavebeenremovedfromthegroupchat": "グループチャットから削除されました",
+    "IMSDKinitializationfailed": "IMSDK の初期化に失敗しました。",
+    "Youhaveanewmessage": "新しいメッセージがあります",
+    "must_contain_letters_and_numbers": "6 ～ 20 文字、文字と数字を含める必要があります"
 }

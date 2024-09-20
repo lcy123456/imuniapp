@@ -46,18 +46,7 @@
                     <text class="fz-26">{{ $t('More') }}</text>
                     <more-feat
                         ref="moreFeat"
-                        :options="[
-                            {
-                                icon: '/static/images/group_out.png',
-                                text: isOwner
-                                    ? $t('Disband_group_chat')
-                                    : $t('Exit_group_chat'),
-                                style: {
-                                    color: '#EC4B37'
-                                },
-                                id: 1
-                            }
-                        ]"
+                        :options="moreFeatOptions"
                         :source-i-d="currentGroup.groupID"
                         :session-type="3"
                         @callBack="callBack"
@@ -178,6 +167,32 @@ export default {
         },
         isAdmin() {
             return this.memberInGroup.roleLevel === GroupMemberRole.Admin;
+        },
+        isMute() {
+            return this.currentGroup.status === 3;
+        },
+        moreFeatOptions() {
+            const l = [
+                {
+                    icon: '/static/images/group_out.png',
+                    text: this.isOwner
+                        ? this.$t('Disband_group_chat')
+                        : this.$t('Exit_group_chat'),
+                    style: {
+                        color: '#EC4B37'
+                    },
+                    id: 1
+                }
+            ];
+            if (this.isOwner || this.isAdmin) {
+                l.push({
+                    text: !this.isMute
+                        ? this.$t('Enabled_all_mute')
+                        : this.$t('Cancelled_all_mute'),
+                    id: 2
+                });
+            }
+            return l;
         }
     },
     mounted() {
@@ -214,6 +229,11 @@ export default {
             if (item.id === 1) {
                 this.confirmType = this.isOwner ? 'Dismiss' : 'Quit';
                 this.confirm();
+            } else if (item.id === 2) {
+                IMSDK.asyncApi(IMMethods.ChangeGroupMute, IMSDK.uuid(), {
+                    groupID: this.currentGroup.groupID,
+                    isMute: !this.isMute
+                });
             }
         },
         showMore() {

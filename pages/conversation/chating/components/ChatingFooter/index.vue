@@ -66,6 +66,7 @@
                             @click="updateEmojiBar"
                         /> -->
                         <image
+                            v-if="!isReadOnly"
                             class="w-48 h-48 mx-20"
                             src="/static/images/chating_footer_add.svg"
                             @click.prevent="updateActionBar"
@@ -287,10 +288,18 @@ export default {
             'storeIsIncomingCallIng',
             'storeIncomingIsGroupChat',
             'storeUserID',
-            'storeSelfInfo'
+            'storeSelfInfo',
+            'storeCurrentMemberInGroup',
+            'storeCurrentGroup'
         ]),
         hasContent() {
             return html2Text(this.inputHtml, 1) !== '';
+        },
+        isReadOnly() {
+            return (
+                this.storeCurrentMemberInGroup.muteEndTime > 0 ||
+                this.storeCurrentGroup.status === 3
+            );
         }
     },
     watch: {
@@ -576,6 +585,10 @@ export default {
             // return this.sendMessage(message);
         },
         async sendTextMessage() {
+            console.log(
+                'storeCurrentMemberInGroup----storeCurrentMemberInGroup',
+                this.storeCurrentGroup
+            );
             if (this.isNoEditMsg) {
                 try {
                     const { userID, groupID } = this.storeCurrentConversation;

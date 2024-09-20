@@ -23,6 +23,7 @@ import {
     UpdateMessageTypes,
     AudioVideoRenderTypes
 } from '@/constant';
+import i18n from '@/locale/index';
 import { videoGetToken } from '@/api/incoming';
 import { thirdConfig } from '@/api/';
 import { bindCid } from '@/api/index';
@@ -214,7 +215,7 @@ export default {
                 };
                 //重写toast方法如果内容为 ‘再按一次退出应用’ 就隐藏应用，其他正常toast
                 plus.nativeUI.toast = function (str) {
-                    if (str === '再按一次退出应用') {
+                    if (str === i18n.t('i18n')) {
                         main && main.moveTaskToBack(false);
                         return false;
                     } else {
@@ -242,21 +243,28 @@ export default {
                 console.log(errCode);
                 this.$store.commit(
                     'base/SET_CONNECTING_STATUS',
-                    '网络异常，请检查网络'
+                    i18n.t('Networkabnormalitypleasecheckthenetwork')
                 );
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnConnecting, data => {
                 console.log(data);
-                this.$store.commit('base/SET_CONNECTING_STATUS', '连接中...');
+                this.$store.commit(
+                    'base/SET_CONNECTING_STATUS',
+                    i18n.t('Connecting')
+                );
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnConnectSuccess, data => {
                 console.log(data);
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnKickedOffline, () => {
-                kickHander('您的账号在其他设备登录，请重新登陆！');
+                kickHander(
+                    i18n.t(
+                        'Youraccountisloggedinonanotherdevicepleaseloginagain'
+                    )
+                );
             });
             IMSDK.subscribe(IMSDK.IMEvents.OnUserTokenExpired, () => {
-                kickHander('您的登录已过期，请重新登陆！');
+                kickHander(i18n.t('Yourloginhasexpiredpleaseloginagain'));
             });
 
             // sync
@@ -268,7 +276,10 @@ export default {
                 // uni.$u.toast('同步');
                 console.log('同步开始');
                 this.$store.commit('user/SET_IS_SYNCING', true);
-                this.$store.commit('base/SET_CONNECTING_STATUS', '同步中...');
+                this.$store.commit(
+                    'base/SET_CONNECTING_STATUS',
+                    i18n.t('Synchronizing')
+                );
             };
             const done = () => {
                 this.$store.commit('user/SET_IS_SYNCING', false);
@@ -292,7 +303,7 @@ export default {
                 done();
             };
             const syncFailedHandler = () => {
-                uni.$u.toast('同步消息失败');
+                uni.$u.toast(i18n.t('Messagesynchronizationfailed'));
                 done();
             };
             IMSDK.subscribe(IMSDK.IMEvents.OnSyncServerStart, syncStartHandler);
@@ -457,7 +468,9 @@ export default {
                     case 'video_kick':
                         this.callOut(inviteOrKickMap, 1655);
                         setTimeout(() => {
-                            uni.$u.toast('你被移除群聊');
+                            uni.$u.toast(
+                                i18n.t('Youhavebeenremovedfromthegroupchat')
+                            );
                         }, 1000);
                         break;
                     case 'modify':
@@ -762,7 +775,7 @@ export default {
                     }
                 );
                 if (!flag) {
-                    uni.$u.toast('初始化IMSDK失败！');
+                    uni.$u.toast(i18n.t('IMSDKinitializationfailed'));
                     return new Error('初始化IMSDK失败！');
                 }
                 this.isInitSDK = true;
@@ -812,7 +825,7 @@ export default {
         androidPushMsg(newServerMsg) {
             if (uni.$u.os() !== 'ios' && this.isHide) {
                 plus.push.createMessage(
-                    '你有一条新消息',
+                    i18n.t('Youhaveanewmessage'),
                     JSON.stringify({
                         payload: {
                             conversationID: idsGetConversationID(newServerMsg)

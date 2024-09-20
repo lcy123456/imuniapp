@@ -139,6 +139,7 @@ import { businessSendSms, emailSendCode, businessRegister } from '@/api/login';
 import { SmsUserFor } from '@/constant';
 import { checkLoginError, getPhoneReg } from '@/util/common';
 import { IMLogin } from '@/util/imCommon';
+import { regMap } from '@/enum';
 import md5 from 'md5';
 
 export default {
@@ -175,6 +176,13 @@ export default {
                         required: true,
                         message: this.$t('Please_enter_new_login_password'),
                         trigger: ['blur', 'change']
+                    },
+                    {
+                        validator: (rule, value) => {
+                            return regMap.pwd.test(value);
+                        },
+                        message: this.$t('must_contain_letters_and_numbers'),
+                        trigger: ['change', 'blur']
                     }
                 ],
                 confirmPassword: [

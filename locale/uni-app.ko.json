@@ -421,5 +421,16 @@
     "File_access_permission_required": "파일 액세스 필요",
     "The_application_does_not_have_permission_to_read_the_file": "애플리케이션에 파일을 읽을 수 있는 권한이 없습니다. 파일을 성공적으로 업로드하려면 권한 설정 페이지에서 파일 권한을 켜십시오(휴대폰 제조업체에 따라 문구가 약간 다를 수 있음). 휴대폰 브랜드에 맞게 설정해주세요.",
     "Allow": "허용하다",
-    "Forget_it": "괜찮아요"
+    "Forget_it": "괜찮아요",
+    "Pressagaintoexittheapp": "앱을 종료하려면 다시 누르세요.",
+    "Networkabnormalitypleasecheckthenetwork": "네트워크에 이상이 있습니다. 네트워크를 확인해 주세요.",
+    "Connecting": "연결 중",
+    "Youraccountisloggedinonanotherdevicepleaseloginagain": "귀하의 계정이 다른 기기에 로그인되어 있습니다. 다시 로그인해 주세요!",
+    "Yourloginhasexpiredpleaseloginagain": "로그인이 만료되었습니다. 다시 로그인해 주세요!",
+    "Synchronizing": "동기화 중",
+    "Messagesynchronizationfailed": "메시지 동기화 실패",
+    "Youhavebeenremovedfromthegroupchat": "그룹 채팅에서 삭제되었습니다.",
+    "IMSDKinitializationfailed": "IMSDK 초기화에 실패했습니다!",
+    "Youhaveanewmessage": "새 메시지가 있습니다.",
+    "must_contain_letters_and_numbers": "6~20자, 문자와 숫자를 포함해야 합니다."
 }

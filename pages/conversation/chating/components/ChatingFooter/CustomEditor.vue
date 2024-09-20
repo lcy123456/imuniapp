@@ -7,7 +7,8 @@
     >
         <editor
             id="editor2"
-            :placeholder="placeholder"
+            :placeholder="!isReadOnly ? placeholder : 'Muted…'"
+            :read-only="isReadOnly"
             @ready="editorReady"
             @click="editorFocus"
             @blur="editorBlur"
@@ -59,7 +60,18 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeCurrentConversationID', 'storeDraftText'])
+        ...mapGetters([
+            'storeCurrentConversationID',
+            'storeDraftText',
+            'storeCurrentMemberInGroup',
+            'storeCurrentGroup'
+        ]),
+        isReadOnly() {
+            return (
+                this.storeCurrentMemberInGroup.muteEndTime > 0 ||
+                this.storeCurrentGroup.status === 3
+            );
+        }
     },
     created() {
         this.conversationID = this.storeCurrentConversationID;
