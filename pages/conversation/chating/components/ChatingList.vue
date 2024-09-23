@@ -23,8 +23,10 @@
                 <u-loadmore
                     v-if="!isReverse"
                     :class="{ isrotate: isReverse }"
-                    nomore-text=""
                     :status="loadMoreStatus"
+                    :nomore-text="$t('No_more')"
+                    :loadmore-text="$t('Loading_more')"
+                    :loading-text="$t('Loading')"
                 />
                 <view
                     v-for="(item, index) in messageList"
@@ -75,8 +77,10 @@
                 <u-loadmore
                     v-if="isReverse"
                     :class="{ isrotate: isReverse }"
-                    nomore-text=""
                     :status="loadMoreStatus"
+                    :nomore-text="$t('No_more')"
+                    :loadmore-text="$t('Loading_more')"
+                    :loading-text="$t('Loading')"
                 />
             </view>
         </view>

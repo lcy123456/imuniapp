@@ -264,7 +264,7 @@
     "Please_set_new_login_password": "새로운 로그인 비밀번호를 설정해주세요",
     "Please_enter_new_login_password": "새로운 로그인 비밀번호를 입력해주세요",
     "Confirm_new_login_password_again": "새 로그인 비밀번호를 다시 확인하세요.",
-    "6-20_characters": "6~20자",
+    "6-20_characters": "6~18자",
     "Must_contain_letters_and_numbers": "문자와 숫자를 포함해야 합니다.",
     "Two_passwords_are_different": "두 비밀번호가 동일하지 않습니다.",
     "Change_successful_please_log_in_again": "수정이 완료되었습니다. 다시 로그인해 주세요.",
@@ -307,7 +307,8 @@
     "Copy_successfully": "성공적으로 복사되었습니다",
     "My_information": "내 정보",
     "Avatar": "화신",
-    "Name": "이름",
+    "Name": "닉네임",
+    "account": "사용자 이름",
     "Gender": "성별",
     "Birthday": "생일",
     "Mobile_number": "전화 번호",
@@ -432,5 +433,9 @@
     "Youhavebeenremovedfromthegroupchat": "그룹 채팅에서 삭제되었습니다.",
     "IMSDKinitializationfailed": "IMSDK 초기화에 실패했습니다!",
     "Youhaveanewmessage": "새 메시지가 있습니다.",
-    "must_contain_letters_and_numbers": "6~20자, 문자와 숫자를 포함해야 합니다."
+    "must_contain_letters_and_numbers": "6~20자, 문자와 숫자를 포함해야 합니다.",
+    "Use_camera": "카메라 사용",
+    "Want_to_access_your_camera": "카메라에 액세스하고 싶나요?",
+    "No_more": "더 이상",
+    "Loading_more": "더 로드하세요"
 }

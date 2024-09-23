@@ -264,7 +264,7 @@
     "Please_set_new_login_password": "请设置新登录密码",
     "Please_enter_new_login_password": "请输入新登录密码",
     "Confirm_new_login_password_again": "再次确认新登录密码",
-    "6-20_characters": "6-20位字符",
+    "6-20_characters": "6-18位字符",
     "Must_contain_letters_and_numbers": "必须包含字母和数字",
     "Two_passwords_are_different": "两次密码不相同",
     "Change_successful_please_log_in_again": "修改成功，请重新登录",
@@ -307,7 +307,8 @@
     "Copy_successfully": "复制成功",
     "My_information": "我的信息",
     "Avatar": "头像",
-    "Name": "姓名",
+    "Name": "昵称",
+    "account": "用户名",
     "Gender": "性别",
     "Birthday": "生日",
     "Mobile_number": "手机号码",
@@ -432,5 +433,9 @@
     "Youhavebeenremovedfromthegroupchat": "你被移除群聊",
     "IMSDKinitializationfailed": "初始化IMSDK失败！",
     "Youhaveanewmessage": "你有一条新消息",
-    "must_contain_letters_and_numbers": "6-20位字符，必须包含字母和数字"
+    "must_contain_letters_and_numbers": "6-20位字符，必须包含字母和数字",
+    "Use_camera": "使用摄像头",
+    "Want_to_access_your_camera": "想访问您的摄像头",
+    "No_more": "没有更多",
+    "Loading_more": "加载更多"
 }

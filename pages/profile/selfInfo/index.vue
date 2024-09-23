@@ -17,12 +17,17 @@
                         size="80rpx"
                     />
                 </SettingItem>
-                <!-- <SettingItem
+                <SettingItem
+                    :title="$t('account')"
+                    :content="selfInfo.account"
+                    show-arrow
+                />
+                <SettingItem
                     :title="$t('Name')"
                     :content="selfInfo.nickname"
                     show-arrow
                     @click="updateNickname"
-                /> -->
+                />
                 <SettingItem
                     :loading="loadingState.gender"
                     :title="$t('Gender')"

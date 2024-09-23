@@ -1,5 +1,6 @@
 import { pinList } from '@/api/pinToTop';
 import { getUnreadMsgCount } from '@/api/message';
+import i18n from '@/locale/index';
 import {
     requestAndroidPermission,
     judgeIosPermission,
@@ -108,8 +109,10 @@ const actions = {
 
         if (!hasCamera) {
             uni.showModal({
-                title: '使用摄像头',
-                content: '想访问您的摄像头',
+                title: i18n.t('Use_camera'),
+                content: i18n.t('Want_to_access_your_camera'),
+                cancelText: i18n.t('Cancel'),
+                confirmText: i18n.t('Sure'),
                 success: res => {
                     if (res.confirm) gotoAppPermissionSetting();
                 }

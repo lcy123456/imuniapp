@@ -264,7 +264,7 @@
     "Please_set_new_login_password": "新しいログインパスワードを設定してください",
     "Please_enter_new_login_password": "新しいログインパスワードを入力してください",
     "Confirm_new_login_password_again": "新しいログインパスワードを再度確認してください",
-    "6-20_characters": "6～20文字",
+    "6-20_characters": "6～18文字",
     "Must_contain_letters_and_numbers": "文字と数字を含める必要があります",
     "Two_passwords_are_different": "2 つのパスワードは同じではありません",
     "Change_successful_please_log_in_again": "変更が成功しました。再度ログインしてください",
@@ -307,7 +307,8 @@
     "Copy_successfully": "正常にコピーされました",
     "My_information": "私の情報",
     "Avatar": "アバター",
-    "Name": "名前",
+    "Name": "ニックネーム",
+    "account": "ユーザー名",
     "Gender": "性別",
     "Birthday": "誕生日",
     "Mobile_number": "電話番号",
@@ -432,5 +433,9 @@
     "Youhavebeenremovedfromthegroupchat": "グループチャットから削除されました",
     "IMSDKinitializationfailed": "IMSDK の初期化に失敗しました。",
     "Youhaveanewmessage": "新しいメッセージがあります",
-    "must_contain_letters_and_numbers": "6 ～ 20 文字、文字と数字を含める必要があります"
+    "must_contain_letters_and_numbers": "6 ～ 20 文字、文字と数字を含める必要があります",
+    "Use_camera": "カメラを使用する",
+    "Want_to_access_your_camera": "カメラにアクセスしたい",
+    "No_more": "もうない",
+    "Loading_more": "さらにロードする"
 }

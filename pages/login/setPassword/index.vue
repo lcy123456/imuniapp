@@ -49,7 +49,7 @@
             <Alert
                 :value="formData.password"
                 :verify-res="isNumAndLetter"
-                :description="$t('Must_contain_letters_and_numbers')"
+                :description="$t('6-20_characters')"
             />
             <Alert
                 :value="formData.password"

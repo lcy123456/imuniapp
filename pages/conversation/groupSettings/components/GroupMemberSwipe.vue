@@ -114,16 +114,17 @@ export default {
                     }
                 }
             ];
-            if (this.isOwner) {
+            if (!this.isNormal) {
                 swipeOptions[0].text = `${
                     GroupMemberRole.Admin === v.roleLevel
                         ? this.$t('Cancel_administrator')
                         : this.$t('Set_administrator')
                 }`;
-            } else if (this.isAdmin) {
-                swipeOptions.shift();
+                if (this.isAdmin) {
+                    swipeOptions.shift();
+                }
             } else {
-                swipeOptions = [];
+                swipeOptions = null;
             }
             return swipeOptions;
         },

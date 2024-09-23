@@ -28,6 +28,9 @@
             "path": "pages/profile/index/index"
         },
         {
+            "path": "pages/common/setPwd/index"
+        },
+        {
             "path": "pages/profile/accountSetting/index"
         },
         {

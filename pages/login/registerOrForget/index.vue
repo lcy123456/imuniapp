@@ -110,7 +110,11 @@
                 :loading="loading"
                 @click="sendSms"
             >
-                {{ isRegister ? 'SUMI.CHAT' : $t('Get_verification_code') }}
+                {{
+                    isRegister
+                        ? $t('Register_now')
+                        : $t('Get_verification_code')
+                }}
             </u-button>
         </view>
         <view v-if="isRegister" class="agreement">
@@ -141,6 +145,7 @@ import { checkLoginError, getPhoneReg } from '@/util/common';
 import { IMLogin } from '@/util/imCommon';
 import { regMap } from '@/enum';
 import md5 from 'md5';
+import defaultAvatars from '@/common/defaultAvatars.js';
 
 export default {
     components: {
@@ -181,7 +186,7 @@ export default {
                         validator: (rule, value) => {
                             return regMap.pwd.test(value);
                         },
-                        message: this.$t('must_contain_letters_and_numbers'),
+                        message: this.$t('6-20_characters'),
                         trigger: ['change', 'blur']
                     }
                 ],
@@ -252,6 +257,9 @@ export default {
                     this.loading = true;
                     if (this.isRegister) {
                         let password = md5(this.userInfo.password);
+                        const keys = [...Object.keys(defaultAvatars)];
+                        const num = Math.floor(Math.random() * keys.length);
+                        const faceURL = keys[num];
                         const options = {
                             password,
                             platform: uni.$u.os() === 'ios' ? 1 : 2,
@@ -260,9 +268,11 @@ export default {
                             user: {
                                 ...this.userInfo,
                                 nickname: this.userInfo.account,
-                                password
+                                password,
+                                faceURL
                             },
-                            cid: this.storeClientID
+                            cid: this.storeClientID,
+                            faceURL
                         };
                         console.log('options---options', options);
                         // this.saveLoginInfo();

@@ -52,7 +52,7 @@
                 :disabled="!isVerifyOk"
                 @click="doNext"
             >
-                SUMI.CHAT
+                {{ $t('Register_now') }}
             </u-button>
         </view>
     </view>

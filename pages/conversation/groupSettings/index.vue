@@ -55,7 +55,11 @@
             </view>
             <view class="member_row_box">
                 <view class="member_title">
-                    <view class="member_desc" @click="inviteMember">
+                    <view
+                        v-if="isOwner || isAdmin"
+                        class="member_desc"
+                        @click="inviteMember"
+                    >
                         <image
                             src="/static/images/contact_add_search_user.svg"
                             class="w-44 h-44"
@@ -272,6 +276,10 @@ export default {
             })
                 .then(({ data }) => {
                     this.groupMemberList = [...data];
+                    console.log(
+                        'getGroupMemberList----getGroupMemberList',
+                        data
+                    );
                 })
                 .catch(err => {
                     console.log(err);

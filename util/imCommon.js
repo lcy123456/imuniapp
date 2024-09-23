@@ -806,6 +806,8 @@ export const getDesignatedUserOnlineState = userID => {
             statusObj.status,
             statusObj.detailPlatformStatus
         );
+        console.log('statusObj---statusObj', statusObj);
+        console.log('onlineStr---onlineStr', onlineStr);
         resolve({
             onlineStr,
             status: statusObj.status

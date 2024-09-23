@@ -264,7 +264,7 @@
     "Please_set_new_login_password": "Please set new login password",
     "Please_enter_new_login_password": "Please enter new login password",
     "Confirm_new_login_password_again": "Confirm new login password again",
-    "6-20_characters": "6-20 characters",
+    "6-20_characters": "6-18 characters",
     "Must_contain_letters_and_numbers": "Must contain letters and numbers",
     "Two_passwords_are_different": "Two passwords are different",
     "Change_successful_please_log_in_again": "Change successful, please log in again",
@@ -307,7 +307,8 @@
     "Copy_successfully": "Copy successfully",
     "My_information": "My information",
     "Avatar": "Avatar",
-    "Name": "Name",
+    "Name": "Nick name",
+    "account": "account",
     "Gender": "Gender",
     "Birthday": "Birthday",
     "Mobile_number": "Mobile number",
@@ -432,5 +433,9 @@
     "Youhavebeenremovedfromthegroupchat": "You have been removed from the group chat",
     "IMSDKinitializationfailed": "IMSDK initialization failed!",
     "Youhaveanewmessage": "You have a new message",
-    "must_contain_letters_and_numbers": "6-20 characters, must contain letters and numbers"
+    "must_contain_letters_and_numbers": "6-20 characters, must contain letters and numbers",
+    "Use_camera": "Use camera",
+    "Want_to_access_your_camera": "Want to access your camera",
+    "No_more": "No more",
+    "Loading_more": "Loading more"
 }

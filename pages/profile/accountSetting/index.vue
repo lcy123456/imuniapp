@@ -27,6 +27,11 @@
                     show-arrow
                     @click="checkLang"
                 />
+                <SettingItem
+                    :title="$t('Change_login_password')"
+                    show-arrow
+                    @click="goSetPwd"
+                />
                 <!-- <SettingItem
                     v-if="isIos"
                     title="兼容模式"
@@ -145,11 +150,11 @@ export default {
                         label: '日本語',
                         value: 'jp'
                     },
-                    {
-                        id: 2,
-                        label: '中文',
-                        value: 'zh'
-                    },
+                    // {
+                    //     id: 2,
+                    //     label: '中文',
+                    //     value: 'zh'
+                    // },
                     {
                         id: 3,
                         label: 'English',
@@ -214,6 +219,11 @@ export default {
                 item => item.value === this.storeBaseLang
             );
             this.defaultIndexLang = index === -1 ? [0] : [index];
+        },
+        goSetPwd() {
+            uni.navigateTo({
+                url: `/pages/common/setPwd/index`
+            });
         },
         changeHandler(e) {
             const { value } = e;
