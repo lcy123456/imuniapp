@@ -7,7 +7,7 @@
                     <u-button
                         :disabled="checkFriendList.length === 0"
                         type="primary"
-                        :text="`完成 (${checkFriendList.length})`"
+                        :text="`${$t('Complete')} (${checkFriendList.length})`"
                         @click="confirm"
                     />
                 </view>
