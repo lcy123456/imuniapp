@@ -30,10 +30,6 @@
             </view>
             <ContactMenus />
 
-            <!-- <view class="list_title">
-                <text>常用联系人</text>
-            </view> -->
-
             <u-list class="user_list">
                 <u-list-item
                     v-for="user in frequentContacts"

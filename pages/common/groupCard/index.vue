@@ -30,7 +30,7 @@
                 <view class="member_desc">
                     <text>{{ $t('Group_Members') }}</text>
                     <text class="member_count">
-                        {{ `${sourceGroupInfo.memberCount}人` }}
+                        {{ `${sourceGroupInfo.memberCount}${$t('People')}` }}
                     </text>
                     <u-icon name="arrow-right" color="#999" size="18" />
                 </view>

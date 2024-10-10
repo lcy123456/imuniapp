@@ -7,7 +7,11 @@
     >
         <editor
             id="editor2"
-            :placeholder="!isReadOnly ? placeholder : 'Muted…'"
+            :placeholder="
+                !isReadOnly
+                    ? placeholder || $t('Say_what_you_think')
+                    : $t('Muted')
+            "
             :read-only="isReadOnly"
             @ready="editorReady"
             @click="editorFocus"
@@ -42,7 +46,7 @@ export default {
     props: {
         placeholder: {
             type: String,
-            default: 'Say what you think…'
+            default: ''
         }
     },
     data() {

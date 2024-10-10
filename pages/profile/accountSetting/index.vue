@@ -146,6 +146,11 @@ export default {
             columnsLang: [
                 [
                     {
+                        id: 4,
+                        label: '한국어',
+                        value: 'ko'
+                    },
+                    {
                         id: 1,
                         label: '日本語',
                         value: 'jp'
@@ -159,11 +164,6 @@ export default {
                         id: 3,
                         label: 'English',
                         value: 'en'
-                    },
-                    {
-                        id: 4,
-                        label: '한국인',
-                        value: 'ko'
                     }
                 ]
             ],
@@ -242,6 +242,7 @@ export default {
             const item = value[0];
             this.$store.commit('base/SET_LANG_DATA', item.value);
             this.$i18n.locale = item.value;
+            uni.setLocale(item.value === 'jp' ? 'ja-JP' : item.value);
             this.showLang = false;
             setTabBarItem();
             uni.$u.toast(this.$t('Set_up_successfully'));

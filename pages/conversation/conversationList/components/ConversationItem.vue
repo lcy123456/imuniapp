@@ -108,7 +108,7 @@ export default {
         ]),
         messagePrefix() {
             if (html2Text(draftText2Text(this.source.draftText))) {
-                return '[草稿]';
+                return `[${this.$t('draft')}]`;
             }
             let prefix = '';
 

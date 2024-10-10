@@ -62,16 +62,16 @@ export default {
             return '';
         },
         showInfo(user) {
-            const sourceInfo = {
-                nickname: user.nickname,
-                faceURL: user.faceURL
-            };
-            uni.$u.route(
-                `/pages/common/userCard/index?sourceID=${
-                    user.userID
-                }&sourceInfo=${JSON.stringify(sourceInfo)}`
-            );
-            uni.hideKeyboard();
+            // const sourceInfo = {
+            //     nickname: user.nickname,
+            //     faceURL: user.faceURL
+            // };
+            // uni.$u.route(
+            //     `/pages/common/userCard/index?sourceID=${
+            //         user.userID
+            //     }&sourceInfo=${JSON.stringify(sourceInfo)}`
+            // );
+            // uni.hideKeyboard();
         }
     }
 };

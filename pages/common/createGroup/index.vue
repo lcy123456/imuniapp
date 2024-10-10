@@ -30,7 +30,7 @@
         >
             <view class="desc_title">
                 <text>群成员</text>
-                <text>{{ `${checkedMemberList.length}人` }}</text>
+                <text>{{ `${checkedMemberList.length}${$t('People')}` }}</text>
             </view>
             <view class="member_list">
                 <view

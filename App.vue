@@ -331,7 +331,7 @@ export default {
 
             // message
             const newMessagesHandler = ({ data }) => {
-                // console.log('收到新的消息', data);
+                console.log('收到新的消息', data);
                 if (this.storeIsSyncing) {
                     return;
                 }

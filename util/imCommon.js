@@ -417,17 +417,21 @@ export const parseMessageByType = (pmsg, isNotify = false) => {
                 )}`;
             case MessageType.GroupMemberMuted:
                 const gmMutedDetails = JSON.parse(pmsg.notificationElem.detail);
-                const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
-                return `${getName(gmMutedDetails.opUser)} ${i18n.t(
-                    'Muted'
-                )} ${getName(gmMutedDetails.mutedUser)} ${muteTime}`;
+                // const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
+                // return `${getName(gmMutedDetails.opUser)} ${i18n.t(
+                //     'Muted'
+                // )} ${getName(gmMutedDetails.mutedUser)} ${muteTime}`;
+                return `${getName(gmMutedDetails.mutedUser)} ${i18n.t(
+                    'was_banned'
+                )}`;
+
             case MessageType.GroupMemberCancelMuted:
                 const gmcMutedDetails = JSON.parse(
                     pmsg.notificationElem.detail
                 );
-                return `${getName(gmcMutedDetails.opUser)} ${i18n.t(
-                    'Cancelled_mute'
-                )} ${getName(gmcMutedDetails.mutedUser)}`;
+                return `${getName(gmcMutedDetails.mutedUser)} ${i18n.t(
+                    'Unmute'
+                )}`;
             case MessageType.GroupAnnouncementUpdated:
                 const groupAnnouncementUpdateDetail = JSON.parse(
                     pmsg.notificationElem.detail
@@ -649,7 +653,7 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                 const enterDetails = JSON.parse(msg.notificationElem.detail);
                 const enterUser = enterDetails.entrantUser;
                 return `${getName(enterUser)} ${i18n.t(
-                    '[Entered_the_group_chat]'
+                    'Entered_the_group_chat'
                 )}`;
             case MessageType.GroupDismissed:
                 const dismissDetails = JSON.parse(msg.notificationElem.detail);
@@ -675,15 +679,15 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
                 )}`;
             case MessageType.GroupMemberMuted:
                 const gmMutedDetails = JSON.parse(msg.notificationElem.detail);
-                const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
-                return `${getName(gmMutedDetails.opUser)} ${i18n.t(
-                    'Muted'
-                )} ${getName(gmMutedDetails.mutedUser)} ${muteTime}`;
+                // const muteTime = sec2Time(gmMutedDetails.mutedSeconds);
+                return `${getName(gmMutedDetails.mutedUser)} ${i18n.t(
+                    'was_banned'
+                )}`;
             case MessageType.GroupMemberCancelMuted:
                 const gmcMutedDetails = JSON.parse(msg.notificationElem.detail);
-                return `${getName(gmcMutedDetails.opUser)} ${i18n.t(
-                    'Cancelled_mute'
-                )} ${getName(gmcMutedDetails.mutedUser)}`;
+                return `${getName(gmcMutedDetails.mutedUser)} ${i18n.t(
+                    'Unmute'
+                )}`;
             case MessageType.GroupNameUpdated:
                 const groupNameUpdateDetail = JSON.parse(
                     msg.notificationElem.detail

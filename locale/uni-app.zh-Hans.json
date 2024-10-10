@@ -353,6 +353,8 @@
     "Cancelled_all_mute": "取消了全体禁言",
     "Muted": "禁言",
     "Cancelled_mute": "取消了禁言",
+    "was_banned": "被禁言",
+    "Unmute": "取消禁言",
     "Modified_group_announcement": "修改了群公告",
     "Modified_group_name_to": "修改了群名称为",
     "Automatic_deletion_has_been_set__Message_sent_before": "已设置自动删除 {value} 前发送的消息",
@@ -437,5 +439,8 @@
     "Use_camera": "使用摄像头",
     "Want_to_access_your_camera": "想访问您的摄像头",
     "No_more": "没有更多",
-    "Loading_more": "加载更多"
+    "Loading_more": "加载更多",
+    "draft": "草稿",
+    "unknown": "未知",
+    "Say_what_you_think": "请输入"
 }
