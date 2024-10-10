@@ -44,7 +44,11 @@
                                 <GroupItem :group-info="group" />
                             </u-list-item>
                         </u-list>
-                        <u-empty v-else text="リストが空です" mode="list" />
+                        <u-empty
+                            v-else
+                            :text="$t('List_is_empty')"
+                            mode="list"
+                        />
                     </view>
                     <view class="pane_content">
                         <u-list
@@ -58,7 +62,11 @@
                                 <GroupItem :group-info="group" />
                             </u-list-item>
                         </u-list>
-                        <u-empty v-else text="リストが空です" mode="list" />
+                        <u-empty
+                            v-else
+                            :text="$t('List_is_empty')"
+                            mode="list"
+                        />
                     </view>
                 </view>
             </view>

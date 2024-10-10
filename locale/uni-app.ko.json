@@ -128,7 +128,7 @@
     "Operation_successful": "작업 성공",
     "Operation_failed": "작업 실패",
     "Apply_to_join": "가입 신청",
-    "Say_hello": "환영하다",
+    "Say_hello": "인사",
     "Agree1": "동의하다",
     "Accept": "수락",
     "Rejected": "거부됨",
@@ -231,7 +231,7 @@
     "Join_group_chat": "그룹 채팅에 참여",
     "Search_for_friends": "친구 검색",
     "Scan": "스캔",
-    "[Everyone]": "[소유자]",
+    "[Everyone]": "[모두]",
     "[Someone_@_you]": "[누군가@당신]",
     "[Group_announcement]": "[단체 공지]",
     "Edit": "편집하다",
@@ -474,5 +474,7 @@
     "Loading_more": "더 로드하세요",
     "draft": "초안",
     "unknown": "알려지지 않은",
-    "Say_what_you_think": "당신의 생각을 말해보세요"
+    "Say_what_you_think": "당신의 생각을 말해보세요",
+    "List_is_empty": "목록이 비어 있습니다.",
+    "Everyone": "모두"
 }

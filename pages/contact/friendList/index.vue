@@ -21,7 +21,7 @@
                 :item-arr="getIndexData.dataList"
                 @itemClick="userClick"
             />
-            <u-empty v-else text="リストが空です" mode="list" />
+            <u-empty v-else :text="$t('List_is_empty')" mode="list" />
         </view>
     </Page>
 </template>

@@ -1,4 +1,5 @@
 // 正则
+import i18n from '../locale';
 export const PhoneReg = {
     // '+86': /^(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/,
     '+86': /^\d{8,11}$/,
@@ -30,7 +31,7 @@ export const AudioVideoType = {
 
 export const AllType = {
     Code: '999999999',
-    Text: '所有人'
+    Text: i18n.t('Everyone')
 };
 
 export const UrlMap = {
