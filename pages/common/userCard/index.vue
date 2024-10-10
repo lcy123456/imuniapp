@@ -232,7 +232,8 @@ export default {
             //     this.storeAppConfig.allowSendMsgNotFriend ===
             //     CommonIsAllow.Allow;
             // return businessAllow ? businessAllow : this.isFriend;
-            return true;
+            // return true;
+            return this.isFriend;
         }
     },
     onLoad(options) {

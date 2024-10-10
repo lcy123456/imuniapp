@@ -15,11 +15,13 @@
             <text v-if="isEdit" class="edit">
                 {{ $t('Edited') }}
             </text>
-            {{ new Date(message.sendTime).Format('hh:mm') }}
+            <text v-if="!isGroup">{{
+                new Date(message.sendTime).Format('hh:mm')
+            }}</text>
         </text>
         <image v-if="isSender" :class="getClass" :src="getImg" />
         <!-- <text v-if="isSender && isGroupRead">
-            {{ message.attachedInfoElem.groupHasReadInfo.hasReadCount }}人
+            {{ message.attachedInfoElem.groupHasReadInfo.hasReadCount }}${$t('People')}
         </text> -->
     </view>
 </template>
@@ -56,6 +58,9 @@ export default {
             } catch (err) {
                 return false;
             }
+        },
+        isGroup() {
+            return !!this.message.groupID;
         },
         isGroupRead() {
             try {
@@ -115,7 +120,7 @@ export default {
     font-size: 12px;
     // color: #43d100 !important;
     margin: 0 20rpx;
-    min-width: 50rpx;
+    // min-width: 50rpx;
     &.notisSender {
         color: #ccc !important;
     }

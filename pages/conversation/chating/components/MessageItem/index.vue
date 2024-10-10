@@ -22,11 +22,7 @@
                 />
             </view>
             <view class="item_right">
-                <EventDom
-                    class="avatar-box"
-                    @click="showInfo"
-                    @longpress="avatarLongpress"
-                >
+                <EventDom class="avatar-box" @longpress="avatarLongpress">
                     <MyAvatar
                         v-if="!(isSingle || isSender)"
                         :key="`auchor${source.clientMsgID}-MyAvatar`"

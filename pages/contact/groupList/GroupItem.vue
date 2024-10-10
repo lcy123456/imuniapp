@@ -6,7 +6,7 @@
                 {{ groupInfo.groupName }}
             </text>
             <view class="group_details">
-                <text>{{ `${groupInfo.memberCount}人` }}</text>
+                <text>{{ `${groupInfo.memberCount}${$t('People')}` }}</text>
             </view>
         </view>
     </view>

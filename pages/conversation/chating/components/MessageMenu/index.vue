@@ -206,6 +206,9 @@ export default {
                     icon: '/static/images/pin.svg',
                     visible:
                         !this.message.pinMap &&
+                        (this.isOwner ||
+                            this.isAdmin ||
+                            !this.message.groupID) &&
                         !notPinTypes.includes(this.message.contentType)
                 },
                 {
@@ -214,6 +217,9 @@ export default {
                     icon: '/static/images/cancel-pin.svg',
                     visible:
                         this.message.pinMap &&
+                        (this.isOwner ||
+                            this.isAdmin ||
+                            !this.message.groupID) &&
                         !notPinTypes.includes(this.message.contentType)
                 },
                 {

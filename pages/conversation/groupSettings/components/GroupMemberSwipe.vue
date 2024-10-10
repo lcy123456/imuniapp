@@ -181,6 +181,8 @@ export default {
             if (this.storeCurrentUserID === member.userID) {
                 url = '/pages/profile/selfInfo/index';
             }
+            console.log('url----url', url);
+            if (url.includes('/pages/common/userCard/index')) return;
             uni.$u.route(url, {
                 sourceID: member.userID
             });

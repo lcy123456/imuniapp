@@ -76,26 +76,26 @@ export default {
         messagePrefix() {
             if (this.source.draftText !== '') {
                 // let text = this.source.draftText;
-                return '[草稿]';
+                return `[${this.$t('draft')}]`;
             }
             let prefix = '';
 
             if (this.notAccept && this.source.unreadCount > 0) {
-                prefix = `[${this.source.unreadCount}条] `;
+                prefix = `[${this.source.unreadCount}${this.$t('Strip')}] `;
             }
             if (this.needActivePerfix) {
                 switch (this.source.groupAtType) {
                     case GroupAtType.AtAll:
-                        prefix = '[所有人]';
+                        prefix = this.$t('[Everyone]');
                         break;
                     case GroupAtType.AtMe:
-                        prefix = '[有人@你]';
+                        prefix = this.$t('Someone_@_you]');
                         break;
                     case GroupAtType.AtAllAtMe:
-                        prefix = '[有人@你]';
+                        prefix = this.$t('Someone_@_you]');
                         break;
                     case GroupAtType.AtGroupNotice:
-                        prefix = '[群公告]';
+                        prefix = this.$t('[Group_announcement]');
                         break;
                 }
             }

@@ -9,7 +9,7 @@ module.exports = vm => {
             const data = response.data;
             // 自定义参数
             // const custom = response.config?.custom;
-            console.log('res---config', data.data);
+            // console.log('res---config', data.data);
             if (data.meta) {
                 return data.meta.status === 200 ? data : Promise.reject(data);
             }

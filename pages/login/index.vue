@@ -78,7 +78,7 @@
                     {{ $t('Login') }}
                 </u-button>
             </view>
-            <view class="agreement">
+            <!-- <view class="agreement">
                 <u-checkbox-group v-model="checked">
                     <u-checkbox
                         icon-size="12"
@@ -105,7 +105,7 @@
                 >
                     {{ $t('Privacy_Policy') }}
                 </text>
-            </view>
+            </view> -->
 
             <AreaPicker ref="AreaPicker" @chooseArea="chooseArea" />
         </view>

@@ -88,6 +88,9 @@ export default {
         return {};
     },
     computed: {
+        isGroup() {
+            return !!this.message.groupID;
+        },
         giveLike() {
             try {
                 const ex = JSON.parse(this.message.ex);
@@ -143,7 +146,7 @@ export default {
             return text;
         },
         baseText() {
-            return !this.isQuote
+            let str = !this.isQuote
                 ? `
             <view class="base-box hide-css">
                 <img
@@ -160,7 +163,7 @@ export default {
                     >
                         ${'Edited '}
                     </text>
-                    00:00
+                    <text>00:00</text>
                 </div>
                 <img
                     style="display: ${this.isSender ? 'inherit' : 'none'}"
@@ -170,6 +173,33 @@ export default {
             </view>
             `
                 : ``;
+            if (str && this.isGroup) {
+                str = `<view class="base-box hide-css">
+                    <img
+                        style="display: ${
+                            this.message.pinMap ? 'inherit' : 'none'
+                        }"
+                        class="pined"
+                        src="/static/images/pin2.png"
+                    />
+                    <div class="text read_state ${
+                        this.isSender ? 'isSender' : 'notisSender'
+                    } ${this.message.pinMap ? 'isPin' : ''}">
+                        <text
+                            style="display: ${this.isEdit ? 'inline' : 'none'}"
+                            class="edit"
+                        >
+                            ${'Edited '}
+                        </text>
+                    </div>
+                    <img
+                        style="display: ${this.isSender ? 'inherit' : 'none'}"
+                        class="read"
+                        src="/static/images/message_issend.png"
+                    />
+                </view>`;
+            }
+            return str;
         },
         getContent() {
             const { senderNickname } = this.message;
@@ -221,7 +251,7 @@ export default {
         font-size: 12px;
         color: #43d100 !important;
         margin-left: 20rpx;
-        min-width: 50rpx;
+        // min-width: 50rpx;
         &.notisSender {
             color: #ccc !important;
         }

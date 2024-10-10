@@ -85,8 +85,9 @@ export default {
         errorHandle() {
             this.avatarText = this.desc
                 ? this.desc.slice(this.desc.length > 1 ? -2 : -1)
-                : '未知';
-            const hexColor = colors[getFirstCharacter(this.desc || '未知')];
+                : this.$t('unknown');
+            const hexColor =
+                colors[getFirstCharacter(this.desc || this.$t('unknown'))];
             const rgbaColor = adjustColor(hexColor, 30);
             this.bgColor = `radial-gradient(${hexColor}, ${rgbaColor})`;
         },
