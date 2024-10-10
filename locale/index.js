@@ -17,7 +17,7 @@ const i18n = new VueI18n({
         en,
         jp: ja,
         ko,
-        zh
+        'zh-Hans': zh
     }
 });
 export default i18n;

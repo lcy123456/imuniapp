@@ -158,7 +158,7 @@ export default {
                     // {
                     //     id: 2,
                     //     label: '中文',
-                    //     value: 'zh'
+                    //     value: 'zh-Hans'
                     // },
                     {
                         id: 3,
