@@ -1,12 +1,13 @@
 /* #ifndef APP-NVUE */
 .box-logo {
-	display: flex;
-	align-items: center;
-	flex-direction: column;
-	margin: calc(122rpx - #{$uni-navbar-height}) 0 80rpx;
-	.logo {
-		margin-bottom: 34rpx;
-	}
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin: calc(122rpx - #{$uni-navbar-height}) 0 80rpx;
+
+    .logo {
+        margin-bottom: 34rpx;
+    }
 }
 
 .login-input.u-input {
@@ -17,14 +18,14 @@
 }
 
 .phoneNumber_areacode {
-	height: 96rpx;
+    height: 96rpx;
     display: flex;
     align-items: center;
     font-size: 36rpx;
     margin-right: 20rpx;
-	background-color: $uni-bg-color-grey;
-	border-radius: 16rpx;
-	padding: 0 20rpx;
+    background-color: $uni-bg-color-grey;
+    border-radius: 16rpx;
+    padding: 0 20rpx;
 
     .areacode_content {
         font-weight: 400;
@@ -42,12 +43,57 @@
     align-items: flex-start;
     flex-wrap: wrap;
     margin: 36rpx 24rpx;
-	font-size: 24rpx;
+    font-size: 24rpx;
 
     .detail {
         font-weight: 400;
         color: $u-primary;
-		text-decoration: underline;
+        text-decoration: underline;
     }
 }
+
+.user_profile_popup {
+
+    .user_profile {
+        padding: 20px 10px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .nickname_line {
+            margin: 50rpx 0 70rpx;
+
+            .nickname_line_input {
+                height: 96rpx;
+
+                /deep/ input {
+                    text-align: center !important;
+                }
+            }
+        }
+    }
+
+    .avatar-line {
+        position: relative;
+
+        .avatar-icon {
+            position: absolute;
+            right: 0px;
+            bottom: 0px;
+        }
+    }
+}
+
+.ava_popup {
+    .ava_container {
+        padding: 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+}
+
 /* #endif */

@@ -444,5 +444,7 @@
     "unknown": "未知",
     "Say_what_you_think": "请输入",
     "List_is_empty": "列表为空",
-    "Everyone": "所有人"
+    "Everyone": "所有人",
+    "And": "与",
+    "Confirm_registration": "确认注册"
 }

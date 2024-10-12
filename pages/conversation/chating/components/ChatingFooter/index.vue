@@ -60,11 +60,11 @@
                 </view>
                 <view class="send_box">
                     <view class="flex align-center">
-                        <!-- <image
+                        <image
                             class="w-48 h-48"
                             src="/static/images/chating_footer_emoji.svg"
                             @click="updateEmojiBar"
-                        /> -->
+                        />
                         <image
                             v-if="!isReadOnly"
                             class="w-48 h-48 mx-20"

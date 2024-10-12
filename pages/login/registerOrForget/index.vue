@@ -107,8 +107,7 @@
                 :disabled="!canLogin"
                 shape="circle"
                 size="large"
-                :loading="loading"
-                @click="sendSms"
+                @click="openUserProfile"
             >
                 {{
                     isRegister
@@ -128,10 +127,77 @@
                 />
             </u-checkbox-group>
             <text class="detail"> {{ $t('Service_Agreement') }} </text>
-            <text>与</text>
+            <text>{{ $t('And') }}</text>
             <text class="detail"> {{ $t('Privacy_Policy') }} </text>
         </view>
         <AreaPicker ref="AreaPicker" @chooseArea="chooseArea" />
+
+        <u-popup
+            :show="showUserProfile"
+            mode="center"
+            round="8"
+            class="user_profile_popup"
+            :custom-style="{
+                width: '80vw',
+                padding: '65rpx 50rpx'
+            }"
+            @close="showUserProfile = false"
+        >
+            <u-form ref="userProfile" label-position="top" class="user_profile">
+                <view prop="avatar" class="avatar-line" @click="changeAvatar">
+                    <u-avatar :src="userInfo.faceURL" size="80"></u-avatar>
+                    <!-- <u-icon
+                        name="camera"
+                        color="#606266"
+                        size="28"
+                        class="avatar-icon"
+                    ></u-icon> -->
+                </view>
+                <u-form-item class="nickname_line">
+                    <u-input
+                        v-model="userInfo.nickname"
+                        type="text"
+                        class="nickname_line_input"
+                        :placeholder="$t('Please_fill_in_your_nickname')"
+                        clearable
+                    />
+                </u-form-item>
+                <u-button
+                    type="primary"
+                    :disabled="!canLogin"
+                    shape="circle"
+                    size="large"
+                    :loading="loading"
+                    @click="sendSms"
+                >
+                    {{ $t('Confirm_registration') }}
+                </u-button>
+            </u-form>
+        </u-popup>
+        <u-popup
+            :show="showSelectDefaultsImage"
+            mode="center"
+            round="8"
+            class="ava_popup"
+            :custom-style="{
+                width: '80vw',
+                height: '60vh',
+                'overflow-y': 'auto'
+            }"
+            @close="showSelectDefaultsImage = false"
+        >
+            <view class="ava_container">
+                <u-image
+                    v-for="item of avatarList"
+                    :key="item.key"
+                    :src="item.value"
+                    width="18vw"
+                    height="18vw"
+                    @click="changeUserAvatar(item)"
+                ></u-image>
+                <div style="width: 18vw; height: 18vw"></div>
+            </view>
+        </u-popup>
     </view>
 </template>
 
@@ -146,6 +212,7 @@ import { IMLogin } from '@/util/imCommon';
 import { regMap } from '@/enum';
 import md5 from 'md5';
 import defaultAvatars from '@/common/defaultAvatars.js';
+import UploadCameraSvg from '@/static/images/upload-camera.svg';
 
 export default {
     components: {
@@ -158,7 +225,7 @@ export default {
             passwordEying: false,
             comfirmEying: false,
             userInfo: {
-                faceURL: '',
+                faceURL: UploadCameraSvg,
                 account: '',
                 nickname: '',
                 password: '',
@@ -207,7 +274,9 @@ export default {
                     }
                 ]
             },
-            loading: false
+            loading: false,
+            showUserProfile: false,
+            showSelectDefaultsImage: false
         };
     },
     computed: {
@@ -224,6 +293,12 @@ export default {
                 (this.isRegister ? this.checked[0] : true) &&
                 (this.isRegister ? this.userInfo.account : this.userInfo.email)
             );
+        },
+        avatarList() {
+            return Object.keys(defaultAvatars).map(key => ({
+                key,
+                value: defaultAvatars[key]
+            }));
         }
     },
     onLoad(options) {
@@ -231,6 +306,11 @@ export default {
         this.checkInvitationCodeState();
     },
     methods: {
+        getRandomAvatar() {
+            const keys = [...Object.keys(defaultAvatars)];
+            const num = Math.floor(Math.random() * keys.length);
+            return keys[num];
+        },
         updateEye(key) {
             this[key] = !this[key];
         },
@@ -251,15 +331,25 @@ export default {
                 };
             }
         },
+        openUserProfile() {
+            this.$refs.registerForm.validate().then(async () => {
+                this.showUserProfile = true;
+                this.userInfo.nickname = this.userInfo.account;
+            });
+        },
+        changeAvatar() {
+            this.showSelectDefaultsImage = true;
+        },
+        changeUserAvatar(item) {
+            this.userInfo.faceURL = item.value;
+            this.showSelectDefaultsImage = false;
+        },
         sendSms() {
             this.$refs.registerForm.validate().then(async () => {
                 try {
                     this.loading = true;
                     if (this.isRegister) {
                         let password = md5(this.userInfo.password);
-                        const keys = [...Object.keys(defaultAvatars)];
-                        const num = Math.floor(Math.random() * keys.length);
-                        const faceURL = keys[num];
                         const options = {
                             password,
                             platform: uni.$u.os() === 'ios' ? 1 : 2,
@@ -267,12 +357,17 @@ export default {
                             invitationCode: this.userInfo.invitationCode,
                             user: {
                                 ...this.userInfo,
-                                nickname: this.userInfo.account,
+                                nickname:
+                                    this.userInfo.nickname ||
+                                    this.userInfo.account,
                                 password,
-                                faceURL
+                                faceURL:
+                                    this.userInfo.faceURL ||
+                                    this.getRandomAvatar()
                             },
                             cid: this.storeClientID,
-                            faceURL
+                            faceURL:
+                                this.userInfo.faceURL || this.getRandomAvatar()
                         };
                         console.log('options---options', options);
                         // this.saveLoginInfo();

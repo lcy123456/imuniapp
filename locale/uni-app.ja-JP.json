@@ -476,5 +476,7 @@
     "unknown": "未知",
     "Say_what_you_think": "思ったことを言ってください",
     "List_is_empty": "リストが空です",
-    "Everyone": "みんな"
+    "Everyone": "みんな",
+    "And": "そして",
+    "Confirm_registration": "登録の確認"
 }

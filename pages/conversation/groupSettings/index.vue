@@ -14,6 +14,7 @@
                         {{ currentGroup.groupName }}
                     </text>
                     <image
+                        v-if="isAdmin || isOwner"
                         class="w-24 ml-20 h-28"
                         src="/static/images/group_setting_edit.png"
                         @click="editGroupName"

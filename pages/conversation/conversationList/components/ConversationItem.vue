@@ -232,19 +232,19 @@ export default {
                     style: {
                         backgroundColor: '#ec4b37'
                     }
-                },
-                {
-                    type: 'archive',
-                    text: `${this.isArchive ? this.$t('Cancel') : ''}${this.$t(
-                        'Group'
-                    )}`,
-                    icon: `/static/images/archive${
-                        this.isArchive ? '_not' : ''
-                    }.svg`,
-                    style: {
-                        backgroundColor: '#37A0EC'
-                    }
                 }
+                // ,{
+                //     type: 'archive',
+                //     text: `${this.isArchive ? this.$t('Cancel') : ''}${this.$t(
+                //         'Group'
+                //     )}`,
+                //     icon: `/static/images/archive${
+                //         this.isArchive ? '_not' : ''
+                //     }.svg`,
+                //     style: {
+                //         backgroundColor: '#37A0EC'
+                //     }
+                // }
             ];
             if (this.source.unreadCount > 0) {
                 actions.unshift({

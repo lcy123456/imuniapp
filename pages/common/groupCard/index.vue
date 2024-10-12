@@ -17,8 +17,8 @@
                         </text>
                     </view>
                     <view class="create_time">
-                        <u-icon name="clock" color="#999" size="18" />
-                        <text>{{ getCreateTime }}</text>
+                        <!-- <u-icon name="clock" color="#999" size="18" />
+                        <text>{{ getCreateTime }}</text> -->
                     </view>
                 </view>
             </view>

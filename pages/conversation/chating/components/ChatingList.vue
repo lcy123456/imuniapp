@@ -79,7 +79,7 @@
                     :class="{ isrotate: isReverse }"
                     :status="loadMoreStatus"
                     :nomore-text="$t('No_more')"
-                    :loadmore-text="$t('Loading_more')"
+                    :loadmore-text="''"
                     :loading-text="$t('Loading')"
                 />
             </view>
@@ -155,6 +155,12 @@ export default {
             return this.messageLoadState.loading ? 'loading' : 'loadmore';
         },
         messageList() {
+            console.log(
+                '--消息列表--',
+                this.isReverse,
+                this.storeHistoryMessageListReverse,
+                this.storeHistoryMessageList
+            );
             return this.isReverse
                 ? this.storeHistoryMessageListReverse
                 : this.storeHistoryMessageList;
@@ -359,8 +365,8 @@ export default {
                         this.scrollTop = this.isReverse
                             ? res.height + Math.random()
                             : initPage
-                              ? 0
-                              : Math.random();
+                            ? 0
+                            : Math.random();
                     })
                     .exec();
             }, 200);
