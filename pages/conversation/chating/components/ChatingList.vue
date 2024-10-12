@@ -24,8 +24,8 @@
                     v-if="!isReverse"
                     :class="{ isrotate: isReverse }"
                     :status="loadMoreStatus"
-                    :nomore-text="$t('No_more')"
-                    :loadmore-text="$t('Loading_more')"
+                    :nomore-text="''"
+                    :loadmore-text="''"
                     :loading-text="$t('Loading')"
                 />
                 <view
@@ -78,7 +78,7 @@
                     v-if="isReverse"
                     :class="{ isrotate: isReverse }"
                     :status="loadMoreStatus"
-                    :nomore-text="$t('No_more')"
+                    :nomore-text="''"
                     :loadmore-text="''"
                     :loading-text="$t('Loading')"
                 />

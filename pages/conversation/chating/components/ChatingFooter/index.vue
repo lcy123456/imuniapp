@@ -587,7 +587,8 @@ export default {
         async sendTextMessage() {
             console.log(
                 'storeCurrentMemberInGroup----storeCurrentMemberInGroup',
-                this.storeCurrentGroup
+                this.storeCurrentGroup,
+                this.isNoEditMsg
             );
             if (this.isNoEditMsg) {
                 try {

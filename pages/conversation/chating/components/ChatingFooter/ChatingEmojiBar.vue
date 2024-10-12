@@ -19,7 +19,7 @@
                 />
                 <view v-for="v in 10" :key="v" class="emoji_item_temp" />
             </swiper-item>
-            <swiper-item class="chat_gifs_bar">
+            <!-- <swiper-item class="chat_gifs_bar">
                 <uni-search-bar
                     v-model="keyword"
                     class="h-70"
@@ -83,7 +83,7 @@
                         <u-loading-icon v-show="emojiLoading" />
                     </view>
                 </scroll-view>
-            </swiper-item>
+            </swiper-item> -->
         </swiper>
         <u-action-sheet
             :safe-area-inset-bottom="true"
