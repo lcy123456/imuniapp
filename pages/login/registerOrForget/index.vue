@@ -385,7 +385,7 @@ export default {
                     const fileType = path.slice(typeIdx);
                     this.loadingState.faceURL = true;
                     uni.showLoading({
-                        title: 'Uploading...',
+                        title: this.$t('Loading'),
                         mask: true
                     });
                     try {
