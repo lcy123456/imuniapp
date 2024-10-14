@@ -820,7 +820,7 @@ export default {
             const options = {
                 src: emoji.src,
                 width: '24px',
-                height: '18px',
+                height: '24px',
                 data: {
                     emojiText: emoji.context
                 },

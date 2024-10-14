@@ -260,9 +260,10 @@ export default {
         justify-content: space-between;
         align-content: flex-start;
         .emoji_item {
-            width: 80rpx;
-            height: 80rpx;
+            width: 60rpx;
+            height: 60rpx;
             margin-bottom: 24rpx;
+            margin-right: 10rpx;
         }
         .emoji_item_temp {
             width: 80rpx;

@@ -143,6 +143,7 @@ export default {
                 text = parseLink(parseEmoji(DecryptoAES(textElem?.content)));
             }
             text = text.replace(/\n/g, '<br>');
+            console.log('🚀 ~----------------------- text ~ text:', text);
             return text;
         },
         baseText() {

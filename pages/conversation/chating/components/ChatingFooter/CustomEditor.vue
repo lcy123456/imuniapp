@@ -359,6 +359,10 @@ export default {
         },
         editorInput(e) {
             this.inputHtml = e.detail.html;
+            console.log(
+                '🚀 ~ 输入 -------------------------------:',
+                this.inputHtml
+            );
             this.$emit('input', e);
         }
     }
