@@ -156,10 +156,10 @@ export const parseLink = text => {
     return text;
 };
 
-export const parseEmoji = msgStr => {
+export const parseEmoji = (msgStr, size = '24') => {
     emojis.map(item => {
         if (msgStr?.includes(item.context)) {
-            let imgStr = `<img class="emoji_display" src="${item.src}"/>`;
+            let imgStr = `<img class="emoji_display" style="height: ${size}px; width: ${size}px;" src="${item.src}"/>`;
             imgStr = imgStr.replace('/static', 'static');
             msgStr = msgStr.replace(item.reg, imgStr);
         }
@@ -726,7 +726,7 @@ export const tipMessaggeFormat = (msg, currentUserID) => {
     }
 };
 
-export const IMLogin = async isLogin => {
+export const IMLogin = async (isLogin, noRedirect) => {
     // console.log('-----', store.state.user.authData);
     const { storeUserID, storeIMToken } = store.getters;
     if (!storeUserID || !storeIMToken) {
@@ -769,9 +769,11 @@ export const IMLogin = async isLogin => {
         store.dispatch('contact/getSentFriendApplications');
         store.dispatch('contact/getRecvGroupApplications');
         store.dispatch('contact/getSentGroupApplications');
-        uni.switchTab({
-            url: '/pages/conversation/conversationList/index'
-        });
+        if (!noRedirect) {
+            uni.switchTab({
+                url: '/pages/conversation/conversationList/index'
+            });
+        }
     } catch (err) {
         console.log('IMLogin----IMLogin', err);
         IMSDK.asyncApi(IMSDK.IMMethods.Logout, IMSDK.uuid());
@@ -780,16 +782,16 @@ export const IMLogin = async isLogin => {
     }
 };
 
-export const login = async requestMap => {
+export const login = async (requestMap, noRedirect = false) => {
     try {
         const data = await businessLogin(requestMap);
-        // console.log('login------', data);
+        console.log('login------', data);
         store.commit('user/SET_AUTH_DATA', data);
         store.commit('user/SET_USER_LIST', {
             ...data,
             ...requestMap
         });
-        return await IMLogin('login');
+        return await IMLogin('login', noRedirect);
     } catch (err) {
         console.log(err, err.errMsg);
         uni.$u.toast(checkLoginError(err));

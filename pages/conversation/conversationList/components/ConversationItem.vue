@@ -78,7 +78,8 @@ import {
     formatConversionTime,
     prepareConversationState,
     getName,
-    burnMenuList
+    burnMenuList,
+    parseEmoji
 } from '@/util/imCommon';
 import { setConversations } from '@/api/conversation';
 import { ContactChooseTypes } from '@/constant';
@@ -147,7 +148,9 @@ export default {
                 }
                 text = `${showName}${parseMessageByType(parsedMessage)}`;
             }
-            return text.replace(/<([^>]*>)/g, '');
+            const res = text.replace(/<([^>]*>)/g, '');
+            console.log('🚀 ~ ---------------latestMessage ~ res:', res);
+            return parseEmoji(res, '18');
         },
         burnToText() {
             const { burnDuration } = this.source;

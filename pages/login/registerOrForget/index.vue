@@ -107,7 +107,8 @@
                 :disabled="!canLogin"
                 shape="circle"
                 size="large"
-                @click="openUserProfile"
+                :loading="loading"
+                @click="sendSms"
             >
                 {{
                     isRegister
@@ -145,7 +146,15 @@
         >
             <u-form ref="userProfile" label-position="top" class="user_profile">
                 <view prop="avatar" class="avatar-line" @click="changeAvatar">
-                    <u-avatar :src="userInfo.faceURL" size="80"></u-avatar>
+                    <u-loading-icon
+                        v-show="loadingState.faceURL"
+                        size="80"
+                    ></u-loading-icon>
+                    <u-avatar
+                        v-show="!loadingState.faceURL"
+                        :src="userInfo.faceURL"
+                        size="80"
+                    ></u-avatar>
                     <!-- <u-icon
                         name="camera"
                         color="#606266"
@@ -167,10 +176,10 @@
                     :disabled="!canLogin"
                     shape="circle"
                     size="large"
-                    :loading="loading"
-                    @click="sendSms"
+                    :loading="loadingState.confirm"
+                    @click="sureLogin"
                 >
-                    {{ $t('Confirm_registration') }}
+                    {{ $t('Enter_MUSKIM') }}
                 </u-button>
             </u-form>
         </u-popup>
@@ -195,7 +204,12 @@
                     height="18vw"
                     @click="changeUserAvatar(item)"
                 ></u-image>
-                <div style="width: 18vw; height: 18vw"></div>
+                <u-image
+                    :src="UploadCameraSvg"
+                    width="18vw"
+                    height="18vw"
+                    @click="uploadUserAvatar(item)"
+                ></u-image>
             </view>
         </u-popup>
     </view>
@@ -205,14 +219,20 @@
 import { mapGetters } from 'vuex';
 import CustomNavBar from '@/components/CustomNavBar/index.vue';
 import AreaPicker from '@/components/AreaPicker';
-import { businessSendSms, emailSendCode, businessRegister } from '@/api/login';
+import {
+    businessSendSms,
+    emailSendCode,
+    businessRegister,
+    businessInfoUpdate
+} from '@/api/login';
 import { SmsUserFor } from '@/constant';
-import { checkLoginError, getPhoneReg } from '@/util/common';
-import { IMLogin } from '@/util/imCommon';
+import { checkLoginError, getPhoneReg, getPurePath } from '@/util/common';
+import { IMLogin, login, formatFileUrl } from '@/util/imCommon';
 import { regMap } from '@/enum';
 import md5 from 'md5';
 import defaultAvatars from '@/common/defaultAvatars.js';
 import UploadCameraSvg from '@/static/images/upload-camera.svg';
+import IMSDK from 'openim-uniapp-polyfill';
 
 export default {
     components: {
@@ -225,12 +245,17 @@ export default {
             passwordEying: false,
             comfirmEying: false,
             userInfo: {
-                faceURL: UploadCameraSvg,
+                faceURL: '',
                 account: '',
                 nickname: '',
                 password: '',
                 confirmPassword: '',
                 invitationCode: null
+            },
+            UploadCameraSvg,
+            loadingState: {
+                faceURL: false,
+                confirm: false
             },
             checked: [true],
             rules: {
@@ -280,7 +305,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['storeClientID']),
+        ...mapGetters(['storeClientID', 'storeSelfInfo']),
         needInvitationCodeRegister() {
             return this.$store.getters.storeAppConfig
                 .needInvitationCodeRegister;
@@ -304,12 +329,16 @@ export default {
     onLoad(options) {
         this.usedFor = Number(options.usedFor);
         this.checkInvitationCodeState();
+        const { key, value } = this.getRandomAvatar();
+        this.userInfo.faceURL = value;
+        this.userInfo.faceURLKey = key;
     },
     methods: {
         getRandomAvatar() {
             const keys = [...Object.keys(defaultAvatars)];
             const num = Math.floor(Math.random() * keys.length);
-            return keys[num];
+            const res = keys[num];
+            return { key: res, value: defaultAvatars[res] };
         },
         updateEye(key) {
             this[key] = !this[key];
@@ -340,6 +369,79 @@ export default {
         changeAvatar() {
             this.showSelectDefaultsImage = true;
         },
+        uploadUserAvatar() {
+            uni.chooseImage({
+                count: 1,
+                sizeType: ['compressed'],
+                crop: {
+                    width: 200,
+                    height: 200
+                },
+                success: async ({ tempFilePaths }) => {
+                    const path = tempFilePaths[0];
+                    const nameIdx = path.lastIndexOf('/') + 1;
+                    const typeIdx = path.lastIndexOf('.') + 1;
+                    const fileName = path.slice(nameIdx);
+                    const fileType = path.slice(typeIdx);
+                    this.loadingState.faceURL = true;
+                    uni.showLoading({
+                        title: 'Uploading...',
+                        mask: true
+                    });
+                    try {
+                        this.userInfo.faceURL = '';
+                        const {
+                            data: { url }
+                        } = await IMSDK.asyncApi(
+                            IMSDK.IMMethods.UploadFile,
+                            IMSDK.uuid(),
+                            {
+                                filepath: getPurePath(tempFilePaths[0]),
+                                name: fileName,
+                                contentType: `image/${fileType}`,
+                                uuid: IMSDK.uuid()
+                            }
+                        );
+                        this.userInfo.faceURL = formatFileUrl(url);
+                    } catch (error) {
+                        console.log('🚀 ~ success: ~ error:', error);
+                    } finally {
+                        this.loadingState.faceURL = false;
+                        this.showSelectDefaultsImage = false;
+                        uni.hideLoading();
+                    }
+                    // this.updateSelfInfo({ faceURL: url }, 'faceURL');
+                }
+            });
+        },
+        async updateSelfInfo(data) {
+            try {
+                this.loadingState.confirm = true;
+                const da1 = await businessInfoUpdate({
+                    ...data,
+                    userID: this.storeSelfInfo.userID
+                });
+                console.log('-------------------', da1);
+                const da2 = await this.$store.dispatch(
+                    'user/updateBusinessInfo'
+                );
+                console.log('-------------------', da2);
+                // uni.$u.toast(this.$t('Change_successfully'));
+                this.loadingState.confirm = false;
+                uni.switchTab({
+                    url: '/pages/conversation/conversationList/index'
+                });
+            } catch (e) {
+                console.log(e);
+                uni.$u.toast(this.$t('Modification_failed'));
+            }
+        },
+        sureLogin() {
+            this.updateSelfInfo({
+                nickname: this.userInfo.nickname,
+                faceURL: this.userInfo.faceURL
+            });
+        },
         changeUserAvatar(item) {
             this.userInfo.faceURL = item.value;
             this.showSelectDefaultsImage = false;
@@ -357,33 +459,43 @@ export default {
                             invitationCode: this.userInfo.invitationCode,
                             user: {
                                 ...this.userInfo,
-                                nickname:
-                                    this.userInfo.nickname ||
-                                    this.userInfo.account,
+                                nickname: this.userInfo.account,
                                 password,
-                                faceURL:
-                                    this.userInfo.faceURL ||
-                                    this.getRandomAvatar()
+                                faceURL: this.userInfo.faceURLKey
                             },
                             cid: this.storeClientID,
-                            faceURL:
-                                this.userInfo.faceURL || this.getRandomAvatar()
+                            faceURL: this.userInfo.faceURLKey
                         };
                         console.log('options---options', options);
                         // this.saveLoginInfo();
                         const data = await businessRegister(options);
+                        console.log(
+                            '🚀 ~ --------------- this.$refs.registerForm.validate ~ data:',
+                            data
+                        );
                         this.$store.commit('user/SET_AUTH_DATA', data);
                         this.$store.commit('user/SET_USER_LIST', {
                             ...data,
                             ...options
                         });
+                        const requestMap = {
+                            account: this.userInfo.account,
+                            password: md5(this.userInfo.password),
+                            platform: uni.$u.os() === 'ios' ? 1 : 2,
+                            verifyCode: undefined,
+                            cid: this.storeClientID
+                        };
+                        await login(requestMap, true);
                         uni.$u.toast(this.$t('Create_successfully'));
                         // await IMLogin('login');
-                        setTimeout(() => {
-                            uni.reLaunch({
-                                url: '/pages/login/index'
-                            });
-                        }, 1000);
+                        // setTimeout(() => {
+                        //     uni.reLaunch({
+                        //         url: '/pages/login/index'
+                        //     });
+                        // }, 1000);
+
+                        this.openUserProfile();
+
                         this.loading = false;
                     } else {
                         const data = await emailSendCode({
