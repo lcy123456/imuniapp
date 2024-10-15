@@ -1,9 +1,9 @@
 {
-    "name" : "Sumi.chat",
+    "name" : "Sumilife",
     "appid" : "__UNI__9A06427",
     "description" : "",
-    "versionName" : "3.1.2",
-    "versionCode" : 312,
+    "versionName" : "4.0.0",
+    "versionCode" : 400,
     "transformPx" : false,
     "locale" : "en",
     "app-plus" : {
