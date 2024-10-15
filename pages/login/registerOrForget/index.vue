@@ -142,7 +142,7 @@
                 width: '80vw',
                 padding: '65rpx 50rpx'
             }"
-            @close="showUserProfile = false"
+            :close-on-click-overlay="false"
         >
             <u-form ref="userProfile" label-position="top" class="user_profile">
                 <view prop="avatar" class="avatar-line" @click="changeAvatar">
@@ -427,6 +427,7 @@ export default {
                 );
                 console.log('-------------------', da2);
                 // uni.$u.toast(this.$t('Change_successfully'));
+                this.showUserProfile = false;
                 this.loadingState.confirm = false;
                 uni.switchTab({
                     url: '/pages/conversation/conversationList/index'
