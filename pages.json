@@ -40,7 +40,10 @@
             "path": "pages/login/index"
         },
         {
-            "path": "pages/login/registerOrForget/index"
+            "path": "pages/login/registerOrForget/index",
+            "style": {
+                "disableSwipeBack": true
+            }
         },
         {
             "path": "pages/login/setSelfInfo/index"

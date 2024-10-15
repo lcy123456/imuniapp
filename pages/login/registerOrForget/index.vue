@@ -333,6 +333,14 @@ export default {
         this.userInfo.faceURL = value;
         this.userInfo.faceURLKey = key;
     },
+    onBackPress(options) {
+        // 点击虚拟键或者侧滑的时候触发（不允许返回）
+        if (options.from === 'backbutton') {
+            return true;
+        }
+        // 否则则允许返回
+        return false;
+    },
     methods: {
         getRandomAvatar() {
             const keys = [...Object.keys(defaultAvatars)];
